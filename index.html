@@ -195,7 +195,7 @@
                     const charCode = match.charCodeAt(0) + 0x60;
                     return String.fromCharCode(charCode);
                 });
-                // ② Unicode正規化(NFKC)で全角英数字・記号を半角に統一し、空白を除去
+                // ② Unicode正規化(NFKC)で全角英数字・記号を半角に統一
                 const normalizedStr = hiraToKata.normalize('NFKC');
                 // ③ 全てを小文字に変換
                 return normalizedStr.toLowerCase();
