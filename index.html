@@ -63,7 +63,7 @@
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
                     flex-shrink: 0; /* ラベルが縮まないように固定 */
-                    width: 120px; /* ラベルの幅を確保 */
+                    width: 80px; /* ラベルの幅を確保 */
                     margin-right: 0.5rem; /* ラベルと内容の間にスペースを追加 */
                 }
                 .truncate-lines {
@@ -196,9 +196,15 @@
                     return String.fromCharCode(charCode);
                 });
                 // ② Unicode正規化(NFKC)で全角英数字・記号を半角に統一し、空白を除去
-                const normalizedStr = hiraToKata.normalize('NFKC').replace(/\s/g, '');
+                const normalizedStr = hiraToKata.normalize('NFKC');
                 // ③ 全てを小文字に変換
                 return normalizedStr.toLowerCase();
+            }
+            
+            // スペース区切りのキーワードを正規化して配列に分割する
+            function getSearchKeywords(input) {
+                // 全角・半角スペースで分割し、空文字列をフィルタリング
+                return input.split(/\s+|　+/).filter(keyword => keyword !== '').map(keyword => normalizeString(keyword));
             }
 
             // Excelデータを処理する共通関数
@@ -225,10 +231,10 @@
                     return;
                 }
 
-                // 検索キーワードを正規化してトリム
-                const drug = normalizeString(document.getElementById('drugName').value.trim());
-                const ingredient = normalizeString(document.getElementById('ingredientName').value.trim());
-                const maker = normalizeString(document.getElementById('makerName').value.trim());
+                // 検索キーワードをスペースで分割して正規化
+                const drugKeywords = getSearchKeywords(document.getElementById('drugName').value);
+                const ingredientKeywords = getSearchKeywords(document.getElementById('ingredientName').value);
+                const makerKeywords = getSearchKeywords(document.getElementById('makerName').value);
 
                 filteredResults = []; // 新しい検索結果を格納
                 
@@ -237,19 +243,17 @@
                     const row = excelData[i];
                     if (!row || row.length < 17) continue;
 
-                    // データの文字列も正規化して比較
-                    const drugName = normalizeString(row[5]);      // F列: 品名
-                    const ingredientName = normalizeString(row[2]); // C列: 成分名
-                    // G列（規格・剤形）とJ列（販売会社名）を結合してメーカー検索対象とする
-                    const makerName = normalizeString((row[6] || "") + (row[9] || ""));
+                    // データの文字列も正規化
+                    const drugName = normalizeString(row[5] || "");      // F列: 品名
+                    const ingredientName = normalizeString(row[2] || ""); // C列: 成分名
+                    const makerName = normalizeString((row[6] || "") + (row[9] || "")); // G列とJ列を結合
 
-                    // 全てのキーワードが一致するかチェック（AND検索）
-                    const matchDrug = drug === "" || drugName.includes(drug);
-                    const matchIngredient = ingredient === "" || ingredientName.includes(ingredient);
-                    
+                    // すべてのキーワードが一致するかチェック（AND検索）
+                    const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
+                    const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
                     // 品名、規格、剤形、ﾒｰｶｰ名に対してmakerNameを検索
-                    const matchMaker = maker === "" || (drugName.includes(maker) || makerName.includes(maker));
-
+                    const matchMaker = makerKeywords.every(keyword => drugName.includes(keyword) || makerName.includes(keyword));
+                    
                     if (matchDrug && matchIngredient && matchMaker) {
                         filteredResults.push(row);
                     }
