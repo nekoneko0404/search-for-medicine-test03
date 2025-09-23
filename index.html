@@ -293,32 +293,38 @@
 
                 // 品名
                 const drugNameCell = newRow.insertCell(0);
-                drugNameCell.textContent = row[5] || "";
                 drugNameCell.setAttribute('data-label', '品名');
-                drugNameCell.classList.add("truncate-lines");
+                drugNameCell.classList.add("truncate-lines", "px-4", "py-3", "text-sm", "text-gray-900");
+                const yjCode = row[4]; // E列がYJコード
+                const drugName = row[5]; // F列が品名
+                if (yjCode) {
+                    const linkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=1`;
+                    drugNameCell.innerHTML = `<a href="${linkUrl}" target="_blank" class="text-indigo-600 hover:underline">${drugName || ""}</a>`;
+                } else {
+                    drugNameCell.textContent = drugName || "";
+                }
                 
                 // 成分名
                 const ingredientNameCell = newRow.insertCell(1);
                 ingredientNameCell.textContent = row[2] || "";
                 ingredientNameCell.setAttribute('data-label', '成分名');
-                ingredientNameCell.classList.add("truncate-lines");
+                ingredientNameCell.classList.add("truncate-lines", "px-4", "py-3", "text-sm", "text-gray-900");
 
                 // 出荷対応状況
                 const statusCell = newRow.insertCell(2);
                 statusCell.textContent = row[11] || "";
                 statusCell.setAttribute('data-label', '出荷状況');
+                statusCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900");
                 
                 const reasonCell = newRow.insertCell(3);
                 reasonCell.textContent = row[13] || "";
                 reasonCell.setAttribute('data-label', '制限理由');
+                reasonCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900");
 
                 const volumeCell = newRow.insertCell(4);
                 volumeCell.textContent = row[16] || "";
                 volumeCell.setAttribute('data-label', '出荷量状況');
-
-                for (let i = 0; i < newRow.cells.length; i++) {
-                    newRow.cells[i].className = "px-4 py-3 text-sm text-gray-900";
-                }
+                volumeCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900");
             });
         }
 
