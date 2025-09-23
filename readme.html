@@ -1,125 +1,123 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>医薬品出荷状況検索ツール</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f3f4f6;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医薬品出荷状況検索ツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
 </head>
 <body class="p-6 md:p-12">
 
-  <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
-    <div class="p-8 md:p-16">
-      <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center space-x-4">
-          <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944c3.208 0 6.22 1.258 8.485 3.523m-4.016 5.618a8.001 8.001 0 01-11.458-11.458"></path>
-          </svg>
-          <h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-            医薬品出荷状況検索ツール
-          </h1>
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div class="p-8 md:p-16">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-4">
+                    <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944c3.208 0 6.22 1.258 8.485 3.523m-4.016 5.618a8.001 8.001 0 01-11.458-11.458"></path>
+                    </svg>
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+                        医薬品出荷状況検索ツール
+                    </h1>
+                </div>
+                <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="inline-block bg-emerald-500 text-white font-bold py-2 px-4 rounded-full hover:bg-emerald-600 transition-colors duration-300 whitespace-nowrap">
+                    ツールへ
+                </a>
+            </div>
+
+            <!-- メインの解説セクション -->
+            <div class="space-y-12 text-gray-700">
+                <section>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">注意事項</h2>
+                    <ul class="space-y-2 text-sm leading-relaxed">
+                        <li>本ツールは、厚生労働省が公開しているExcelファイルに基づいて情報を表示します。データの正確性については、厚生労働省のウェブサイトで最新の情報を確認してください。</li>
+                        <li>本ツールの利用によって生じたいかなる損害についても、開発者は責任を負いません。</li>
+                        <li>本ツールの著作権は開発者に帰属します。無断での複製、配布、販売は禁止します。</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">使用方法</h2>
+                    <ul class="space-y-6">
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">検索条件の入力</h3>
+                            <p>「医薬品名」「成分名」「規格、剤形、メーカー」の各項目に、検索したいキーワードを入力します。複数の項目にキーワードを入力することで、AND検索が可能です。</p>
+                        </li>
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">検索の実行</h3>
+                            <p>検索ボタンをクリックするか、検索項目でエンターキーを押すと、入力された条件に合致する医薬品の情報が表示されます。</p>
+                        </li>
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">検索結果の確認</h3>
+                            <p>検索結果は、PC画面では見やすいテーブル形式で、スマートフォンでは情報が把握しやすいカード形式で表示されます。各医薬品の「医薬品名」「成分名」「規格、剤形、メーカー」「出荷状況」などの情報が確認できます。品名をクリックすると、PMDAのウェブサイトにある添付文書などの医薬品情報にアクセスできます。</p>
+                        </li>
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">ソート</h3>
+                            <p>「出荷状況」の項目をクリックすると、検索結果を「出荷状況」で並べ替えることができます。</p>
+                        </li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">このツールの目的</h2>
+                    <ul class="space-y-6">
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <p class="text-lg leading-relaxed">
+                                医薬品の出荷状況は、医療現場において非常に重要な情報です。厚生労働省は、この情報をExcelファイルとして公開していますが、そのデータ量は膨大であり、必要な情報を手作業で探し出すのは困難です。そこで、本ツールは、このExcelファイルを活用し、必要な情報を効率的に検索できるウェブアプリケーションとして開発されました。
+                            </p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">主な機能</h2>
+                    <ul class="space-y-6">
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">簡単な操作性</h3>
+                            <p><strong>自動データ更新:</strong> 本ツールは、厚生労働省が公開しているデータを自動的に更新します。ユーザーが手動でファイルをアップロードする必要はありません。</p>
+                        </li>
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">AND検索</h3>
+                            <p><strong>3つの検索項目:</strong> 「医薬品名」「成分名」「規格、剤形、メーカー」の3つの項目を組み合わせて検索できます。</p>
+                        </li>
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">文字の正規化</h3>
+                            <p><strong>自動変換:</strong> 全角・半角、ひらがな・カタカナ、大文字・小文字を自動的に統一します。</p>
+                        </li>
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">ソート機能</h3>
+                            <p><strong>出荷状況による並べ替え:</strong> 検索結果を「出荷状況」で並べ替えることができます。</p>
+                        </li>
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">レスポンシブデザイン</h3>
+                            <p><strong>PCとスマートフォンの両対応:</strong> PCだけでなく、スマートフォンでも快適に利用できるように設計されています。</p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">まとめ</h2>
+                    <ul class="space-y-6">
+                        <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <p class="text-lg leading-relaxed">
+                                本ツールは、厚生労働省が公開する医薬品出荷状況に関するExcelファイルを活用し、効率的な情報検索を実現するウェブアプリケーションです。医療現場における情報収集の効率化に貢献できることを期待しています。
+                            </p>
+                        </li>
+                    </ul>
+                </section>
+
+            </div>
         </div>
-        <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="inline-block bg-emerald-500 text-white font-bold py-2 px-4 rounded-full hover:bg-emerald-600 transition-colors duration-300 whitespace-nowrap">
-          ツールへ
-        </a>
-      </div>
-
-      <!-- メインの解説セクション -->
-      <div class="space-y-12 text-gray-700">
-        <section>
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">注意事項</h2>
-          <ul class="space-y-2 text-sm leading-relaxed">
-            <li>本ツールは、厚生労働省が公開しているExcelファイルに基づいて情報を表示します。データの正確性については、厚生労働省のウェブサイトで最新の情報を確認してください。</li>
-            <li>本ツールの利用によって生じたいかなる損害についても、開発者は責任を負いません。</li>
-            <li>本ツールの著作権は開発者に帰属します。無断での複製、配布、販売は禁止します。</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">使用方法</h2>
-          <ul class="space-y-6">
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">検索条件の入力</h3>
-              <p>「医薬品名」「成分名」「規格、剤形、メーカー」の各項目に、検索したいキーワードを入力します。複数の項目にキーワードを入力することで、AND検索が可能です。</p>
-            </li>
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">検索の実行</h3>
-              <p>検索ボタンをクリックするか、検索項目でエンターキーを押すと、入力された条件に合致する医薬品の情報が表示されます。</p>
-            </li>
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">検索結果の確認</h3>
-              <p>検索結果は、PC画面では見やすいテーブル形式で、スマートフォンでは情報が把握しやすいカード形式で表示されます。各医薬品の「医薬品名」「成分名」「規格、剤形、メーカー」「出荷状況」などの情報が確認できます。</p>
-            </li>
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">ソート</h3>
-              <p>「出荷状況」の項目をクリックすると、検索結果を「出荷状況」で並べ替えることができます。</p>
-            </li>
-          </ul>
-        </section>
-       
-        <section>
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">このツールの目的</h2>
-          <ul class="space-y-6">
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <p class="text-lg leading-relaxed">
-                医薬品の出荷状況は、医療現場において非常に重要な情報です。厚生労働省は、この情報をExcelファイルとして公開していますが、そのデータ量は膨大であり、必要な情報を手作業で探し出すのは困難です。そこで、本ツールは、このExcelファイルを活用し、必要な情報を効率的に検索できるウェブアプリケーションとして開発されました。
-              </p>
-            </li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">主な機能</h2>
-          <ul class="space-y-6">
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">簡単な操作性</h3>
-              <p><strong>自動データ更新:</strong> 本ツールは、厚生労働省が公開しているデータを自動的に更新します。ユーザーが手動でファイルをアップロードする必要はありません。</p>
-            </li>
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">AND検索</h3>
-              <p><strong>3つの検索項目:</strong> 「医薬品名」「成分名」「規格、剤形、メーカー」の3つの項目を組み合わせて検索できます。</p>
-            </li>
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">文字の正規化</h3>
-              <p><strong>自動変換:</strong> 全角・半角、ひらがな・カタカナ、大文字・小文字を自動的に統一します。</p>
-            </li>
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">ソート機能</h3>
-              <p><strong>出荷状況による並べ替え:</strong> 検索結果を「出荷状況」で並べ替えることができます。</p>
-            </li>
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">レスポンシブデザイン</h3>
-              <p><strong>PCとスマートフォンの両対応:</strong> PCだけでなく、スマートフォンでも快適に利用できるように設計されています。</p>
-            </li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-l-4 border-emerald-500 pl-4">まとめ</h2>
-          <ul class="space-y-6">
-            <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-              <p class="text-lg leading-relaxed">
-                本ツールは、厚生労働省が公開する医薬品出荷状況に関するExcelファイルを活用し、効率的な情報検索を実現するウェブアプリケーションです。医療現場における情報収集の効率化に貢献できることを期待しています。
-              </p>
-            </li>
-          </ul>
-        </section>
-
-      </div>
     </div>
-  </div>
 
-  <footer class="mt-8 text-center text-sm text-gray-500">
-    <p>&copy; 2025 医薬品出荷状況検索ツール</p>
-  </footer>
+    <footer class="mt-8 text-center text-sm text-gray-500">
+        <p>&copy; 2025 医薬品出荷状況検索ツール</p>
+    </footer>
 
 </body>
 </html>
-
-
