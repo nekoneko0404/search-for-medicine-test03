@@ -40,6 +40,10 @@
             background-color: #3b82f6;
             transition: width 0.3s ease-in-out;
         }
+        /* テーブルの列幅を調整 */
+        .w-20 { width: 5rem; }
+        .w-60 { width: 15rem; }
+        .w-48 { width: 12rem; }
     </style>
 </head>
 <body class="p-6 md:p-12 flex flex-col items-center">
@@ -391,20 +395,21 @@
             tableContainer.className = 'overflow-x-auto bg-white rounded-2xl shadow-lg';
             
             const table = document.createElement('table');
-            table.className = 'min-w-full text-left table-fixed';
+            // 'min-w-full'を削除して幅を可変にする
+            table.className = 'min-w-full text-left table-auto';
 
             // ヘッダーを作成
             const thead = document.createElement('thead');
             thead.className = 'bg-gray-200';
             thead.innerHTML = `
                 <tr>
-                    <th class="py-3 px-2 font-semibold text-gray-700 whitespace-nowrap text-sm w-1/12">YJコード</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">品名</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">成分名</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">メーカー</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-1/12 whitespace-nowrap">出荷状況</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">制限理由</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12 whitespace-nowrap">出荷量状況</th>
+                    <th class="py-3 px-2 font-semibold text-gray-700 whitespace-nowrap text-sm w-24">YJコード</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-60">品名</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-48">成分名</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-48">メーカー</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-32 whitespace-nowrap">出荷状況</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-60">制限理由</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-48 whitespace-nowrap">出荷量状況</th>
                 </tr>
             `;
             table.appendChild(thead);
@@ -421,7 +426,9 @@
                 
                 row.innerHTML = `
                     <td class="py-3 px-2 text-sm">${pmdaYjCode || '-'}</td>
-                    <td class="py-3 px-4"><a href="${pmdaLink}" target="_blank" class="text-blue-600 hover:underline">${item['⑥品名（承認書に記載の正式名称）※全角'] || '-'}</a></td>
+                    <td class="py-3 px-4">
+                        <span class="text-blue-600 hover:underline cursor-pointer" data-yjcode="${pmdaYjCode}">${item['⑥品名（承認書に記載の正式名称）※全角'] || '-'}</span>
+                    </td>
                     <td class="py-3 px-4">${item['③成分名'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑦製造販売業者名'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑫製造販売業者の「出荷対応」の状況'] || '-'}</td>
@@ -431,9 +438,20 @@
                 tbody.appendChild(row);
             });
             table.appendChild(tbody);
-
             tableContainer.appendChild(table);
             container.appendChild(tableContainer);
+
+            // 新しいクリックイベントリスナーを登録
+            document.querySelectorAll('#resultsContainer .cursor-pointer').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    const yjCode = e.currentTarget.dataset.yjcode;
+                    if (yjCode) {
+                        document.getElementById('yjCodeInput').value = yjCode;
+                        document.getElementById('digits7').checked = true;
+                        performSearch();
+                    }
+                });
+            });
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
