@@ -44,6 +44,27 @@
         .w-20 { width: 5rem; }
         .w-60 { width: 15rem; }
         .w-48 { width: 12rem; }
+        .label-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-right: 0.5rem;
+        }
+        .label-generic {
+            color: green;
+            font-size: 0.75rem;
+            line-height: 1;
+        }
+        .label-base {
+            color: purple;
+            font-size: 0.75rem;
+            line-height: 1;
+        }
+        .label-long {
+            color: orange;
+            font-size: 0.75rem;
+            line-height: 1;
+        }
     </style>
 </head>
 <body class="p-6 md:p-12 flex flex-col items-center">
@@ -421,13 +442,30 @@
                 const pmdaYjCode = item['⑤YJコード'] || '';
                 const pmdaLink = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${pmdaYjCode}?user=1`;
 
+                const isBase = item['⑨基礎的医薬品'] && normalizeString(item['⑨基礎的医薬品']).includes('基礎的医薬品');
+                const isGeneric = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('後発品');
+                const isLongListed = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('長期収載品');
+
+                let labels = '';
+                if (isLongListed) {
+                    labels += '<span class="label-long">長</span>';
+                }
+                if (isBase) {
+                    labels += '<span class="label-base">基</span>';
+                }
+                if (isGeneric) {
+                    labels += '<span class="label-generic">後</span>';
+                }
+                const name = item['⑥品名（承認書に記載の正式名称）※全角'] || '-';
+
                 const row = document.createElement('tr');
                 row.className = `border-b border-gray-200 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-100 hover:bg-gray-200'}`;
                 
                 row.innerHTML = `
                     <td class="py-3 px-2 text-sm">${pmdaYjCode || '-'}</td>
-                    <td class="py-3 px-4">
-                        <span class="text-blue-600 hover:underline cursor-pointer" data-yjcode="${pmdaYjCode}">${item['⑥品名（承認書に記載の正式名称）※全角'] || '-'}</span>
+                    <td class="py-3 px-4 flex items-center">
+                        <span class="label-container">${labels}</span>
+                        <span class="text-blue-600 hover:underline cursor-pointer" data-yjcode="${pmdaYjCode}">${name}</span>
                     </td>
                     <td class="py-3 px-4">${item['③成分名'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑦製造販売業者名'] || '-'}</td>
