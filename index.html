@@ -95,10 +95,10 @@
                 使い方
             </a>
         </div>
-       
+        
         <!-- メッセージ表示エリア -->
         <div id="messageBox" class="text-sm sm:text-base text-center p-3 rounded-lg hidden message-box-center w-3/4"></div>
-       
+        
         <!-- 検索欄 -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <!-- 医薬品名 -->
@@ -148,7 +148,7 @@
                 </tbody>
             </table>
         </div>
-       
+        
         <!-- 製作者情報フッター -->
         <div class="mt-8 text-center text-gray-500 text-sm">
             <p>ご意見・ご要望は製作者までお寄せください。</p>
@@ -163,7 +163,7 @@
             status: 'asc'
         };
         const messageBox = document.getElementById('messageBox');
-       
+        
         // メッセージを表示する関数
         function showMessage(text, type = 'info') {
             messageBox.textContent = text;
@@ -177,7 +177,7 @@
                 messageBox.classList.add('bg-blue-200', 'text-blue-800');
             }
         }
-       
+        
         // 指定時間後にメッセージを非表示にする関数
         function hideMessage(delay) {
             setTimeout(() => {
@@ -198,7 +198,7 @@
             // ③ 全てを小文字に変換
             return normalizedStr.toLowerCase();
         }
-       
+        
         // スペース区切りのキーワードを正規化して配列に分割する
         function getSearchKeywords(input) {
             // 全角・半角スペースで分割し、空文字列をフィルタリング
@@ -235,7 +235,7 @@
             const makerKeywords = getSearchKeywords(document.getElementById('makerName').value);
 
             filteredResults = []; // 新しい検索結果を格納
-           
+            
             // ヘッダー行をスキップして検索
             for (let i = 1; i < excelData.length; i++) {
                 const row = excelData[i];
@@ -251,7 +251,7 @@
                 const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
                 // 品名、規格、剤形、ﾒｰｶｰ名に対してmakerNameを検索
                 const matchMaker = makerKeywords.every(keyword => drugName.includes(keyword) || makerName.includes(keyword));
-               
+                
                 if (matchDrug && matchIngredient && matchMaker) {
                     filteredResults.push(row);
                 }
@@ -263,7 +263,7 @@
                 hideMessage(3000);
                 return;
             }
-           
+            
             // 初期ソート状態をリセット
             sortStates.status = 'asc';
             document.getElementById('sort-status-icon').textContent = '▲';
@@ -286,7 +286,7 @@
             if (data.length === 0) {
                 const row = resultBody.insertRow();
                 const cell = row.insertCell(0);
-                cell.colSpan = 5;
+                cell.colSpan = 5; 
                 cell.textContent = "該当データがありません";
                 cell.className = "px-4 py-3 text-sm text-gray-500 text-center italic";
                 return;
@@ -307,7 +307,7 @@
                 const yjCode = row[4]; // E列がYJコード
                 const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdDetail/iyaku/${yjCode}?user=1`;
                 drugNameCell.innerHTML = `<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline">${drugName || ""}</a>`;
-               
+                
                 // 成分名
                 const ingredientNameCell = newRow.insertCell(1);
                 ingredientNameCell.textContent = row[2] || "";
@@ -325,7 +325,7 @@
                 } else {
                     statusCell.textContent = status || "";
                 }
-               
+                
                 const reasonCell = newRow.insertCell(3);
                 reasonCell.textContent = row[13] || "";
                 reasonCell.setAttribute('data-label', '制限理由');
@@ -352,12 +352,12 @@
 
             // ソートアイコンを更新
             document.getElementById(`sort-${key}-icon`).textContent = newDirection === 'asc' ? '▲' : '▼';
-           
+            
             // 出荷状況のソート
             filteredResults.sort((a, b) => {
                 const aValue = (a[11] || '').trim(); // J列: 出荷対応状況
                 const bValue = (b[11] || '').trim();
-               
+                
                 // 日本語の文字列比較
                 const compare = aValue.localeCompare(bValue, 'ja', { sensitivity: 'base' });
                 return newDirection === 'asc' ? compare : -compare;
@@ -368,7 +368,7 @@
             showMessage(`「出荷状況」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, "success");
             hideMessage(3000);
         }
-       
+        
         // エンターキーで検索をトリガーするイベントリスナー
         document.getElementById('drugName').addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
@@ -385,7 +385,7 @@
                 searchData();
             }
         });
-       
+        
         // 日付をフォーマットする関数 (YYMMDD)
         function formatDate(date) {
             const year = date.getFullYear().toString().slice(-2);
@@ -407,7 +407,7 @@
                     const date = new Date(today);
                     date.setDate(today.getDate() - i);
                     const formattedDate = formatDate(date);
-                   
+                    
                     // CORSを回避するためにプロキシを使用する
                     const originalUrl = `${baseUrl}${formattedDate}${filename}`;
                     const url = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`;
@@ -417,13 +417,13 @@
                         if (response.ok) {
                             const data = await response.arrayBuffer();
                             processExcelData(new Uint8Array(data));
-                           
+                            
                             // 日付を表示する要素を更新
                             const dateDisplay = document.getElementById('currentDateDisplay');
                             if (dateDisplay) {
                                 dateDisplay.textContent = `データ日付：${formattedDate}`;
                             }
-                           
+                            
                             return; // 成功したらループを終了
                         }
                     } catch (error) {
@@ -433,4 +433,11 @@
 
                 // 14日前まで試行して見つからなかった場合
                 showMessage('過去14日間の最新データが見つかりませんでした。', 'error');
-   
+                hideMessage(5000);
+            }
+            
+            fetchWithDateRetry();
+        };
+    </script>
+</body>
+</html>
