@@ -9,7 +9,6 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
         }
         .loading-container {
             display: flex;
@@ -19,7 +18,7 @@
         }
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #3b82f6;
+            border-left-color: #0ea5e9; /* Tailwind's sky-500 */
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -37,107 +36,82 @@
         }
         .progress-bar-fill {
             height: 100%;
-            background-color: #3b82f6;
+            background-color: #0ea5e9; /* Tailwind's sky-500 */
             transition: width 0.3s ease-in-out;
-        }
-        /* テーブルの列幅を調整 */
-        .w-20 { width: 5rem; }
-        .w-60 { width: 15rem; }
-        .w-48 { width: 12rem; }
-        .label-container {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-right: 0.5rem;
-        }
-        .label-generic {
-            color: green;
-            font-size: 0.75rem;
-            line-height: 1;
-        }
-        .label-base {
-            color: purple;
-            font-size: 0.75rem;
-            line-height: 1;
-        }
-        .label-long {
-            color: orange;
-            font-size: 0.75rem;
-            line-height: 1;
         }
     </style>
 </head>
-<body class="p-6 md:p-12 flex flex-col items-center">
+<body class="p-6 md:p-12 flex flex-col items-center bg-stone-50 text-slate-800">
 
-    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl p-4 sm:p-6">
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl p-4 sm:p-6 border border-slate-200">
         <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight">
+            <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">
                 YJコード検索ツール
             </h1>
-            <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg font-medium hover:bg-blue-200 transition-colors duration-300 whitespace-nowrap">
+            <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="px-3 py-1.5 bg-sky-100 text-sky-700 text-sm rounded-lg font-medium hover:bg-sky-200 transition-colors duration-300 whitespace-nowrap">
                 医薬品検索ツールへ戻る
             </a>
         </div>
         
         <div class="mb-4 flex items-center justify-between space-x-4">
-            <button id="searchButton" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-300 whitespace-nowrap text-sm">
+            <button id="searchButton" class="bg-sky-500 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-sky-600 transition-colors duration-300 whitespace-nowrap text-sm">
                 検索
             </button>
-            <input type="text" id="yjCodeInput" placeholder="YJコードを入力してください:" class="flex-grow block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-sm">
+            <input type="text" id="yjCodeInput" placeholder="YJコードを入力してください:" class="flex-grow block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 transition-all duration-300 text-sm">
             <span id="dataDate" class="text-gray-500 text-xs whitespace-nowrap"></span>
         </div>
 
         <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mb-4">
-            <div class="bg-gray-50 p-2 rounded-xl shadow-inner border border-gray-200 flex-grow">
-                <h3 class="font-semibold text-gray-800 mb-1 text-sm">検索項目</h3>
+            <div class="bg-slate-50 p-2 rounded-xl shadow-inner border border-slate-200 flex-grow">
+                <h3 class="font-semibold text-slate-800 mb-1 text-sm">検索項目</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <!-- 薬効群3桁 -->
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits3" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">薬効群3桁</span>
+                        <input type="checkbox" id="digits3" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">薬効群3桁</span>
                     </label>
                     <!-- 薬効群4桁 -->
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits4" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">薬効群4桁</span>
+                        <input type="checkbox" id="digits4" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">薬効群4桁</span>
                     </label>
                     <!-- 投与経路/成分7桁 -->
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits7" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">成分</span>
+                        <input type="checkbox" id="digits7" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">成分</span>
                     </label>
                     <!-- 剤形8桁 -->
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits8" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">剤形</span>
+                        <input type="checkbox" id="digits8" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">剤形</span>
                     </label>
                     <!-- 規格単位9桁 -->
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits9" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">規格単位</span>
+                        <input type="checkbox" id="digits9" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">規格単位</span>
                     </label>
                     <!-- 規格内番号11桁 -->
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits11" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">規格内番号</span>
+                        <input type="checkbox" id="digits11" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">規格内番号</span>
                     </label>
                 </div>
             </div>
             
-            <div class="bg-gray-50 p-2 rounded-xl shadow-inner border border-gray-200 flex-grow">
-                <h3 class="font-semibold text-gray-800 mb-1 text-sm">出荷状況</h3>
+            <div class="bg-slate-50 p-2 rounded-xl shadow-inner border border-slate-200 flex-grow">
+                <h3 class="font-semibold text-slate-800 mb-1 text-sm">出荷状況</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
-                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">通常出荷</span>
+                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">通常出荷</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="statusLimited" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">限定出荷</span>
+                        <input type="checkbox" id="statusLimited" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">限定出荷</span>
                     </label>
                      <label class="flex items-center">
-                        <input type="checkbox" id="statusStop" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">供給停止</span>
+                        <input type="checkbox" id="statusStop" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <span class="ml-1 text-slate-700">供給停止</span>
                     </label>
                 </div>
             </div>
@@ -413,24 +387,23 @@
             }
 
             const tableContainer = document.createElement('div');
-            tableContainer.className = 'overflow-x-auto bg-white rounded-2xl shadow-lg';
+            tableContainer.className = 'overflow-x-auto bg-white rounded-2xl shadow-lg border border-slate-200';
             
             const table = document.createElement('table');
-            // 'min-w-full'を削除して幅を可変にする
             table.className = 'min-w-full text-left table-auto';
 
             // ヘッダーを作成
             const thead = document.createElement('thead');
-            thead.className = 'bg-gray-200';
+            thead.className = 'bg-sky-100';
             thead.innerHTML = `
                 <tr>
-                    <th class="py-3 px-2 font-semibold text-gray-700 whitespace-nowrap text-sm w-24">YJコード</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-60">品名</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-48">成分名</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-48">メーカー</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-32 whitespace-nowrap">出荷状況</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-60">制限理由</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-48 whitespace-nowrap">出荷量状況</th>
+                    <th class="py-3 px-2 font-semibold text-sky-800 whitespace-nowrap text-sm w-24">YJコード</th>
+                    <th class="py-3 px-4 font-semibold text-sky-800 w-60">品名</th>
+                    <th class="py-3 px-4 font-semibold text-sky-800 w-48">成分名</th>
+                    <th class="py-3 px-4 font-semibold text-sky-800 w-48">メーカー</th>
+                    <th class="py-3 px-4 font-semibold text-sky-800 w-32 whitespace-nowrap">出荷状況</th>
+                    <th class="py-3 px-4 font-semibold text-sky-800 w-60">制限理由</th>
+                    <th class="py-3 px-4 font-semibold text-sky-800 w-48 whitespace-nowrap">出荷量状況</th>
                 </tr>
             `;
             table.appendChild(thead);
@@ -448,24 +421,24 @@
 
                 let labels = '';
                 if (isLongListed) {
-                    labels += '<span class="label-long">長</span>';
+                    labels += `<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-semibold">長</span>`;
                 }
                 if (isBase) {
-                    labels += '<span class="label-base">基</span>';
+                    labels += `<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold">基</span>`;
                 }
                 if (isGeneric) {
-                    labels += '<span class="label-generic">後</span>';
+                    labels += `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold">後</span>`;
                 }
                 const name = item['⑥品名（承認書に記載の正式名称）※全角'] || '-';
 
                 const row = document.createElement('tr');
-                row.className = `border-b border-gray-200 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-100 hover:bg-gray-200'}`;
+                row.className = `border-b border-gray-200 transition-colors duration-200 even:bg-white odd:bg-stone-50 hover:bg-sky-50`;
                 
                 row.innerHTML = `
                     <td class="py-3 px-2 text-sm">${pmdaYjCode || '-'}</td>
                     <td class="py-3 px-4 flex items-center">
-                        <span class="label-container">${labels}</span>
-                        <span class="text-blue-600 hover:underline cursor-pointer" data-yjcode="${pmdaYjCode}">${name}</span>
+                        <span class="flex flex-col items-start mr-2 space-y-1">${labels}</span>
+                        <span class="text-sky-600 hover:underline cursor-pointer" data-yjcode="${pmdaYjCode}">${name}</span>
                     </td>
                     <td class="py-3 px-4">${item['③成分名'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑦製造販売業者名'] || '-'}</td>
