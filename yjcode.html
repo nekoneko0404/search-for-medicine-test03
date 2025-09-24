@@ -66,26 +66,32 @@
             <div class="bg-gray-50 p-2 rounded-xl shadow-inner border border-gray-200 flex-grow">
                 <h3 class="font-semibold text-gray-800 mb-1 text-sm">検索項目</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                    <!-- 薬効群3桁 -->
                     <label class="flex items-center">
                         <input type="checkbox" id="digits3" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">薬効群</span>
+                        <span class="ml-1 text-gray-700">薬効群3桁</span>
                     </label>
+                    <!-- 薬効群4桁 -->
                     <label class="flex items-center">
                         <input type="checkbox" id="digits4" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">薬効群</span>
+                        <span class="ml-1 text-gray-700">薬効群4桁</span>
                     </label>
+                    <!-- 投与経路/成分7桁 -->
                     <label class="flex items-center">
                         <input type="checkbox" id="digits7" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">投与経路/成分</span>
+                        <span class="ml-1 text-gray-700">成分</span>
                     </label>
+                    <!-- 剤形8桁 -->
                     <label class="flex items-center">
                         <input type="checkbox" id="digits8" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
                         <span class="ml-1 text-gray-700">剤形</span>
                     </label>
+                    <!-- 規格単位9桁 -->
                     <label class="flex items-center">
                         <input type="checkbox" id="digits9" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
                         <span class="ml-1 text-gray-700">規格単位</span>
                     </label>
+                    <!-- 規格内番号11桁 -->
                     <label class="flex items-center">
                         <input type="checkbox" id="digits11" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
                         <span class="ml-1 text-gray-700">規格内番号</span>
@@ -97,15 +103,15 @@
                 <h3 class="font-semibold text-gray-800 mb-1 text-sm">出荷状況</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
-                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
                         <span class="ml-1 text-gray-700">通常出荷</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="statusLimited" class="form-checkbox rounded text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" id="statusLimited" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
                         <span class="ml-1 text-gray-700">限定出荷</span>
                     </label>
                      <label class="flex items-center">
-                        <input type="checkbox" id="statusStop" class="form-checkbox rounded text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" id="statusStop" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
                         <span class="ml-1 text-gray-700">供給停止</span>
                     </label>
                 </div>
@@ -286,6 +292,17 @@
             
             const isAnyDigitChecked = digits3Checkbox.checked || digits4Checkbox.checked || digits7Checkbox.checked || digits8Checkbox.checked || digits9Checkbox.checked || digits11Checkbox.checked;
             
+            // 出荷状況のチェックボックスがすべて外れている場合は、検索結果を非表示にする
+            const statusNormal = statusNormalCheckbox.checked;
+            const statusLimited = statusLimitedCheckbox.checked;
+            const statusStop = statusStopCheckbox.checked;
+
+            if (!statusNormal && !statusLimited && !statusStop) {
+                resultsContainer.innerHTML = '';
+                showMessage('出荷状況のチェックを全て外したため、検索結果は表示されません。', false);
+                return;
+            }
+
             let filteredData = [];
             
             // 全件検索
@@ -332,10 +349,6 @@
             }
             
             // 出荷状況のフィルタリング
-            const statusNormal = statusNormalCheckbox.checked;
-            const statusLimited = statusLimitedCheckbox.checked;
-            const statusStop = statusStopCheckbox.checked;
-
             if (statusNormal || statusLimited || statusStop) {
                 const initialCount = filteredData.length;
                 filteredData = filteredData.filter(item => {
