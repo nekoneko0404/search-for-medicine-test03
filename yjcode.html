@@ -28,76 +28,88 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            transition: width 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="p-6 md:p-12 flex flex-col items-center">
 
-    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl p-6 sm:p-8">
-        <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight">
                 YJコード検索ツール
             </h1>
-            <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors duration-300 whitespace-nowrap">
+            <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg font-medium hover:bg-blue-200 transition-colors duration-300 whitespace-nowrap">
                 医薬品検索ツールへ戻る
             </a>
         </div>
         
-        <div class="mb-6 flex items-center justify-between space-x-4">
-            <input type="text" id="yjCodeInput" placeholder="YJコードを入力してください:" class="flex-grow md:flex-grow-0 md:max-w-xs block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300">
-            <span id="dataDate" class="text-gray-500 text-sm whitespace-nowrap"></span>
+        <div class="mb-4 flex items-center justify-between space-x-4">
+            <input type="text" id="yjCodeInput" placeholder="YJコードを入力してください:" class="flex-grow md:flex-grow-0 md:max-w-xs block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-sm">
+            <span id="dataDate" class="text-gray-500 text-xs whitespace-nowrap"></span>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mb-6">
-            <div class="bg-gray-50 p-3 rounded-xl shadow-inner border border-gray-200 flex-grow">
-                <h3 class="font-semibold text-gray-800 mb-2">検索項目</h3>
-                <div class="flex flex-wrap gap-x-4 gap-y-1">
+        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mb-4">
+            <div class="bg-gray-50 p-2 rounded-xl shadow-inner border border-gray-200 flex-grow">
+                <h3 class="font-semibold text-gray-800 mb-1 text-sm">検索項目</h3>
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
                         <input type="checkbox" id="digits3" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-2 text-gray-700">薬効群</span>
+                        <span class="ml-1 text-gray-700">薬効群</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="digits4" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-2 text-gray-700">薬効群</span>
+                        <span class="ml-1 text-gray-700">薬効群</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="digits7" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-2 text-gray-700">投与経路/成分</span>
+                        <span class="ml-1 text-gray-700">投与経路/成分</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="digits8" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-2 text-gray-700">剤形</span>
+                        <span class="ml-1 text-gray-700">剤形</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="digits9" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-2 text-gray-700">規格単位</span>
+                        <span class="ml-1 text-gray-700">規格単位</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="digits11" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-2 text-gray-700">規格内番号</span>
+                        <span class="ml-1 text-gray-700">規格内番号</span>
                     </label>
                 </div>
             </div>
             
-            <div class="bg-gray-50 p-3 rounded-xl shadow-inner border border-gray-200 flex-grow">
-                <h3 class="font-semibold text-gray-800 mb-2">出荷状況</h3>
-                <div class="flex flex-wrap gap-x-4 gap-y-1">
+            <div class="bg-gray-50 p-2 rounded-xl shadow-inner border border-gray-200 flex-grow">
+                <h3 class="font-semibold text-gray-800 mb-1 text-sm">出荷状況</h3>
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
                         <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-blue-600 focus:ring-blue-500">
-                        <span class="ml-2 text-gray-700">通常出荷</span>
+                        <span class="ml-1 text-gray-700">通常出荷</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="statusLimited" class="form-checkbox rounded text-blue-600 focus:ring-blue-500">
-                        <span class="ml-2 text-gray-700">限定出荷</span>
+                        <span class="ml-1 text-gray-700">限定出荷</span>
                     </label>
                      <label class="flex items-center">
                         <input type="checkbox" id="statusStop" class="form-checkbox rounded text-blue-600 focus:ring-blue-500">
-                        <span class="ml-2 text-gray-700">供給停止</span>
+                        <span class="ml-1 text-gray-700">供給停止</span>
                     </label>
                 </div>
             </div>
         </div>
 
-        <button id="searchButton" class="w-full bg-blue-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-300">
+        <button id="searchButton" class="w-full bg-blue-500 text-white font-bold py-2.5 px-6 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-300">
             検索
         </button>
 
@@ -107,6 +119,15 @@
     <div id="loadingIndicator" class="loading-container hidden">
         <div class="spinner"></div>
     </div>
+    <div id="progressBarContainer" class="w-full max-w-4xl mt-4 hidden">
+        <div class="progress-bar">
+            <div id="progressBar" class="progress-bar-fill w-0"></div>
+        </div>
+        <p id="progressMessage" class="text-xs text-gray-500 mt-1 text-center"></p>
+    </div>
+
+    <!-- 新しい件数表示用のエレメント -->
+    <div id="totalCountMessage" class="fixed top-4 right-4 bg-gray-800 text-white text-sm py-2 px-4 rounded-full shadow-lg transition-opacity duration-300 opacity-0 z-50"></div>
     
     <div id="resultsContainer" class="w-full max-w-4xl mt-8"></div>
 
@@ -114,7 +135,11 @@
         const corsProxy = 'https://corsproxy.io/?';
         let data = [];
         const loadingIndicator = document.getElementById('loadingIndicator');
+        const progressBarContainer = document.getElementById('progressBarContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressMessage = document.getElementById('progressMessage');
         const messageBox = document.getElementById('messageBox');
+        const totalCountMessage = document.getElementById('totalCountMessage');
         
         // メッセージ表示関数
         function showMessage(message, isError = true) {
@@ -140,9 +165,18 @@
             return String(str).trim().toLowerCase().replace(/[ァ-ヶ]/g, s => String.fromCharCode(s.charCodeAt(0) - 0x60));
         }
 
+        // プログレスバーの更新
+        function updateProgress(message, percentage) {
+            progressBarContainer.classList.remove('hidden');
+            progressMessage.textContent = message;
+            progressBar.style.width = `${percentage}%`;
+        }
+
         // Excelデータ取得ロジック
         async function fetchExcelData() {
             console.log('Fetching Excel data...');
+            updateProgress('最新のデータを読み込み中...', 0);
+            
             const baseUrl = 'https://www.mhlw.go.jp/content/10800000/';
             const today = new Date();
             let successUrl = null;
@@ -193,29 +227,28 @@
             }
 
             try {
+                updateProgress('データをダウンロード中...', 50);
                 const response = await fetch(successUrl);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const arrayBuffer = await response.arrayBuffer();
+                
+                updateProgress('データを処理中...', 75);
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 
-                // ヘッダーが2行目にあることを考慮し、最初の行をスキップして2行目をヘッダーとして使用
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
                 
                 if (jsonData.length > 1) {
                     const header = jsonData[0];
-                    // 改行や余分なスペースをトリミング
                     const processedHeader = header.map(h => {
                         if (typeof h === 'string') {
                             return h.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
                         }
                         return h;
                     });
-
-                    console.log("Processed Headers:", processedHeader);
                     
                     const dataRows = jsonData.slice(1);
                     const mappedData = dataRows.map(row => {
@@ -226,10 +259,13 @@
                         return obj;
                     });
                     console.log(`Data loaded successfully. Number of rows: ${mappedData.length}`);
+                    updateProgress('データの読み込みが完了しました！', 100);
                     return { data: mappedData, date: dateString };
                 }
             } catch (error) {
                 console.error(`データの取得に失敗しました: ${successUrl} ${error}`);
+            } finally {
+                setTimeout(() => progressBarContainer.classList.add('hidden'), 1000);
             }
             return { data: null, date: null };
         }
@@ -328,21 +364,32 @@
                 console.log(`Status filter applied. Filtered from ${initialCount} to ${filteredData.length} items.`);
             }
 
-            if (filteredData.length === 0) {
+            // 最大500件に制限
+            const totalCount = filteredData.length;
+            const resultsToDisplay = filteredData.slice(0, 500);
+
+            if (resultsToDisplay.length === 0) {
                 showMessage('条件に一致する医薬品は見つかりませんでした。', false);
             } else {
-                displayResults(filteredData);
+                displayResults(resultsToDisplay, totalCount);
             }
         }
 
         // 検索結果表示関数
-        function displayResults(results) {
+        function displayResults(results, totalCount) {
             const container = document.getElementById('resultsContainer');
             container.innerHTML = '';
             
             if (results.length === 0) {
                 return;
             }
+
+            // 短時間表示するメッセージ
+            totalCountMessage.textContent = `${totalCount}件のデータが見つかりました。`;
+            totalCountMessage.classList.add('opacity-100');
+            setTimeout(() => {
+                totalCountMessage.classList.remove('opacity-100');
+            }, 2000);
 
             const tableContainer = document.createElement('div');
             tableContainer.className = 'overflow-x-auto bg-white rounded-2xl shadow-lg';
