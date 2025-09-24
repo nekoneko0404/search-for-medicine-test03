@@ -362,7 +362,7 @@
                 // YJコードがあればリンクを生成
                 if (yjCode) {
                     const yjCodeLinkUrl = `https://nekoneko0404.github.io/search-for-medicine-test03/yjcode.html?yjcode=${yjCode}`;
-                    statusCell.innerHTML = `<a href="${yjCodeLinkUrl}" target="_blank" class="w-full h-full block">${status || ""}</a>`;
+                    statusCell.innerHTML = `<a href="${yjCodeLinkUrl}" target="_blank" class="w-full h-full block text-indigo-600 hover:underline">${status || ""}</a>`;
                 } else {
                     statusCell.textContent = status || "";
                 }
