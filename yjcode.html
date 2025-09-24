@@ -33,25 +33,20 @@
 <body class="p-6 md:p-12 flex flex-col items-center">
 
     <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl p-6 sm:p-8">
-        <!-- タイトルと戻るボタンを横並びに -->
         <div class="flex items-center justify-between mb-8">
             <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">
                 YJコード検索ツール
             </h1>
-            <!-- 医薬品検索ツールへのリンクをボタン風に -->
             <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors duration-300 whitespace-nowrap">
                 医薬品検索ツールへ戻る
             </a>
         </div>
         
-        <!-- YJコード入力欄とデータ日付を横並びに -->
         <div class="mb-6 flex items-center justify-between space-x-4">
             <input type="text" id="yjCodeInput" placeholder="YJコードを入力してください:" class="flex-grow md:flex-grow-0 md:max-w-xs block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300">
-            <!-- データ日付の表示を数字のみに -->
             <span id="dataDate" class="text-gray-500 text-sm whitespace-nowrap"></span>
         </div>
 
-        <!-- 検索項目と出荷状況のレイアウト -->
         <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mb-6">
             <div class="bg-gray-50 p-3 rounded-xl shadow-inner border border-gray-200 flex-grow">
                 <h3 class="font-semibold text-gray-800 mb-2">検索項目</h3>
@@ -401,6 +396,7 @@
             const searchButton = document.getElementById('searchButton');
             const dataDateSpan = document.getElementById('dataDate');
             
+            // URLからクエリパラメータを取得し、入力欄に反映
             const urlParams = new URLSearchParams(window.location.search);
             const yjCodeFromUrl = urlParams.get('yjcode');
             if (yjCodeFromUrl) {
