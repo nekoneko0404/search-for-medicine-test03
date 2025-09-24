@@ -55,7 +55,10 @@
         </div>
         
         <div class="mb-4 flex items-center justify-between space-x-4">
-            <input type="text" id="yjCodeInput" placeholder="YJコードを入力してください:" class="flex-grow md:flex-grow-0 md:max-w-xs block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-sm">
+            <button id="searchButton" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-300 whitespace-nowrap text-sm">
+                検索
+            </button>
+            <input type="text" id="yjCodeInput" placeholder="YJコードを入力してください:" class="flex-grow block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-sm">
             <span id="dataDate" class="text-gray-500 text-xs whitespace-nowrap"></span>
         </div>
 
@@ -65,15 +68,15 @@
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
                         <input type="checkbox" id="digits3" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">薬効群3桁</span>
+                        <span class="ml-1 text-gray-700">薬効群</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="digits4" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">薬効群4桁</span>
+                        <span class="ml-1 text-gray-700">薬効群</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="digits7" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
-                        <span class="ml-1 text-gray-700">成分</span>
+                        <span class="ml-1 text-gray-700">投与経路/成分</span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" id="digits8" class="form-checkbox rounded text-blue-600 focus:ring-blue-500" checked>
@@ -109,10 +112,6 @@
             </div>
         </div>
 
-        <button id="searchButton" class="w-full bg-blue-500 text-white font-bold py-2.5 px-6 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-300">
-            検索
-        </button>
-
         <div id="messageBox" class="mt-4 p-4 rounded-xl text-sm hidden" role="alert"></div>
     </div>
 
@@ -125,9 +124,6 @@
         </div>
         <p id="progressMessage" class="text-xs text-gray-500 mt-1 text-center"></p>
     </div>
-
-    <!-- 新しい件数表示用のエレメント -->
-    <div id="totalCountMessage" class="fixed top-4 right-4 bg-gray-800 text-white text-sm py-2 px-4 rounded-full shadow-lg transition-opacity duration-300 opacity-0 z-50"></div>
     
     <div id="resultsContainer" class="w-full max-w-4xl mt-8"></div>
 
@@ -139,7 +135,6 @@
         const progressBar = document.getElementById('progressBar');
         const progressMessage = document.getElementById('progressMessage');
         const messageBox = document.getElementById('messageBox');
-        const totalCountMessage = document.getElementById('totalCountMessage');
         
         // メッセージ表示関数
         function showMessage(message, isError = true) {
@@ -293,7 +288,7 @@
             
             let filteredData = [];
             
-            // どの桁数もチェックされていない場合は全件検索
+            // 全件検索
             if (!isAnyDigitChecked) {
                 filteredData = data;
             } else {
@@ -314,11 +309,9 @@
                 // フィルタリングロジック
                 const digitFilters = [];
 
-                // 10-11桁が選択されたら、他を無視
                 if (digits11Checkbox.checked) {
                     digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 11)));
                 } else {
-                    // 9桁目までのAND検索
                     if (digits9Checkbox.checked) {
                         digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).length > 8 && normalizeString(item['⑤YJコード']).charAt(8) === yjCode.charAt(8));
                     }
@@ -328,7 +321,6 @@
                     if (digits7Checkbox.checked) {
                         digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 7)));
                     }
-                    // 3桁と4桁は優先度を設定
                     if (digits4Checkbox.checked) {
                         digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 4)));
                     } else if (digits3Checkbox.checked) {
@@ -336,11 +328,10 @@
                     }
                 }
 
-                // 検索項目のフィルタを適用
                 filteredData = data.filter(item => digitFilters.every(filterFunc => filterFunc(item)));
             }
             
-            // 出荷状況のフィルタリング（全件検索の場合も適用）
+            // 出荷状況のフィルタリング
             const statusNormal = statusNormalCheckbox.checked;
             const statusLimited = statusLimitedCheckbox.checked;
             const statusStop = statusStopCheckbox.checked;
@@ -364,7 +355,6 @@
                 console.log(`Status filter applied. Filtered from ${initialCount} to ${filteredData.length} items.`);
             }
 
-            // 最大500件に制限
             const totalCount = filteredData.length;
             const resultsToDisplay = filteredData.slice(0, 500);
 
@@ -384,18 +374,10 @@
                 return;
             }
 
-            // 短時間表示するメッセージ
-            totalCountMessage.textContent = `${totalCount}件のデータが見つかりました。`;
-            totalCountMessage.classList.add('opacity-100');
-            setTimeout(() => {
-                totalCountMessage.classList.remove('opacity-100');
-            }, 2000);
-
             const tableContainer = document.createElement('div');
             tableContainer.className = 'overflow-x-auto bg-white rounded-2xl shadow-lg';
             
             const table = document.createElement('table');
-            // テーブル全体の幅を調整
             table.className = 'min-w-full text-left table-fixed';
 
             // ヘッダーを作成
@@ -404,11 +386,12 @@
             thead.innerHTML = `
                 <tr>
                     <th class="py-3 px-2 font-semibold text-gray-700 whitespace-nowrap text-sm w-1/12">YJコード</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-3/12">品名</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-4/12">成分名</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">品名</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">成分名</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">メーカー</th>
                     <th class="py-3 px-4 font-semibold text-gray-700 w-1/12 whitespace-nowrap">出荷状況</th>
                     <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">制限理由</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 w-1/12 whitespace-nowrap">出荷量状況</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12 whitespace-nowrap">出荷量状況</th>
                 </tr>
             `;
             table.appendChild(thead);
@@ -421,13 +404,13 @@
                 const pmdaLink = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${pmdaYjCode}?user=1`;
 
                 const row = document.createElement('tr');
-                // 行ごとに背景色を設定
                 row.className = `border-b border-gray-200 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-100 hover:bg-gray-200'}`;
                 
                 row.innerHTML = `
                     <td class="py-3 px-2 text-sm">${pmdaYjCode || '-'}</td>
                     <td class="py-3 px-4"><a href="${pmdaLink}" target="_blank" class="text-blue-600 hover:underline">${item['⑥品名（承認書に記載の正式名称）※全角'] || '-'}</a></td>
                     <td class="py-3 px-4">${item['③成分名'] || '-'}</td>
+                    <td class="py-3 px-4">${item['⑦製造販売業者名'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑫製造販売業者の「出荷対応」の状況'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑭限定出荷/供給停止の理由'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑰製造販売業者の「出荷量」の現在の状況'] || '-'}</td>
@@ -463,6 +446,11 @@
                 } else {
                     dataDateSpan.textContent = `特定不能`;
                 }
+                
+                // データ読み込み後、YJコードが入力されていれば自動で検索を実行
+                if (yjCodeInput.value) {
+                    performSearch();
+                }
             } else {
                 showMessage('データの取得に失敗しました。', true);
                 searchButton.disabled = true;
@@ -475,6 +463,12 @@
                 if (event.key === 'Enter') {
                     performSearch();
                 }
+            });
+
+            // すべてのチェックボックスにイベントリスナーを追加
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', performSearch);
             });
         });
     </script>
