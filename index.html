@@ -305,7 +305,7 @@
                 drugNameCell.classList.add("truncate-lines", "px-4", "py-3", "text-sm", "text-gray-900");
                 const drugName = row[5]; // F列が品名
                 const yjCode = row[4]; // E列がYJコード
-                const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=2`;
+                const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=1`;
                 drugNameCell.innerHTML = `<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline">${drugName || ""}</a>`;
                 
                 // 成分名
