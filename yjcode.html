@@ -348,19 +348,20 @@
             tableContainer.className = 'overflow-x-auto bg-white rounded-2xl shadow-lg';
             
             const table = document.createElement('table');
-            table.className = 'min-w-full text-left table-auto';
+            // テーブル全体の幅を調整
+            table.className = 'min-w-full text-left table-fixed';
 
             // ヘッダーを作成
             const thead = document.createElement('thead');
             thead.className = 'bg-gray-200';
             thead.innerHTML = `
                 <tr>
-                    <th class="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">YJコード</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">品名</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">成分名</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">出荷状況</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">制限理由</th>
-                    <th class="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">出荷量状況</th>
+                    <th class="py-3 px-2 font-semibold text-gray-700 whitespace-nowrap text-sm w-1/12">YJコード</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-3/12">品名</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-4/12">成分名</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-1/12 whitespace-nowrap">出荷状況</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-2/12">制限理由</th>
+                    <th class="py-3 px-4 font-semibold text-gray-700 w-1/12 whitespace-nowrap">出荷量状況</th>
                 </tr>
             `;
             table.appendChild(thead);
@@ -368,16 +369,17 @@
             // ボディを作成
             const tbody = document.createElement('tbody');
             tbody.className = 'divide-y divide-gray-200';
-            results.forEach(item => {
+            results.forEach((item, index) => {
                 const pmdaYjCode = item['⑤YJコード'] || '';
                 const pmdaLink = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${pmdaYjCode}?user=1`;
 
                 const row = document.createElement('tr');
-                row.className = 'border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200';
+                // 行ごとに背景色を設定
+                row.className = `border-b border-gray-200 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-100 hover:bg-gray-200'}`;
                 
                 row.innerHTML = `
-                    <td class="py-3 px-4">${pmdaYjCode || '-'}</td>
-                    <td class="py-3 px-4 whitespace-nowrap"><a href="${pmdaLink}" target="_blank" class="text-blue-600 hover:underline">${item['⑥品名（承認書に記載の正式名称）※全角'] || '-'}</a></td>
+                    <td class="py-3 px-2 text-sm">${pmdaYjCode || '-'}</td>
+                    <td class="py-3 px-4"><a href="${pmdaLink}" target="_blank" class="text-blue-600 hover:underline">${item['⑥品名（承認書に記載の正式名称）※全角'] || '-'}</a></td>
                     <td class="py-3 px-4">${item['③成分名'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑫製造販売業者の「出荷対応」の状況'] || '-'}</td>
                     <td class="py-3 px-4">${item['⑭限定出荷/供給停止の理由'] || '-'}</td>
