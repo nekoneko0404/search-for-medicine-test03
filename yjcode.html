@@ -370,7 +370,7 @@
             tbody.className = 'divide-y divide-gray-200';
             results.forEach(item => {
                 const pmdaYjCode = item['⑤YJコード'] || '';
-                const pmdaLink = `https://www.pmda.go.jp/PmdaSearch/iyakuDetail/RedirectPage/${pmdaYjCode}`;
+                const pmdaLink = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${pmdaYjCode}?user=1`;
 
                 const row = document.createElement('tr');
                 row.className = 'border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200';
