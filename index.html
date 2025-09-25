@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>医薬品 出荷状況検索ツール</title>
-    <!-- Tailwind CSSを読み込み、モダンなデザインを適用します -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
@@ -23,6 +22,27 @@
         .table-container {
             max-height: 60vh; /* 画面の60%を最大高さとする */
             overflow-y: auto;
+        }
+        /* PC画面向けレイアウト */
+        .search-form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4つの列を均等に設定 */
+            gap: 1.5rem; /* 隙間 */
+            align-items: end; /* 縦方向の配置を下に揃える */
+        }
+        /* 狭い画面向けレイアウト（mdサイズ以下） */
+        @media (max-width: 767px) {
+            .search-form-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2つの列に分割 */
+                gap: 1rem; /* 隙間を狭くする */
+            }
+            .search-form-grid .full-width-on-mobile {
+                grid-column: span 2; /* 狭い画面では2列にまたがる */
+            }
+            .search-form-grid .search-button-container {
+                grid-column: 2 / span 1; /* 検索ボタンを2列目の位置に配置 */
+                justify-self: end; /* 右寄せ */
+            }
         }
         /* スマートフォン向けにテーブルのレイアウトを調整 */
         @media (max-width: 640px) {
@@ -84,7 +104,6 @@
         <div class="flex justify-between items-center mb-6">
             <div class="flex-grow flex justify-center">
                 <div class="bg-indigo-100 rounded-lg py-2 px-4 mb-4 text-center inline-block">
-                    <!-- 画面サイズに応じてタイトルを切り替え -->
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
                         <span class="hidden sm:inline">医薬品 出荷状況検索ツール</span>
                         <span class="sm:hidden">医薬品 出荷状況</span>
@@ -96,35 +115,26 @@
             </a>
         </div>
         
-        <!-- メッセージ表示エリア -->
         <div id="messageBox" class="text-sm sm:text-base text-center p-3 rounded-lg hidden message-box-center w-3/4"></div>
         
-        <!-- 検索欄 -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <!-- 医薬品名 -->
-            <div class="col-span-1">
+        <div class="search-form-grid mb-6">
+            <div class="input-container">
                 <label for="drugName" class="block text-gray-700 text-sm font-medium mb-1">医薬品名:</label>
                 <input type="text" id="drugName" placeholder="例: ロキソニン" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
             </div>
-            <!-- 成分名 -->
-            <div class="col-span-1">
+            <div class="input-container">
                 <label for="ingredientName" class="block text-gray-700 text-sm font-medium mb-1">成分名:</label>
                 <input type="text" id="ingredientName" placeholder="例: ロキソプロフェン" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
             </div>
-            <!-- 規格・剤形・ﾒｰｶｰ -->
-            <div class="col-span-1">
+            <div class="input-container">
                 <label for="makerName" class="block text-gray-700 text-sm font-medium mb-1">規格、剤形、ﾒｰｶｰ:</label>
                 <input type="text" id="makerName" placeholder="例: 60mg" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
             </div>
-            <!-- 検索ボタン -->
-            <div class="col-span-1 flex flex-col items-start justify-end">
-                <!-- PC画面のみ日付を表示 -->
-                <div id="currentDateDisplay" class="text-sm font-medium text-gray-600 mb-1 hidden sm:block"></div>
-                <button onclick="searchData()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md shadow transition ease-in-out duration-150">検索</button>
+            <div class="search-button-container flex items-end justify-center sm:justify-end">
+                <button onclick="searchData()" class="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-md shadow transition ease-in-out duration-150">検索</button>
             </div>
         </div>
-
-        <!-- 結果テーブル -->
+        
         <div class="table-container rounded-lg shadow-md border border-gray-200">
             <table id="resultTable" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-indigo-100 sticky top-0">
@@ -144,12 +154,10 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="resultTableBody">
-                    <!-- 検索結果がここに追加されます -->
-                </tbody>
+                    </tbody>
             </table>
         </div>
         
-        <!-- 製作者情報フッター -->
         <div class="mt-8 text-center text-gray-500 text-sm">
             <p>ご意見・ご要望は製作者までお寄せください。</p>
             <p>ツイッター: <a href="https://x.com/oshigoto_twitte" target="_blank" class="text-indigo-500 hover:underline">@oshigoto_twitte</a></p>
@@ -242,7 +250,7 @@
                 if (!row || row.length < 17) continue;
 
                 // データの文字列も正規化
-                const drugName = normalizeString(row[5] || "");     // F列: 品名
+                const drugName = normalizeString(row[5] || "");      // F列: 品名
                 const ingredientName = normalizeString(row[2] || ""); // C列: 成分名
                 const makerName = normalizeString((row[6] || "") + (row[9] || "")); // G列とJ列を結合
 
@@ -278,6 +286,22 @@
             hideMessage(3000);
         }
 
+        // 成分名クリック時の処理を追加
+        function handleIngredientClick(ingredient) {
+            // すべての検索欄をクリア
+            document.getElementById('drugName').value = '';
+            document.getElementById('makerName').value = '';
+            
+            // 成分名に頭から5文字を入力
+            const searchIngredient = ingredient.length > 5 ? ingredient.substring(0, 5) : ingredient;
+            document.getElementById('ingredientName').value = searchIngredient;
+
+            // 検索を実行
+            searchData();
+            showMessage(`「${searchIngredient}」で再検索を実行しました。`, 'info');
+            hideMessage(3000);
+        }
+
         // テーブルをレンダリングする関数
         function renderTable(data) {
             const resultBody = document.getElementById('resultTableBody');
@@ -302,8 +326,7 @@
                 // 品名 (PMDAの検索ページにリンクとラベル)
                 const drugNameCell = newRow.insertCell(0);
                 drugNameCell.setAttribute('data-label', '品名');
-                // Flexboxを適用してラベルと品名を横並びにする
-                drugNameCell.classList.add("flex", "items-start", "px-4", "py-3", "text-sm", "text-gray-900");
+                drugNameCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900");
                 
                 let labelsHtml = '';
                 const hColumnValue = (row[7] || '').trim(); // H列: 後発品・長期収載品
@@ -326,14 +349,21 @@
                 const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=1`;
                 
                 // 品名のリンクにもtruncate-linesを適用
-                drugNameCell.innerHTML = `${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a>`;
+                drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a></div>`;
                 
                 // 成分名
                 const ingredientNameCell = newRow.insertCell(1);
-                ingredientNameCell.textContent = row[2] || "";
                 ingredientNameCell.setAttribute('data-label', '成分名');
-                ingredientNameCell.classList.add("truncate-lines", "px-4", "py-3", "text-sm", "text-gray-900");
-
+                ingredientNameCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900", "truncate-lines");
+                const ingredientName = row[2] || "";
+                // クリックイベントを追加
+                if (ingredientName) {
+                    // ここにハイパーリンクを適用
+                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a>`;
+                } else {
+                    ingredientNameCell.textContent = ingredientName;
+                }
+                
                 // 出荷対応状況 (YJコード検索ページにリンクと色分け)
                 const statusCell = newRow.insertCell(2);
                 statusCell.setAttribute('data-label', '出荷状況');
