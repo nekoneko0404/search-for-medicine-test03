@@ -75,23 +75,23 @@
                 <h3 class="font-semibold text-slate-800 mb-1 text-sm">検索項目</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits3" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <input type="checkbox" id="digits3" class="form-checkbox rounded text-sky-600 focus:ring-sky-500">
                         <span class="ml-1 text-slate-700">薬効群3桁</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits4" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <input type="checkbox" id="digits4" class="form-checkbox rounded text-sky-600 focus:ring-sky-500">
                         <span class="ml-1 text-slate-700">薬効群4桁</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits7" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <input type="checkbox" id="digits7" class="form-checkbox rounded text-sky-600 focus:ring-sky-500">
                         <span class="ml-1 text-slate-700">成分</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits8" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <input type="checkbox" id="digits8" class="form-checkbox rounded text-sky-600 focus:ring-sky-500">
                         <span class="ml-1 text-slate-700">剤形</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits9" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <input type="checkbox" id="digits9" class="form-checkbox rounded text-sky-600 focus:ring-sky-500">
                         <span class="ml-1 text-slate-700">規格単位</span>
                     </label>
                     <label class="flex items-center">
@@ -105,7 +105,7 @@
                 <h3 class="font-semibold text-slate-800 mb-1 text-sm">出荷状況</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
-                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-sky-600 focus:ring-sky-500" checked>
+                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-sky-600 focus:ring-sky-500">
                         <span class="ml-1 text-slate-700">通常出荷</span>
                     </label>
                     <label class="flex items-center">
@@ -423,7 +423,18 @@
                     const yjCode = e.currentTarget.dataset.yjcode;
                     if (yjCode) {
                         document.getElementById('yjCodeInput').value = yjCode;
+                        
+                        // 品名クリック時、規格内番号と限定出荷・供給停止以外はチェックを維持
+                        document.getElementById('digits3').checked = true;
+                        document.getElementById('digits4').checked = true;
                         document.getElementById('digits7').checked = true;
+                        document.getElementById('digits8').checked = true;
+                        document.getElementById('digits9').checked = true;
+                        document.getElementById('digits11').checked = false;
+                        document.getElementById('statusNormal').checked = true;
+                        document.getElementById('statusLimited').checked = false;
+                        document.getElementById('statusStop').checked = false;
+                        
                         performSearch();
                     }
                 });
@@ -490,6 +501,16 @@
             const searchButton = document.getElementById('searchButton');
             const dataDateSpan = document.getElementById('dataDate');
             
+            // ページ読み込み時に指定されたチェックボックスをONにする
+            document.getElementById('digits3').checked = true;
+            document.getElementById('digits4').checked = true;
+            document.getElementById('digits7').checked = true;
+            document.getElementById('digits8').checked = true;
+            document.getElementById('digits9').checked = true;
+            document.getElementById('statusNormal').checked = true;
+            document.getElementById('statusLimited').checked = false;
+            document.getElementById('statusStop').checked = false;
+
             // URLからクエリパラメータを取得し、入力欄に反映
             const urlParams = new URLSearchParams(window.location.search);
             const yjCodeFromUrl = urlParams.get('yjcode');
