@@ -242,7 +242,7 @@
                 if (!row || row.length < 17) continue;
 
                 // データの文字列も正規化
-                const drugName = normalizeString(row[5] || "");      // F列: 品名
+                const drugName = normalizeString(row[5] || "");     // F列: 品名
                 const ingredientName = normalizeString(row[2] || ""); // C列: 成分名
                 const makerName = normalizeString((row[6] || "") + (row[9] || "")); // G列とJ列を結合
 
@@ -312,8 +312,6 @@
                 const labels = [];
                 if (hColumnValue === '後発品') {
                     labels.push(`<span class="bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold">後</span>`);
-                } else if (hColumnValue === '長期収載品') {
-                    labels.push(`<span class="bg-orange-200 text-orange-800 px-1 rounded-sm text-xs font-bold">長</span>`);
                 }
                 if (iColumnValue === '基礎的医薬品') {
                     labels.push(`<span class="bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold">基</span>`);
@@ -350,9 +348,6 @@
                         break;
                     case '基':
                         colorClass = 'bg-purple-200 text-purple-800';
-                        break;
-                    case '長':
-                        colorClass = 'bg-orange-200 text-orange-800';
                         break;
                     default:
                         colorClass = 'text-gray-900';
