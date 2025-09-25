@@ -212,11 +212,11 @@
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 excelData = XLSX.utils.sheet_to_json(sheet, {header:1});
-                showMessage("Excelファイルを読み込みました。", "success");
+                showMessage("データの読み込みが完了しました。", "success");
                 hideMessage(3000);
             } catch (error) {
-            console.error('Error processing Excel file:', error);
-                showMessage("Excelファイルの処理中にエラーが発生しました。", "error");
+                console.error('Error processing data:', error);
+                showMessage("データの処理中にエラーが発生しました。", "error");
                 hideMessage(3000);
             }
         }
@@ -224,7 +224,7 @@
         // 検索ボタンクリック時の処理
         function searchData() {
             if (excelData.length === 0) {
-                showMessage("先にExcelファイルを読み込んでください。", "error");
+                showMessage("先にデータを読み込んでください。", "error");
                 hideMessage(3000);
                 return;
             }
@@ -432,47 +432,33 @@
 
         // アプリ起動時にGoogleスプレッドシートからデータを自動で読み込む
         window.onload = function() {
-            const baseUrl = 'https://www.mhlw.go.jp/content/10800000/';
-            const filename = 'iyakuhinkyoukyu.xlsx';
+            // 新しいスプレッドシートのID
+            const spreadsheetId = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';
+            // CSV形式でエクスポートするためのURL
+            const exportUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=xlsx`;
 
-            async function fetchWithDateRetry() {
-                showMessage('最新のデータを読み込み中です...', 'info');
-                const today = new Date();
-                // 14日前までさかのぼってExcelファイルを検索
-                for (let i = 0; i < 14; i++) {
-                    const date = new Date(today);
-                    date.setDate(today.getDate() - i);
-                    const formattedDate = formatDate(date);
-                    
-                    // CORSを回避するためにプロキシを使用する
-                    const originalUrl = `${baseUrl}${formattedDate}${filename}`;
-                    const url = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`;
+            async function fetchSpreadsheetData() {
+                showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
+                
+                try {
+                    const response = await fetch(exportUrl);
+                    if (response.ok) {
+                        const data = await response.arrayBuffer();
+                        processExcelData(new Uint8Array(data));
 
-                    try {
-                        const response = await fetch(url);
-                        if (response.ok) {
-                            const data = await response.arrayBuffer();
-                            processExcelData(new Uint8Array(data));
-                            
-                            // 日付を表示する要素を更新
-                            const dateDisplay = document.getElementById('currentDateDisplay');
-                            if (dateDisplay) {
-                                dateDisplay.textContent = `データ日付：${formattedDate}`;
-                            }
-                            
-                            return; // 成功したらループを終了
-                        }
-                    } catch (error) {
-                        console.error(`データの取得に失敗しました: ${url}`, error);
+                        // 成功メッセージはprocessExcelDataで表示される
+                    } else {
+                        showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
+                        hideMessage(5000);
                     }
+                } catch (error) {
+                    console.error('データの取得に失敗しました:', error);
+                    showMessage('共有スプレッドシートからのデータの取得中にエラーが発生しました。', 'error');
+                    hideMessage(5000);
                 }
-
-                // 14日前まで試行して見つからなかった場合
-                showMessage('過去14日間の最新データが見つかりませんでした。', 'error');
-                hideMessage(5000);
             }
             
-            fetchWithDateRetry();
+            fetchSpreadsheetData();
         };
     </script>
 </body>
