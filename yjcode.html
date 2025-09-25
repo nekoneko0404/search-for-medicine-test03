@@ -427,12 +427,8 @@
 
                 const isBase = item['⑨基礎的医薬品'] && normalizeString(item['⑨基礎的医薬品']).includes('基礎的医薬品');
                 const isGeneric = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('後発品');
-                const isLongListed = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('長期収載品');
 
                 let labels = '';
-                if (isLongListed) {
-                    labels += `<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-semibold">長</span>`;
-                }
                 if (isBase) {
                     labels += `<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold">基</span>`;
                 }
@@ -492,12 +488,8 @@
 
             const isBase = item['⑨基礎的医薬品'] && normalizeString(item['⑨基礎的医薬品']).includes('基礎的医薬品');
             const isGeneric = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('後発品');
-            const isLongListed = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('長期収載品');
 
             let labels = '';
-            if (isLongListed) {
-                labels += `<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1">長</span>`;
-            }
             if (isBase) {
                 labels += `<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1">基</span>`;
             }
