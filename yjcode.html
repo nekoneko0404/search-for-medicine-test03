@@ -39,11 +39,20 @@
             background-color: #0ea5e9; /* Tailwind's sky-500 */
             transition: width 0.3s ease-in-out;
         }
+        .table-cell-with-padding {
+            padding: 12px 16px;
+        }
+        /* モバイル用のカード表示スタイル */
+        @media (max-width: 767px) {
+            .table-container {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body class="p-6 md:p-12 flex flex-col items-center bg-stone-50 text-slate-800">
 
-    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl p-4 sm:p-6 border border-slate-200">
+    <div class="w-full max-w-7xl bg-white rounded-3xl shadow-xl p-4 sm:p-6 border border-slate-200">
         <div class="flex items-center justify-between mb-4">
             <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">
                 YJコード検索ツール
@@ -123,14 +132,14 @@
     <div id="loadingIndicator" class="loading-container hidden">
         <div class="spinner"></div>
     </div>
-    <div id="progressBarContainer" class="w-full max-w-4xl mt-4 hidden">
+    <div id="progressBarContainer" class="w-full max-w-7xl mt-4 hidden">
         <div class="progress-bar">
             <div id="progressBar" class="progress-bar-fill w-0"></div>
         </div>
         <p id="progressMessage" class="text-xs text-gray-500 mt-1 text-center"></p>
     </div>
     
-    <div id="resultsContainer" class="w-full max-w-4xl mt-8"></div>
+    <div id="resultsContainer" class="w-full max-w-7xl mt-8"></div>
 
     <script>
         const corsProxy = 'https://corsproxy.io/?';
@@ -386,8 +395,9 @@
                 return;
             }
 
+            // PC表示用のテーブル
             const tableContainer = document.createElement('div');
-            tableContainer.className = 'overflow-x-auto bg-white rounded-2xl shadow-lg border border-slate-200';
+            tableContainer.className = 'md:block overflow-x-auto bg-white rounded-2xl shadow-lg border border-slate-200';
             
             const table = document.createElement('table');
             table.className = 'min-w-full text-left table-auto';
@@ -411,7 +421,7 @@
             // ボディを作成
             const tbody = document.createElement('tbody');
             tbody.className = 'divide-y divide-gray-200';
-            results.forEach((item, index) => {
+            results.forEach((item) => {
                 const pmdaYjCode = item['⑤YJコード'] || '';
                 const pmdaLink = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${pmdaYjCode}?user=1`;
 
@@ -452,6 +462,15 @@
             tableContainer.appendChild(table);
             container.appendChild(tableContainer);
 
+            // モバイル表示用のカードリスト
+            const cardListContainer = document.createElement('div');
+            cardListContainer.className = 'md:hidden w-full space-y-4';
+            results.forEach(item => {
+                const card = createCardElement(item);
+                cardListContainer.appendChild(card);
+            });
+            container.appendChild(cardListContainer);
+
             // 新しいクリックイベントリスナーを登録
             document.querySelectorAll('#resultsContainer .cursor-pointer').forEach(element => {
                 element.addEventListener('click', (e) => {
@@ -463,6 +482,65 @@
                     }
                 });
             });
+        }
+
+        // カード要素を生成するヘルパー関数
+        function createCardElement(item) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow-lg border border-slate-200 p-4';
+            const pmdaYjCode = item['⑤YJコード'] || '-';
+
+            const isBase = item['⑨基礎的医薬品'] && normalizeString(item['⑨基礎的医薬品']).includes('基礎的医薬品');
+            const isGeneric = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('後発品');
+            const isLongListed = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('長期収載品');
+
+            let labels = '';
+            if (isLongListed) {
+                labels += `<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1">長</span>`;
+            }
+            if (isBase) {
+                labels += `<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1">基</span>`;
+            }
+            if (isGeneric) {
+                labels += `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1">後</span>`;
+            }
+            const name = item['⑥品名（承認書に記載の正式名称）※全角'] || '-';
+
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-bold text-sky-700">
+                        <span class="cursor-pointer hover:underline" data-yjcode="${pmdaYjCode}">${name}</span>
+                    </h3>
+                    <div class="flex items-center space-x-1">${labels}</div>
+                </div>
+                <div class="text-sm space-y-1">
+                    <div class="flex justify-between items-start">
+                        <span class="text-slate-500 font-semibold">YJコード:</span>
+                        <span class="text-right">${pmdaYjCode}</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <span class="text-slate-500 font-semibold">成分名:</span>
+                        <span class="text-right">${item['③成分名'] || '-'}</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <span class="text-slate-500 font-semibold">メーカー:</span>
+                        <span class="text-right">${item['⑦製造販売業者名'] || '-'}</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <span class="text-slate-500 font-semibold">出荷状況:</span>
+                        <span class="text-right">${item['⑫製造販売業者の「出荷対応」の状況'] || '-'}</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <span class="text-slate-500 font-semibold">制限理由:</span>
+                        <span class="text-right">${item['⑭限定出荷/供給停止の理由'] || '-'}</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <span class="text-slate-500 font-semibold">出荷量状況:</span>
+                        <span class="text-right">${item['⑰製造販売業者の「出荷量」の現在の状況'] || '-'}</span>
+                    </div>
+                </div>
+            `;
+            return card;
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
