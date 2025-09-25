@@ -183,61 +183,16 @@
 
         // Excelデータ取得ロジック
         async function fetchExcelData() {
-            console.log('Fetching Excel data...');
-            updateProgress('最新のデータを読み込み中...', 0);
+            console.log('Fetching Excel data from Google Drive...');
+            updateProgress('Google Driveからデータを読み込み中...', 0);
             
-            const baseUrl = 'https://www.mhlw.go.jp/content/10800000/';
-            const today = new Date();
-            let successUrl = null;
-            let dateString = null;
-
-            // 過去3日間のURLを試す
-            for (let i = 0; i < 3; i++) {
-                const dateToCheck = new Date();
-                dateToCheck.setDate(today.getDate() - i);
-                const checkYear = dateToCheck.getFullYear().toString().slice(-2);
-                const checkMonth = (dateToCheck.getMonth() + 1).toString().padStart(2, '0');
-                const checkDay = dateToCheck.getDate().toString().padStart(2, '0');
-                const url = `${corsProxy}${baseUrl}${checkYear}${checkMonth}${checkDay}iyakuhinkyoukyu.xlsx`;
-                
-                try {
-                    console.log(`Attempting URL: ${url}`);
-                    const response = await fetch(url, { method: 'HEAD' });
-                    if (response.ok) {
-                        successUrl = url;
-                        dateString = `${checkYear}${checkMonth}${checkDay}`;
-                        console.log(`Success! Found URL: ${successUrl}`);
-                        break;
-                    }
-                } catch (error) {
-                    console.warn(`Failed to access URL: ${url}, Error: ${error}`);
-                }
-            }
-            
-            if (!successUrl) {
-                // 自動でURLが見つからない場合、手動で最新のURLを試す
-                const manualUrl = `${corsProxy}https://www.mhlw.go.jp/content/10800000/001328082.xlsx`;
-                try {
-                    console.log(`Attempting manual URL: ${manualUrl}`);
-                    const response = await fetch(manualUrl, { method: 'HEAD' });
-                    if (response.ok) {
-                        successUrl = manualUrl;
-                        dateString = null; // 手動URLには日付情報がないためnull
-                        console.log(`Success! Found manual URL: ${successUrl}`);
-                    }
-                } catch (error) {
-                    console.error(`手動URLの確認に失敗しました: ${manualUrl} ${error}`);
-                }
-            }
-
-            if (!successUrl) {
-                console.error('最新のExcelファイルURLを特定できませんでした。');
-                return { data: null, date: null };
-            }
+            // Google DriveのファイルIDを抽出
+            const fileId = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';
+            const googleDriveUrl = `${corsProxy}https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
             try {
                 updateProgress('データをダウンロード中...', 50);
-                const response = await fetch(successUrl);
+                const response = await fetch(googleDriveUrl);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -269,10 +224,11 @@
                     });
                     console.log(`Data loaded successfully. Number of rows: ${mappedData.length}`);
                     updateProgress('データの読み込みが完了しました！', 100);
-                    return { data: mappedData, date: dateString };
+                    return { data: mappedData, date: 'Google Drive' };
                 }
             } catch (error) {
-                console.error(`データの取得に失敗しました: ${successUrl} ${error}`);
+                console.error(`データの取得に失敗しました: ${googleDriveUrl} ${error}`);
+                showMessage(`データの取得に失敗しました。URLを確認してください。${error}`, true);
             } finally {
                 setTimeout(() => progressBarContainer.classList.add('hidden'), 1000);
             }
@@ -553,11 +509,7 @@
             
             data = result.data;
             if (data) {
-                if (result.date) {
-                    dataDateSpan.textContent = result.date;
-                } else {
-                    dataDateSpan.textContent = `特定不能`;
-                }
+                dataDateSpan.textContent = result.date;
                 
                 // データ読み込み後、YJコードが入力されていれば自動で検索を実行
                 if (yjCodeInput.value) {
