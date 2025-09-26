@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報格差に挑む〜非エンジニアとAIの記録〜</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* 落ち着いた背景色 */
+        }
+        .section-title {
+            position: relative;
+            padding-left: 1rem;
+            border-left: 6px solid #ef4444; /* プロジェクトX風の赤ライン */
+            font-weight: 700;
+        }
+        .vibe-code-box {
+            background-color: #ffffff;
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl p-6 sm:p-10">
+
+        <!-- メインタイトル -->
+        <header class="text-center mb-10 border-b-4 border-red-500 pb-4">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-800 tracking-tight">
+                医薬品情報格差を打ち破れ！
+            </h1>
+            <p class="mt-2 text-xl text-red-600 font-semibold">
+                素人がAIと挑んだデータ自動化への道
+            </p>
+        </header>
+
+        <!-- 導入：目的と主人公 -->
+        <section class="mb-10">
+            <h2 class="section-title text-2xl mb-4 text-gray-700">I. 現場の叫び：埋もれた情報との戦い</h2>
+            
+            <p class="text-gray-600 mb-6 leading-relaxed">
+                このプロジェクトは、既存の業務における<strong>「医薬品出荷状況の情報格差」</strong>という名の巨大な壁に立ち向かう、一人の非エンジニアの記録である。
+                目標は単純明快。<strong>「現場の誰もが、日々の業務で最も手にするデスクトップ画面/ブックマークとなる、一丁目一番地の情報プラットフォーム」</strong>を、自らの手で創り上げることだった。
+            </p>
+
+            <div class="vibe-code-box p-4 rounded-lg shadow-inner">
+                <p class="text-lg font-bold text-blue-700">明確な目的</p>
+                <p class="mt-1 text-gray-700">
+                    医療現場における医薬品出荷情報の検索を、<strong>誰でも・どこでも・瞬時に</strong>行えるようにする。
+                </p>
+                <p class="mt-2 text-sm text-gray-500">
+                    （技術者が作る「高性能だが使いにくいツール」ではなく、現場が本当に欲しかった「開いておけば業務が回るツール」を目指す）
+                </p>
+            </div>
+        </section>
+
+        <!-- エピソード１：技術の壁とAIとの右往左往 -->
+        <section class="mb-10">
+            <h2 class="section-title text-2xl mb-4 text-gray-700">II. 挫折と再起：AIとの「バイブコーディング」</h2>
+            
+            <p class="text-gray-600 mb-6 leading-relaxed">
+                現場を知り尽くした開発者にとって、システムの欠陥は手に取るようにわかる。だが、それを打ち破る<strong>「技術力」</strong>は、初級者未満。全ては<strong>生成AIとの対話、すなわち「バイブコーディング」</strong>に委ねられた。
+            </p>
+
+            <div class="space-y-6">
+                
+                <!-- 技術的右往左往エピソード -->
+                <div class="p-5 bg-gray-100 rounded-lg shadow-md">
+                    <p class="text-xl font-semibold text-red-600 mb-3">【技術的敗北】ローカルファイルという沼</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><strong>最初の挫折：</strong> 制作物第一弾は、読めるファイルがCSVだけ。情報源のExcelファイルが扱えないという初歩的な壁。</li>
+                        <li><strong>右往左往：</strong> JavaScriptでExcel対応に成功するも、<strong>HTMLコードではファイルの自動ダウンロードや読み込みができない</strong>という、基本的なWebの制約に直面。</li>
+                        <li><strong>気づき：</strong> ダウンロードと読み込みという10〜15秒の手動作業が「誰でも使いやすい」を否定すると悟り、ローカルでの運用を断念。この方針の誤りが後々まで尾を引く。</li>
+                    </ul>
+                </div>
+                
+                <!-- 技術的ブレイクスルー（AIの力） -->
+                <div class="p-5 bg-gray-100 rounded-lg shadow-md">
+                    <p class="text-xl font-semibold text-blue-600 mb-3">【AIとの協調】知識の連鎖で壁を破る</p>
+                    <p class="text-gray-700 leading-relaxed">
+                        第4回の機械学習プロトタイプでの「モデルを読み出す」行為が、データ更新せず直接データを読みに行くという後の発想に繋がった。
+                        そして、ローカルから<strong>クラウド保管</strong>に変更した途端、長年の悩みが一瞬で解決。
+                    </p>
+                    <p class="text-gray-700 mt-3 leading-relaxed font-medium">
+                        「ローカルファイルだから、自動取り込みできないのでは？クラウド保管したファイルならできるのでは？やってみたら、あっさり解決。」— この一連のプロセスこそ、<strong>現場の泥臭い発想とAIによる即時検証</strong>の結果である。
+                    </p>
+                </div>
+                
+            </div>
+        </section>
+
+        <!-- エピソード２：現場発想の勝利 -->
+        <section class="mb-10">
+            <h2 class="section-title text-2xl mb-4 text-gray-700">III. 現場の執念：デスクトップを奪取せよ（フロントエンド）</h2>
+            
+            <p class="text-gray-600 mb-6 leading-relaxed">
+                最高の技術も、使われなければゴミである。デスクトップがアイコンで埋め尽くされた現場のPCを想像し、開発者は「使いやすさ」に命を懸けた。技術者には絶対に生まれない、現場発想のUI/UXが次々と反映された。
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                
+                <!-- 現場発想 1: 色彩と操作性 -->
+                <div class="p-5 bg-green-50 rounded-lg shadow-md">
+                    <p class="font-bold text-lg text-green-700">現場知恵①：ストレス緩和と「おせっかい」</p>
+                    <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+                        <li><strong>色彩：</strong> ストレス緩和効果があるとされる<strong>淡い青と白</strong>を採用。長時間見ても疲れない、戦場を支えるデザイン。</li>
+                        <li><strong>操作性：</strong> 先発品検索から成分名クリックで、検索結果をクリアし<strong>同一成分の一覧</strong>に変更。現場の「次の動き」を先読みした無言の導線。</li>
+                        <li><strong>適応：</strong> スマホでも使えるよう、あえて情報量を絞った狭い画面への対応。</li>
+                    </ul>
+                </div>
+
+                <!-- 現場発想 2: YJコードの錬金術 -->
+                <div class="p-5 bg-green-50 rounded-lg shadow-md">
+                    <p class="font-bold text-lg text-green-700">現場知恵②：YJコードという「変数」の発見</p>
+                    <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+                        <li><strong>ブレイクスルー：</strong> PMDAなどの医薬品情報URLが、医薬品の<strong>YJコードを変数として使用している</strong>ことを発見。</li>
+                        <li><strong>実現：</strong> 検索結果から該当薬剤情報に<strong>直接リンク</strong>。情報収集の「もう一歩」をゼロクリックで達成。</li>
+                        <li><strong>拡張：</strong> YJコードをクエリパラメータとして別サイトに渡し、同一成分・薬効での代替薬検索を可能にし、<strong>コアツールを「情報ハブ」へと昇華</strong>させた。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- エピソード３：最後の戦い、バックエンドの孤独な自動化 -->
+        <section class="mb-10">
+            <h2 class="section-title text-2xl mb-4 text-gray-700">IV. 最後の難関：社内VPNという鉄の扉（バックエンド）</h2>
+
+            <p class="text-gray-600 mb-6 leading-relaxed">
+                フロントエンドが現場の理想形に近づく中、バックエンドには最後の巨大な壁が立ちはだかった。<strong>「corsproxy.ioからのコンテンツへのアクセスはIT管理者によって許可されていません」</strong>— VPNによるアクセス制限である。
+            </p>
+
+            <div class="bg-indigo-50 p-5 rounded-lg shadow-md">
+                <p class="text-xl font-bold text-indigo-700 mb-3">AIとGASが拓いた活路</p>
+                <p class="text-gray-700 leading-relaxed mb-3">
+                    厚労省データへの直接アクセスを断念し、<strong>GAS（Google Apps Script）</strong>によるコピー作業の自動化を決断。ここで再び、技術的な知識ではなく<strong>「現場の泥臭い処理」</strong>が勝利した。
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+                    <li><strong>突破口：</strong> 厚労省のファイル名に日付が入っているという難点を逆手に取る。<strong>当日日付を基準に順に遡るループ処理</strong>でURLを設定。</li>
+                    <li><strong>処理：</strong> 6時間毎にダウンロードし、固定名にリネーム。アクセス制限を解除した共有Google Driveに上書き保存。</li>
+                    <li><strong>結果：</strong> <strong>技術的には荒削り</strong>だが、現場が望む「最新のデータ」を確実に提供し続ける、<strong>執念の自動化</strong>が完成した。</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 結論 -->
+        <footer class="text-center pt-6 mt-10 border-t-2 border-gray-300">
+            <p class="text-2xl font-bold text-gray-800">
+                このプロトタイプは、技術者にはできない「現場発想」が、技術的な未熟さを「AI」でカバーしながら、困難な壁を乗り越えた記録である。
+            </p>
+            <p class="mt-4 text-lg text-gray-600">
+                そして、この作品をいかに公表し、社会に貢献していくか。開発者の挑戦は、まだ続く。
+            </p>
+        </footer>
+    </div>
+
+</body>
+</html>
