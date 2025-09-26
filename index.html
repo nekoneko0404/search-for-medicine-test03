@@ -242,7 +242,6 @@
         const tableContainer = document.getElementById('tableContainer');
         let isComposing = false;
         
-        // ... (showMessage, hideMessage, normalizeString, getSearchKeywords, processExcelData 関数は変更なし)
         function showMessage(text, type = 'info') {
             messageBox.textContent = text;
             messageBox.classList.remove('hidden', 'bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800', 'bg-blue-200', 'text-blue-800');
@@ -287,8 +286,28 @@
             }
         }
 
+        /**
+         * @param {string} status 出荷状況の文字列 (例: '限定出荷')
+         * @returns {string} Tailwind CSSで装飾された<span>タグのHTML文字列
+         */
+        function renderStatusButton(status) {
+            const trimmedStatus = (status || "").trim();
+            // インラインブロック要素にすることで、リンクがボタン全体を覆うようにする
+            let baseClass = "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block transition-colors duration-150";
+            
+            if (trimmedStatus.includes("通常出荷") || trimmedStatus.includes("通")) {
+                return `<span class="${baseClass} bg-indigo-500 text-white hover:bg-indigo-600">通常出荷</span>`; 
+            } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
+                return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">出荷制限</span>`; // ✅ 変更
+            } else if (trimmedStatus.includes("供給停止") || trimmedStatus.includes("停止") || trimmedStatus.includes("停")) {
+                return `<span class="${baseClass} bg-gray-700 text-white hover:bg-gray-800">供給停止</span>`; // ✅ 変更
+            } else {
+                // その他の場合は元の文字列、または不明なステータスとして表示
+                return `<span class="${baseClass} bg-gray-200 text-gray-800 hover:bg-gray-300">${trimmedStatus || "不明"}</span>`; 
+            }
+        }
 
-        // searchData関数は変更なし
+
         function searchData() {
             if (excelData.length === 0) {
                 return;
@@ -385,10 +404,11 @@
         }
 
 
-        // テーブルのレンダリング関数は変更なし
+        // テーブルのレンダリング関数を修正
         function renderTable(data) {
             const resultBody = document.getElementById('resultTableBody');
             resultBody.innerHTML = "";
+            const statusIndex = 11; // L列のインデックス
 
             if (data.length === 0) {
                 const row = resultBody.insertRow();
@@ -444,30 +464,25 @@
                     ingredientNameCell.textContent = ingredientName;
                 }
                 
-                // 出荷状況 (L列): text-xs, tight-cell, text-left
+                // ✅ 変更: 出荷状況 (L列): renderStatusButtonの結果をリンクで囲む
                 const statusCell = newRow.insertCell(2);
                 statusCell.setAttribute('data-label', '出荷状況');
-                statusCell.classList.add("tight-cell", "py-2", "font-medium", "rounded-md", "text-xs", "text-left"); 
-                const status = (row[11] || '').trim(); // L列が出荷対応状況
+                // tight-cellはpaddingの調整に使用
+                statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left"); 
                 
-                let colorClass = 'text-gray-900';
-                switch(status) {
-                    case '後':
-                        colorClass = 'bg-green-200 text-green-800';
-                        break;
-                    case '基':
-                        colorClass = 'bg-purple-200 text-purple-800';
-                        break;
-                    default:
-                        colorClass = 'text-gray-900';
-                }
-                statusCell.classList.add(colorClass);
-
+                const statusValue = (row[statusIndex] || '').trim();
+                const statusButtonHtml = renderStatusButton(statusValue);
+                
                 if (yjCode) {
+                    // YJコードへのリンクURLを設定
                     const yjCodeLinkUrl = `https://nekoneko0404.github.io/search-for-medicine-test03/yjcode.html?yjcode=${yjCode}`;
-                    statusCell.innerHTML = `<a href="${yjCodeLinkUrl}" target="_blank" class="block w-full h-full text-indigo-600 hover:underline">${status || ""}</a>`;
+                    
+                    // ボタンHTML全体をハイパーリンクで囲む
+                    // `flex justify-center`を追加して、ボタンをセル内で中央揃えにする
+                    statusCell.innerHTML = `<div class="flex justify-center"><a href="${yjCodeLinkUrl}" target="_blank" class="block text-indigo-600 hover:no-underline">${statusButtonHtml}</a></div>`;
                 } else {
-                    statusCell.textContent = status || "";
+                    // YJコードがない場合はボタンのみ表示 (中央揃え)
+                    statusCell.innerHTML = `<div class="flex justify-center">${statusButtonHtml}</div>`;
                 }
                 
                 // 制限理由 (N列): text-xs
