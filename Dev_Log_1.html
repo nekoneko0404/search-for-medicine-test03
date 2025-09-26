@@ -29,7 +29,7 @@
 
         <!-- メインタイトル -->
         <header class="text-center mb-10 border-b-4 border-red-500 pb-4">
-            <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-800 tracking-tight">
+            <h1 class="4xl sm:text-5xl font-extrabold text-gray-800 tracking-tight">
                 医薬品情報格差を打ち破れ！
             </h1>
             <p class="mt-2 text-xl text-red-600 font-semibold">
@@ -42,8 +42,8 @@
             <h2 class="section-title text-2xl mb-4 text-gray-700">I. 現場の叫び：埋もれた情報との戦い</h2>
             
             <p class="text-gray-600 mb-6 leading-relaxed">
-                このプロジェクトは、既存の業務における<strong>「医薬品出荷状況の情報格差」</strong>という名の巨大な壁に立ち向かう、一人の非エンジニアの記録である。
-                目標は単純明快。<strong>「現場の誰もが、日々の業務で最も手にするデスクトップ画面/ブックマークとなる、一丁目一番地の情報プラットフォーム」</strong>を、自らの手で創り上げることだった。
+                このプロジェクトは、既存の業務における<strong>「医薬品出荷状況の情報格差」</strong>という名の巨大な壁に挑み続けた、ある一人の戦士の記録である。
+                目標は単純明快。<strong>「現場の誰もが、日々の業務で最も手にする、現場の生命線となる最前線の情報プラットフォーム」</strong>を、自らの手で創り上げることだった。
             </p>
 
             <div class="vibe-code-box p-4 rounded-lg shadow-inner">
@@ -52,7 +52,7 @@
                     医療現場における医薬品出荷情報の検索を、<strong>誰でも・どこでも・瞬時に</strong>行えるようにする。
                 </p>
                 <p class="mt-2 text-sm text-gray-500">
-                    （技術者が作る「高性能だが使いにくいツール」ではなく、現場が本当に欲しかった「開いておけば業務が回るツール」を目指す）
+                    （技術者が作る「高性能だが使いにくいツール」ではなく、<strong>現場が本当に欲しかった「開いておけば業務が回るツール」</strong>を目指す）
                 </p>
             </div>
         </section>
@@ -62,7 +62,9 @@
             <h2 class="section-title text-2xl mb-4 text-gray-700">II. 挫折と再起：AIとの「バイブコーディング」</h2>
             
             <p class="text-gray-600 mb-6 leading-relaxed">
-                現場を知り尽くした開発者にとって、システムの欠陥は手に取るようにわかる。だが、それを打ち破る<strong>「技術力」</strong>は、初級者未満。全ては<strong>生成AIとの対話、すなわち「バイブコーディング」</strong>に委ねられた。
+                現場を知り尽くした開発者にとって、システムの欠点は皮膚感覚で理解できる。だが、それを打ち破る<strong>「技術力」</strong>は、初級者未満。武器は、未熟な知識と、ただ一点、<strong>生成AI</strong>との執拗な対話、<strong>「バイブ・コーディング」</strong>と呼ばれる無謀な試行錯誤のみだった。
+                <br class="mb-2"><br>
+                これらの挑戦の裏には、**小さな挑戦と小さな失敗が山のように積み重なっている。**その一つ一つが、確かな教訓となって道を照らした。
             </p>
 
             <div class="space-y-6">
@@ -72,8 +74,8 @@
                     <p class="text-xl font-semibold text-red-600 mb-3">【技術的敗北】ローカルファイルという沼</p>
                     <ul class="list-disc list-inside space-y-2 text-gray-700">
                         <li><strong>最初の挫折：</strong> 制作物第一弾は、読めるファイルがCSVだけ。情報源のExcelファイルが扱えないという初歩的な壁。</li>
-                        <li><strong>右往左往：</strong> JavaScriptでExcel対応に成功するも、<strong>HTMLコードではファイルの自動ダウンロードや読み込みができない</strong>という、基本的なWebの制約に直面。</li>
-                        <li><strong>気づき：</strong> ダウンロードと読み込みという10〜15秒の手動作業が「誰でも使いやすい」を否定すると悟り、ローカルでの運用を断念。この方針の誤りが後々まで尾を引く。</li>
+                        <li><strong>右往左往：</strong> JavaScriptでExcel対応に成功するも、<strong>HTMLコードではファイルの自動ダウンロードや読み込みができない</strong>という、Webの基本的な制約という絶対的な壁に直面。</li>
+                        <li><strong>気づき：</strong> 10〜15秒の手動作業が<strong>「誰でも使いやすい」</strong>を否定すると悟り、ローカルでの運用を断念。この方針の誤りが、開発を大きく後退させる。</li>
                     </ul>
                 </div>
                 
@@ -81,11 +83,11 @@
                 <div class="p-5 bg-gray-100 rounded-lg shadow-md">
                     <p class="text-xl font-semibold text-blue-600 mb-3">【AIとの協調】知識の連鎖で壁を破る</p>
                     <p class="text-gray-700 leading-relaxed">
-                        第4回の機械学習プロトタイプでの「モデルを読み出す」行為が、データ更新せず直接データを読みに行くという後の発想に繋がった。
-                        そして、ローカルから<strong>クラウド保管</strong>に変更した途端、長年の悩みが一瞬で解決。
+                        第4回の機械学習プロトタイプで得たヒントが、データ更新せず直接データを読みに行くという後の発想に繋がった。
+                        そして、ローカルから<strong>クラウド保管</strong>に変更した途端、<strong>半月</strong>にわたる技術的な悩みが一瞬で解決する。
                     </p>
                     <p class="text-gray-700 mt-3 leading-relaxed font-medium">
-                        「ローカルファイルだから、自動取り込みできないのでは？クラウド保管したファイルならできるのでは？やってみたら、あっさり解決。」— この一連のプロセスこそ、<strong>現場の泥臭い発想とAIによる即時検証</strong>の結果である。
+                        「ローカルファイルだから、自動取り込みできないのでは？クラウド保管したファイルならできるのでは？やってみたら、あっさり解決。」— これは、技術論を超越した<strong>「現場の執念」</strong>と、AIによる<strong>「即時検証」</strong>が奇跡的に結実した瞬間だった。
                     </p>
                 </div>
                 
@@ -97,7 +99,7 @@
             <h2 class="section-title text-2xl mb-4 text-gray-700">III. 現場の執念：デスクトップを奪取せよ（フロントエンド）</h2>
             
             <p class="text-gray-600 mb-6 leading-relaxed">
-                最高の技術も、使われなければゴミである。デスクトップがアイコンで埋め尽くされた現場のPCを想像し、開発者は「使いやすさ」に命を懸けた。技術者には絶対に生まれない、現場発想のUI/UXが次々と反映された。
+                最高の技術も、現場で使われなければ、それはただの空論にすぎない。デスクトップがアイコンで埋め尽くされた現場のPCを想像し、開発者は<strong>「使いやすさ」</strong>に命を懸けた。技術者には想像もできない、<strong>現場発想（フィールド・オリジン）</strong>のUI/UXが、次々と実装されていく。
             </p>
 
             <div class="grid md:grid-cols-2 gap-6">
@@ -135,12 +137,12 @@
             <div class="bg-indigo-50 p-5 rounded-lg shadow-md">
                 <p class="text-xl font-bold text-indigo-700 mb-3">AIとGASが拓いた活路</p>
                 <p class="text-gray-700 leading-relaxed mb-3">
-                    厚労省データへの直接アクセスを断念し、<strong>GAS（Google Apps Script）</strong>によるコピー作業の自動化を決断。ここで再び、技術的な知識ではなく<strong>「現場の泥臭い処理」</strong>が勝利した。
+                    厚労省データへの直接接続という理想は、ついに断念された。代わって、<strong>GAS（Google Apps Script）</strong>によるコピー作業の自動化を決断。ここで再び、<strong>理論</strong>ではなく<strong>現場の泥臭い処理</strong>が、冷徹なシステムを打ち破った。
                 </p>
                 <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
                     <li><strong>突破口：</strong> 厚労省のファイル名に日付が入っているという難点を逆手に取る。<strong>当日日付を基準に順に遡るループ処理</strong>でURLを設定。</li>
                     <li><strong>処理：</strong> 6時間毎にダウンロードし、固定名にリネーム。アクセス制限を解除した共有Google Driveに上書き保存。</li>
-                    <li><strong>結果：</strong> <strong>技術的には荒削り</strong>だが、現場が望む「最新のデータ」を確実に提供し続ける、<strong>執念の自動化</strong>が完成した。</li>
+                    <li><strong>結果：</strong> その手法は、<strong>技術的には荒削り（ラフ）</strong>だ。しかし、現場が望む「最新のデータ」を確実に提供し続ける、<strong>執念の自動化</strong>が完成した。</li>
                 </ul>
             </div>
         </section>
