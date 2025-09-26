@@ -243,7 +243,8 @@
         // メーカーリンク用データ取得ロジック
         async function fetchManufacturerData() {
             console.log('Fetching manufacturer data from Google Drive...');
-            const fileId = '1fcdlLzNZgx-rlKg4qSDcxP1oxdzYAh8UVb0e4fxp9bE';
+            // ★修正箇所: Google DriveのファイルIDを新しいものに変更
+            const fileId = '1lTHHbUj6ySAgtum8zJrHjWAxYnbOO9r8H8Cnu-Y0TnA';
             const googleDriveUrl = `${corsProxy}https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
             try {
