@@ -239,8 +239,7 @@
             updateProgress('Google Driveからデータを読み込み中...', 0);
             
             // Google DriveのファイルIDを抽出
-            const fileId = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';
-            const googleDriveUrl = `${corsProxy}https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+          const url = "https://docs.google.com/spreadsheets/d/1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd/export?format=xlsx";
 
             try {
                 updateProgress('データをダウンロード中...', 50);
