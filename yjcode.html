@@ -696,7 +696,7 @@
                 manufacturerLinks = manufacturerData;
                 document.getElementById('dataDate').textContent = `データ件数: ${data.length}件`;
 
-                // ★ URLクエリパラメータの処理を追加
+                // ★ URLクエリパラメータの処理（メッセージ表示なし）
                 const params = new URLSearchParams(window.location.search);
                 const yjCodeFromUrl = params.get('yjcode');
 
@@ -708,7 +708,7 @@
                     // 検索を即時開始
                     performSearch();
                     
-                    showMessage(`URLパラメータからYJコード「${yjCodeFromUrl.trim()}」を取得し、検索を開始しました。`, false);
+                    // showMessage() は削除
                 } else {
                     showMessage('データ読み込み完了。検索条件を設定してください。', false);
                 }
