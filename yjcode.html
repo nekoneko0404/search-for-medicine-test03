@@ -110,23 +110,23 @@
                 <h3 class="font-semibold text-slate-800 mb-1 text-sm">検索項目</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits3" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <input type="checkbox" id="digits3" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
                         <span class="ml-1 text-slate-700">薬効群3桁</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits4" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <input type="checkbox" id="digits4" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
                         <span class="ml-1 text-slate-700">薬効群4桁</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits7" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <input type="checkbox" id="digits7" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
                         <span class="ml-1 text-slate-700">成分</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits8" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <input type="checkbox" id="digits8" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
                         <span class="ml-1 text-slate-700">剤形</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="digits9" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <input type="checkbox" id="digits9" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
                         <span class="ml-1 text-slate-700">規格単位</span>
                     </label>
                     <label class="flex items-center">
@@ -140,7 +140,7 @@
                 <h3 class="font-semibold text-slate-800 mb-1 text-sm">出荷状況</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                     <label class="flex items-center">
-                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
                         <span class="ml-1 text-slate-700">通常出荷</span>
                     </label>
                     <label class="flex items-center">
@@ -210,7 +210,7 @@
             progressMessage.textContent = message;
             progressBar.style.width = `${percentage}%`;
         }
-
+        
         /**
          * @param {string} status 出荷状況の文字列 (例: '限定出荷')
          * @returns {string} Tailwind CSSで装飾されたボタンのHTML文字列 (ハイパーリンクなし)
@@ -238,12 +238,13 @@
             console.log('Fetching Excel data from Google Drive...');
             updateProgress('Google Driveからデータを読み込み中...', 0);
             
-            // Google DriveのファイルIDを抽出
-          const url = "https://docs.google.com/spreadsheets/d/1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd/export?format=xlsx";
+            const fileId = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';
+            const url = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
             try {
                 updateProgress('データをダウンロード中...', 50);
-                const response = await fetch(googleDriveUrl);
+                // CORSプロキシ経由でアクセス
+                const response = await fetch(`${corsProxy}${url}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -278,8 +279,8 @@
                     return { data: mappedData, date: 'Google Drive' };
                 }
             } catch (error) {
-                console.error(`データの取得に失敗しました: ${googleDriveUrl} ${error}`);
-                showMessage(`データの取得に失敗しました。URLを確認してください。${error}`, true);
+                console.error(`データの取得に失敗しました: ${url} ${error}`);
+                showMessage(`データの取得に失敗しました。CORSエラーの可能性があります。詳細: ${error.message}`);
             } finally {
                 setTimeout(() => progressBarContainer.classList.add('hidden'), 1000);
             }
@@ -349,23 +350,13 @@
             
             const isAnyDigitChecked = digits3Checkbox.checked || digits4Checkbox.checked || digits7Checkbox.checked || digits8Checkbox.checked || digits9Checkbox.checked || digits11Checkbox.checked;
             
-            // 出荷状況のチェックボックスがすべて外れている場合は、検索結果を非表示にする
+            // 出荷状況のチェックボックスがすべて外れているかどうか
             const statusNormal = statusNormalCheckbox.checked;
             const statusLimited = statusLimitedCheckbox.checked;
             const statusStop = statusStopCheckbox.checked;
 
-            if (!statusNormal && !statusLimited && !statusStop) {
-                resultsContainer.innerHTML = '';
-                showMessage('出荷状況のチェックを全て外したため、検索結果は表示されません。', false);
-                return;
-            }
-
-            let filteredData = [];
-            
-            // 全件検索
-            if (!isAnyDigitChecked) {
-                filteredData = data;
-            } else {
+            // 検索項目が一つでもチェックされているのに、YJコードが空、または不適切であればエラー
+            if (isAnyDigitChecked) {
                 if (!yjCode) {
                     showMessage('YJコードが入力されていません。検索項目が選択されている場合、YJコードは必須です。');
                     return;
@@ -379,51 +370,72 @@
                     showMessage('YJコードは12桁で入力してください。');
                     return;
                 }
+            }
 
-                // フィルタリングロジック
+            // 検索項目が一つもチェックされていなくても、出荷状況がすべて外れていたら、結果を非表示にする（全件検索を避ける）
+             if (!isAnyDigitChecked && !statusNormal && !statusLimited && !statusStop) {
+                showMessage('検索項目と出荷状況のチェックを全て外したため、検索結果は表示されません。', false);
+                return;
+            }
+
+            let filteredData = data;
+            
+            // 検索項目フィルタリング
+            if (isAnyDigitChecked) {
                 const digitFilters = [];
 
                 if (digits11Checkbox.checked) {
+                    // 規格内番号（11桁）がチェックされている場合は、11桁で絞り込む（他は無視）
                     digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 11)));
                 } else {
+                    // 規格内番号以外がチェックされている場合の処理
                     if (digits9Checkbox.checked) {
+                        // 規格単位（9桁目）がチェックされている場合
                         digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).length > 8 && normalizeString(item['⑤YJコード']).charAt(8) === yjCode.charAt(8));
                     }
                     if (digits8Checkbox.checked) {
+                        // 剤形（8桁目）がチェックされている場合
                         digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).length > 7 && normalizeString(item['⑤YJコード']).charAt(7) === yjCode.charAt(7));
                     }
                     if (digits7Checkbox.checked) {
+                        // 成分（7桁目まで）がチェックされている場合
                         digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 7)));
                     }
                     if (digits4Checkbox.checked) {
+                        // 薬効群4桁（4桁目まで）がチェックされている場合
                         digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 4)));
                     } else if (digits3Checkbox.checked) {
+                        // 薬効群3桁（3桁目まで）がチェックされている場合
                         digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 3)));
                     }
                 }
 
-                filteredData = data.filter(item => digitFilters.every(filterFunc => filterFunc(item)));
+                filteredData = filteredData.filter(item => digitFilters.every(filterFunc => filterFunc(item)));
             }
             
-            // 出荷状況のフィルタリング
+            // 出荷状況のフィルタリング（チェックされている項目のみ）
             if (statusNormal || statusLimited || statusStop) {
                 const initialCount = filteredData.length;
                 filteredData = filteredData.filter(item => {
                     const status = normalizeString(item['⑫製造販売業者の「出荷対応」の状況'] || '');
                     let isMatch = false;
-                    if (statusNormal && status.includes('通常出荷')) {
+                    // '通常出荷' or '通' の場合
+                    if (statusNormal && (status.includes('通常出荷') || status.includes('通'))) {
                         isMatch = true;
                     }
-                    if (statusLimited && status.includes('限定出荷')) {
+                    // '限定出荷' or '出荷制限' or '限' or '制' の場合
+                    if (statusLimited && (status.includes('限定出荷') || status.includes('出荷制限') || status.includes('限') || status.includes('制'))) {
                         isMatch = true;
                     }
-                    if (statusStop && status.includes('供給停止')) {
+                    // '供給停止' or '停止' or '停' の場合
+                    if (statusStop && (status.includes('供給停止') || status.includes('停止') || status.includes('停'))) {
                         isMatch = true;
                     }
                     return isMatch;
                 });
                 console.log(`Status filter applied. Filtered from ${initialCount} to ${filteredData.length} items.`);
             }
+
 
             const totalCount = filteredData.length;
             const resultsToDisplay = filteredData.slice(0, 500);
@@ -537,18 +549,18 @@
                         const yjCodeInput = document.getElementById('yjCodeInput');
                         yjCodeInput.value = yjCode;
                         
-                        // 検索項目をリセット
-                        document.getElementById('digits3').checked = true;
-                        document.getElementById('digits4').checked = true;
-                        document.getElementById('digits7').checked = true;
-                        document.getElementById('digits8').checked = true;
-                        document.getElementById('digits9').checked = true;
-                        document.getElementById('digits11').checked = false; // 規格内番号はオフ
+                        // ★ 修正: 検索項目をリセット（品名クリックした状態）
+                        document.getElementById('digits3').checked = true; // 薬効群3桁: +
+                        document.getElementById('digits4').checked = true; // 薬効群4桁: +
+                        document.getElementById('digits7').checked = true; // 成分: +
+                        document.getElementById('digits8').checked = false; // 剤形: -
+                        document.getElementById('digits9').checked = false; // 規格単位: -
+                        document.getElementById('digits11').checked = false; // 規格内番号: -
                         
-                        // 出荷状況もリセット
-                        document.getElementById('statusNormal').checked = true;
-                        document.getElementById('statusLimited').checked = true; 
-                        document.getElementById('statusStop').checked = true; 
+                        // ★ 修正: 出荷状況をリセット（品名クリックした状態）
+                        document.getElementById('statusNormal').checked = true; // 通常出荷: +
+                        document.getElementById('statusLimited').checked = false; // 限定出荷: -
+                        document.getElementById('statusStop').checked = false; // 供給停止: -
                         
                         performSearch();
                     }
@@ -562,18 +574,18 @@
                         const yjCodeInput = document.getElementById('yjCodeInput');
                         yjCodeInput.value = yjCode;
 
-                        // 検索項目をリセット
-                        document.getElementById('digits3').checked = true;
-                        document.getElementById('digits4').checked = true;
-                        document.getElementById('digits7').checked = true;
-                        document.getElementById('digits8').checked = true;
-                        document.getElementById('digits9').checked = true;
-                        document.getElementById('digits11').checked = false; // 規格内番号はオフ
+                        // ★ 修正: 検索項目をリセット（品名クリックした状態）
+                        document.getElementById('digits3').checked = true; // 薬効群3桁: +
+                        document.getElementById('digits4').checked = true; // 薬効群4桁: +
+                        document.getElementById('digits7').checked = true; // 成分: +
+                        document.getElementById('digits8').checked = false; // 剤形: -
+                        document.getElementById('digits9').checked = false; // 規格単位: -
+                        document.getElementById('digits11').checked = false; // 規格内番号: -
                         
-                        // 出荷状況もリセット
-                        document.getElementById('statusNormal').checked = true;
-                        document.getElementById('statusLimited').checked = true;
-                        document.getElementById('statusStop').checked = true;
+                        // ★ 修正: 出荷状況をリセット（品名クリックした状態）
+                        document.getElementById('statusNormal').checked = true; // 通常出荷: +
+                        document.getElementById('statusLimited').checked = false; // 限定出荷: -
+                        document.getElementById('statusStop').checked = false; // 供給停止: -
                         
                         performSearch();
                     }
@@ -648,66 +660,49 @@
             return card;
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const yjCodeInput = document.getElementById('yjCodeInput');
-            const searchButton = document.getElementById('searchButton');
-            const dataDateSpan = document.getElementById('dataDate');
-            
-            // ページ読み込み時に指定されたチェックボックスをONにする (初期設定)
-            document.getElementById('digits3').checked = true;
-            document.getElementById('digits4').checked = true;
-            document.getElementById('digits7').checked = true;
-            document.getElementById('digits8').checked = true;
-            document.getElementById('digits9').checked = true;
-            document.getElementById('statusNormal').checked = true;
-            document.getElementById('statusLimited').checked = false;
-            document.getElementById('statusStop').checked = false;
-
-            // URLからクエリパラメータを取得し、入力欄に反映
-            const urlParams = new URLSearchParams(window.location.search);
-            const yjCodeFromUrl = urlParams.get('yjcode');
-            if (yjCodeFromUrl) {
-                yjCodeInput.value = yjCodeFromUrl;
+        // イベントリスナーの追加
+        document.getElementById('searchButton').addEventListener('click', performSearch);
+        document.getElementById('yjCodeInput').addEventListener('keypress', (e) => {
+            // YJコードが12桁入力されたら検索を実行する
+            if (e.key === 'Enter' && normalizeString(document.getElementById('yjCodeInput').value).length === 12) {
+                performSearch();
             }
-
-            loadingIndicator.classList.remove('hidden');
-            // 2つのデータを同時に取得
-            const [mainResult, manufacturerResult] = await Promise.all([
-                fetchExcelData(),
-                fetchManufacturerData()
-            ]);
-            loadingIndicator.classList.add('hidden');
-            
-            data = mainResult.data;
-            manufacturerLinks = manufacturerResult;
-            
-            if (data) {
-                dataDateSpan.textContent = mainResult.date;
-                
-                // データ読み込み後、YJコードが入力されていれば自動で検索を実行
-                if (yjCodeInput.value) {
+        });
+        
+        // チェックボックスの状態変更時に検索を実行する
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                // YJコードが12桁入力されている場合のみ検索
+                if (normalizeString(document.getElementById('yjCodeInput').value).length === 12) {
+                    performSearch();
+                } else if (!document.getElementById('digits3').checked && !document.getElementById('digits4').checked && !document.getElementById('digits7').checked && !document.getElementById('digits8').checked && !document.getElementById('digits9').checked && !document.getElementById('digits11').checked) {
+                    // 検索項目が全てオフの場合は、YJコードの有無にかかわらず、出荷状況フィルターを適用した全件検索を実行する
                     performSearch();
                 }
-            } else {
-                showMessage('データの取得に失敗しました。', true);
-                searchButton.disabled = true;
-                searchButton.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-
-            searchButton.addEventListener('click', performSearch);
-            
-            yjCodeInput.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    performSearch();
-                }
-            });
-
-            // すべてのチェックボックスにイベントリスナーを追加
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', performSearch);
             });
         });
+
+
+        // 初期化処理: データロード
+        (async () => {
+            loadingIndicator.classList.remove('hidden');
+            const { data: mainData } = await fetchExcelData();
+            const manufacturerData = await fetchManufacturerData();
+            loadingIndicator.classList.add('hidden');
+            
+            if (mainData && mainData.length > 0) {
+                data = mainData;
+                manufacturerLinks = manufacturerData;
+                document.getElementById('dataDate').textContent = `データ件数: ${data.length}件`;
+                // 初期状態はHTMLで設定された通り、チェック状態を反映
+                showMessage('データ読み込み完了。検索条件を設定してください。', false);
+            } else {
+                showMessage('データの読み込みに失敗しました。');
+            }
+        })();
+
     </script>
+
 </body>
 </html>
