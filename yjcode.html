@@ -673,18 +673,18 @@
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
-                // YJコードが12桁入力されている場合のみ検索
-                if (normalizeString(document.getElementById('yjCodeInput').value).length === 12) {
-                    performSearch();
-                } else if (!document.getElementById('digits3').checked && !document.getElementById('digits4').checked && !document.getElementById('digits7').checked && !document.getElementById('digits8').checked && !document.getElementById('digits9').checked && !document.getElementById('digits11').checked) {
-                    // 検索項目が全てオフの場合は、YJコードの有無にかかわらず、出荷状況フィルターを適用した全件検索を実行する
+                // YJコードが12桁入力されている場合、または検索項目が全てオフの場合は、検索を実行する
+                const yjCodeLength = normalizeString(document.getElementById('yjCodeInput').value).length;
+                const isAnyDigitChecked = document.getElementById('digits3').checked || document.getElementById('digits4').checked || document.getElementById('digits7').checked || document.getElementById('digits8').checked || document.getElementById('digits9').checked || document.getElementById('digits11').checked;
+
+                if (yjCodeLength === 12 || !isAnyDigitChecked) {
                     performSearch();
                 }
             });
         });
 
 
-        // 初期化処理: データロード
+        // 初期化処理: データロードとURLパラメータ処理
         (async () => {
             loadingIndicator.classList.remove('hidden');
             const { data: mainData } = await fetchExcelData();
@@ -695,8 +695,23 @@
                 data = mainData;
                 manufacturerLinks = manufacturerData;
                 document.getElementById('dataDate').textContent = `データ件数: ${data.length}件`;
-                // 初期状態はHTMLで設定された通り、チェック状態を反映
-                showMessage('データ読み込み完了。検索条件を設定してください。', false);
+
+                // ★ URLクエリパラメータの処理を追加
+                const params = new URLSearchParams(window.location.search);
+                const yjCodeFromUrl = params.get('yjcode');
+
+                if (yjCodeFromUrl && yjCodeFromUrl.trim().length === 12) {
+                    const yjCodeInput = document.getElementById('yjCodeInput');
+                    // YJコードを入力欄に設定
+                    yjCodeInput.value = yjCodeFromUrl.trim(); 
+                    
+                    // 検索を即時開始
+                    performSearch();
+                    
+                    showMessage(`URLパラメータからYJコード「${yjCodeFromUrl.trim()}」を取得し、検索を開始しました。`, false);
+                } else {
+                    showMessage('データ読み込み完了。検索条件を設定してください。', false);
+                }
             } else {
                 showMessage('データの読み込みに失敗しました。');
             }
