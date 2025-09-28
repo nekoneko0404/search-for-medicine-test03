@@ -465,7 +465,7 @@
 
             // ヘッダーを作成
             const thead = document.createElement('thead');
-            thead.className = 'bg-indigo-100'; /* ★修正: ヘッダー背景色 */
+            thead.className = 'bg-indigo-100';
             thead.innerHTML = `
                 <tr>
                     <th class="py-3 px-2 font-semibold text-indigo-800 whitespace-nowrap w-24">YJコード</th>
@@ -481,7 +481,7 @@
 
             // ボディを作成
             const tbody = document.createElement('tbody');
-            tbody.className = 'divide-y divide-gray-200';
+            tbody.className = 'divide-y divide-slate-200';
             results.forEach((item) => {
                 const pmdaYjCode = item['⑤YJコード'] || '';
 
@@ -505,7 +505,7 @@
                     `<span class="text-slate-700">${manufacturerName}</span>`;
 
                 const row = document.createElement('tr');
-                row.className = `border-b border-gray-200 transition-colors duration-200 even:bg-white odd:bg-stone-50 hover:bg-indigo-50`; /* ★修正: ホバー背景色 */
+                row.className = `transition-colors duration-200 even:bg-white odd:bg-indigo-50 hover:bg-indigo-100`;
                 
                 // 出荷状況のセルにrenderStatusButtonを適用
                 const statusValue = item['⑫製造販売業者の「出荷対応」の状況'] || '-';
@@ -643,9 +643,10 @@
                         <span class="text-slate-500 font-semibold w-1/3 flex-shrink-0">メーカー:</span>
                         <span class="text-right w-2/3">${manufacturerContent}</span>
                     </div>
-                    <div class="flex justify-between items-start card-item">
-                        <span class="text-slate-500 font-semibold w-1/3 flex-shrink-0">出荷状況:</span>
-                        <span class="text-right w-2/3 flex justify-end">${statusButtonHtml}</span>
+                    <hr class="my-2">
+                    <div class="flex justify-between items-center card-item">
+                        <span class="text-slate-500 font-semibold">出荷状況:</span>
+                        <span>${statusButtonHtml}</span>
                     </div>
                     <div class="flex justify-between items-start card-item">
                         <span class="text-slate-500 font-semibold w-1/3 flex-shrink-0">制限理由:</span>
@@ -660,64 +661,59 @@
             return card;
         }
 
-        // イベントリスナーの追加
-        document.getElementById('searchButton').addEventListener('click', performSearch);
-        document.getElementById('yjCodeInput').addEventListener('keypress', (e) => {
-            // YJコードが12桁入力されたら検索を実行する
-            if (e.key === 'Enter' && normalizeString(document.getElementById('yjCodeInput').value).length === 12) {
+        // 初期化関数
+        async function initializeApp() {
+            loadingIndicator.classList.remove('hidden');
+            
+            // メーカーリンクデータと医薬品データを並行して取得
+            const [manufacturerDataResult, excelDataResult] = await Promise.all([
+                fetchManufacturerData(),
+                fetchExcelData()
+            ]);
+
+            manufacturerLinks = manufacturerDataResult;
+            
+            if (excelDataResult && excelDataResult.data) {
+                data = excelDataResult.data;
+                const dateInfo = excelDataResult.date ? `(データ: ${excelDataResult.date})` : '';
+                document.getElementById('dataDate').textContent = dateInfo;
+                showMessage('データの準備ができました。YJコードを入力して検索してください。', false);
+            } else {
+                showMessage('データの読み込みに失敗しました。ページを再読み込みしてください。');
+            }
+            
+            loadingIndicator.classList.add('hidden');
+        }
+
+        // ★★★ 修正箇所 ★★★
+        // イベントリスナーを更新し、自動検索機能を追加
+        const searchButton = document.getElementById('searchButton');
+        const yjCodeInput = document.getElementById('yjCodeInput');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+        // 検索ボタンのクリック
+        searchButton.addEventListener('click', performSearch);
+
+        // Enterキーでの検索
+        yjCodeInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
                 performSearch();
             }
         });
-        
-        // チェックボックスの状態変更時に検索を実行する
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                // YJコードが12桁入力されている場合、または検索項目が全てオフの場合は、検索を実行する
-                const yjCodeLength = normalizeString(document.getElementById('yjCodeInput').value).length;
-                const isAnyDigitChecked = document.getElementById('digits3').checked || document.getElementById('digits4').checked || document.getElementById('digits7').checked || document.getElementById('digits8').checked || document.getElementById('digits9').checked || document.getElementById('digits11').checked;
 
-                if (yjCodeLength === 12 || !isAnyDigitChecked) {
-                    performSearch();
-                }
-            });
+        // 12桁入力されたら自動で検索
+        yjCodeInput.addEventListener('input', function(event) {
+            if (event.target.value.trim().length === 12) {
+                performSearch();
+            }
         });
 
-
-        // 初期化処理: データロードとURLパラメータ処理
-        (async () => {
-            loadingIndicator.classList.remove('hidden');
-            const { data: mainData } = await fetchExcelData();
-            const manufacturerData = await fetchManufacturerData();
-            loadingIndicator.classList.add('hidden');
-            
-            if (mainData && mainData.length > 0) {
-                data = mainData;
-                manufacturerLinks = manufacturerData;
-                document.getElementById('dataDate').textContent = `データ件数: ${data.length}件`;
-
-                // ★ URLクエリパラメータの処理（メッセージ表示なし）
-                const params = new URLSearchParams(window.location.search);
-                const yjCodeFromUrl = params.get('yjcode');
-
-                if (yjCodeFromUrl && yjCodeFromUrl.trim().length === 12) {
-                    const yjCodeInput = document.getElementById('yjCodeInput');
-                    // YJコードを入力欄に設定
-                    yjCodeInput.value = yjCodeFromUrl.trim(); 
-                    
-                    // 検索を即時開始
-                    performSearch();
-                    
-                    // showMessage() は削除
-                } else {
-                    showMessage('データ読み込み完了。検索条件を設定してください。', false);
-                }
-            } else {
-                showMessage('データの読み込みに失敗しました。');
-            }
-        })();
-
+        // チェックボックスが変更されたら自動で検索
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', performSearch);
+        });
+        
+        initializeApp();
     </script>
-
 </body>
 </html>
