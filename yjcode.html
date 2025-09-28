@@ -355,7 +355,8 @@
             const statusLimited = statusLimitedCheckbox.checked;
             const statusStop = statusStopCheckbox.checked;
 
-            // 検索項目が一つでもチェックされているのに、YJコードが空、または不適切であればエラー
+            // ★★★ 修正箇所 ★★★
+            // 12桁チェックを復活
             if (isAnyDigitChecked) {
                 if (!yjCode) {
                     showMessage('YJコードが入力されていません。検索項目が選択されている場合、YJコードは必須です。');
@@ -365,8 +366,8 @@
                     showMessage('YJコードは半角英数字のみで入力してください。');
                     return;
                 }
-                const length = yjCode.length;
-                if (length !== 12) {
+                // 12桁チェックを追加
+                if (yjCode.length !== 12) {
                     showMessage('YJコードは12桁で入力してください。');
                     return;
                 }
@@ -677,7 +678,19 @@
                 data = excelDataResult.data;
                 const dateInfo = excelDataResult.date ? `(データ: ${excelDataResult.date})` : '';
                 document.getElementById('dataDate').textContent = dateInfo;
-                showMessage('データの準備ができました。YJコードを入力して検索してください。', false);
+
+                // ★★★ 修正箇所 ★★★
+                // URLからyjcodeパラメータを取得して検索を実行
+                const urlParams = new URLSearchParams(window.location.search);
+                const yjCodeFromUrl = urlParams.get('yjcode');
+                if (yjCodeFromUrl) {
+                    const yjCodeInput = document.getElementById('yjCodeInput');
+                    // URLの値をそのままセット
+                    yjCodeInput.value = yjCodeFromUrl;
+                    performSearch();
+                } else {
+                    showMessage('データの準備ができました。YJコードを入力して検索してください。', false);
+                }
             } else {
                 showMessage('データの読み込みに失敗しました。ページを再読み込みしてください。');
             }
@@ -685,8 +698,7 @@
             loadingIndicator.classList.add('hidden');
         }
 
-        // ★★★ 修正箇所 ★★★
-        // イベントリスナーを更新し、自動検索機能を追加
+        // イベントリスナー
         const searchButton = document.getElementById('searchButton');
         const yjCodeInput = document.getElementById('yjCodeInput');
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
