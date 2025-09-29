@@ -7,56 +7,150 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .loading-container { display: flex; justify-content: center; align-items: center; min-height: 200px; }
-        .spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .progress-bar { width: 100%; height: 10px; background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background-color: #6366f1; transition: width 0.3s ease-in-out; }
-        .table-cell-with-padding { padding: 12px 16px; }
-        .card-item { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-        a.manufacturer-link { color: #4f46e5; text-decoration: none; }
-        a.manufacturer-link:hover { text-decoration: underline; }
-        .status-button-container { display: flex; justify-content: center; align-items: center; height: 100%; padding: 0.5rem 0; }
-        .status-button { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; transition-colors: 0.15s; line-height: 1; }
-        .name-clickable { color: #3730a3; text-decoration: none; cursor: pointer; }
-        .name-clickable:hover { text-decoration: underline; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4f46e5; /* Tailwind's indigo-600 */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #6366f1; /* Tailwind's indigo-500 */
+            transition: width 0.3s ease-in-out;
+        }
+        .table-cell-with-padding {
+            padding: 12px 16px;
+        }
+        
+        /* 狭い画面でのカード表示スタイル */
+        .card-item {
+            padding-top: 0.25rem; /* 上下の余白を狭く */
+            padding-bottom: 0.25rem;
+        }
+        /* 追加: メーカー名ハイパーリンクのスタイル */
+        a.manufacturer-link {
+            color: #4f46e5; /* indigo-600 */
+            text-decoration: none;
+        }
+        a.manufacturer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 出荷状況ボタンの調整 */
+        .status-button-container {
+            display: flex;
+            justify-content: center; /* セル内で中央寄せ */
+            align-items: center;
+            height: 100%;
+            padding: 0.5rem 0; /* 上下のpaddingを調整 */
+        }
+        .status-button {
+            padding: 0.25rem 0.75rem; /* py-1 px-3 相当 */
+            border-radius: 9999px; /* rounded-full 相当 */
+            font-size: 0.75rem; /* text-xs 相当 */
+            font-weight: 600; /* font-semibold 相当 */
+            white-space: nowrap;
+            transition-colors: 0.15s;
+            line-height: 1; /* 行の高さを調整 */
+        }
+        /* 品名クリック可能部分のスタイル */
+        .name-clickable {
+            color: #3730a3; /* indigo-700 */ /* ★修正: 品名の色を濃く */
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .name-clickable:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="p-6 md:p-12 flex flex-col items-center bg-stone-50 text-slate-800">
 
     <div class="w-full max-w-7xl bg-white rounded-3xl shadow-xl p-4 sm:p-6 border border-slate-200">
         <div class="flex flex-col sm:flex-row items-center justify-between mb-4 space-y-2 sm:space-y-0 sm:space-x-4">
-            <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">YJコード検索ツール</h1>
-            <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 text-sm rounded-lg font-medium hover:bg-indigo-200 transition-colors duration-300 whitespace-nowrap">医薬品検索ツールへ戻る</a>
+            <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">
+                YJコード検索ツール
+            </h1>
+            <a href="https://nekoneko0404.github.io/search-for-medicine-test03/" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 text-sm rounded-lg font-medium hover:bg-indigo-200 transition-colors duration-300 whitespace-nowrap">
+                医薬品検索ツールへ戻る
+            </a>
         </div>
         
         <div class="mb-4 flex flex-col sm:flex-row items-center justify-between sm:space-x-4 space-y-2 sm:space-y-0">
-            <button id="searchButton" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-indigo-700 transition-colors duration-300 whitespace-nowrap text-sm w-full sm:w-auto">検索</button>
+            <button id="searchButton" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-indigo-700 transition-colors duration-300 whitespace-nowrap text-sm w-full sm:w-auto">
+                検索
+            </button>
             <input type="text" id="yjCodeInput" placeholder="YJコードを入力してください:" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 transition-all duration-300 text-sm">
             <span id="dataDate" class="text-gray-500 text-xs whitespace-nowrap"></span>
         </div>
 
-        <!-- ✅ チェックボックス群 -->
         <div class="flex flex-row space-x-4 mb-4">
             <div class="bg-slate-50 p-2 rounded-xl shadow-inner border border-slate-200 flex-grow">
                 <h3 class="font-semibold text-slate-800 mb-1 text-sm">検索項目</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                    <label class="flex items-center"><input type="checkbox" id="digits3" checked>薬効群3桁</label>
-                    <label class="flex items-center"><input type="checkbox" id="digits4" checked>薬効群4桁</label>
-                    <label class="flex items-center"><input type="checkbox" id="digits7" checked>成分</label>
-                    <label class="flex items-center"><input type="checkbox" id="digits8" checked>剤形</label>
-                    <label class="flex items-center"><input type="checkbox" id="digits9" checked>規格単位</label>
-                    <label class="flex items-center"><input type="checkbox" id="digits11">規格内番号</label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="digits3" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <span class="ml-1 text-slate-700">薬効群3桁</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="digits4" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <span class="ml-1 text-slate-700">薬効群4桁</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="digits7" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <span class="ml-1 text-slate-700">成分</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="digits8" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <span class="ml-1 text-slate-700">剤形</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="digits9" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <span class="ml-1 text-slate-700">規格単位</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="digits11" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <span class="ml-1 text-slate-700">規格内番号</span>
+                    </label>
                 </div>
             </div>
             
             <div class="bg-slate-50 p-2 rounded-xl shadow-inner border border-slate-200 flex-grow">
                 <h3 class="font-semibold text-slate-800 mb-1 text-sm">出荷状況</h3>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                    <label class="flex items-center"><input type="checkbox" id="statusNormal" checked>通常出荷</label>
-                    <label class="flex items-center"><input type="checkbox" id="statusLimited">限定出荷</label>
-                    <label class="flex items-center"><input type="checkbox" id="statusStop">供給停止</label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="statusNormal" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <span class="ml-1 text-slate-700">通常出荷</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="statusLimited" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <span class="ml-1 text-slate-700">限定出荷</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="statusStop" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                        <span class="ml-1 text-slate-700">供給停止</span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -64,9 +158,13 @@
         <div id="messageBox" class="mt-4 p-4 rounded-xl text-sm hidden" role="alert"></div>
     </div>
 
-    <div id="loadingIndicator" class="loading-container hidden"><div class="spinner"></div></div>
+    <div id="loadingIndicator" class="loading-container hidden">
+        <div class="spinner"></div>
+    </div>
     <div id="progressBarContainer" class="w-full max-w-7xl mt-4 hidden">
-        <div class="progress-bar"><div id="progressBar" class="progress-bar-fill w-0"></div></div>
+        <div class="progress-bar">
+            <div id="progressBar" class="progress-bar-fill w-0"></div>
+        </div>
         <p id="progressMessage" class="text-xs text-gray-500 mt-1 text-center"></p>
     </div>
     
@@ -74,102 +172,559 @@
 
     <script>
         let data = [];
-        let manufacturerLinks = {};
+        let manufacturerLinks = {}; // メーカー名とURLを格納するオブジェクト
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const progressBarContainer = document.getElementById('progressBarContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressMessage = document.getElementById('progressMessage');
         const messageBox = document.getElementById('messageBox');
-
-        function showMessage(message, type = "error") {
+        
+        // メッセージ表示関数
+        function showMessage(message, isError = true) {
             messageBox.textContent = message;
             messageBox.classList.remove('hidden');
-            if (type === "error") {
-                messageBox.className = "mt-4 p-4 rounded-xl text-sm bg-red-100 text-red-700";
-            } else if (type === "success") {
-                messageBox.className = "mt-4 p-4 rounded-xl text-sm bg-green-100 text-green-700";
+            if (isError) {
+                messageBox.classList.remove('bg-green-100', 'text-green-700');
+                messageBox.classList.add('bg-red-100', 'text-red-700');
             } else {
-                messageBox.className = "mt-4 p-4 rounded-xl text-sm bg-blue-100 text-blue-700";
-            }
-        }
-        function hideMessage(delay = 0) {
-            if (delay > 0) {
-                setTimeout(() => messageBox.classList.add('hidden'), delay);
-            } else {
-                messageBox.classList.add('hidden');
+                messageBox.classList.remove('bg-red-100', 'text-red-700');
+                messageBox.classList.add('bg-green-100', 'text-green-700');
             }
         }
 
-        // ✅ GoogleDriveから直接 fetch に修正
-        window.onload = function() {
-            const spreadsheetId = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';
-            const exportUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=xlsx`;
+        // メッセージ非表示関数
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+        }
 
-            async function fetchSpreadsheetData() {
-                showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
-                try {
-                    const response = await fetch(exportUrl);
-                    if (response.ok) {
-                        const dataBuffer = await response.arrayBuffer();
-                        const workbook = XLSX.read(new Uint8Array(dataBuffer), { type: 'array' });
-                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        data = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-                        document.getElementById('dataDate').textContent = `(データ: Google Drive)`;
+        // データの正規化
+        function normalizeString(str) {
+            if (!str) return '';
+            return String(str).trim().toLowerCase().replace(/[ァ-ヶ]/g, s => String.fromCharCode(s.charCodeAt(0) - 0x60));
+        }
 
-                        showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
-                        hideMessage(4000);
-                    } else {
-                        showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
-                        hideMessage(5000);
-                    }
-                } catch (error) {
-                    console.error('データの取得に失敗しました:', error);
-                    showMessage('共有スプレッドシートからのデータの取得中にエラーが発生しました。', 'error');
-                    hideMessage(5000);
+        // プログレスバーの更新
+        function updateProgress(message, percentage) {
+            progressBarContainer.classList.remove('hidden');
+            progressMessage.textContent = message;
+            progressBar.style.width = `${percentage}%`;
+        }
+        
+        /**
+         * @param {string} status 出荷状況の文字列 (例: '限定出荷')
+         * @returns {string} Tailwind CSSで装飾されたボタンのHTML文字列 (ハイパーリンクなし)
+         */
+        function renderStatusButton(status) {
+            const trimmedStatus = (status || "").trim();
+            let baseClass = "status-button";
+            
+            if (trimmedStatus.includes("通常出荷") || trimmedStatus.includes("通")) {
+                return `<span class="${baseClass} bg-indigo-500 text-white hover:bg-indigo-600">通常出荷</span>`; 
+            } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
+                // メイン検索画面と同じ配色 (黄色味)
+                return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">出荷制限</span>`;
+            } else if (trimmedStatus.includes("供給停止") || trimmedStatus.includes("停止") || trimmedStatus.includes("停")) {
+                // メイン検索画面と同じ配色 (黒に近い暗い色)
+                return `<span class="${baseClass} bg-gray-700 text-white hover:bg-gray-800">供給停止</span>`;
+            } else {
+                // その他の場合は元の文字列、または不明なステータスとして表示
+                return `<span class="${baseClass} bg-gray-200 text-gray-800 hover:bg-gray-300">${trimmedStatus || "不明"}</span>`; 
+            }
+        }
+
+        // Excelデータ取得ロジック（Google Drive 直接 fetch に変更）
+        async function fetchExcelData() {
+            console.log('Fetching Excel data from Google Drive...');
+            updateProgress('Google Driveからデータを読み込み中...', 0);
+            
+            const fileId = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';
+            const url = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+
+            try {
+                updateProgress('データをダウンロード中...', 50);
+                // 直接 fetch（VPN 内の環境で index.html と同じ実装）
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            }
-
-            const manufacturerId = '1lTHHbUj6ySAgtum8zJrHjWAxYnbOO9r8H8Cnu-Y0TnA';
-            const manufacturerUrl = `https://docs.google.com/spreadsheets/d/${manufacturerId}/export?format=xlsx`;
-
-            async function fetchManufacturerData() {
-                try {
-                    const response = await fetch(manufacturerUrl);
-                    if (response.ok) {
-                        const dataBuffer = await response.arrayBuffer();
-                        const workbook = XLSX.read(new Uint8Array(dataBuffer), { type: 'array' });
-                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                        rows.slice(1).forEach(row => {
-                            if (row[0] && row[1]) manufacturerLinks[row[0].trim()] = row[1].trim();
+                const arrayBuffer = await response.arrayBuffer();
+                
+                updateProgress('データを処理中...', 75);
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
+                
+                if (jsonData.length > 1) {
+                    const header = jsonData[0];
+                    const processedHeader = header.map(h => {
+                        if (typeof h === 'string') {
+                            return h.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
+                        }
+                        return h;
+                    });
+                    
+                    const dataRows = jsonData.slice(1);
+                    const mappedData = dataRows.map(row => {
+                        const obj = {};
+                        processedHeader.forEach((h, index) => {
+                            obj[h] = row[index];
                         });
-                        console.log(`メーカーリンク ${Object.keys(manufacturerLinks).length} 件`);
-                    } else {
-                        console.error(`メーカー情報の取得失敗: ${response.status}`);
+                        return obj;
+                    });
+                    console.log(`Data loaded successfully. Number of rows: ${mappedData.length}`);
+                    updateProgress('データの読み込みが完了しました！', 100);
+                    return { data: mappedData, date: 'Google Drive' };
+                }
+            } catch (error) {
+                console.error(`データの取得に失敗しました: ${url} ${error}`);
+                showMessage(`データの取得に失敗しました。CORSエラーの可能性があります。詳細: ${error.message}`);
+            } finally {
+                setTimeout(() => progressBarContainer.classList.add('hidden'), 1000);
+            }
+            return { data: null, date: null };
+        }
+
+        // メーカーリンク用データ取得ロジック（直接 fetch）
+        async function fetchManufacturerData() {
+            console.log('Fetching manufacturer data from Google Drive...');
+            // Google DriveのファイルIDを新しいものに変更
+            const fileId = '1lTHHbUj6ySAgtum8zJrHjWAxYnbOO9r8H8Cnu-Y0TnA';
+            const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+
+            try {
+                const response = await fetch(googleDriveUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const arrayBuffer = await response.arrayBuffer();
+                
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                
+                // ヘッダーを無視してデータを読み込む
+                // 最初の行がヘッダーと仮定し、A列とB列を読み込む
+                const range = XLSX.utils.decode_range(worksheet['!ref']);
+                const links = {};
+                for(let R = range.s.r + 1; R <= range.e.r; ++R) {
+                    const cellA = worksheet[XLSX.utils.encode_cell({r: R, c: 0})]; // A列 (メーカー名)
+                    const cellB = worksheet[XLSX.utils.encode_cell({r: R, c: 1})]; // B列 (URL)
+                    const manufacturerName = cellA ? XLSX.utils.format_cell(cellA) : null;
+                    const url = cellB ? XLSX.utils.format_cell(cellB) : null;
+                    
+                    if (manufacturerName && url) {
+                        links[manufacturerName.trim()] = url.trim();
                     }
-                } catch (error) {
-                    console.error('メーカー情報の取得に失敗しました:', error);
+                };
+                
+                console.log(`Manufacturer data loaded. Number of links: ${Object.keys(links).length}`);
+                return links;
+            } catch (error) {
+                console.error(`メーカーデータの取得に失敗しました: ${googleDriveUrl} ${error}`);
+                return {}; // 失敗しても空のオブジェクトを返す
+            }
+        }
+
+
+        // 検索実行関数
+        function performSearch() {
+            console.log('Starting search...');
+            const yjCodeInput = document.getElementById('yjCodeInput');
+            const digits3Checkbox = document.getElementById('digits3');
+            const digits4Checkbox = document.getElementById('digits4');
+            const digits7Checkbox = document.getElementById('digits7');
+            const digits8Checkbox = document.getElementById('digits8');
+            const digits9Checkbox = document.getElementById('digits9');
+            const digits11Checkbox = document.getElementById('digits11');
+            const statusNormalCheckbox = document.getElementById('statusNormal');
+            const statusLimitedCheckbox = document.getElementById('statusLimited');
+            const statusStopCheckbox = document.getElementById('statusStop');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            const yjCode = normalizeString(yjCodeInput.value.trim());
+            hideMessage();
+            resultsContainer.innerHTML = '';
+            
+            const isAnyDigitChecked = digits3Checkbox.checked || digits4Checkbox.checked || digits7Checkbox.checked || digits8Checkbox.checked || digits9Checkbox.checked || digits11Checkbox.checked;
+            
+            // 出荷状況のチェックボックスがすべて外れているかどうか
+            const statusNormal = statusNormalCheckbox.checked;
+            const statusLimited = statusLimitedCheckbox.checked;
+            const statusStop = statusStopCheckbox.checked;
+
+            // ★★★ 修正箇所 ★★★
+            // 12桁チェックを復活
+            if (isAnyDigitChecked) {
+                if (!yjCode) {
+                    showMessage('YJコードが入力されていません。検索項目が選択されている場合、YJコードは必須です。');
+                    return;
+                }
+                if (!/^[0-9a-zA-Z]+$/.test(yjCode)) {
+                    showMessage('YJコードは半角英数字のみで入力してください。');
+                    return;
+                }
+                // 12桁チェックを追加
+                if (yjCode.length !== 12) {
+                    showMessage('YJコードは12桁で入力してください。');
+                    return;
                 }
             }
 
-            attachSearchListeners();
-            fetchSpreadsheetData();
-            fetchManufacturerData();
-        };
+            // 検索項目が一つもチェックされていなくても、出荷状況がすべて外れていたら、結果を非表示にする（全件検索を避ける）
+             if (!isAnyDigitChecked && !statusNormal && !statusLimited && !statusStop) {
+                showMessage('検索項目と出荷状況のチェックを全て外したため、検索結果は表示されません。', false);
+                return;
+            }
 
-        // ✅ 検索処理・結果表示処理は元の yjcode(1).html をそのまま保持
-        function attachSearchListeners() {
-            const searchButton = document.getElementById('searchButton');
-            const yjCodeInput = document.getElementById('yjCodeInput');
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            searchButton.addEventListener('click', performSearch);
-            yjCodeInput.addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
-            checkboxes.forEach(cb => cb.addEventListener('change', performSearch));
+            let filteredData = data;
+            
+            // 検索項目フィルタリング
+            if (isAnyDigitChecked) {
+                const digitFilters = [];
+
+                if (digits11Checkbox.checked) {
+                    // 規格内番号（11桁）がチェックされている場合は、11桁で絞り込む（他は無視）
+                    digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 11)));
+                } else {
+                    // 規格内番号以外がチェックされている場合の処理
+                    if (digits9Checkbox.checked) {
+                        // 規格単位（9桁目）がチェックされている場合
+                        digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).length > 8 && normalizeString(item['⑤YJコード']).charAt(8) === yjCode.charAt(8));
+                    }
+                    if (digits8Checkbox.checked) {
+                        // 剤形（8桁目）がチェックされている場合
+                        digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).length > 7 && normalizeString(item['⑤YJコード']).charAt(7) === yjCode.charAt(7));
+                    }
+                    if (digits7Checkbox.checked) {
+                        // 成分（7桁目まで）がチェックされている場合
+                        digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 7)));
+                    }
+                    if (digits4Checkbox.checked) {
+                        // 薬効群4桁（4桁目まで）がチェックされている場合
+                        digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 4)));
+                    } else if (digits3Checkbox.checked) {
+                        // 薬効群3桁（3桁目まで）がチェックされている場合
+                        digitFilters.push(item => item['⑤YJコード'] && normalizeString(item['⑤YJコード']).startsWith(yjCode.substring(0, 3)));
+                    }
+                }
+
+                filteredData = filteredData.filter(item => digitFilters.every(filterFunc => filterFunc(item)));
+            }
+            
+            // 出荷状況のフィルタリング（チェックされている項目のみ）
+            if (statusNormal || statusLimited || statusStop) {
+                const initialCount = filteredData.length;
+                filteredData = filteredData.filter(item => {
+                    const status = normalizeString(item['⑫製造販売業者の「出荷対応」の状況'] || '');
+                    let isMatch = false;
+                    // '通常出荷' or '通' の場合
+                    if (statusNormal && (status.includes('通常出荷') || status.includes('通'))) {
+                        isMatch = true;
+                    }
+                    // '限定出荷' or '出荷制限' or '限' or '制' の場合
+                    if (statusLimited && (status.includes('限定出荷') || status.includes('出荷制限') || status.includes('限') || status.includes('制'))) {
+                        isMatch = true;
+                    }
+                    // '供給停止' or '停止' or '停' の場合
+                    if (statusStop && (status.includes('供給停止') || status.includes('停止') || status.includes('停'))) {
+                        isMatch = true;
+                    }
+                    return isMatch;
+                });
+                console.log(`Status filter applied. Filtered from ${initialCount} to ${filteredData.length} items.`);
+            }
+
+
+            const totalCount = filteredData.length;
+            const resultsToDisplay = filteredData.slice(0, 500);
+
+            if (resultsToDisplay.length === 0) {
+                showMessage('条件に一致する医薬品は見つかりませんでした。', false);
+            } else {
+                displayResults(resultsToDisplay, totalCount);
+            }
         }
 
-        function performSearch() {
-            // 🔍 元の検索ロジックをそのまま残してください（省略）
+        // 検索結果表示関数
+        function displayResults(results, totalCount) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+            
+            if (results.length === 0) {
+                return;
+            }
+
+            // PC表示用のテーブル
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'hidden md:block overflow-x-auto bg-white rounded-2xl shadow-lg border border-slate-200';
+            
+            const table = document.createElement('table');
+            table.className = 'min-w-full text-left table-auto text-sm';
+
+            // ヘッダーを作成
+            const thead = document.createElement('thead');
+            thead.className = 'bg-indigo-100';
+            thead.innerHTML = `
+                <tr>
+                    <th class="py-3 px-2 font-semibold text-indigo-800 whitespace-nowrap w-24">YJコード</th>
+                    <th class="py-3 px-4 font-semibold text-indigo-800 w-60">品名</th>
+                    <th class="py-3 px-4 font-semibold text-indigo-800 w-48">成分名</th>
+                    <th class="py-3 px-4 font-semibold text-indigo-800 w-32">メーカー</th>
+                    <th class="py-3 px-4 font-semibold text-indigo-800 w-32 whitespace-nowrap text-center">出荷状況</th>
+                    <th class="py-3 px-4 font-semibold text-indigo-800 w-48">制限理由</th>
+                    <th class="py-3 px-4 font-semibold text-indigo-800 w-48 whitespace-nowrap">出荷量状況</th>
+                </tr>
+            `;
+            table.appendChild(thead);
+
+            // ボディを作成
+            const tbody = document.createElement('tbody');
+            tbody.className = 'divide-y divide-slate-200';
+            results.forEach((item) => {
+                const pmdaYjCode = item['⑤YJコード'] || '';
+
+                const isBase = item['⑨基礎的医薬品'] && normalizeString(item['⑨基礎的医薬品']).includes('基礎的医薬品');
+                const isGeneric = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('後発品');
+
+                let labels = '';
+                if (isBase) {
+                    labels += `<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold">基</span>`;
+                }
+                if (isGeneric) {
+                    labels += `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold">後</span>`;
+                }
+                const name = item['⑥品名（承認書に記載の正式名称）※全角'] || '-';
+                const manufacturerName = item['⑦製造販売業者名'] || '-';
+                const manufacturerUrl = manufacturerLinks[manufacturerName];
+                
+                // メーカー名にハイパーリンクを付与
+                const manufacturerContent = manufacturerUrl ? 
+                    `<a href="${manufacturerUrl}" target="_blank" rel="noopener noreferrer" class="manufacturer-link">${manufacturerName}</a>` :
+                    `<span class="text-slate-700">${manufacturerName}</span>`;
+
+                const row = document.createElement('tr');
+                row.className = `transition-colors duration-200 even:bg-white odd:bg-indigo-50 hover:bg-indigo-100`;
+                
+                // 出荷状況のセルにrenderStatusButtonを適用
+                const statusValue = item['⑫製造販売業者の「出荷対応」の状況'] || '-';
+                const statusButtonHtml = renderStatusButton(statusValue);
+                
+                // PC表示：品名をクリック可能な要素に変更し、データ属性を付与
+                row.innerHTML = `
+                    <td class="py-3 px-2 text-sm">${pmdaYjCode || '-'}</td>
+                    <td class="py-3 px-4 flex items-center">
+                        <span class="flex flex-col items-start mr-2 space-y-1">${labels}</span>
+                        <span class="name-clickable" data-yjcode="${pmdaYjCode}">${name}</span>
+                    </td>
+                    <td class="py-3 px-4">${item['③成分名'] || '-'}</td>
+                    <td class="py-3 px-4">${manufacturerContent}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="status-button-container">${statusButtonHtml}</div>
+                    </td>
+                    <td class="py-3 px-4">${item['⑭限定出荷/供給停止の理由'] || '-'}</td>
+                    <td class="py-3 px-4">${item['⑰製造販売業者の「出荷量」の現在の状況'] || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
+            container.appendChild(tableContainer);
+
+            // モバイル表示用のカードリスト
+            const cardListContainer = document.createElement('div');
+            cardListContainer.className = 'block md:hidden w-full space-y-4';
+            results.forEach(item => {
+                const card = createCardElement(item);
+                cardListContainer.appendChild(card);
+            });
+            container.appendChild(cardListContainer);
+
+            // クリックイベントリスナーの登録（PCテーブルとモバイルカードの両方に対応）
+            document.querySelectorAll('#resultsContainer .name-clickable').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    const yjCode = e.currentTarget.dataset.yjcode;
+                    if (yjCode) {
+                        const yjCodeInput = document.getElementById('yjCodeInput');
+                        yjCodeInput.value = yjCode;
+                        
+                        // ★ 修正: 検索項目をリセット（品名クリックした状態）
+                        document.getElementById('digits3').checked = true; // 薬効群3桁: +
+                        document.getElementById('digits4').checked = true; // 薬効群4桁: +
+                        document.getElementById('digits7').checked = true; // 成分: +
+                        document.getElementById('digits8').checked = false; // 剤形: -
+                        document.getElementById('digits9').checked = false; // 規格単位: -
+                        document.getElementById('digits11').checked = false; // 規格内番号: -
+                        
+                        // ★ 修正: 出荷状況をリセット（品名クリックした状態）
+                        document.getElementById('statusNormal').checked = true; // 通常出荷: +
+                        document.getElementById('statusLimited').checked = false; // 限定出荷: -
+                        document.getElementById('statusStop').checked = false; // 供給停止: -
+                        
+                        performSearch();
+                    }
+                });
+            });
+            // モバイルカードの品名に、個別にイベントリスナーを設定
+            document.querySelectorAll('#resultsContainer .card-name-clickable').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    const yjCode = e.currentTarget.dataset.yjcode;
+                    if (yjCode) {
+                        const yjCodeInput = document.getElementById('yjCodeInput');
+                        yjCodeInput.value = yjCode;
+
+                        // ★ 修正: 検索項目をリセット（品名クリックした状態）
+                        document.getElementById('digits3').checked = true; // 薬効群3桁: +
+                        document.getElementById('digits4').checked = true; // 薬効群4桁: +
+                        document.getElementById('digits7').checked = true; // 成分: +
+                        document.getElementById('digits8').checked = false; // 剤形: -
+                        document.getElementById('digits9').checked = false; // 規格単位: -
+                        document.getElementById('digits11').checked = false; // 規格内番号: -
+                        
+                        // ★ 修正: 出荷状況をリセット（品名クリックした状態）
+                        document.getElementById('statusNormal').checked = true; // 通常出荷: +
+                        document.getElementById('statusLimited').checked = false; // 限定出荷: -
+                        document.getElementById('statusStop').checked = false; // 供給停止: -
+                        
+                        performSearch();
+                    }
+                });
+            });
         }
 
-        function displayResults(results) {
-            // 🔍 元の結果表示ロジックをそのまま残してください（省略）
+        // カード要素を生成するヘルパー関数
+        function createCardElement(item) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow-lg border border-slate-200 p-4';
+            const pmdaYjCode = item['⑤YJコード'] || '-';
+
+            const isBase = item['⑨基礎的医薬品'] && normalizeString(item['⑨基礎的医薬品']).includes('基礎的医薬品');
+            const isGeneric = item['⑧製品区分'] && normalizeString(item['⑧製品区分']).includes('後発品');
+
+            let labels = '';
+            if (isBase) {
+                labels += `<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1">基</span>`;
+            }
+            if (isGeneric) {
+                labels += `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1">後</span>`;
+            }
+            const name = item['⑥品名（承認書に記載の正式名称）※全角'] || '-';
+            const manufacturerName = item['⑦製造販売業者名'] || '-';
+            const manufacturerUrl = manufacturerLinks[manufacturerName];
+            
+            // メーカー名にハイパーリンクを付与し、manufacturer-linkクラスで色付け
+            const manufacturerContent = manufacturerUrl ? 
+                `<a href="${manufacturerUrl}" target="_blank" rel="noopener noreferrer" class="manufacturer-link">${manufacturerName}</a>` :
+                `<span class="text-slate-700">${manufacturerName}</span>`;
+
+            // 出荷状況にrenderStatusButtonを適用
+            const statusValue = item['⑫製造販売業者の「出荷対応」の状況'] || '-';
+            const statusButtonHtml = renderStatusButton(statusValue);
+
+
+            // モバイル表示：品名をクリック可能な要素に変更し、データ属性と専用クラスを付与
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-base font-bold text-indigo-700 leading-tight"> <span class="card-name-clickable name-clickable" data-yjcode="${pmdaYjCode}">${name}</span>
+                    </h3>
+                    <div class="flex items-center space-x-1 flex-shrink-0">${labels}</div>
+                </div>
+                <div class="text-sm space-y-1">
+                    <div class="flex justify-between items-start card-item">
+                        <span class="text-slate-500 font-semibold w-1/3 flex-shrink-0">YJコード:</span>
+                        <span class="text-right w-2/3">${pmdaYjCode}</span>
+                    </div>
+                    <div class="flex justify-between items-start card-item">
+                        <span class="text-slate-500 font-semibold w-1/3 flex-shrink-0">成分名:</span>
+                        <span class="text-right w-2/3">${item['③成分名'] || '-'}</span>
+                    </div>
+                    <div class="flex justify-between items-start card-item">
+                        <span class="text-slate-500 font-semibold w-1/3 flex-shrink-0">メーカー:</span>
+                        <span class="text-right w-2/3">${manufacturerContent}</span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="flex justify-between items-center card-item">
+                        <span class="text-slate-500 font-semibold">出荷状況:</span>
+                        <span>${statusButtonHtml}</span>
+                    </div>
+                    <div class="flex justify-between items-start card-item">
+                        <span class="text-slate-500 font-semibold w-1/3 flex-shrink-0">制限理由:</span>
+                        <span class="text-right w-2/3">${item['⑭限定出荷/供給停止の理由'] || '-'}</span>
+                    </div>
+                    <div class="flex justify-between items-start card-item">
+                        <span class="text-slate-500 font-semibold w-1/3 flex-shrink-0">出荷量状況:</span>
+                        <span class="text-right w-2/3">${item['⑰製造販売業者の「出荷量」の現在の状況'] || '-'}</span>
+                    </div>
+                </div>
+            `;
+            return card;
         }
+
+        // 初期化関数
+        async function initializeApp() {
+            loadingIndicator.classList.remove('hidden');
+            
+            // メーカーリンクデータと医薬品データを並行して取得
+            const [manufacturerDataResult, excelDataResult] = await Promise.all([
+                fetchManufacturerData(),
+                fetchExcelData()
+            ]);
+
+            manufacturerLinks = manufacturerDataResult;
+            
+            if (excelDataResult && excelDataResult.data) {
+                data = excelDataResult.data;
+                const dateInfo = excelDataResult.date ? `(データ: ${excelDataResult.date})` : '';
+                document.getElementById('dataDate').textContent = dateInfo;
+
+                // URLパラメータから yjcode を取得して自動入力・自動検索する
+                const urlParams = new URLSearchParams(window.location.search);
+                const yjCodeFromUrl = urlParams.get('yjcode');
+                if (yjCodeFromUrl) {
+                    const yjCodeInput = document.getElementById('yjCodeInput');
+                    // URLの値をそのままセット（トリムしておく）
+                    yjCodeInput.value = String(yjCodeFromUrl).trim();
+                    // 検索項目・出荷状況は既定のまま（ユーザーが元の動作を期待しているため）
+                    performSearch();
+                } else {
+                    showMessage('データの準備ができました。YJコードを入力して検索してください。', false);
+                }
+            } else {
+                showMessage('データの読み込みに失敗しました。ページを再読み込みしてください。');
+            }
+            
+            loadingIndicator.classList.add('hidden');
+        }
+
+        // イベントリスナー
+        const searchButton = document.getElementById('searchButton');
+        const yjCodeInput = document.getElementById('yjCodeInput');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+        // 検索ボタンのクリック
+        searchButton.addEventListener('click', performSearch);
+
+        // Enterキーでの検索
+        yjCodeInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // 12桁入力されたら自動で検索
+        yjCodeInput.addEventListener('input', function(event) {
+            if (event.target.value.trim().length === 12) {
+                performSearch();
+            }
+        });
+
+        // チェックボックスが変更されたら自動で検索
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', performSearch);
+        });
+        
+        initializeApp();
     </script>
 </body>
 </html>
