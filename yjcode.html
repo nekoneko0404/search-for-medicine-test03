@@ -102,25 +102,34 @@
         }
 
         // ✅ 直接 fetch に修正
-        async function fetchExcelData() {
-            const fileId = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';
-            const url = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
-            try {
-                updateProgress('データをダウンロード中...', 50);
-                const response = await fetch(url);
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
-                const header = jsonData[0].map(h => typeof h === 'string' ? h.replace(/\s+/g, '') : h);
-                const dataRows = jsonData.slice(1);
-                return { data: dataRows.map(r => Object.fromEntries(header.map((h,i)=>[h,r[i]]))), date: 'Google Drive' };
-            } catch (err) {
-                showMessage(`データ取得失敗: ${err.message}`);
-                return { data: null, date: null };
+window.onload = function () {
+    // ✅ メインの薬データ
+    const spreadsheetId = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=xlsx`;
+
+    async function fetchSpreadsheetData() {
+        showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
+        try {
+            const response = await fetch(exportUrl);
+            if (response.ok) {
+                const dataBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(new Uint8Array(dataBuffer), { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                data = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+                document.getElementById('dataDate').textContent = `(データ: Google Drive)`;
+
+                showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
+                hideMessage(4000);
+            } else {
+                showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
+                hideMessage(5000);
             }
+        } catch (error) {
+            console.error('データの取得に失敗しました:', error);
+            showMessage('共有スプレッドシートからのデータの取得中にエラーが発生しました。', 'error');
+            hideMessage(5000);
         }
+    }
 
         async function fetchManufacturerData() {
             const fileId = '1lTHHbUj6ySAgtum8zJrHjWAxYnbOO9r8H8Cnu-Y0TnA';
