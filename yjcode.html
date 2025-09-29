@@ -728,4 +728,118 @@
         initializeApp();
     </script>
 </body>
+  <!-- SheetJS（Excel/CSV パース用。UIやCSSには影響しません） -->
+https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js</script>
+
+<script>
+/**
+ * index.html と同じ方式: Google Sheets の XLSX エクスポートを取得してフロントでパース
+ * - シート名: 「公表」を優先。無ければ先頭シート
+ * - 2 行目をヘッダとして解釈（range: 1）
+ * - 既存の thead の列順を尊重して tbody だけ入れ替え（デザイン不変）
+ * 参考: https://docs.google.com/spreadsheets/d/<ID>/export?format=xlsx
+ */
+(function () {
+  // === 設定（index.html と同じ ID にしてください） ===
+  // 例）index.html で読めている ID: '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd'
+  const SPREADSHEET_ID = '1zdSaqw_cYDUOgufUREsoDUE_BxCrQmMd';   // ←必要に応じて変更
+  const SHEET_NAME     = '公表';                                  // ←固定
+  const EXPORT_URL     = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=xlsx`;
+
+  // 既存ユーティリティ（あれば使う）
+  const hasFn     = (f) => typeof window[f] === 'function';
+  const showMsg   = hasFn('showMessage') ? window.showMessage : () => {};
+  const hideMsg   = hasFn('hideMessage') ? window.hideMessage : () => {};
+
+  // DOM 取得（既存のものをそのまま使う）
+  const table  = document.querySelector('table');     // 既存の表（最初の table を想定）
+  const thead  = table ? (table.querySelector('thead') || table.createTHead()) : null;
+  const tbody  = table ? (table.querySelector('tbody') || table.createTBody()) : null;
+  const input  = document.querySelector('#q') || document.querySelector('input');     // 既存検索入力（あれば）
+  const button = document.querySelector('#btnSearch') || document.querySelector('button'); // 既存検索ボタン（あれば）
+  const status = document.querySelector('#status') || null;
+
+  function setStatus(msg){ if (status) status.textContent = msg; }
+
+  async function loadXlsx() {
+    try {
+      showMsg('共有スプレッドシートからデータを読み込み中です...', 'info');
+      setStatus('読み込み中…');
+
+      const res = await fetch(EXPORT_URL, { cache: 'no-store', credentials: 'omit', redirect: 'follow' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const ab = await res.arrayBuffer();
+      const wb = XLSX.read(new Uint8Array(ab), { type: 'array' });
+
+      // 「公表」シートを優先。無ければ先頭シート
+      const ws = wb.Sheets[SHEET_NAME] || wb.Sheets[wb.SheetNames[0]];
+      if (!ws) throw new Error('対象シートが見つかりません（公表）');
+
+      // 2 行目をヘッダに（1 行目スキップ）
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false, range: 1 });
+
+      // 既存 thead の列順を使う（th が無ければ rows のキー順）
+      let headers = [];
+      if (thead && thead.querySelectorAll('th').length) {
+        headers = Array.from(thead.querySelectorAll('th')).map(th => th.textContent.trim());
+      } else if (rows.length) {
+        headers = Object.keys(rows[0]);
+      }
+
+      // tbody のみ差し替え（thead は変更しない）
+      if (tbody) {
+        tbody.innerHTML = '';
+        rows.forEach(obj => {
+          const tr = document.createElement('tr');
+          headers.forEach(h => {
+            const td = document.createElement('td');
+            td.textContent = (obj[h] ?? '');
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        if (table) table.style.display = ''; // 既存CSS適用のまま表示
+      }
+
+      // 検索（UIが存在する場合のみ）
+      if (button) {
+        button.onclick = () => {
+          const t = (input?.value || '').trim().toLowerCase();
+          const list = t ? rows.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(t))) : rows;
+          if (tbody) {
+            tbody.innerHTML = '';
+            list.forEach(obj => {
+              const tr = document.createElement('tr');
+              headers.forEach(h => {
+                const td = document.createElement('td');
+                td.textContent = (obj[h] ?? '');
+                tr.appendChild(td);
+              });
+              tbody.appendChild(tr);
+            });
+          }
+          setStatus(`${list.length} 件`);
+        };
+      }
+
+      showMsg('データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。', 'success');
+      setStatus(`読み込み完了：${rows.length}件`);
+      if (hideMsg) hideMsg(4000);
+
+    } catch (e) {
+      console.error(e);
+      showMsg('共有スプレッドシートからのデータ取得でエラーが発生しました。', 'error');
+      setStatus('読み込みエラー');
+      if (hideMsg) hideMsg(5000);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadXlsx);
+  } else {
+    loadXlsx();
+  }
+})();
+</script>
 </html>
