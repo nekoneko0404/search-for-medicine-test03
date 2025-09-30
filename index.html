@@ -193,7 +193,7 @@
                     </div>
                     <div class="checkbox-item flex items-center">
                         <input type="checkbox" id="statusLimited" value="限定出荷" checked class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out">
-                        <label for="statusLimited" class="ml-1 text-xs text-gray-900">出荷制限</label>
+                        <label for="statusLimited" class="ml-1 text-xs text-gray-900">限定出荷</label>
                     </div>
                     <div class="checkbox-item flex items-center">
                         <input type="checkbox" id="statusStopped" value="供給停止" checked class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out">
@@ -297,8 +297,8 @@
             
             if (trimmedStatus.includes("通常出荷") || trimmedStatus.includes("通")) {
                 return `<span class="${baseClass} bg-indigo-500 text-white hover:bg-indigo-600">通常出荷</span>`; 
-            } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
-                return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">出荷制限</span>`; // ✅ 変更
+            } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("限定出荷") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
+                return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">限定出荷</span>`; // ✅ 変更
             } else if (trimmedStatus.includes("供給停止") || trimmedStatus.includes("停止") || trimmedStatus.includes("停")) {
                 return `<span class="${baseClass} bg-gray-700 text-white hover:bg-gray-800">供給停止</span>`; // ✅ 変更
             } else {
@@ -334,7 +334,7 @@
                 statusFilters.push("通常出荷");
             }
             if (document.getElementById('statusLimited').checked) {
-                statusFilters.push("出荷制限"); 
+                statusFilters.push("限定出荷"); 
                 statusFilters.push("限定出荷"); 
             }
             if (document.getElementById('statusStopped').checked) {
@@ -360,7 +360,7 @@
                 if (currentStatus.includes('通常') || currentStatus.includes('通')) {
                     statusText = '通常出荷';
                 } else if (currentStatus.includes('限定') || currentStatus.includes('限') || currentStatus.includes('制限') || currentStatus.includes('制')) { 
-                    statusText = '出荷制限';
+                    statusText = '限定出荷';
                     if (currentStatus.includes('限定')) statusText = '限定出荷'; 
                 } else if (currentStatus.includes('停止') || currentStatus.includes('停')) {
                     statusText = '供給停止';
