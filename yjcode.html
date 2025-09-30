@@ -220,9 +220,9 @@
             
             if (trimmedStatus.includes("通常出荷") || trimmedStatus.includes("通")) {
                 return `<span class="${baseClass} bg-indigo-500 text-white hover:bg-indigo-600">通常出荷</span>`; 
-            } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
+            } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("限定出荷") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
                 // メイン検索画面と同じ配色 (黄色味)
-                return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">出荷制限</span>`;
+                return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">限定出荷</span>`;
             } else if (trimmedStatus.includes("供給停止") || trimmedStatus.includes("停止") || trimmedStatus.includes("停")) {
                 // メイン検索画面と同じ配色 (黒に近い暗い色)
                 return `<span class="${baseClass} bg-gray-700 text-white hover:bg-gray-800">供給停止</span>`;
@@ -423,8 +423,8 @@
                     if (statusNormal && (status.includes('通常出荷') || status.includes('通'))) {
                         isMatch = true;
                     }
-                    // '限定出荷' or '出荷制限' or '限' or '制' の場合
-                    if (statusLimited && (status.includes('限定出荷') || status.includes('出荷制限') || status.includes('限') || status.includes('制'))) {
+                    // '限定出荷' or '限定出荷' or '限' or '制' の場合
+                    if (statusLimited && (status.includes('限定出荷') || status.includes('限定出荷') || status.includes('限') || status.includes('制'))) {
                         isMatch = true;
                     }
                     // '供給停止' or '停止' or '停' の場合
