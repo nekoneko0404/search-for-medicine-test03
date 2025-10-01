@@ -154,7 +154,7 @@
 
             // 一時的なメッセージの場合、5秒後に非表示にするタイマーを設定
             if (isTransient) {
-                messageTimer = setTimeout(hideMessage, 5000); // 5秒後に非表示
+                messageTimer = setTimeout(hideMessage, 2000); // 2秒後に非表示
             }
         }
 
@@ -577,8 +577,12 @@
             const fetchedData = await fetchExcelData();
             if (fetchedData && fetchedData.length > 0) {
                 data = fetchedData;
-                // データ読み込み後、初期状態では検索抑制ロジックにより自動検索はスキップされる。
-                performSearch(); 
+                // 初期表示で「3日以内」を選択状態にする
+                document.querySelector('#date-filters input[data-days="all"]').checked = false;
+                document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                
+                // データ読み込み後、初期検索を実行
+                performSearch();
             } else {
                 if (!messageBox.textContent) {
                     showMessage('データを読み込めませんでした。ファイルが空か、形式に問題がある可能性があります。', true);
