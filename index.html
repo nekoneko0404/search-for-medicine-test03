@@ -560,13 +560,13 @@
                     const arrayBuffer = await response.arrayBuffer();
                     
                     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                    const sheetName = workbook.SheetNames;
+                    const sheetName = workbook.SheetNames; // 最初のシート名を取得
                     const worksheet = workbook.Sheets[sheetName];
                     
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 }); // range: 1 で2行目から読み込み
                     
-                    if (jsonData.length > 1) {
-                        const header = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 0, raw: false });
+                    if (jsonData.length > 0) {
+                        const header = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 0, raw: false }); // 1行目をヘッダーとして取得
                         const processedHeader = header.map(h => {
                             if (typeof h === 'string') {
                                 return h.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
@@ -574,8 +574,7 @@
                             return h;
                         });
                         
-                        const dataRows = jsonData.slice(1);
-                        excelData = dataRows.map(row => {
+                        excelData = jsonData.map(row => {
                             const obj = {};
                             processedHeader.forEach((h, index) => {
                                 obj[h] = row[index];
