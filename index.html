@@ -408,6 +408,11 @@
             hideMessage(2000);
         }
 
+        function openHiyariPage(type, name) {
+            const hiyariBaseUrl = './hiyari_app/index.html';
+            const url = `${hiyariBaseUrl}?${type}=${encodeURIComponent(name)}`;
+            window.open(url, '_blank');
+        }
 
         // テーブルのレンダリング関数を修正
         function renderTable(data) {
@@ -455,7 +460,7 @@
                 const yjCode = row[4]; // E列
                 const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=1`;
                 
-                drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a></div>`;
+                drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a><span class="ml-1 text-blue-600 cursor-pointer" onclick="openHiyariPage('drugName', '${(drugName || "").replace(/'/g, "\\'")}')">🔵</span></div>`;
                 
                 // 成分名 (C列): text-sm
                 const ingredientNameCell = newRow.insertCell(1);
@@ -464,9 +469,10 @@
                 const ingredientName = row[2] || "";
                 
                 if (ingredientName) {
-                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a>`;
+                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a><span class="ml-1 text-blue-600 cursor-pointer" onclick="openHiyariPage('ingredientName', '${ingredientName.replace(/'/g, "\\'")}')">🔵</span>`;
                 } else {
-                    ingredientNameCell.textContent = ingredientName;
+                    ingredientNameCell.textContent = ingredientName; // 元のテキストに戻し、🔵は別途追加
+                    ingredientNameCell.innerHTML += `<span class="ml-1 text-blue-600 cursor-pointer" onclick="openHiyariPage('ingredientName', '${ingredientName.replace(/'/g, "\\'")}')">🔵</span>`;
                 }
                 
                 // ✅ 変更: 出荷状況 (L列): renderStatusButtonの結果をリンクで囲む
