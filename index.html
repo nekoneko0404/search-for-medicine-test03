@@ -279,11 +279,34 @@
         function processExcelData(data) {
             try {
                 const workbook = XLSX.read(data, {type: 'array'});
-                const sheetName = workbook.SheetNames;
-                const sheet = workbook.Sheets[sheetName];
-                excelData = XLSX.utils.sheet_to_json(sheet, {header:1});
-                showMessage("データの読み込みが完了しました。", "success");
-                hideMessage(2000);
+                const sheetName = workbook.SheetNames; // 最初のシート名を取得
+                const worksheet = workbook.Sheets[sheetName];
+                
+                // ヘッダーを無視してデータを読み込む
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 }); // range: 1 で2行目から読み込み
+                
+                if (jsonData.length > 0) { // ヘッダー行を除いたデータが存在するか確認
+                    const header = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 0, raw: false }); // 1行目をヘッダーとして取得
+                    const processedHeader = header.map(h => {
+                        if (typeof h === 'string') {
+                            return h.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
+                        }
+                        return h;
+                    });
+                    
+                    excelData = jsonData.map(row => {
+                        const obj = {};
+                        processedHeader.forEach((h, index) => {
+                            obj[h] = row[index];
+                        });
+                        return obj;
+                    });
+                    showMessage("データの読み込みが完了しました。", "success");
+                    hideMessage(2000);
+                } else {
+                    showMessage("データが空です。", "error");
+                    hideMessage(2000);
+                }
             } catch (error) {
                 console.error('Error processing data:', error);
                 showMessage("データの処理中にエラーが発生しました。", "error");
@@ -351,10 +374,10 @@
                 const row = excelData[i];
                 if (!row || row.length < 17) continue;
 
-                const drugName = normalizeString(row || "");
-                const ingredientName = normalizeString(row || "");
-                const makerName = normalizeString((row || "") + (row || ""));
-                const currentStatus = (row || '').trim(); 
+                const drugName = normalizeString(row['⑥品名（承認書に記載の正式名称）※全角'] || "");
+                const ingredientName = normalizeString(row['③成分名'] || "");
+                const makerName = normalizeString((row['⑥品名（承認書に記載の正式名称）※全角'] || "") + (row['⑦製造販売業者名'] || ""));
+                const currentStatus = (row['⑫製造販売業者の「出荷対応」の状況'] || '').trim();
 
                 const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
                 const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
@@ -413,7 +436,7 @@
         function renderTable(data) {
             const resultBody = document.getElementById('resultTableBody');
             resultBody.innerHTML = "";
-            const statusIndex = 11; // L列のインデックス
+            // 列のインデックスではなく、ヘッダー名でアクセスするように変更
 
             if (data.length === 0) {
                 const row = resultBody.insertRow();
@@ -436,8 +459,8 @@
                 drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900");
                 
                 let labelsHtml = '';
-                const hColumnValue = (row || '').trim(); // H列: 後発品・長期収載品
-                const iColumnValue = (row || '').trim(); // I列: 基礎的医薬品
+                const hColumnValue = (row['⑧製品区分'] || '').trim(); // H列: 後発品・長期収載品
+                const iColumnValue = (row['⑨基礎的医薬品'] || '').trim(); // I列: 基礎的医薬品
 
                 const labels = [];
                 if (hColumnValue === '後発品') {
@@ -451,8 +474,8 @@
                     labelsHtml = `<div class="vertical-labels-container">${labels.join('')}</div>`;
                 }
 
-                const drugName = row; // F列
-                const yjCode = row; // E列
+                const drugName = row['⑥品名（承認書に記載の正式名称）※全角']; // F列
+                const yjCode = row['⑤YJコード']; // E列
                 const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=1`;
                 
                 drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a></div>`;
@@ -461,7 +484,7 @@
                 const ingredientNameCell = newRow.insertCell(1);
                 ingredientNameCell.setAttribute('data-label', '成分名');
                 ingredientNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
-                const ingredientName = row || "";
+                const ingredientName = row['③成分名'] || "";
                 
                 if (ingredientName) {
                     ingredientNameCell.innerHTML = `<a href="./hiyari_app/index.html?ingredient=${encodeURIComponent(ingredientName)}" target="_blank" class="text-indigo-600 font-semibold hover:underline">🟡 ${ingredientName}</a>`;
@@ -475,7 +498,7 @@
                 // tight-cellはpaddingの調整に使用
                 statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left"); 
                 
-                const statusValue = (row[statusIndex] || '').trim();
+                const statusValue = (row['⑫製造販売業者の「出荷対応」の状況'] || '').trim();
                 const statusButtonHtml = renderStatusButton(statusValue);
                 
                 if (yjCode) {
@@ -492,13 +515,13 @@
                 
                 // 制限理由 (N列): text-xs
                 const reasonCell = newRow.insertCell(3);
-                reasonCell.textContent = row || "";
+                reasonCell.textContent = row['⑭限定出荷/供給停止の理由'] || "";
                 reasonCell.setAttribute('data-label', '制限理由');
                 reasonCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900", "truncate-lines");
 
                 // 出荷量状況 (Q列): text-xs
                 const volumeCell = newRow.insertCell(4);
-                volumeCell.textContent = row || "";
+                volumeCell.textContent = row['⑰製造販売業者の「出荷量」の現在の状況'] || "";
                 volumeCell.setAttribute('data-label', '出荷量状況');
                 volumeCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
             });
