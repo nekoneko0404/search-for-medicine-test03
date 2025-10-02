@@ -411,21 +411,18 @@
         function extractSearchTerm(text) {
             if (!text) return '';
 
-            // 1. 先頭からカタカナ部分のみを抽出
-            let match = text.match(/^([ァ-ヶー]+)/);
-            if (match) {
+            // 漢字とカタカナ、またはカタカナと漢字が連続している場合は両方を含める
+            // 例: 小児用レルベア５０エリプタ３０吸入用 -> 小児用レルベア
+            // 例: レルベア小児用５０エリプタ３０吸入用 -> レルベア小児用
+            let match = text.match(/^([一-龯ァ-ヶー]+(?:[一-龯ァ-ヶー]+)*)/);
+            if (match && match) {
                 return match;
             }
 
-            // 2. カタカナがなければ、先頭から漢字の部分のみを抽出
-            match = text.match(/^([一-龯]+)/);
-            if (match) {
-                return match;
-            }
-
-            // 3. どちらにも当てはまらなければ、アルファベット、数字、記号を飛ばして、先頭からカタカナの部分のみを抽出
-            match = text.match(/[^ァ-ヶー一-龯A-Za-z0-9]*([ァ-ヶー]+)/);
-            if (match) {
+            // 記号や数字で始まっているものはそのあとから、以降は同様
+            // 例: ５０エリプタ３０吸入用 -> エリプタ
+            match = text.match(/[^一-龯ァ-ヶーA-Za-z0-9]*([一-龯ァ-ヶー]+(?:[一-龯ァ-ヶー]+)*)/);
+            if (match && match) {
                 return match;
             }
             
