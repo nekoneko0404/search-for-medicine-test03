@@ -164,10 +164,10 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2">
-                <a href="./update.html" target="_blank" class="bg-blue-500 text-white hover:bg-blue-600 transition duration-150 ease-in-out py-1 px-3 rounded-md shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
+                <a href="https://nekoneko0404.github.io/search-for-medicine-test03/update.html" target="_blank" class="bg-blue-500 text-white hover:bg-blue-600 transition duration-150 ease-in-out py-1 px-3 rounded-md shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
                     情報更新日検索
                 </a>
-                <a href="./readme.html" target="_blank" class="bg-indigo-500 text-white hover:bg-indigo-600 transition duration-150 ease-in-out py-1 px-3 rounded-md shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
+                <a href="https://nekoneko0404.github.io/search-for-medicine-test03/readme.html" target="_blank" class="bg-indigo-500 text-white hover:bg-indigo-600 transition duration-150 ease-in-out py-1 px-3 rounded-md shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
                     使い方
                 </a>
             </div>
@@ -276,6 +276,20 @@
         function getSearchKeywords(input) {
             return input.split(/\s+|　+/).filter(keyword => keyword !== '').map(keyword => normalizeString(keyword));
         }
+        function processExcelData(data) {
+            try {
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                excelData = XLSX.utils.sheet_to_json(sheet, {header:1});
+                showMessage("データの読み込みが完了しました。", "success");
+                hideMessage(2000);
+            } catch (error) {
+                console.error('Error processing data:', error);
+                showMessage("データの処理中にエラーが発生しました。", "error");
+                hideMessage(2000);
+            }
+        }
 
         /**
          * @param {string} status 出荷状況の文字列 (例: '限定出荷')
@@ -337,10 +351,10 @@
                 const row = excelData[i];
                 if (!row || row.length < 17) continue;
 
-                const drugName = normalizeString(row['⑥品名（承認書に記載の正式名称）※全角'] || "");
-                const ingredientName = normalizeString(row['③成分名'] || "");
-                const makerName = normalizeString((row['⑥品名（承認書に記載の正式名称）※全角'] || "") + (row['⑦製造販売業者名'] || ""));
-                const currentStatus = (row['⑫製造販売業者の「出荷対応」の状況'] || '').trim();
+                const drugName = normalizeString(row[5] || "");
+                const ingredientName = normalizeString(row[2] || "");
+                const makerName = normalizeString((row[6] || "") + (row[9] || ""));
+                const currentStatus = (row[11] || '').trim(); 
 
                 const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
                 const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
@@ -399,7 +413,7 @@
         function renderTable(data) {
             const resultBody = document.getElementById('resultTableBody');
             resultBody.innerHTML = "";
-            // 列のインデックスではなく、ヘッダー名でアクセスするように変更
+            const statusIndex = 11; // L列のインデックス
 
             if (data.length === 0) {
                 const row = resultBody.insertRow();
@@ -422,8 +436,8 @@
                 drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900");
                 
                 let labelsHtml = '';
-                const hColumnValue = (row['⑧製品区分'] || '').trim(); // H列: 後発品・長期収載品
-                const iColumnValue = (row['⑨基礎的医薬品'] || '').trim(); // I列: 基礎的医薬品
+                const hColumnValue = (row[7] || '').trim(); // H列: 後発品・長期収載品
+                const iColumnValue = (row[8] || '').trim(); // I列: 基礎的医薬品
 
                 const labels = [];
                 if (hColumnValue === '後発品') {
@@ -437,8 +451,8 @@
                     labelsHtml = `<div class="vertical-labels-container">${labels.join('')}</div>`;
                 }
 
-                const drugName = row['⑥品名（承認書に記載の正式名称）※全角']; // F列
-                const yjCode = row['⑤YJコード']; // E列
+                const drugName = row[5]; // F列
+                const yjCode = row[4]; // E列
                 const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=1`;
                 
                 drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a></div>`;
@@ -447,10 +461,10 @@
                 const ingredientNameCell = newRow.insertCell(1);
                 ingredientNameCell.setAttribute('data-label', '成分名');
                 ingredientNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
-                const ingredientName = row['③成分名'] || "";
+                const ingredientName = row[2] || "";
                 
                 if (ingredientName) {
-                    ingredientNameCell.innerHTML = `<a href="./hiyari_app/index.html?ingredient=${encodeURIComponent(ingredientName)}" target="_blank" class="text-indigo-600 font-semibold hover:underline">🟡 ${ingredientName}</a>`;
+                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a>`;
                 } else {
                     ingredientNameCell.textContent = ingredientName;
                 }
@@ -461,12 +475,12 @@
                 // tight-cellはpaddingの調整に使用
                 statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left"); 
                 
-                const statusValue = (row['⑫製造販売業者の「出荷対応」の状況'] || '').trim();
+                const statusValue = (row[statusIndex] || '').trim();
                 const statusButtonHtml = renderStatusButton(statusValue);
                 
                 if (yjCode) {
                     // YJコードへのリンクURLを設定
-                    const yjCodeLinkUrl = `./yjcode.html?yjcode=${yjCode}`;
+                    const yjCodeLinkUrl = `https://nekoneko0404.github.io/search-for-medicine-test03/yjcode.html?yjcode=${yjCode}`;
                     
                     // ボタンHTML全体をハイパーリンクで囲む
                     // `flex justify-center`を追加して、ボタンをセル内で中央揃えにする
@@ -478,13 +492,13 @@
                 
                 // 制限理由 (N列): text-xs
                 const reasonCell = newRow.insertCell(3);
-                reasonCell.textContent = row['⑭限定出荷/供給停止の理由'] || "";
+                reasonCell.textContent = row[13] || "";
                 reasonCell.setAttribute('data-label', '制限理由');
                 reasonCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900", "truncate-lines");
 
                 // 出荷量状況 (Q列): text-xs
                 const volumeCell = newRow.insertCell(4);
-                volumeCell.textContent = row['⑰製造販売業者の「出荷量」の現在の状況'] || "";
+                volumeCell.textContent = row[16] || "";
                 volumeCell.setAttribute('data-label', '出荷量状況');
                 volumeCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
             });
@@ -501,8 +515,8 @@
             sortStates[key] = newDirection;
             document.getElementById(`sort-${key}-icon`).textContent = newDirection === 'asc' ? '▲' : '▼';
             filteredResults.sort((a, b) => {
-                const aValue = (a || '').trim();
-                const bValue = (b || '').trim();
+                const aValue = (a[11] || '').trim();
+                const bValue = (b[11] || '').trim();
                 const compare = aValue.localeCompare(bValue, 'ja', { sensitivity: 'base' });
                 return newDirection === 'asc' ? compare : -compare;
             });
@@ -554,45 +568,21 @@
                 
                 try {
                     const response = await fetch(exportUrl);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const arrayBuffer = await response.arrayBuffer();
-                    
-                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                    const sheetName = workbook.SheetNames; // 最初のシート名を取得
-                    const worksheet = workbook.Sheets[sheetName];
-                    
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 }); // range: 1 で2行目から読み込み
-                    
-                    if (jsonData.length > 0) {
-                        const header = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 0, raw: false }); // 1行目をヘッダーとして取得
-                        const processedHeader = header.map(h => {
-                            if (typeof h === 'string') {
-                                return h.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
-                            }
-                            return h;
-                        });
-                        
-                        excelData = jsonData.map(row => {
-                            const obj = {};
-                            processedHeader.forEach((h, index) => {
-                                obj[h] = row[index];
-                            });
-                            return obj;
-                        });
+                    if (response.ok) {
+                        const data = await response.arrayBuffer();
+                        processExcelData(new Uint8Array(data));
+                        renderTable([]);
+                        tableContainer.classList.add('hidden'); 
                         showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
                         hideMessage(2000);
                     } else {
-                        showMessage("データが空です。", "error");
+                        showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
                         hideMessage(2000);
                     }
                 } catch (error) {
                     console.error('データの取得に失敗しました:', error);
                     showMessage('共有スプレッドシートからのデータの取得中にエラーが発生しました。', 'error');
                     hideMessage(2000);
-                } finally {
-                    // 必要に応じてローディングインジケーターを非表示にする処理を追加
                 }
             }
             
