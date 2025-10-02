@@ -433,10 +433,50 @@
             return text;
         }
 
+        // 修正箇所：/hiyari_app/index.html に渡すパラメータを正規化して単一の成分名だけ渡す
         function openHiyariPage(type, name) {
             const hiyariBaseUrl = './hiyari_app/index.html';
-            const extractedName = extractSearchTerm(name);
-            const url = `${hiyariBaseUrl}?${type}=${encodeURIComponent(extractedName)}`;
+            let extractedName = extractSearchTerm(name);
+
+            // extractSearchTerm は match の配列が返ることがあるため、文字列化して正しく扱う
+            if (Array.isArray(extractedName)) {
+                extractedName = extractedName[0] || '';
+            } else if (typeof extractedName !== 'string') {
+                extractedName = String(extractedName || '');
+            }
+
+            let finalName = extractedName;
+
+            // 成分名の場合はカンマ区切りや接頭辞（例: Ｌ－）を取り除いて
+            // 実用的な「単一の成分名（主にカタカナ）」を選ぶ
+            if (type === 'ingredientName' && finalName) {
+                // カンマ（,、，）で分割
+                const parts = finalName.split(/[，,、]/).map(p => p.trim()).filter(p => p !== '');
+
+                // まずは各パートからカタカナの連続部分を探す（例: "Ｌ－カルボシステイン" -> "カルボシステイン"）
+                let candidate = '';
+                for (const p of parts) {
+                    const m = p.match(/([ァ-ヶー]+)/);
+                    if (m && m[1]) {
+                        candidate = m[1];
+                        break;
+                    }
+                }
+
+                // カタカナが見つからなければ、先頭のパートから先頭にある "Ｌ" や "L" とハイフンを削る
+                if (!candidate && parts.length > 0) {
+                    candidate = parts[0].replace(/^[\uFF2C\u004C][－-]?/, '').trim();
+                }
+
+                // 最終的に候補があればそれを使う（無ければ元の extractedName を使う）
+                if (candidate) {
+                    finalName = candidate;
+                } else if (parts.length > 0) {
+                    finalName = parts[0];
+                }
+            }
+
+            const url = `${hiyariBaseUrl}?${type}=${encodeURIComponent(finalName)}`;
             window.open(url, '_blank');
         }
 
