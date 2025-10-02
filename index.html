@@ -279,7 +279,7 @@
         function processExcelData(data) {
             try {
                 const workbook = XLSX.read(data, {type: 'array'});
-                const sheetName = workbook.SheetNames[0];
+                const sheetName = workbook.SheetNames;
                 const sheet = workbook.Sheets[sheetName];
                 excelData = XLSX.utils.sheet_to_json(sheet, {header:1});
                 showMessage("データの読み込みが完了しました。", "success");
@@ -351,10 +351,10 @@
                 const row = excelData[i];
                 if (!row || row.length < 17) continue;
 
-                const drugName = normalizeString(row[5] || "");
-                const ingredientName = normalizeString(row[2] || "");
-                const makerName = normalizeString((row[6] || "") + (row[9] || ""));
-                const currentStatus = (row[11] || '').trim(); 
+                const drugName = normalizeString(row || "");
+                const ingredientName = normalizeString(row || "");
+                const makerName = normalizeString((row || "") + (row || ""));
+                const currentStatus = (row || '').trim(); 
 
                 const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
                 const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
@@ -436,8 +436,8 @@
                 drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900");
                 
                 let labelsHtml = '';
-                const hColumnValue = (row[7] || '').trim(); // H列: 後発品・長期収載品
-                const iColumnValue = (row[8] || '').trim(); // I列: 基礎的医薬品
+                const hColumnValue = (row || '').trim(); // H列: 後発品・長期収載品
+                const iColumnValue = (row || '').trim(); // I列: 基礎的医薬品
 
                 const labels = [];
                 if (hColumnValue === '後発品') {
@@ -451,8 +451,8 @@
                     labelsHtml = `<div class="vertical-labels-container">${labels.join('')}</div>`;
                 }
 
-                const drugName = row[5]; // F列
-                const yjCode = row[4]; // E列
+                const drugName = row; // F列
+                const yjCode = row; // E列
                 const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=1`;
                 
                 drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a></div>`;
@@ -461,10 +461,10 @@
                 const ingredientNameCell = newRow.insertCell(1);
                 ingredientNameCell.setAttribute('data-label', '成分名');
                 ingredientNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
-                const ingredientName = row[2] || "";
+                const ingredientName = row || "";
                 
                 if (ingredientName) {
-                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a>`;
+                    ingredientNameCell.innerHTML = `<a href="./hiyari_app/index.html?ingredient=${encodeURIComponent(ingredientName)}" target="_blank" class="text-indigo-600 font-semibold hover:underline">🟡 ${ingredientName}</a>`;
                 } else {
                     ingredientNameCell.textContent = ingredientName;
                 }
@@ -492,13 +492,13 @@
                 
                 // 制限理由 (N列): text-xs
                 const reasonCell = newRow.insertCell(3);
-                reasonCell.textContent = row[13] || "";
+                reasonCell.textContent = row || "";
                 reasonCell.setAttribute('data-label', '制限理由');
                 reasonCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900", "truncate-lines");
 
                 // 出荷量状況 (Q列): text-xs
                 const volumeCell = newRow.insertCell(4);
-                volumeCell.textContent = row[16] || "";
+                volumeCell.textContent = row || "";
                 volumeCell.setAttribute('data-label', '出荷量状況');
                 volumeCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
             });
@@ -515,8 +515,8 @@
             sortStates[key] = newDirection;
             document.getElementById(`sort-${key}-icon`).textContent = newDirection === 'asc' ? '▲' : '▼';
             filteredResults.sort((a, b) => {
-                const aValue = (a[11] || '').trim();
-                const bValue = (b[11] || '').trim();
+                const aValue = (a || '').trim();
+                const bValue = (b || '').trim();
                 const compare = aValue.localeCompare(bValue, 'ja', { sensitivity: 'base' });
                 return newDirection === 'asc' ? compare : -compare;
             });
