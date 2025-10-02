@@ -408,9 +408,35 @@
             hideMessage(2000);
         }
 
+        function extractSearchTerm(text) {
+            if (!text) return '';
+
+            // 1. 先頭からカタカナ部分のみを抽出
+            let match = text.match(/^([ァ-ヶー]+)/);
+            if (match) {
+                return match;
+            }
+
+            // 2. カタカナがなければ、先頭から漢字の部分のみを抽出
+            match = text.match(/^([一-龯]+)/);
+            if (match) {
+                return match;
+            }
+
+            // 3. どちらにも当てはまらなければ、アルファベット、数字、記号を飛ばして、先頭からカタカナの部分のみを抽出
+            match = text.match(/[^ァ-ヶー一-龯A-Za-z0-9]*([ァ-ヶー]+)/);
+            if (match) {
+                return match;
+            }
+            
+            // 上記のいずれにも当てはまらない場合、元のテキストを返す
+            return text;
+        }
+
         function openHiyariPage(type, name) {
             const hiyariBaseUrl = './hiyari_app/index.html';
-            const url = `${hiyariBaseUrl}?${type}=${encodeURIComponent(name)}`;
+            const extractedName = extractSearchTerm(name);
+            const url = `${hiyariBaseUrl}?${type}=${encodeURIComponent(extractedName)}`;
             window.open(url, '_blank');
         }
 
