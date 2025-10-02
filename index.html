@@ -283,11 +283,11 @@
                 const sheet = workbook.Sheets[sheetName];
                 excelData = XLSX.utils.sheet_to_json(sheet, {header:1});
                 showMessage("データの読み込みが完了しました。", "success");
-                hideMessage(3000);
+                hideMessage(2000);
             } catch (error) {
                 console.error('Error processing data:', error);
                 showMessage("データの処理中にエラーが発生しました。", "error");
-                hideMessage(3000);
+                hideMessage(2000);
             }
         }
 
@@ -384,13 +384,13 @@
             
             if (filteredResults.length === 0) {
                  showMessage("検索結果が見つかりませんでした。", "info");
-                 hideMessage(3000);
+                 hideMessage(2000);
             } else if (filteredResults.length > 500) {
                  showMessage(`${filteredResults.length} 件のデータが見つかりました。\n表示は上位 500 件に制限されています。`, "success");
-                 hideMessage(3000);
+                 hideMessage(2000);
             } else {
                  showMessage(`${filteredResults.length} 件のデータが見つかりました。`, "success");
-                 hideMessage(3000);
+                 hideMessage(2000);
             }
 
             sortStates.status = 'asc';
@@ -405,7 +405,7 @@
             document.getElementById('ingredientName').value = searchIngredient;
             searchData();
             showMessage(`「${searchIngredient}」で再検索を実行しました。`, 'info');
-            hideMessage(3000);
+            hideMessage(2000);
         }
 
 
@@ -508,7 +508,7 @@
         function sortResults(key) {
             if (filteredResults.length === 0) {
                 showMessage("ソートするデータがありません。", "info");
-                hideMessage(3000);
+                hideMessage(2000);
                 return;
             }
             const newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
@@ -522,7 +522,7 @@
             });
             renderTable(filteredResults);
             showMessage(`「出荷状況」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, "success");
-            hideMessage(3000);
+            hideMessage(2000);
         }
         
         function formatDate(date) {
@@ -574,15 +574,15 @@
                         renderTable([]);
                         tableContainer.classList.add('hidden'); 
                         showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
-                        hideMessage(4000);
+                        hideMessage(2000);
                     } else {
                         showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
-                        hideMessage(5000);
+                        hideMessage(2000);
                     }
                 } catch (error) {
                     console.error('データの取得に失敗しました:', error);
                     showMessage('共有スプレッドシートからのデータの取得中にエラーが発生しました。', 'error');
-                    hideMessage(5000);
+                    hideMessage(2000);
                 }
             }
             
