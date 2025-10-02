@@ -7,17 +7,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // URLから成分名パラメータを取得
     const urlParams = new URLSearchParams(window.location.search);
-    const ingredient = urlParams.get('ingredient');
+    const ingredient = urlParams.get('ingredientName'); // ingredientName に変更
+    const drugName = urlParams.get('drugName'); // drugName を追加
 
     // APIからヒヤリ・ハット事例を取得する
     async function fetchIncidents() {
         let query = '?count=20&order=2'; // デフォルトは最新20件
-        
+        let searchTerm = '';
+        let searchType = '';
+
         if (ingredient) {
-            searchTitle.textContent = `「${ingredient}」に関するヒヤリ・ハット事例`;
-            // 成分名で検索するためのクエリを組み立てる
-            // item=DATMEDNAME は処方された医薬品の販売名や成分名を検索対象にする
+            searchTerm = ingredient;
+            searchType = '成分名';
             query = `?item=DATMEDNAME&word=${encodeURIComponent(ingredient)}&condition=any&count=50`;
+        } else if (drugName) {
+            searchTerm = drugName;
+            searchType = '品名';
+            query = `?item=DATMEDNAME&word=${encodeURIComponent(drugName)}&condition=any&count=50`;
+        }
+
+        if (searchTerm) {
+            searchTitle.textContent = `「${searchTerm}」に関するヒヤリ・ハット事例 (${searchType}で検索)`;
         } else {
             searchTitle.textContent = '最新のヒヤリ・ハット事例';
         }
