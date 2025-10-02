@@ -181,8 +181,8 @@
                 <input type="text" id="drugName" placeholder="例: ロキソニン" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
             </div>
             <div class="input-container">
-                <label for="ingredient" class="block text-gray-700 text-sm font-medium mb-1">成分名:</label>
-                <input type="text" id="ingredient" placeholder="例: ロキソプロフェン" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
+                <label for="ingredientName" class="block text-gray-700 text-sm font-medium mb-1">成分名:</label>
+                <input type="text" id="ingredientName" placeholder="例: ロキソプロフェン" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
             </div>
             <div class="input-container">
                 <label for="makerName" class="block text-gray-700 text-sm font-medium mb-1">規格、剤形、ﾒｰｶｰ:</label>
@@ -319,7 +319,7 @@
             }
 
             const drugKeywords = getSearchKeywords(document.getElementById('drugName').value);
-            const ingredientKeywords = getSearchKeywords(document.getElementById('ingredient').value);
+            const ingredientKeywords = getSearchKeywords(document.getElementById('ingredientName').value);
             const makerKeywords = getSearchKeywords(document.getElementById('makerName').value);
             
             const allCheckboxesChecked = document.getElementById('statusNormal').checked && document.getElementById('statusLimited').checked && document.getElementById('statusStopped').checked;
@@ -352,12 +352,12 @@
                 if (!row || row.length < 17) continue;
 
                 const drugName = normalizeString(row[5] || "");
-                const ingredient = normalizeString(row[2] || "");
+                const ingredientName = normalizeString(row[2] || "");
                 const makerName = normalizeString((row[6] || "") + (row[9] || ""));
                 const currentStatus = (row[11] || '').trim(); 
 
                 const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
-                const matchIngredient = ingredientKeywords.every(keyword => ingredient.includes(keyword));
+                const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
                 const matchMaker = makerKeywords.every(keyword => drugName.includes(keyword) || makerName.includes(keyword));
                 
                 let matchStatus = false;
@@ -402,7 +402,7 @@
             document.getElementById('drugName').value = '';
             document.getElementById('makerName').value = '';
             const searchIngredient = ingredient.length > 5 ? ingredient.substring(0, 5) : ingredient;
-            document.getElementById('ingredient').value = searchIngredient;
+            document.getElementById('ingredientName').value = searchIngredient;
             searchData();
             showMessage(`「${searchIngredient}」で再検索を実行しました。`, 'info');
             hideMessage(2000);
@@ -463,16 +463,16 @@
                 drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a><span class="ml-1 text-blue-600 cursor-pointer" onclick="openHiyariPage('drugName', '${(drugName || "").replace(/'/g, "\\'")}')">🔵</span></div>`;
                 
                 // 成分名 (C列): text-sm
-                const ingredientCell = newRow.insertCell(1);
-                ingredientCell.setAttribute('data-label', '成分名');
-                ingredientCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
-                const ingredient = row[2] || "";
+                const ingredientNameCell = newRow.insertCell(1);
+                ingredientNameCell.setAttribute('data-label', '成分名');
+                ingredientNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
+                const ingredientName = row[2] || "";
                 
-                if (ingredient) {
-                    ingredientCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredient.replace(/'/g, "\\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredient}</a><span class="ml-1 text-blue-600 cursor-pointer" onclick="openHiyariPage('ingredient', '${ingredient.replace(/'/g, "\\'")}')">🔵</span>`;
+                if (ingredientName) {
+                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a><span class="ml-1 text-blue-600 cursor-pointer" onclick="openHiyariPage('ingredientName', '${ingredientName.replace(/'/g, "\\'")}')">🔵</span>`;
                 } else {
-                    ingredientCell.textContent = ingredient; // 元のテキストに戻し、🔵は別途追加
-                    ingredientCell.innerHTML += `<span class="ml-1 text-blue-600 cursor-pointer" onclick="openHiyariPage('ingredient', '${ingredient.replace(/'/g, "\\'")}')">🔵</span>`;
+                    ingredientNameCell.textContent = ingredientName; // 元のテキストに戻し、🔵は別途追加
+                    ingredientNameCell.innerHTML += `<span class="ml-1 text-blue-600 cursor-pointer" onclick="openHiyariPage('ingredientName', '${ingredientName.replace(/'/g, "\\'")}')">🔵</span>`;
                 }
                 
                 // ✅ 変更: 出荷状況 (L列): renderStatusButtonの結果をリンクで囲む
@@ -539,7 +539,7 @@
         }
 
         function attachSearchListeners() {
-            const inputIds = ['drugName', 'ingredient', 'makerName'];
+            const inputIds = ['drugName', 'ingredientName', 'makerName'];
 
             inputIds.forEach(id => {
                 const element = document.getElementById(id);
