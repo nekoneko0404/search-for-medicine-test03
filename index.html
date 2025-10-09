@@ -141,6 +141,7 @@
             .truncate-lines {
                 display: -webkit-box;
                 -webkit-line-clamp: 2; /* 2行に制限 */
+                line-clamp: 2; /* 標準プロパティも追加 */
                 -webkit-box-orient: vertical;
                 overflow: hidden;
             }
@@ -632,26 +633,51 @@
             const spreadsheetId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
             const exportUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=xlsx`;
 
+            const CACHE_KEY = 'excelDataCache';
+            const TIMESTAMP_KEY = 'excelDataTimestamp';
+            const CACHE_EXPIRATION_SECONDS = 3600; // 1時間
+
             async function fetchSpreadsheetData() {
+                // 1. sessionStorageからキャッシュを確認
+                const cachedData = sessionStorage.getItem(CACHE_KEY);
+                const cachedTimestamp = sessionStorage.getItem(TIMESTAMP_KEY);
+                const now = new Date().getTime();
+
+                if (cachedData && cachedTimestamp && (now - parseInt(cachedTimestamp, 10)) < CACHE_EXPIRATION_SECONDS * 1000) {
+                    showMessage('キャッシュからデータを読み込みました。', 'success');
+                    try {
+                        excelData = JSON.parse(cachedData);
+                        renderTable([]);
+                        tableContainer.classList.add('hidden');
+                        hideMessage(1500);
+                    } catch (e) {
+                        console.error('キャッシュデータのパースに失敗:', e);
+                        sessionStorage.removeItem(CACHE_KEY);
+                        sessionStorage.removeItem(TIMESTAMP_KEY);
+                        fetchSpreadsheetData(); // キャッシュが壊れていたら再取得
+                    }
+                    return;
+                }
+
+                // 2. キャッシュがない、または期限切れの場合はネットワークから取得
                 showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
-                
                 try {
                     const response = await fetch(exportUrl);
                     if (response.ok) {
                         const data = await response.arrayBuffer();
                         processExcelData(new Uint8Array(data));
+                        // 3. 取得したデータをsessionStorageに保存
+                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(excelData));
+                        sessionStorage.setItem(TIMESTAMP_KEY, now.toString());
                         renderTable([]);
                         tableContainer.classList.add('hidden'); 
-                        showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
-                        hideMessage(2000);
+                        hideMessage(1500);
                     } else {
                         showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
-                        hideMessage(2000);
                     }
                 } catch (error) {
                     console.error('データの取得に失敗しました:', error);
                     showMessage('共有スプレッドシートからのデータの取得中にエラーが発生しました。', 'error');
-                    hideMessage(2000);
                 }
             }
             

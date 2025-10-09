@@ -232,11 +232,28 @@
             }
         }
 
+        const CACHE_KEY_YJ = 'excelDataCache_yj';
+        const TIMESTAMP_KEY_YJ = 'excelDataTimestamp_yj';
+        const CACHE_EXPIRATION_SECONDS = 3600; // 1時間
+
         // Excelデータ取得ロジック（Google Drive 直接 fetch に変更）
         async function fetchExcelData() {
+            // 1. sessionStorageからキャッシュを確認
+            const cachedData = sessionStorage.getItem(CACHE_KEY_YJ);
+            const cachedTimestamp = sessionStorage.getItem(TIMESTAMP_KEY_YJ);
+            const now = new Date().getTime();
+
+            if (cachedData && cachedTimestamp && (now - parseInt(cachedTimestamp, 10)) < CACHE_EXPIRATION_SECONDS * 1000) {
+                updateProgress('キャッシュからデータを読み込みました！', 100);
+                try {
+                    const parsedData = JSON.parse(cachedData);
+                    return { data: parsedData, date: 'Cache' };
+                } catch (e) { /* パース失敗時は再取得 */ }
+            }
+
+            // 2. キャッシュがない場合はネットワークから取得
             console.log('Fetching Excel data from Google Drive...');
             updateProgress('Google Driveからデータを読み込み中...', 0);
-            
             const fileId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
             const url = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
@@ -274,6 +291,10 @@
                         return obj;
                     });
                     console.log(`Data loaded successfully. Number of rows: ${mappedData.length}`);
+                    // 3. 取得したデータをsessionStorageに保存
+                    sessionStorage.setItem(CACHE_KEY_YJ, JSON.stringify(mappedData));
+                    sessionStorage.setItem(TIMESTAMP_KEY_YJ, now.toString());
+
                     updateProgress('データの読み込みが完了しました！', 100);
                     return { data: mappedData, date: 'Google Drive' };
                 }
