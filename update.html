@@ -232,9 +232,27 @@
             return `<span class="${baseClass} bg-gray-200 text-gray-800">${trimmedStatus || "不明"}</span>`;
         }
 
+        const CACHE_KEY_UPDATE = 'excelDataCache_update';
+        const TIMESTAMP_KEY_UPDATE = 'excelDataTimestamp_update';
+        const CACHE_EXPIRATION_SECONDS = 3600; // 1時間
+
         async function fetchExcelData() {
-            // 実際にはAPIキーや認証なしでアクセスできるGoogle Spreadsheetsの公開URLが必要です。
-            // 提供されたIDはダミーのため、ここでは動作確認用の空のデータを返すことがあります。
+            // 1. sessionStorageからキャッシュを確認
+            const cachedData = sessionStorage.getItem(CACHE_KEY_UPDATE);
+            const cachedTimestamp = sessionStorage.getItem(TIMESTAMP_KEY_UPDATE);
+            const now = new Date().getTime();
+
+            if (cachedData && cachedTimestamp && (now - parseInt(cachedTimestamp, 10)) < CACHE_EXPIRATION_SECONDS * 1000) {
+                try {
+                    return JSON.parse(cachedData);
+                } catch (e) {
+                    console.error('キャッシュデータのパースに失敗:', e);
+                    sessionStorage.removeItem(CACHE_KEY_UPDATE);
+                    sessionStorage.removeItem(TIMESTAMP_KEY_UPDATE);
+                }
+            }
+
+            // 2. キャッシュがない場合はネットワークから取得
             const fileId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
             const url = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
@@ -278,6 +296,10 @@
                     return cleanRow;
                 });
                 
+                // 3. 取得したデータをsessionStorageに保存
+                sessionStorage.setItem(CACHE_KEY_UPDATE, JSON.stringify(mappedData));
+                sessionStorage.setItem(TIMESTAMP_KEY_UPDATE, now.toString());
+
                 return mappedData;
 
             } catch (error) {
