@@ -249,34 +249,10 @@
                 }
                 const arrayBuffer = await response.arrayBuffer();
                 
-                updateProgress('データを処理中...', 75);
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
-                
-                if (jsonData.length > 1) {
-                    const header = jsonData[0];
-                    const processedHeader = header.map(h => {
-                        if (typeof h === 'string') {
-                            return h.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
-                        }
-                        return h;
-                    });
-                    
-                    const dataRows = jsonData.slice(1);
-                    const mappedData = dataRows.map(row => {
-                        const obj = {};
-                        processedHeader.forEach((h, index) => {
-                            obj[h] = row[index];
-                        });
-                        return obj;
-                    });
-                    console.log(`Data loaded successfully. Number of rows: ${mappedData.length}`);
-                    updateProgress('データの読み込みが完了しました！', 100);
-                    return { data: mappedData, date: 'Google Drive' };
-                }
+                const processedData = processExcel(arrayBuffer);
+                console.log(`Data loaded successfully. Number of rows: ${processedData.length}`);
+                updateProgress('データの読み込みが完了しました！', 100);
+                return { data: processedData, date: 'Google Drive' };
             } catch (error) {
                 console.error(`データの取得に失敗しました: ${url} ${error}`);
                 showMessage(`データの取得に失敗しました。CORSエラーの可能性があります。詳細: ${error.message}`);
@@ -284,6 +260,36 @@
                 setTimeout(() => progressBarContainer.classList.add('hidden'), 1000);
             }
             return { data: null, date: null };
+        }
+
+        // Excelデータ処理関数 (キャッシュロジックを削除)
+        function processExcel(arrayBuffer) {
+            updateProgress('データを処理中...', 75);
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
+            
+            if (jsonData.length > 1) {
+                const header = jsonData[0];
+                const processedHeader = header.map(h => {
+                    if (typeof h === 'string') {
+                        return h.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
+                    }
+                    return h;
+                });
+                
+                const dataRows = jsonData.slice(1);
+                return dataRows.map(row => {
+                    const obj = {};
+                    processedHeader.forEach((h, index) => {
+                        obj[h] = row[index];
+                    });
+                    return obj;
+                });
+            }
+            return [];
         }
 
         // メーカーリンク用データ取得ロジック（直接 fetch）
