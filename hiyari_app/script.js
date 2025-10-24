@@ -63,20 +63,98 @@ document.addEventListener('DOMContentLoaded', () => {
 
             allIncidents = Array.from(reports).map(report => {
                 const getText = (selector) => report.querySelector(selector)?.textContent || 'N/A';
+
+                const DATSUMMARY_MAP = {
+                    '01': '調剤に関するヒヤリ・ハット事例',
+                    '02': '疑義照会や処方医への情報提供に関する事例',
+                    '03': '患者からの情報収集に関する事例',
+                    '04': '医薬品の供給に関する事例',
+                    '05': '薬歴管理に関する事例',
+                    '06': '服薬指導に関する事例',
+                    '07': 'その他の事例',
+                };
+
+                const DATCONTENTTEXT_MAP = {
+                    '01': 'レセコンの入力間違い',
+                    '02': '薬剤取り違え（異なる成分）',
+                    '03': '薬剤取り違え（同成分）',
+                    '04': '数量間違い',
+                    '05': '剤形間違い',
+                    '06': '規格間違い',
+                    '07': '用法間違い',
+                    '08': '患者間違い',
+                    '09': 'その他',
+                };
+
+                const DATFACTORTEXT_MAP = {
+                    '01': '処方箋やその記載のされ方の要因',
+                    '02': '調剤方法の要因',
+                    '03': '鑑査方法の要因',
+                    '04': '患者の要因',
+                    '05': '医薬品の要因',
+                    '06': '情報システムの要因',
+                    '07': 'その他の要因',
+                };
+
                 const getCodeText = (selector) => {
                     const element = report.querySelector(selector);
                     if (!element) return 'N/A';
                     const code = element.getAttribute('CODE');
                     const text = element.textContent;
-                    return text ? `${text} (コード: ${code})` : (code ? `コード: ${code}` : 'N/A');
+
+                    let displayValue = text || '記載なし';
+                    let mappedValue = '';
+
+                    if (selector === 'DATSUMMARY') {
+                        if (code && code !== 'null') {
+                            mappedValue = DATSUMMARY_MAP[code] || `不明な事例区分`;
+                            displayValue = mappedValue;
+                        } else {
+                            // コードがない場合、テキストから "(コード: XX)" を削除
+                            displayValue = text.replace(/\s*\(コード:\s*[^)]+\)/g, '').trim() || '記載なし';
+                        }
+                    } else if (selector === 'DATMONTH') {
+                        if (code && code !== 'null') {
+                            return parseInt(code, 10).toString();
+                        }
+                    } else if (selector === 'DATCONTENTTEXT') {
+                        if (code && code !== 'null') {
+                            mappedValue = DATCONTENTTEXT_MAP[code] || `不明な事例内容`;
+                            if (text && mappedValue !== text) { // mappedValueとtextが異なる場合のみ結合
+                                displayValue = `${mappedValue} ${text}`;
+                            } else {
+                                displayValue = mappedValue; // mappedValueとtextが同じか、textがない場合はmappedValueのみ
+                            }
+                        } else {
+                            displayValue = text || '記載なし';
+                        }
+                    } else if (selector === 'DATFACTORTEXT') {
+                        if (code && code !== 'null') {
+                            mappedValue = DATFACTORTEXT_MAP[code] || `不明な発生要因`;
+                            if (text && mappedValue !== text) { // mappedValueとtextが異なる場合のみ結合
+                                displayValue = `${mappedValue} ${text}`;
+                            } else {
+                                displayValue = mappedValue; // mappedValueとtextが同じか、textがない場合はmappedValueのみ
+                            }
+                        } else {
+                            displayValue = text || '記載なし';
+                        }
+                    }
+
+                    // DATMONTHとDATSUMMARYにはコード表示は不要
+                    if (code && code !== 'null' && selector !== 'DATMONTH' && selector !== 'DATSUMMARY' && !displayValue.includes(`(コード: ${code})`)) {
+                        displayValue += ` (コード: ${code})`;
+                    }
+
+                    return displayValue;
                 };
 
                 return {
                     year: getText('DATYEAR'),
-                    month: getCodeText('DATMONTH'),
+                    month: getCodeText('DATMONTH'), // 月も表示するため、getCodeTextを使用
                     summary: getCodeText('DATSUMMARY'),
-                    content: getText('DATCONTENTTEXT'),
-                    factor: getText('DATFACTORTEXT'),
+                    content: getCodeText('DATCONTENTTEXT'), // コードから内容を取得
+                    factor: getCodeText('DATFACTORTEXT'), // コードから内容を取得
                     improvement: getText('DATIMPROVEMENTTEXT'),
                 };
             });
@@ -150,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const date = document.createElement('p');
             date.className = 'incident-date';
-            date.textContent = `発生年月: ${incident.year}年 ${incident.month}`;
+            date.textContent = `発生年月: ${incident.year}年${incident.month}月`;
 
             const content = document.createElement('p');
             content.innerHTML = `<strong>事例の詳細:</strong><br>${incident.content.replace(/\n/g, '<br>') || '記載なし'}`;
