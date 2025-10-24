@@ -9,9 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // デプロイしたCloud RunのURL
     const PROXY_BASE_URL = 'https://hiyari-proxy-708146219355.asia-east1.run.app/proxy';
 
-    let currentIngredient = '';
-    let currentDrugName = '';
-    let currentFilterWord = '';
     let allIncidents = []; // 全ての事例を保持する配列
 
     // URLからパラメータを取得し、入力フィールドに設定
@@ -21,49 +18,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialFilterWord = urlParams.get('word');
 
     if (initialIngredient) {
-        currentIngredient = initialIngredient;
         searchKeywordInput.value = initialIngredient;
     } else if (initialDrugName) {
-        currentDrugName = initialDrugName;
         searchKeywordInput.value = initialDrugName;
     }
 
     if (initialFilterWord) {
-        currentFilterWord = initialFilterWord;
         filterWordInput.value = initialFilterWord;
     }
 
-    // APIからヒヤリ・ハット事例を取得する
     async function fetchIncidents() {
         let queryParams = new URLSearchParams();
-        queryParams.append('count', '50'); // 検索時は50件取得
-        queryParams.append('order', '2'); // 新しいもの順
+        queryParams.append('count', '100');
+        queryParams.append('order', '2');
 
-        let searchTerm = '';
-        let searchType = '';
+        const searchKeyword = searchKeywordInput.value.trim();
 
-        if (currentIngredient) {
-            searchTerm = currentIngredient;
-            searchType = '成分名';
+        if (searchKeyword) {
             queryParams.append('item', 'DATMEDNAME');
-            queryParams.append('word', currentIngredient);
+            queryParams.append('word', searchKeyword);
             queryParams.append('condition', 'any');
-        } else if (currentDrugName) {
-            searchTerm = currentDrugName;
-            searchType = '品名';
-            queryParams.append('item', 'DATMEDNAME');
-            queryParams.append('word', currentDrugName);
-            queryParams.append('condition', 'any');
-        }
-
-        if (searchTerm) {
-            searchTitle.textContent = `「${searchTerm}」に関するヒヤリ・ハット事例 (${searchType}で検索)`;
-        } else {
-            searchTitle.textContent = '最新のヒヤリ・ハット事例';
         }
 
         try {
-            // Cloud Runプロキシ経由でAPIを呼び出す
             const response = await fetch(`${PROXY_BASE_URL}?${queryParams.toString()}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -85,23 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             allIncidents = Array.from(reports).map(report => {
-                const getText = (selector) => {
-                    const element = report.querySelector(selector);
-                    return element ? element.textContent : 'N/A';
-                };
-                
+                const getText = (selector) => report.querySelector(selector)?.textContent || 'N/A';
                 const getCodeText = (selector) => {
                     const element = report.querySelector(selector);
                     if (!element) return 'N/A';
                     const code = element.getAttribute('CODE');
                     const text = element.textContent;
-                    if (text) {
-                        return `${text} (コード: ${code})`;
-                    }
-                    if(code) {
-                        return `コード: ${code}`;
-                    }
-                    return 'N/A';
+                    return text ? `${text} (コード: ${code})` : (code ? `コード: ${code}` : 'N/A');
                 };
 
                 return {
@@ -125,25 +92,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function filterAndDisplayIncidents() {
         let filteredIncidents = [...allIncidents];
+        const searchKeyword = searchKeywordInput.value.trim();
+        const filterWord = filterWordInput.value.trim();
 
-        if (currentFilterWord) {
-            const filterKeyword = currentFilterWord.toLowerCase();
-            filteredIncidents = filteredIncidents.filter(incident =>
-                incident.content.toLowerCase().includes(filterKeyword) ||
-                incident.factor.toLowerCase().includes(filterKeyword)
-            );
-            searchTitle.textContent += ` (「${currentFilterWord}」で絞り込み)`;
+        // searchTitleの更新
+        if (searchKeyword && filterWord) {
+            searchTitle.textContent = `「${searchKeyword}」に関するヒヤリ・ハット事例 (「${filterWord}」で絞り込み)`;
+        } else if (searchKeyword) {
+            searchTitle.textContent = `「${searchKeyword}」に関するヒヤリ・ハット事例`;
+        } else if (filterWord) {
+            searchTitle.textContent = `「${filterWord}」に関するヒヤリ・ハット事例 (事例内容・背景要因で絞り込み)`;
+        } else {
+            searchTitle.textContent = '最新のヒヤリ・ハット事例';
         }
 
-        // 改善策があるものを優先し、その中で新しいものから順にソート
+        if (filterWord) {
+            const filterKeywordLower = filterWord.toLowerCase();
+            filteredIncidents = filteredIncidents.filter(incident =>
+                incident.content.toLowerCase().includes(filterKeywordLower) ||
+                incident.factor.toLowerCase().includes(filterKeywordLower)
+            );
+        }
+
         filteredIncidents.sort((a, b) => {
-            const hasImprovementA = a.improvement !== '記載なし';
-            const hasImprovementB = b.improvement !== '記載なし';
+            const hasImprovementA = a.improvement !== 'N/A';
+            const hasImprovementB = b.improvement !== 'N/A';
 
             if (hasImprovementA && !hasImprovementB) return -1;
             if (!hasImprovementA && hasImprovementB) return 1;
 
-            // 発生年月日で降順ソート (新しいものが先)
             const yearA = parseInt(a.year, 10);
             const monthA = parseInt(a.month.replace(/[^0-9]/g, ''), 10);
             const yearB = parseInt(b.year, 10);
@@ -159,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayIncidents(incidents) {
-        incidentList.innerHTML = ''; // 既存の表示をクリア
+        incidentList.innerHTML = '';
         if (incidents.length === 0) {
             incidentList.innerHTML = '<p>関連する事例は見つかりませんでした。</p>';
             return;
@@ -196,13 +173,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateUrlAndFetch() {
         const newUrlParams = new URLSearchParams();
-        if (currentIngredient) {
-            newUrlParams.append('ingredientName', currentIngredient);
-        } else if (currentDrugName) {
-            newUrlParams.append('drugName', currentDrugName);
+        const searchKeyword = searchKeywordInput.value.trim();
+        const filterWord = filterWordInput.value.trim();
+
+        if (searchKeyword) {
+            newUrlParams.append('ingredientName', searchKeyword);
         }
-        if (currentFilterWord) {
-            newUrlParams.append('word', currentFilterWord);
+        if (filterWord) {
+            newUrlParams.append('word', filterWord);
         }
         window.location.search = newUrlParams.toString();
     }
@@ -214,13 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     applySearchButton.addEventListener('click', () => {
-        const keyword = searchKeywordInput.value.trim();
-        if (keyword) {
-            currentIngredient = keyword;
-            currentDrugName = '';
-        } else {
-            currentIngredient = '';
-            currentDrugName = '';
+        // 検索キーワードがクリアされた場合、絞り込みキーワードもクリア
+        if (!searchKeywordInput.value.trim()) {
+            filterWordInput.value = ''; // 絞り込み入力欄をクリア
         }
         updateUrlAndFetch();
     });
@@ -232,11 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     applyFilterButton.addEventListener('click', () => {
-        const word = filterWordInput.value.trim();
-        currentFilterWord = word; // 絞り込みキーワードは常に更新
         updateUrlAndFetch();
     });
 
-    // 事例データを取得して表示
     fetchIncidents();
 });
