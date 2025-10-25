@@ -63,7 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             allIncidents = Array.from(reports).map(report => {
-                const getText = (selector) => report.querySelector(selector)?.textContent || 'N/A';
+                const getText = (selector) => {
+                    const element = report.querySelector(selector);
+                    return element ? element.textContent.trim() : '記載なし';
+                };
 
                 const DATSUMMARY_MAP = {
                     '01': '調剤に関するヒヤリ・ハット事例',
@@ -94,70 +97,124 @@ document.addEventListener('DOMContentLoaded', () => {
                     '07': 'その他の要因',
                 };
 
+                const DATFACTOR_MAP = {
+                    '100101': '判断誤り', '100102': '手順不遵守', '100103': 'スタッフ間のコミュニケーション不足・齟齬',
+                    '100104': '患者とのコミュニケーション不足・齟齬', '100199': 'その他',
+                    '110101': '知識不足', '110102': '技術・手技が未熟', '110103': '慣れ・慢心',
+                    '110104': '焦り・慌て', '110105': '疲労・体調不良・身体的不調', '110106': '心配ごと等心理的状態',
+                    '110199': 'その他',
+                    '120101': '医薬品の名称類似', '120102': '医薬品や包装の外観類似', '120103': '医薬品包装表示・添付文書の要因',
+                    '120104': '処方箋やその記載のされ方の要因', '120105': 'コンピューターシステムの使いにくさ・不具合',
+                    '120106': '調剤設備・調剤機器の使いにくさ・不具合', '120107': '薬剤服用歴などの記録の不備',
+                    '120108': '調剤室の環境的な要因', '120109': '調剤室以外の環境的な要因', '120199': 'その他',
+                    '130101': '繁忙であった', '130102': '標榜する営業時間外であった', '130103': '普段とは異なる業務状況だった',
+                    '130199': 'その他',
+                    '140101': '教育訓練のなされ方', '140102': '設備機器等の管理', '140103': '薬局内のルールや管理の体制・仕方',
+                    '140104': '薬局内の風土・雰囲気', '140199': 'その他',
+                    '150101': '患者や家族の不注意', '150102': '患者や家族の理解力・誤解', '150103': '患者や家族のコンプライアンス・協力態度',
+                    '150199': 'その他',
+                };
+
+                const DATFACTORDOUBT_MAP = {
+                    '160101': '患者とのコミュニケーション不足・齟齬', '160102': 'カルテ記載の不備',
+                    '160103': 'コンピューターシステムの使いにくさ・不具合', '160104': '連携不足',
+                    '160105': '知識不足', '160106': '判断誤り', '160107': '処方内容の確認不足',
+                    '160199': 'その他',
+                    '170101': '医薬品の名称類似', '170102': '患者や家族の要因', '170199': 'その他',
+                };
+
                 const getCodeText = (selector) => {
-                    const element = report.querySelector(selector);
-                    if (!element) return 'N/A';
-                    const code = element.getAttribute('CODE');
-                    const text = element.textContent;
+                    const elements = report.querySelectorAll(selector); // All elements for the selector
+                    if (elements.length === 0) return 'N/A';
 
-                    let displayValue = text || '記載なし';
-                    let mappedValue = '';
+                    let displayValues = [];
+                    elements.forEach(element => {
+                        const code = element.getAttribute('CODE');
+                        const text = element.textContent;
+                        let displayValue = text || ''; // 初期値を空文字列に変更
+                        let mappedValue = '';
 
-                    if (selector === 'DATSUMMARY') {
-                        if (code && code !== 'null') {
-                            mappedValue = DATSUMMARY_MAP[code] || `不明な事例区分`;
-                            displayValue = mappedValue;
-                        } else {
-                            // コードがない場合、テキストから "(コード: XX)" を削除
-                            displayValue = text.replace(/\s*\(コード:\s*[^)]+\)/g, '').trim() || '記載なし';
-                        }
-                    } else if (selector === 'DATMONTH') {
-                        if (code && code !== 'null') {
-                            const monthMap = {
-                                '01': '1月', '02': '2月', '03': '3月', '04': '4月', '05': '5月', '06': '6月',
-                                '07': '7月', '08': '8月', '09': '9月', '10': '10月', '11': '11月', '12': '12月'
-                            };
-                            return monthMap[code] || `不明な月 (${code})`;
-                        }
-                    } else if (selector === 'DATCONTENTTEXT') {
-                        if (code && code !== 'null') {
-                            mappedValue = DATCONTENTTEXT_MAP[code] || `不明な事例内容`;
-                            if (text && mappedValue !== text) { // mappedValueとtextが異なる場合のみ結合
-                                displayValue = `${mappedValue} ${text}`;
+                        if (selector === 'DATSUMMARY') {
+                            if (code && code !== 'null') {
+                                mappedValue = DATSUMMARY_MAP[code] || `不明な事例区分`;
+                                displayValue = mappedValue;
                             } else {
-                                displayValue = mappedValue; // mappedValueとtextが同じか、textがない場合はmappedValueのみ
+                                displayValue = text.replace(/\s*\(コード:\s*[^)]+\)/g, '').trim() || ''; // 初期値を空文字列に変更
                             }
-                        } else {
-                            displayValue = text || '記載なし';
-                        }
-                    } else if (selector === 'DATFACTORTEXT') {
-                        if (code && code !== 'null') {
-                            mappedValue = DATFACTORTEXT_MAP[code] || `不明な発生要因`;
-                            if (text && mappedValue !== text) { // mappedValueとtextが異なる場合のみ結合
-                                displayValue = `${mappedValue} ${text}`;
+                        } else if (selector === 'DATMONTH') {
+                            if (code && code !== 'null') {
+                                const monthMap = {
+                                    '01': '1月', '02': '2月', '03': '3月', '04': '4月', '05': '5月', '06': '6月',
+                                    '07': '7月', '08': '8月', '09': '9月', '10': '10月', '11': '11月', '12': '12月'
+                                };
+                                displayValue = monthMap[code] || `不明な月 (${code})`;
+                            }
+                        } else if (selector === 'DATCONTENTTEXT') {
+                            if (code && code !== 'null') {
+                                mappedValue = DATCONTENTTEXT_MAP[code] || `不明な事例内容`;
+                                displayValue = mappedValue;
+                                if (text && text.trim() !== '' && mappedValue !== text.trim()) {
+                                    displayValue = `${mappedValue} ${text.trim()}`;
+                                }
                             } else {
-                                displayValue = mappedValue; // mappedValueとtextが同じか、textがない場合はmappedValueのみ
+                                displayValue = text && text.trim() !== '' ? text.trim() : ''; // 初期値を空文字列に変更
                             }
-                        } else {
-                            displayValue = text || '記載なし';
+                        } else if (selector === 'DATFACTORTEXT') {
+                            if (code && code !== 'null') {
+                                mappedValue = DATFACTORTEXT_MAP[code] || `不明な発生要因`;
+                                displayValue = mappedValue;
+                                if (text && text.trim() !== '' && mappedValue !== text.trim()) {
+                                    displayValue = `${mappedValue} ${text.trim()}`;
+                                }
+                            } else {
+                                displayValue = text && text.trim() !== '' ? text.trim() : ''; // 初期値を空文字列に変更
+                            }
+                        } else if (selector === 'DATFACTOR') {
+                            if (code && code !== 'null') {
+                                mappedValue = DATFACTOR_MAP[code] || `不明な発生要因`; // コードを削除
+                                displayValue = mappedValue;
+                                if (text && text.trim() !== '' && mappedValue !== text.trim()) {
+                                    displayValue = `${mappedValue} ${text.trim()}`;
+                                }
+                            } else {
+                                displayValue = text && text.trim() !== '' ? text.trim() : ''; // 初期値を空文字列に変更
+                            }
+                        } else if (selector === 'DATFACTORDOUBT') {
+                            if (code && code !== 'null') {
+                                mappedValue = DATFACTORDOUBT_MAP[code] || `不明な発生要因(疑義照会)`; // コードを削除
+                                displayValue = mappedValue;
+                                if (text && text.trim() !== '' && mappedValue !== text.trim()) {
+                                    displayValue = `${mappedValue} ${text.trim()}`;
+                                }
+                            } else {
+                                displayValue = text && text.trim() !== '' ? text.trim() : ''; // 初期値を空文字列に変更
+                            }
                         }
-                    }
 
-                    // DATMONTHとDATSUMMARYにはコード表示は不要
-                    if (code && code !== 'null' && selector !== 'DATMONTH' && selector !== 'DATSUMMARY' && !displayValue.includes(`(コード: ${code})`)) {
-                        displayValue += ` (コード: ${code})`;
-                    }
-
-                    return displayValue;
+                        // コード表示は不要になったため、このブロックを削除
+                        // if (code && code !== 'null' && selector !== 'DATMONTH' && selector !== 'DATSUMMARY' && !displayValue.includes(`(コード: ${code})`)) {
+                        //     if (displayValue !== '') { // displayValueが空でない場合のみコードを追加
+                        //         displayValue += ` (コード: ${code})`;
+                        //     }
+                        // }
+                        if (displayValue !== '') { // 空文字列でない場合のみ追加
+                            displayValues.push(displayValue);
+                        }
+                    });
+                    return displayValues.join('<br>') || 'N/A'; // 複数の値を改行で結合し、全て空の場合は'N/A'を返す
                 };
 
                 return {
                     year: getText('DATYEAR'),
-                    month: getCodeText('DATMONTH'), // 月も表示するため、getCodeTextを使用
+                    month: getCodeText('DATMONTH'),
                     summary: getCodeText('DATSUMMARY'),
-                    content: getCodeText('DATCONTENTTEXT'), // コードから内容を取得
-                    factor: getCodeText('DATFACTORTEXT'), // コードから内容を取得
+                    content: getCodeText('DATCONTENTTEXT'),
+                    factor: getCodeText('DATFACTORTEXT'),
+                    factors: getCodeText('LSTFACTOR DATFACTOR'),
+                    factorDoubts: getCodeText('LSTFACTORDOUBT DATFACTORDOUBT'),
                     improvement: getText('DATIMPROVEMENTTEXT'),
+                    estimatedText: getText('DATESTIMATEDTEXT'), // 推定される要因
+                    effortText: getText('DATEFFORTTEXT'), // 薬局での取り組み
                 };
             });
 
@@ -190,7 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const filterKeywordLower = filterWord.toLowerCase();
             filteredIncidents = filteredIncidents.filter(incident =>
                 incident.content.toLowerCase().includes(filterKeywordLower) ||
-                incident.factor.toLowerCase().includes(filterKeywordLower)
+                incident.factor.toLowerCase().includes(filterKeywordLower) ||
+                incident.factors.toLowerCase().includes(filterKeywordLower) ||
+                incident.factorDoubts.toLowerCase().includes(filterKeywordLower)
             );
         }
 
@@ -238,14 +297,47 @@ document.addEventListener('DOMContentLoaded', () => {
             const factor = document.createElement('p');
             factor.innerHTML = `<strong>背景・要因:</strong><br>${incident.factor.replace(/\n/g, '<br>') || '記載なし'}`;
             
+            const factors = document.createElement('p');
+            factors.innerHTML = `<strong>発生要因:</strong><br>${incident.factors.replace(/\n/g, '<br>') || '記載なし'}`;
+
+            const factorDoubts = document.createElement('p');
+            factorDoubts.innerHTML = `<strong>発生要因(疑義照会):</strong><br>${incident.factorDoubts.replace(/\n/g, '<br>') || '記載なし'}`;
+            
             const improvement = document.createElement('p');
             improvement.innerHTML = `<strong>改善策:</strong><br>${incident.improvement.replace(/\n/g, '<br>') || '記載なし'}`;
+
+            const estimatedText = document.createElement('p');
+            estimatedText.innerHTML = `<strong>推定される要因:</strong><br>${incident.estimatedText.replace(/\n/g, '<br>') || '記載なし'}`;
+
+            const effortText = document.createElement('p');
+            effortText.innerHTML = `<strong>薬局での取り組み:</strong><br>${incident.effortText.replace(/\n/g, '<br>') || '記載なし'}`;
 
             card.appendChild(title);
             card.appendChild(date);
             card.appendChild(content);
-            card.appendChild(factor);
-            card.appendChild(improvement);
+
+            // DATSUMMARYの値に応じて表示を切り替える
+            if (incident.summary.includes('疑義照会')) {
+                if (incident.estimatedText !== '記載なし' && incident.estimatedText !== 'N/A') {
+                    card.appendChild(estimatedText);
+                }
+                if (incident.effortText !== '記載なし' && incident.effortText !== 'N/A') {
+                    card.appendChild(effortText);
+                }
+            } else {
+                if (incident.factor !== '記載なし' && incident.factor !== 'N/A') {
+                    card.appendChild(factor);
+                }
+                if (incident.factors !== '記載なし' && incident.factors !== 'N/A') {
+                    card.appendChild(factors);
+                }
+                if (incident.factorDoubts !== '記載なし' && incident.factorDoubts !== 'N/A') {
+                    card.appendChild(factorDoubts);
+                }
+                if (incident.improvement !== '記載なし' && incident.improvement !== 'N/A') {
+                    card.appendChild(improvement);
+                }
+            }
 
             incidentList.appendChild(card);
         });
