@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchIncidents() {
         let queryParams = new URLSearchParams();
-        queryParams.append('count', '100');
+        queryParams.append('count', '500');
         queryParams.append('order', '2');
 
         const searchKeyword = searchKeywordInput.value.trim();
@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             queryParams.append('word', searchKeyword);
             queryParams.append('condition', 'any');
         }
+
 
         try {
             const response = await fetch(`${PROXY_BASE_URL}?${queryParams.toString()}`);
@@ -67,11 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const DATSUMMARY_MAP = {
                     '01': '調剤に関するヒヤリ・ハット事例',
                     '02': '疑義照会や処方医への情報提供に関する事例',
-                    '03': '患者からの情報収集に関する事例',
-                    '04': '医薬品の供給に関する事例',
-                    '05': '薬歴管理に関する事例',
-                    '06': '服薬指導に関する事例',
-                    '07': 'その他の事例',
+                    '03': '特定保険医療材料等に関する事例',
+                    '04': '一般用医薬品等の販売に関する事例',
                 };
 
                 const DATCONTENTTEXT_MAP = {
@@ -115,7 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     } else if (selector === 'DATMONTH') {
                         if (code && code !== 'null') {
-                            return parseInt(code, 10).toString();
+                            const monthMap = {
+                                '01': '1月', '02': '2月', '03': '3月', '04': '4月', '05': '5月', '06': '6月',
+                                '07': '7月', '08': '8月', '09': '9月', '10': '10月', '11': '11月', '12': '12月'
+                            };
+                            return monthMap[code] || `不明な月 (${code})`;
                         }
                     } else if (selector === 'DATCONTENTTEXT') {
                         if (code && code !== 'null') {
@@ -210,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return monthB - monthA;
         });
 
-        displayIncidents(filteredIncidents);
+        displayIncidents(filteredIncidents.slice(0, 50));
     }
 
     function displayIncidents(incidents) {
@@ -228,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const date = document.createElement('p');
             date.className = 'incident-date';
-            date.textContent = `発生年月: ${incident.year}年${incident.month}月`;
+            date.textContent = `発生年月: ${incident.year}年${incident.month}`;
 
             const content = document.createElement('p');
             content.innerHTML = `<strong>事例の詳細:</strong><br>${incident.content.replace(/\n/g, '<br>') || '記載なし'}`;
