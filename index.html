@@ -217,7 +217,9 @@
                         <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[28%]">品名</th>
                         <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[28%]">成分名</th>
                         <th class="px-1 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[15%]">
-                            <div class="flex items-center justify-start"> <span class="whitespace-nowrap">出荷状況</span>
+                            <div class="flex items-center justify-start">
+                                <a href="./hiyari_app/index.html?drugName=" + encodeURIComponent(document.getElementById('drugName').value) target="_blank" class="text-blue-500 hover:text-blue-700 mr-1">🔵</a>
+                                <span class="whitespace-nowrap">出荷状況</span>
                                 <button onclick="sortResults('status')" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150">
                                     <span id="sort-status-icon">▲</span>
                                 </button>
@@ -553,10 +555,15 @@
                     
                     // ボタンHTML全体をハイパーリンクで囲む
                     // `flex justify-center`を追加して、ボタンをセル内で中央揃えにする
-                    statusCell.innerHTML = `<div class="flex justify-center"><a href="${yjCodeLinkUrl}" target="_blank" class="block text-indigo-600 hover:no-underline">${statusButtonHtml}</a></div>`;
-                } else {
-                    // YJコードがない場合はボタンのみ表示 (中央揃え)
-                    statusCell.innerHTML = `<div class="flex justify-center">${statusButtonHtml}</div>`;
+                    const drugNameForHiyari = encodeURIComponent(drugName || ""); // 品名 (F列) を取得
+                    const hiyariLink = `<a href="./hiyari_app/index.html?drugName=${drugNameForHiyari}" target="_blank" class="text-blue-500 hover:text-blue-700 mr-1">🔵</a>`;
+                    
+                    if (yjCode) {
+                        const yjCodeLinkUrl = `./yjcode.html?yjcode=${yjCode}`;
+                        statusCell.innerHTML = `<div class="flex items-center justify-center">${hiyariLink}<a href="${yjCodeLinkUrl}" target="_blank" class="block text-indigo-600 hover:no-underline">${statusButtonHtml}</a></div>`;
+                    } else {
+                        statusCell.innerHTML = `<div class="flex items-center justify-center">${hiyariLink}${statusButtonHtml}</div>`;
+                    }
                 }
                 
                 // 制限理由 (N列): text-xs
