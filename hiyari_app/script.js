@@ -5,11 +5,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const applySearchButton = document.getElementById('apply-search');
     const filterWordInput = document.getElementById('filter-word');
     const applyFilterButton = document.getElementById('apply-filter');
+    const randomSortButton = document.getElementById('random-sort'); // ランダムソートボタンの要素を追加
+    const clearSearchButton = document.getElementById('clear-search');
+    const loadingIndicator = document.getElementById('loading-indicator');
 
     // デプロイしたCloud RunのURL
     const PROXY_BASE_URL = 'https://hiyari-proxy-708146219355.asia-east1.run.app/proxy';
 
     let allIncidents = []; // 全ての事例を保持する配列
+    let filteredIncidents = []; // 絞り込まれた事例を保持する配列
 
     // URLからパラメータを取得し、入力フィールドに設定
     const urlParams = new URLSearchParams(window.location.search);
@@ -28,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchIncidents() {
+        loadingIndicator.style.display = 'block'; // ローディングインジケーターを表示
         let queryParams = new URLSearchParams();
         queryParams.append('count', '500');
         queryParams.append('order', '2');
@@ -131,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     elements.forEach(element => {
                         const code = element.getAttribute('CODE');
                         const text = element.textContent;
-                        let displayValue = text || ''; // 初期値を空文字列に変更
+                        let displayValue = text.replace(/\s*\(コード:\s*[^)]+\)/g, '').trim();
                         let mappedValue = '';
 
                         if (selector === 'DATSUMMARY') {
@@ -139,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 mappedValue = DATSUMMARY_MAP[code] || `不明な事例区分`;
                                 displayValue = mappedValue;
                             } else {
-                                displayValue = text.replace(/\s*\(コード:\s*[^)]+\)/g, '').trim() || ''; // 初期値を空文字列に変更
+                                displayValue = text.replace(/\s*\(コード:\s*[^)]+\)/g, '').trim();
                             }
                         } else if (selector === 'DATMONTH') {
                             if (code && code !== 'null') {
@@ -157,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     displayValue = `${mappedValue} ${text.trim()}`;
                                 }
                             } else {
-                                displayValue = text && text.trim() !== '' ? text.trim() : ''; // 初期値を空文字列に変更
+                                displayValue = text && text.trim() !== '' ? text.trim() : '';
                             }
                         } else if (selector === 'DATFACTORTEXT') {
                             if (code && code !== 'null') {
@@ -167,27 +172,27 @@ document.addEventListener('DOMContentLoaded', () => {
                                     displayValue = `${mappedValue} ${text.trim()}`;
                                 }
                             } else {
-                                displayValue = text && text.trim() !== '' ? text.trim() : ''; // 初期値を空文字列に変更
+                                displayValue = text && text.trim() !== '' ? text.trim() : '';
                             }
                         } else if (selector === 'DATFACTOR') {
                             if (code && code !== 'null') {
-                                mappedValue = DATFACTOR_MAP[code] || `不明な発生要因`; // コードを削除
+                                mappedValue = DATFACTOR_MAP[code] || `不明な発生要因`;
                                 displayValue = mappedValue;
                                 if (text && text.trim() !== '' && mappedValue !== text.trim()) {
                                     displayValue = `${mappedValue} ${text.trim()}`;
                                 }
                             } else {
-                                displayValue = text && text.trim() !== '' ? text.trim() : ''; // 初期値を空文字列に変更
+                                displayValue = text && text.trim() !== '' ? text.trim() : '';
                             }
                         } else if (selector === 'DATFACTORDOUBT') {
                             if (code && code !== 'null') {
-                                mappedValue = DATFACTORDOUBT_MAP[code] || `不明な発生要因(疑義照会)`; // コードを削除
+                                mappedValue = DATFACTORDOUBT_MAP[code] || `不明な発生要因(疑義照会)`;
                                 displayValue = mappedValue;
                                 if (text && text.trim() !== '' && mappedValue !== text.trim()) {
                                     displayValue = `${mappedValue} ${text.trim()}`;
                                 }
                             } else {
-                                displayValue = text && text.trim() !== '' ? text.trim() : ''; // 初期値を空文字列に変更
+                                displayValue = text && text.trim() !== '' ? text.trim() : '';
                             }
                         }
 
@@ -197,11 +202,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         //         displayValue += ` (コード: ${code})`;
                         //     }
                         // }
-                        if (displayValue !== '') { // 空文字列でない場合のみ追加
+                        if (displayValue !== '') {
                             displayValues.push(displayValue);
                         }
                     });
-                    return displayValues.join('<br>') || 'N/A'; // 複数の値を改行で結合し、全て空の場合は'N/A'を返す
+                    return displayValues.join('<br>') || 'N/A';
                 };
 
                 return {
@@ -224,11 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Fetching incidents failed:', error);
             incidentList.innerHTML = `<p>事例の読み込みに失敗しました。<br>${error.message}</p>`;
             allIncidents = [];
+        } finally {
+            loadingIndicator.style.display = 'none'; // ローディングインジケーターを非表示
         }
     }
 
     function filterAndDisplayIncidents() {
-        let filteredIncidents = [...allIncidents];
+        let incidentsToFilter = [...allIncidents];
         const searchKeyword = searchKeywordInput.value.trim();
         const filterWord = filterWordInput.value.trim();
 
@@ -245,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (filterWord) {
             const filterKeywordLower = filterWord.toLowerCase();
-            filteredIncidents = filteredIncidents.filter(incident =>
+            incidentsToFilter = incidentsToFilter.filter(incident =>
                 incident.content.toLowerCase().includes(filterKeywordLower) ||
                 incident.factor.toLowerCase().includes(filterKeywordLower) ||
                 incident.factors.toLowerCase().includes(filterKeywordLower) ||
@@ -253,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
 
-        filteredIncidents.sort((a, b) => {
+        incidentsToFilter.sort((a, b) => {
             const hasImprovementA = a.improvement !== 'N/A';
             const hasImprovementB = b.improvement !== 'N/A';
 
@@ -271,8 +278,29 @@ document.addEventListener('DOMContentLoaded', () => {
             return monthB - monthA;
         });
 
+        filteredIncidents = incidentsToFilter; // 絞り込み結果をグローバル変数に保存
         displayIncidents(filteredIncidents.slice(0, 50));
     }
+
+    randomSortButton.addEventListener('click', () => {
+        let incidentsToShuffle = (filteredIncidents.length > 0 || filterWordInput.value.trim() !== '') ? [...filteredIncidents] : [...allIncidents];
+
+        for (let i = incidentsToShuffle.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [incidentsToShuffle[i], incidentsToShuffle[j]] = [incidentsToShuffle[j], incidentsToShuffle[i]];
+        }
+
+        const searchKeyword = searchKeywordInput.value.trim();
+        const filterWord = filterWordInput.value.trim();
+
+        if (searchKeyword || filterWord) {
+            searchTitle.textContent = `検索結果をランダムに50件表示`;
+        } else {
+            searchTitle.textContent = 'ランダムに50件の事例を表示';
+        }
+
+        displayIncidents(incidentsToShuffle.slice(0, 50));
+    });
 
     function displayIncidents(incidents) {
         incidentList.innerHTML = '';
@@ -343,20 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function updateUrlAndFetch() {
-        const newUrlParams = new URLSearchParams();
-        const searchKeyword = searchKeywordInput.value.trim();
-        const filterWord = filterWordInput.value.trim();
-
-        if (searchKeyword) {
-            newUrlParams.append('ingredientName', searchKeyword);
-        }
-        if (filterWord) {
-            newUrlParams.append('word', filterWord);
-        }
-        window.location.search = newUrlParams.toString();
-    }
-
     searchKeywordInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             applySearchButton.click();
@@ -364,11 +378,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     applySearchButton.addEventListener('click', () => {
-        // 検索キーワードがクリアされた場合、絞り込みキーワードもクリア
-        if (!searchKeywordInput.value.trim()) {
-            filterWordInput.value = ''; // 絞り込み入力欄をクリア
+        const searchKeyword = searchKeywordInput.value.trim();
+        if (searchKeyword) {
+            // 検索キーワードがクリアされた場合、絞り込みキーワードもクリア
+            if (!searchKeywordInput.value.trim()) {
+                filterWordInput.value = ''; // 絞り込み入力欄をクリア
+            }
+            fetchIncidents();
         }
-        updateUrlAndFetch();
     });
 
     filterWordInput.addEventListener('keydown', (event) => {
@@ -378,8 +395,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     applyFilterButton.addEventListener('click', () => {
-        updateUrlAndFetch();
+        filterAndDisplayIncidents();
     });
 
-    fetchIncidents();
+    clearSearchButton.addEventListener('click', () => {
+        searchKeywordInput.value = '';
+        filterWordInput.value = '';
+        allIncidents = [];
+        filteredIncidents = [];
+        incidentList.innerHTML = '';
+        searchTitle.textContent = 'ヒヤリ・ハット事例';
+    });
+
+    // URLパラメータがある場合でも、自動で読み込まないように修正
+    // if (initialIngredient || initialDrugName) {
+    //     fetchIncidents();
+    // }
 });
