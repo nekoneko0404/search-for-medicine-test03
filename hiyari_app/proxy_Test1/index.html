@@ -13,6 +13,15 @@
     </header>
     <main>
         <div class="search-filter-container">
+            <div class="proxy-selector-controls">
+                <label for="proxy-select">プロキシURLを選択:</label>
+                <select id="proxy-select">
+                    <option value="https://hiyari-proxy-708146219355.asia-east1.run.app/proxy">本番プロキシ</option>
+                    <option value="https://proxy-test-url-1.example.com/proxy">テストプロキシ 1</option>
+                    <option value="https://proxy-test-url-2.example.com/proxy">テストプロキシ 2</option>
+                    <option value="https://proxy-test-url-3.example.com/proxy">テストプロキシ 3</option>
+                </select>
+            </div>
             <div class="search-controls">
                 <label for="search-keyword">医薬品名:</label>
                 <input type="text" id="search-keyword" placeholder="医薬品名または成分名を入力">

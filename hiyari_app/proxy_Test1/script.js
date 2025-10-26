@@ -8,9 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomSortButton = document.getElementById('random-sort'); // ランダムソートボタンの要素を追加
     const clearSearchButton = document.getElementById('clear-search');
     const loadingIndicator = document.getElementById('loading-indicator');
-
-    // デプロイしたCloud RunのURL
-    const PROXY_BASE_URL = 'https://hiyari-proxy-708146219355.asia-east1.run.app/proxy';
+    const proxySelect = document.getElementById('proxy-select'); // プロキシ選択プルダウンメニューの要素を追加
 
     let allIncidents = []; // 全ての事例を保持する配列
     let filteredIncidents = []; // 絞り込まれた事例を保持する配列
@@ -45,9 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
             queryParams.append('condition', 'any');
         }
 
+        const selectedProxyUrl = proxySelect.value; // 選択されたプロキシURLを取得
 
         try {
-            const response = await fetch(`${PROXY_BASE_URL}?${queryParams.toString()}`);
+            const response = await fetch(`${selectedProxyUrl}?${queryParams.toString()}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -406,9 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
         incidentList.innerHTML = '';
         searchTitle.textContent = 'ヒヤリ・ハット事例';
     });
+    proxySelect.addEventListener('change', () => {
+        fetchIncidents(); // プロキシが変更されたら再フェッチ
+    });
 
-    // URLパラメータがある場合でも、自動で読み込まないように修正
-    // if (initialIngredient || initialDrugName) {
-    //     fetchIncidents();
-    // }
+    // 初期ロード時にプロキシの初期値でデータをフェッチ
+    fetchIncidents();
 });
