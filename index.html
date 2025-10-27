@@ -497,12 +497,18 @@
                         processExcelData(new Uint8Array(data));
 
                         if (excelData.length > 0) {
-                            console.log("Saving fetched data to sessionStorage.");
-                            const cachePayload = {
-                                timestamp: new Date().getTime(),
-                                data: excelData
-                            };
-                            sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
+                            try {
+                                console.log("Saving fetched data to sessionStorage.");
+                                const cachePayload = {
+                                    timestamp: new Date().getTime(),
+                                    data: excelData
+                                };
+                                sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
+                            } catch (e) {
+                                console.warn("Failed to save data to sessionStorage. It might be full.", e);
+                                showMessage("データサイズが大きいため、キャッシュの保存に失敗しました。タブを閉じるとデータは失われます。", "info");
+                                hideMessage(3000);
+                            }
                              showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
                              hideMessage(2000);
                         } else {

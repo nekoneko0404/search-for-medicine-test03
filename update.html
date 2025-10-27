@@ -203,12 +203,17 @@
                 });
 
                 if (mappedData.length > 0) {
-                    console.log("Saving fetched data to sessionStorage.");
-                    const cachePayload = {
-                        timestamp: new Date().getTime(),
-                        data: mappedData
-                    };
-                    sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
+                    try {
+                        console.log("Saving fetched data to sessionStorage.");
+                        const cachePayload = {
+                            timestamp: new Date().getTime(),
+                            data: mappedData
+                        };
+                        sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
+                    } catch (e) {
+                        console.warn("Failed to save data to sessionStorage. It might be full.", e);
+                        showMessage("データサイズが大きいため、キャッシュの保存に失敗しました。タブを閉じるとデータは失われます。", false);
+                    }
                 }
                 return mappedData;
 
