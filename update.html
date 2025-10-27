@@ -162,10 +162,16 @@
 
             try {
                 loadingIndicator.classList.remove('hidden');
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const response = await fetch(url, { cache: "no-cache" }); // キャッシュを無効化
+                console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Fetch Error Body:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                }
                 
                 const arrayBuffer = await response.arrayBuffer();
+                console.log(`Successfully fetched ${arrayBuffer.byteLength} bytes.`);
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
                 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 

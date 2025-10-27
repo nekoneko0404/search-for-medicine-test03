@@ -489,9 +489,11 @@
                 showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
                 
                 try {
-                    const response = await fetch(exportUrl);
+                    const response = await fetch(exportUrl, { cache: "no-cache" }); // キャッシュを無効化
+                    console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
                     if (response.ok) {
                         const data = await response.arrayBuffer();
+                        console.log(`Successfully fetched ${data.byteLength} bytes.`);
                         processExcelData(new Uint8Array(data));
 
                         if (excelData.length > 0) {
@@ -501,15 +503,18 @@
                                 data: excelData
                             };
                             sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
+                             showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
+                             hideMessage(2000);
+                        } else {
+                            // processExcelData内でエラーメッセージが表示される場合があるため、ここではログのみ
+                            console.error("Excelデータの処理が完了しましたが、データが空です。");
                         }
-
                         renderTable([]);
-                        tableContainer.classList.add('hidden'); 
-                        showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
-                        hideMessage(2000);
+                        tableContainer.classList.add('hidden');
                     } else {
-                        showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
-                        hideMessage(2000);
+                        const errorText = await response.text();
+                        console.error('Fetch Error Body:', errorText);
+                        showMessage(`データの取得に失敗しました。ステータス: ${response.status} ${response.statusText}`, 'error');
                     }
                 } catch (error) {
                     console.error('データの取得に失敗しました:', error);
