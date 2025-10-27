@@ -382,7 +382,8 @@
 
             const cardListContainer = document.createElement('div');
             cardListContainer.className = 'block md:hidden w-full space-y-4';
-            results.forEach(item => container.appendChild(createCardElement(item)));
+            results.forEach(item => cardListContainer.appendChild(createCardElement(item)));
+            container.appendChild(cardListContainer);
 
             document.querySelectorAll('#resultsContainer .name-clickable').forEach(element => {
                 element.addEventListener('click', (e) => {
