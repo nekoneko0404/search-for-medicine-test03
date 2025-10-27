@@ -1,0 +1,238 @@
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .message-box-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            white-space: pre-wrap; /* 複数行のメッセージに対応 */
+        }
+        /* 1画面の情報量を多くするための調整 */
+        .table-container {
+            max-height: 70vh; /* 画面の約70%を最大高さとする */
+            overflow-y: auto;
+        }
+        /* PC画面向けレイアウト */
+        .search-form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4つの列を均等に設定 */
+            gap: 1.5rem; /* 隙間 */
+            align-items: end; /* 縦方向の配置を下に揃える */
+        }
+        /* 出荷状況のセルスタイル (左揃えを維持) */
+        .tight-cell {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            line-height: 1.2;
+            font-size: 0.75rem; /* text-xs相当 */
+        }
+
+        /* 品名ラベルの縦並びとスペース調整用のスタイル */
+        .vertical-labels-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 0.25rem;
+            gap: 1px;
+        }
+        
+        /* 【修正済み】出荷状況チェックボックスの表示制御 */
+        .status-checkbox-group {
+            display: flex; 
+            flex-wrap: wrap; /* 狭い画面では折り返す */
+            gap: 0.5rem; /* チェックボックス間の隙間 */
+            width: 100%;
+        }
+        
+        /* 狭い画面（デフォルト）での2段組みレイアウト */
+        .status-checkbox-group .checkbox-item {
+            /* 100% / 2 - gap/2 で計算。padding/marginを考慮して48%程度に設定 */
+            width: calc(50% - 0.25rem); /* 2つ並んで折り返すように調整 */
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        
+        /* 広い画面 (768px以上) では1行に3つ横並びを強制 */
+        @media (min-width: 768px) {
+            .status-checkbox-group {
+                flex-wrap: nowrap; /* 強制的に折り返しを禁止 */
+                justify-content: space-between; /* 均等な間隔で配置 */
+                gap: 0.75rem; /* 広い画面での隙間 */
+            }
+            .status-checkbox-group .checkbox-item {
+                 /* 広い画面では幅を固定せずにflex-shrink: 0で制御 */
+                width: auto;
+                margin-right: 0.5rem; 
+            }
+            .status-checkbox-group .checkbox-item:last-child {
+                margin-right: 0; 
+            }
+        }
+
+        /* 狭い画面向けレイアウト（mdサイズ以下）の修正 */
+        @media (max-width: 767px) {
+            .search-form-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2つの列に分割 */
+                gap: 1rem; /* 隙間を狭くする */
+            }
+            .search-form-grid .full-width-on-mobile {
+                grid-column: span 2; /* 狭い画面では2列にまたがる */
+            }
+            /* チェックボックスコンテナを狭い画面では2列目に配置（flex-startに調整）*/
+            .search-form-grid .status-checkbox-container {
+                grid-column: 2 / span 1; /* 2列目の位置に配置 */
+                justify-self: start; /* 左寄せ */
+            }
+        }
+        
+        /* スマートフォン向けにテーブルのレイアウトを調整 (変更なし) */
+        @media (max-width: 640px) {
+            .table-container table {
+                table-layout: fixed;
+                width: 100%;
+            }
+            .table-container th, .table-container td {
+                word-wrap: break-word;
+                white-space: normal;
+                padding: 0.5rem;
+            }
+            .table-container thead {
+                display: none; /* スマホではヘッダーを非表示 */
+            }
+            .table-container tbody, .table-container tr {
+                display: block; /* tbodyとtrをブロック要素にして積み重ねる */
+            }
+            .table-container tr {
+                margin-bottom: 1rem;
+                padding: 0.5rem;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+            }
+            .table-container td {
+                display: flex; /* Flexboxを使って項目と内容を横並びに */
+                align-items: flex-start;
+                width: 100%;
+                border-bottom: none;
+                padding: 0.25rem 0.5rem;
+            }
+            .table-container td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #4b5563;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                flex-shrink: 0; /* ラベルが縮まないように固定 */
+                width: 80px; /* ラベルの幅を確保 */
+                margin-right: 0.5rem; /* ラベルと内容の間にスペースを追加 */
+            }
+            .truncate-lines {
+                display: -webkit-box;
+                -webkit-line-clamp: 2; /* 2行に制限 */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            /* スマートフォンで非表示にする項目 (変更なし) */
+            td[data-label='成分名'],
+            td[data-label='出荷量状況'] {
+                display: none;
+            }
+        }
+
+        .status-button {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition-colors: 0.15s;
+            line-height: 1;
+        }
+
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4f46e5; /* Tailwind's indigo-600 */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .sort-header {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none; /* テキスト選択を防ぐ */
+        }
+
+        .sort-icon {
+            margin-left: 4px;
+            font-size: 0.8rem;
+            color: #4f46e5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #6366f1; /* Tailwind's indigo-500 */
+            transition: width 0.3s ease-in-out;
+        }
+
+        .table-cell-with-padding {
+            padding: 12px 16px;
+        }
+
+        .card-item {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+
+        a.manufacturer-link {
+            color: #4f46e5; /* indigo-600 */
+            text-decoration: none;
+        }
+
+        a.manufacturer-link:hover {
+            text-decoration: underline;
+        }
+
+        .status-button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 0.5rem 0;
+        }
+
+        .name-clickable {
+            color: #3730a3; /* indigo-700 */
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .name-clickable:hover {
+            text-decoration: underline;
+        }
+    

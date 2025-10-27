@@ -5,53 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>情報更新日検索ツール</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .loading-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 200px;
-        }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #4f46e5; /* Tailwind's indigo-600 */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .status-button {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            white-space: nowrap;
-            transition-colors: 0.15s;
-            line-height: 1;
-        }
-        /* ソートボタンのスタイル */
-        .sort-header {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            user-select: none; /* テキスト選択を防ぐ */
-        }
-        .sort-icon {
-            margin-left: 4px;
-            font-size: 0.8rem;
-            color: #4f46e5;
-        }
-    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
+    <link rel="stylesheet" href="unify.css">
 </head>
-<body class="p-6 md:p-12 flex flex-col items-center bg-stone-50 text-slate-800">
+<body class="bg-gray-200 p-4 sm:p-8 flex flex-col items-center min-h-screen">
 
     <div class="w-full max-w-7xl bg-white rounded-3xl shadow-xl p-4 sm:p-6 border border-slate-200">
         <div class="flex flex-col sm:flex-row items-center justify-between mb-4 space-y-2 sm:space-y-0 sm:space-x-4">
@@ -185,11 +142,17 @@
 
         function renderStatusButton(status) {
             const trimmedStatus = (status || "").trim();
-            let baseClass = "status-button";
-            if (trimmedStatus.includes("通常出荷")) return `<span class="${baseClass} bg-indigo-500 text-white">通常出荷</span>`;
-            if (trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限定出荷")) return `<span class="${baseClass} bg-yellow-400 text-gray-800">限定出荷</span>`;
-            if (trimmedStatus.includes("供給停止")) return `<span class="${baseClass} bg-gray-700 text-white">供給停止</span>`;
-            return `<span class="${baseClass} bg-gray-200 text-gray-800">${trimmedStatus || "不明"}</span>`;
+            let baseClass = "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block transition-colors duration-150";
+            
+            if (trimmedStatus.includes("通常出荷") || trimmedStatus.includes("通")) {
+                return `<span class="${baseClass} bg-indigo-500 text-white hover:bg-indigo-600">通常出荷</span>`; 
+            } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
+                return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">限定出荷</span>`;
+            } else if (trimmedStatus.includes("供給停止") || trimmedStatus.includes("停止") || trimmedStatus.includes("停")) {
+                return `<span class="${baseClass} bg-gray-700 text-white hover:bg-gray-800">供給停止</span>`;
+            } else {
+                return `<span class="${baseClass} bg-gray-200 text-gray-800 hover:bg-gray-300">${trimmedStatus || "不明"}</span>`; 
+            }
         }
 
         async function fetchAndProcessExcelData() {
