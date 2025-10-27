@@ -74,7 +74,6 @@
                 <h3 class="font-semibold text-slate-800 mb-2 text-sm">出荷状況</h3>
                 <div id="status-filters" class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
                     <label class="flex items-center"><input type="checkbox" data-status="通常出荷" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked><span class="ml-1.5 text-slate-700">通常出荷</span></label>
-                    <!-- ここを「限定出荷」に変更 -->
                     <label class="flex items-center"><input type="checkbox" data-status="出荷制限" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked><span class="ml-1.5 text-slate-700">限定出荷</span></label>
                     <label class="flex items-center"><input type="checkbox" data-status="供給停止" class="form-checkbox rounded text-indigo-600 focus:ring-indigo-500" checked><span class="ml-1.5 text-slate-700">供給停止</span></label>
                 </div>
@@ -105,56 +104,38 @@
         let data = [];
         const loadingIndicator = document.getElementById('loadingIndicator');
         const messageBox = document.getElementById('messageBox');
-        let messageTimer = null; // メッセージ自動非表示用のタイマーID
+        let messageTimer = null;
         
-        // ソート状態を保持する変数
-        let currentSortColumn = '情報更新日'; // デフォルトは更新日で降順
+        let currentSortColumn = 'updateDate';
         let currentSortDirection = 'desc'; 
-        const MAX_RESULTS = 500; // 検索結果の上限を500件に設定
-        const DATE_FORMAT = 'YY-MM-DD'; // 見込み時期の日付フォーマット
+        const MAX_RESULTS = 500;
 
-        /**
-         * メッセージボックスに表示し、一時的なメッセージは自動で非表示にする
-         * @param {string} message - 表示するメッセージ
-         * @param {boolean} isError - エラーメッセージかどうか
-         */
         function showMessage(message, isError = false) {
-            // 既存のタイマーがあればクリア
-            if (messageTimer) {
-                clearTimeout(messageTimer);
-            }
+            if (messageTimer) clearTimeout(messageTimer);
             
             messageBox.textContent = message;
             messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700');
             
             let bgColor, textColor;
-            let isTransient = false; // 一時的なメッセージかどうか
+            let isTransient = false;
 
-            if (isError || message.includes('取得に失敗') || message.includes('出荷状況のチェックがすべて外れています')) {
-                // 致命的なエラーやユーザー操作必須の警告は非表示にしない
+            if (isError) {
                 bgColor = 'bg-red-100';
                 textColor = 'text-red-700';
-            } else if (message.includes('品名、成分名を入力するか、フィルターを絞り込んでください。') || message.includes('一致する医薬品は見つかりませんでした')) {
-                // 検索スキップ、結果ゼロは一時的な警告として扱う (メッセージ変更に合わせて条件を調整)
-                bgColor = 'bg-yellow-100';
-                textColor = 'text-yellow-700';
-                isTransient = true;
-            } else if (message.includes('件の医薬品が見つかりました')) {
-                // 成功メッセージは一時的
+            } else if (message.includes('件の医薬品が見つかりました') || message.includes('キャッシュから')) {
                 bgColor = 'bg-green-100';
                 textColor = 'text-green-700';
                 isTransient = true;
             } else {
-                // その他のメッセージはデフォルトで警告（永続的）
                 bgColor = 'bg-yellow-100';
                 textColor = 'text-yellow-700';
+                isTransient = true;
             }
             
             messageBox.classList.add(bgColor, textColor);
 
-            // 一時的なメッセージの場合、5秒後に非表示にするタイマーを設定
             if (isTransient) {
-                messageTimer = setTimeout(hideMessage, 2000); // 2秒後に非表示
+                messageTimer = setTimeout(hideMessage, 2000);
             }
         }
 
@@ -167,24 +148,13 @@
             }
         }
 
-        /**
-         * Excelシリアル値 (日付/見込み時期) を JavaScript Date オブジェクトに変換
-         * @param {number|string} serial - Excelの日付シリアル値
-         * @returns {Date|null}
-         */
         function excelSerialDateToJSDate(serial) {
             if (typeof serial !== 'number' || isNaN(serial)) return null;
-            // Excelの日付は1900/1/1を1とする（閏年のバグのため1900/2/28までは+1日調整）
             const adjustedSerial = serial > 60 ? serial - 1 : serial;
             const excelEpoch = new Date(Date.UTC(1899, 11, 31));
             return new Date(excelEpoch.getTime() + adjustedSerial * 86400000);
         }
 
-        /**
-         * Dateオブジェクトまたは文字列を見込み時期のフォーマットで表示
-         * @param {Date|number|string} dateValue - Dateオブジェクト、Excelシリアル値、または文字列
-         * @returns {string} フォーマットされた日付文字列または元の文字列
-         */
         function formatExpectedDate(dateValue) {
             if (typeof dateValue === 'number') {
                 const dateObj = excelSerialDateToJSDate(dateValue);
@@ -192,20 +162,14 @@
                     const year = String(dateObj.getFullYear()).slice(-2);
                     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
                     const day = String(dateObj.getDate()).padStart(2, '0');
-                    // YY-MM-DD 形式で返す
                     return `${year}-${month}-${day}`; 
                 }
             } else if (typeof dateValue === 'string') {
-                return dateValue; // 文字列はそのまま返す
+                return dateValue;
             }
             return '-';
         }
 
-        /**
-         * Dateオブジェクトを YY-MM-DD 形式で表示 (情報更新日用)
-         * @param {Date} date - Dateオブジェクト
-         * @returns {string} フォーマットされた日付文字列
-         */
         function formatDate(date) {
             if (!date || !(date instanceof Date)) return '-';
             const year = String(date.getFullYear()).slice(-2);
@@ -216,7 +180,6 @@
 
         function normalizeString(str) {
             if (!str) return '';
-            // 全角カタカナを半角に、大文字を小文字に変換
             return String(str).trim().toLowerCase().replace(/[ァ-ヶ]/g, s => String.fromCharCode(s.charCodeAt(0) - 0x60));
         }
 
@@ -224,23 +187,17 @@
             const trimmedStatus = (status || "").trim();
             let baseClass = "status-button";
             if (trimmedStatus.includes("通常出荷")) return `<span class="${baseClass} bg-indigo-500 text-white">通常出荷</span>`;
-            
-            // 修正: 出荷制限/限定出荷を「限定出荷」として表示
             if (trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限定出荷")) return `<span class="${baseClass} bg-yellow-400 text-gray-800">限定出荷</span>`;
-            
             if (trimmedStatus.includes("供給停止")) return `<span class="${baseClass} bg-gray-700 text-white">供給停止</span>`;
             return `<span class="${baseClass} bg-gray-200 text-gray-800">${trimmedStatus || "不明"}</span>`;
         }
 
-        async function fetchExcelData() {
-            // 実際にはAPIキーや認証なしでアクセスできるGoogle Spreadsheetsの公開URLが必要です。
-            // 提供されたIDはダミーのため、ここでは動作確認用の空のデータを返すことがあります。
+        async function fetchAndProcessExcelData() {
             const fileId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
             const url = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
             try {
                 loadingIndicator.classList.remove('hidden');
-
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
@@ -248,36 +205,41 @@
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
                 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 
-                // 2行目以降をデータとして読み込み (raw: falseでセル値の型をそのまま取得)
-                const rawData = XLSX.utils.sheet_to_json(worksheet, { range: 1, raw: false });
-                
-                // raw: true でシリアル値を取得するための再読み込み (見込み時期のシリアル値判定に使う)
-                const rawDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { range: 1, raw: true });
+                const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
+                const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true });
 
-                if (rawData.length === 0) return [];
-                const originalKeys = Object.keys(rawData[0]);
+                if (jsonDataWithStrings.length < 2) return [];
 
-                const mappedData = rawData.map((row, index) => {
-                    const numberRow = rawDataWithNumbers[index];
-                    
-                    // データ列のマッピング (F, C, L, N, O, P, Q, T列)
-                    const cleanRow = {
-                        '品名':       row[originalKeys[5]],  // F列
-                        '成分名':     row[originalKeys[2]],  // C列
-                        '出荷状況':   row[originalKeys[11]], // L列
-                        '制限理由':   row[originalKeys[13]], // N列
-                        '解消見込み': row[originalKeys[14]], // O列
-                        // P列: 見込み時期 (シリアル値が優先されるように raw:true のデータを使う)
-                        '見込み時期': numberRow[originalKeys[15]] || row[originalKeys[15]], 
-                        '出荷量':     row[originalKeys[16]], // Q列
-                        // T列: 情報更新日 (シリアル値を取得)
-                        '情報更新日': numberRow[originalKeys[19]], 
+                const dataRowsAsStrings = jsonDataWithStrings.slice(1);
+                const dataRowsAsNumbers = jsonDataWithNumbers.slice(1);
+
+                const mappedData = dataRowsAsStrings.map((row, index) => {
+                    const numberRow = dataRowsAsNumbers[index];
+                    return {
+                        'ingredientName':       row[2],
+                        'yjCode':               row[4],
+                        'productName':          row[5],
+                        'standard':             row[6],
+                        'isGeneric':            row[7],
+                        'isBasicDrug':          row[8],
+                        'manufacturer':         row[9],
+                        'shipmentStatus':       row[11],
+                        'reasonForLimitation':  row[13],
+                        'resolutionProspect':   row[14],
+                        'expectedDate':         numberRow[15] || row[15],
+                        'shipmentVolumeStatus': row[16],
+                        'updateDateSerial':     numberRow[19]
                     };
-                    // 情報更新日をDateオブジェクトに変換
-                    cleanRow.updateDate = excelSerialDateToJSDate(cleanRow['情報更新日']);
-                    return cleanRow;
                 });
-                
+
+                if (mappedData.length > 0) {
+                    console.log("Saving fetched data to sessionStorage.");
+                    const cachePayload = {
+                        timestamp: new Date().getTime(),
+                        data: mappedData
+                    };
+                    sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
+                }
                 return mappedData;
 
             } catch (error) {
@@ -289,85 +251,49 @@
             }
         }
         
-        /**
-         * ソートロジック
-         */
         function sortData(data, column, direction) {
             const isAsc = direction === 'asc';
-
             return data.sort((a, b) => {
                 let valA, valB;
-
-                if (column === '情報更新日') {
-                    valA = a.updateDate ? a.updateDate.getTime() : (isAsc ? Infinity : -Infinity);
-                    valB = b.updateDate ? b.updateDate.getTime() : (isAsc ? Infinity : -Infinity);
-                    
-                    if (valA === -Infinity && valB !== -Infinity) return isAsc ? 1 : -1;
-                    if (valB === -Infinity && valA !== -Infinity) return isAsc ? -1 : 1;
-                    if (valA === Infinity && valB !== Infinity) return isAsc ? 1 : -1;
-                    if (valB === Infinity && valA !== Infinity) return isAsc ? -1 : 1;
-
+                if (column === 'updateDate') {
+                    valA = a.updateDateObj ? a.updateDateObj.getTime() : (isAsc ? Infinity : -Infinity);
+                    valB = b.updateDateObj ? b.updateDateObj.getTime() : (isAsc ? Infinity : -Infinity);
                     return isAsc ? valA - valB : valB - valA;
-
-                } else if (column === '品名') {
-                    valA = normalizeString(a['品名']);
-                    valB = normalizeString(b['品名']);
-
+                } else if (column === 'productName') {
+                    valA = normalizeString(a.productName);
+                    valB = normalizeString(b.productName);
                     if (valA < valB) return isAsc ? -1 : 1;
                     if (valA > valB) return isAsc ? 1 : -1;
                     return 0;
                 }
-                
                 return 0;
             });
         }
         
-        /**
-         * ソートボタンのクリックハンドラー
-         */
         function handleSortClick(column) {
             if (currentSortColumn === column) {
                 currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
             } else {
                 currentSortColumn = column;
-                currentSortDirection = 'desc'; 
+                currentSortDirection = (column === 'updateDate') ? 'desc' : 'asc'; 
             }
             performSearch();
         }
 
-        /**
-         * 日付フィルターを「すべて」にリセットする
-         */
         function resetDateFilters() {
-            const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
-            dateFilters.forEach(cb => {
-                cb.checked = false;
+            document.querySelectorAll('#date-filters input[type="checkbox"]').forEach(cb => {
+                cb.checked = cb.dataset.days === 'all';
             });
-            // 「すべて」をチェック状態にする
-            document.querySelector('#date-filters input[data-days="all"]').checked = true;
         }
 
         function performSearch() {
             hideMessage(); 
             
             const rawSearchTerm = document.getElementById('searchInput').value.trim();
+            const searchTerms = rawSearchTerm.split(/[\s　]+/).map(normalizeString).filter(term => term.length > 0);
             
-            const searchTerms = rawSearchTerm
-                .split(/[\s　]+/) 
-                .map(term => normalizeString(term))
-                .filter(term => term.length > 0); 
-            
-            const statusCheckboxes = document.querySelectorAll('#status-filters input[type="checkbox"]');
-            const allStatusOptions = Array.from(statusCheckboxes).map(cb => cb.dataset.status);
-            const selectedStatuses = Array.from(statusCheckboxes).filter(cb => cb.checked).map(cb => cb.dataset.status);
-
-            const dateCheckboxes = document.querySelectorAll('#date-filters input[type="checkbox"]');
-            const allDateCheckboxes = Array.from(dateCheckboxes);
-            const selectedDays = allDateCheckboxes.find(cb => cb.checked)?.dataset.days || 'all';
-
-            // ----------------------------------------------------
-            // 検索抑制ロジック
-            // ----------------------------------------------------
+            const selectedStatuses = Array.from(document.querySelectorAll('#status-filters input:checked')).map(cb => cb.dataset.status);
+            const selectedDays = document.querySelector('#date-filters input:checked')?.dataset.days || 'all';
 
             if (selectedStatuses.length === 0) {
                 document.getElementById('resultsContainer').innerHTML = '';
@@ -375,48 +301,30 @@
                 return;
             }
 
-            const isAllStatusesChecked = selectedStatuses.length === allStatusOptions.length;
-            const isDefaultState = rawSearchTerm === '' && selectedDays === 'all' && isAllStatusesChecked;
-
+            const isDefaultState = rawSearchTerm === '' && selectedDays === 'all' && selectedStatuses.length === document.querySelectorAll('#status-filters input').length;
             if (data.length > 0 && isDefaultState) {
                 document.getElementById('resultsContainer').innerHTML = '';
-                // ユーザーの要望に応じてメッセージを変更
                 showMessage('品名、成分名を入力するか、フィルターを絞り込んでください。', false); 
                 return;
             }
-
-            // ----------------------------------------------------
-            // 検索・フィルタリングの実行
-            // ----------------------------------------------------
             
             let filteredData = data.filter(item => {
-                const productName = normalizeString(item['品名']);
-                const ingredientName = normalizeString(item['成分名']);
-                
-                return searchTerms.every(term => {
-                    return productName.includes(term) || ingredientName.includes(term);
-                });
+                const productName = normalizeString(item.productName);
+                const ingredientName = normalizeString(item.ingredientName);
+                return searchTerms.every(term => productName.includes(term) || ingredientName.includes(term));
             });
 
-            // 出荷状況フィルター
-            if (selectedStatuses.length > 0 && selectedStatuses.length < allStatusOptions.length) {
+            if (selectedStatuses.length < document.querySelectorAll('#status-filters input').length) {
                  filteredData = filteredData.filter(item => {
-                    const itemStatus = item['出荷状況'] || '';
+                    const itemStatus = item.shipmentStatus || '';
                     return selectedStatuses.some(status => {
-                        // 1. 通常の includes 判定
-                        if (itemStatus.includes(status)) {
-                            return true;
-                        }
-                        // 2. 「出荷制限」（data-statusの値）が選択されている場合、データ内の「限定出荷」も許可する
-                        if (status === "出荷制限" && itemStatus.includes("限定出荷")) {
-                            return true;
-                        }
+                        if (itemStatus.includes(status)) return true;
+                        if (status === "出荷制限" && itemStatus.includes("限定出荷")) return true;
                         return false;
                     });
                 });
             }
 
-            // 情報更新日フィルター
             if (selectedDays !== 'all') {
                 const days = parseInt(selectedDays, 10);
                 const cutoffDate = new Date();
@@ -424,17 +332,14 @@
                 cutoffDate.setDate(cutoffDate.getDate() - days + 1); 
                 
                 filteredData = filteredData.filter(item => {
-                    if (!item.updateDate) return false;
-                    const itemDate = new Date(item.updateDate);
+                    if (!item.updateDateObj) return false;
+                    const itemDate = new Date(item.updateDateObj);
                     itemDate.setHours(0, 0, 0, 0);
                     return itemDate >= cutoffDate;
                 });
             }
 
-            // 4. ソート
             const sortedData = sortData(filteredData, currentSortColumn, currentSortDirection);
-
-            // 5. 結果表示 
             displayResults(sortedData);
         }
         
@@ -445,7 +350,6 @@
 
             const limitedResults = results.slice(0, MAX_RESULTS); 
 
-            // メッセージの表示
             if (limitedResults.length === 0) {
                 showMessage('条件に一致する医薬品は見つかりませんでした。', false);
                 return;
@@ -457,27 +361,19 @@
                 showMessage(message, false);
             }
             
-            // テーブル (PC用)
             const tableContainer = document.createElement('div');
             tableContainer.className = 'hidden md:block overflow-x-auto bg-white rounded-2xl shadow-lg border border-slate-200';
             const table = document.createElement('table');
             table.className = 'min-w-full text-left table-auto text-sm';
             
-            const getSortIcon = (column) => {
-                if (currentSortColumn !== column) return '↕'; 
-                return currentSortDirection === 'asc' ? '▲' : '▼'; 
-            };
+            const getSortIcon = (column) => currentSortColumn === column ? (currentSortDirection === 'asc' ? '▲' : '▼') : '↕';
             const getSortClass = (column) => currentSortColumn === column ? 'text-indigo-600 font-bold' : 'text-indigo-800';
-
 
             table.innerHTML = `
                 <thead class="bg-indigo-100">
                     <tr>
-                        <th id="sort-品名" class="py-3 px-4 font-semibold ${getSortClass('品名')} hover:bg-indigo-200 transition-colors duration-150">
-                            <div class="sort-header">
-                                <span>品名</span>
-                                <span class="sort-icon">${getSortIcon('品名')}</span>
-                            </div>
+                        <th id="sort-productName" class="py-3 px-4 font-semibold ${getSortClass('productName')} hover:bg-indigo-200 transition-colors duration-150">
+                            <div class="sort-header"><span>品名</span><span class="sort-icon">${getSortIcon('productName')}</span></div>
                         </th>
                         <th class="py-3 px-4 font-semibold text-indigo-800">成分名</th>
                         <th class="py-3 px-4 font-semibold text-indigo-800 text-center">出荷状況</th>
@@ -485,11 +381,8 @@
                         <th class="py-3 px-4 font-semibold text-indigo-800">解消見込み</th>
                         <th class="py-3 px-4 font-semibold text-indigo-800">見込み時期</th>
                         <th class="py-3 px-4 font-semibold text-indigo-800">出荷量</th>
-                        <th id="sort-情報更新日" class="py-3 px-4 font-semibold ${getSortClass('情報更新日')} whitespace-nowrap hover:bg-indigo-200 transition-colors duration-150">
-                            <div class="sort-header">
-                                <span>更新日</span>
-                                <span class="sort-icon">${getSortIcon('情報更新日')}</span>
-                            </div>
+                        <th id="sort-updateDate" class="py-3 px-4 font-semibold ${getSortClass('updateDate')} whitespace-nowrap hover:bg-indigo-200 transition-colors duration-150">
+                            <div class="sort-header"><span>更新日</span><span class="sort-icon">${getSortIcon('updateDate')}</span></div>
                         </th>
                     </tr>
                 </thead>
@@ -498,74 +391,62 @@
             const tbody = table.querySelector('tbody');
             
             limitedResults.forEach(item => {
-                const ingredientText = item['成分名'] || '-';
                 const row = tbody.insertRow();
                 row.className = 'transition-colors duration-200 even:bg-white odd:bg-indigo-50 hover:bg-indigo-100';
                 row.innerHTML = `
-                    <td class="py-3 px-4 font-bold text-slate-800">${item['品名'] || '-'}</td>
+                    <td class="py-3 px-4 font-bold text-slate-800">${item.productName || '-'}</td>
                     <td class="py-3 px-4">
-                        <span class="ingredient-link cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline transition-colors" data-ingredient="${item['成分名'] || ''}">
-                            ${ingredientText}
+                        <span class="ingredient-link cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline transition-colors" data-ingredient="${item.ingredientName || ''}">
+                            ${item.ingredientName || '-'}
                         </span>
                     </td>
-                    <td class="py-3 px-4 text-center">${renderStatusButton(item['出荷状況'])}</td>
-                    <td class="py-3 px-4">${item['制限理由'] || '-'}</td>
-                    <td class="py-3 px-4">${item['解消見込み'] || '-'}</td>
-                    <td class="py-3 px-4">${formatExpectedDate(item['見込み時期'])}</td>
-                    <td class="py-3 px-4">${item['出荷量'] || '-'}</td>
-                    <td class="py-3 px-4 whitespace-nowrap">${formatDate(item.updateDate)}</td>
+                    <td class="py-3 px-4 text-center">${renderStatusButton(item.shipmentStatus)}</td>
+                    <td class="py-3 px-4">${item.reasonForLimitation || '-'}</td>
+                    <td class="py-3 px-4">${item.resolutionProspect || '-'}</td>
+                    <td class="py-3 px-4">${formatExpectedDate(item.expectedDate)}</td>
+                    <td class="py-3 px-4">${item.shipmentVolumeStatus || '-'}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">${formatDate(item.updateDateObj)}</td>
                 `;
             });
             tableContainer.appendChild(table);
             container.appendChild(tableContainer);
             
-            document.getElementById('sort-品名').addEventListener('click', () => handleSortClick('品名'));
-            document.getElementById('sort-情報更新日').addEventListener('click', () => handleSortClick('情報更新日'));
+            document.getElementById('sort-productName').addEventListener('click', () => handleSortClick('productName'));
+            document.getElementById('sort-updateDate').addEventListener('click', () => handleSortClick('updateDate'));
 
-
-            // カードリスト (モバイル用)
             const cardListContainer = document.createElement('div');
             cardListContainer.className = 'block md:hidden w-full space-y-4';
             limitedResults.forEach(item => {
-                const ingredientText = item['成分名'] || '-';
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-lg border border-slate-200 p-4';
                 card.innerHTML = `
                     <div class="flex items-start justify-between mb-2">
-                        <h3 class="text-base font-bold text-indigo-800 leading-tight pr-2">${item['品名'] || '-'}</h3>
-                        <div class="flex-shrink-0">${renderStatusButton(item['出荷状況'])}</div>
+                        <h3 class="text-base font-bold text-indigo-800 leading-tight pr-2">${item.productName || '-'}</h3>
+                        <div class="flex-shrink-0">${renderStatusButton(item.shipmentStatus)}</div>
                     </div>
                     <div class="text-sm space-y-1.5 text-slate-700">
                         <div class="flex"><strong class="w-24 font-semibold text-slate-500">成分名:</strong>
-                            <span class="ingredient-link cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline transition-colors" data-ingredient="${item['成分名'] || ''}">
-                                ${ingredientText}
+                            <span class="ingredient-link cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline transition-colors" data-ingredient="${item.ingredientName || ''}">
+                                ${item.ingredientName || '-'}
                             </span>
                         </div>
-                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">制限理由:</strong><span>${item['制限理由'] || '-'}</span></div>
-                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">解消見込み:</strong><span>${item['解消見込み'] || '-'}</span></div>
-                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">見込み時期:</strong><span>${formatExpectedDate(item['見込み時期'])}</span></div>
-                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">出荷量:</strong><span>${item['出荷量'] || '-'}</span></div>
-                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">情報更新日:</strong><span>${formatDate(item.updateDate)}</span></div>
+                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">制限理由:</strong><span>${item.reasonForLimitation || '-'}</span></div>
+                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">解消見込み:</strong><span>${item.resolutionProspect || '-'}</span></div>
+                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">見込み時期:</strong><span>${formatExpectedDate(item.expectedDate)}</span></div>
+                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">出荷量:</strong><span>${item.shipmentVolumeStatus || '-'}</span></div>
+                        <div class="flex"><strong class="w-24 font-semibold text-slate-500">情報更新日:</strong><span>${formatDate(item.updateDateObj)}</span></div>
                     </div>
                 `;
                 cardListContainer.appendChild(card);
             });
             container.appendChild(cardListContainer);
             
-            // 成分名クリックイベントリスナーの追加
             document.querySelectorAll('.ingredient-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     const ingredientName = e.target.dataset.ingredient;
                     if (ingredientName && ingredientName.trim()) {
-                        const searchInput = document.getElementById('searchInput');
-                        
-                        // 1. 日付フィルターをリセット
+                        document.getElementById('searchInput').value = ingredientName.trim();
                         resetDateFilters();
-                        
-                        // 2. 検索欄をクリアし、成分名を入力
-                        searchInput.value = ingredientName.trim();
-                        
-                        // 3. 即時検索
                         performSearch(); 
                     }
                 });
@@ -573,15 +454,28 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            
-            const fetchedData = await fetchExcelData();
-            if (fetchedData && fetchedData.length > 0) {
-                data = fetchedData;
-                // 初期表示で「3日以内」を選択状態にする
+            const cachedData = sessionStorage.getItem('excelCache');
+            let sourceData;
+
+            if (cachedData) {
+                console.log("Found cached data in sessionStorage.");
+                const cache = JSON.parse(cachedData);
+                sourceData = cache.data;
+                showMessage("キャッシュからデータを読み込みました。", false);
+            } else {
+                console.log("No cached data found. Fetching from network.");
+                sourceData = await fetchAndProcessExcelData();
+            }
+
+            if (sourceData && sourceData.length > 0) {
+                // This page requires a Date object for sorting, so we process it here.
+                data = sourceData.map(item => {
+                    item.updateDateObj = excelSerialDateToJSDate(item.updateDateSerial);
+                    return item;
+                });
+                
                 document.querySelector('#date-filters input[data-days="all"]').checked = false;
                 document.querySelector('#date-filters input[data-days="3"]').checked = true;
-                
-                // データ読み込み後、初期検索を実行
                 performSearch();
             } else {
                 if (!messageBox.textContent) {
@@ -592,45 +486,25 @@
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
             
-            // 1. ボタンクリックで検索を実行
             searchButton.addEventListener('click', performSearch);
-            
-            // 2. IME入力確定 (compositionend) で検索を実行
             searchInput.addEventListener('compositionend', performSearch);
-            
-            // 3. Enterキー押下で検索を実行 (IME入力中はEnterを押してもcompositionendが優先されるため、ここでは主にPCでの確定操作に対応)
             searchInput.addEventListener('keyup', (e) => {
-                // Enterキー (keycode 13 / code 'Enter') のみで検索を実行
-                if (e.key === 'Enter') {
-                    performSearch();
-                }
+                if (e.key === 'Enter') performSearch();
             });
 
-            // 旧：searchInput.addEventListener('input', performSearch); // ← 削除
-
-            // 出荷状況フィルターのイベントリスナー
             document.querySelectorAll('#status-filters input').forEach(cb => {
-                // フィルター操作は即時検索
                 cb.addEventListener('change', performSearch);
             });
             
-            // 日付フィルターのイベントリスナー（排他選択と検索実行を統合）
             const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
             dateFilters.forEach(checkbox => {
                 checkbox.addEventListener('change', (e) => {
-                    // 排他選択ロジック
                     if (e.target.checked) {
-                        dateFilters.forEach(otherCheckbox => {
-                            if (otherCheckbox !== e.target) {
-                                otherCheckbox.checked = false;
-                            }
-                        });
+                        dateFilters.forEach(other => { if (other !== e.target) other.checked = false; });
                     }
-                    // もしすべてチェックが外れたら "すべて" をチェック状態にする
                     if (!Array.from(dateFilters).some(cb => cb.checked)) {
                         document.querySelector('#date-filters input[data-days="all"]').checked = true;
                     }
-                    // 最新の状態で検索を実行
                     performSearch();
                 });
             });

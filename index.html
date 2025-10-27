@@ -267,7 +267,7 @@
         }
         function normalizeString(str) {
             if (!str) return '';
-            const hiraToKata = str.replace(/[\u3041-\u3096]/g, function(match) {
+            const hiraToKata = str.replace(/[ぁ-ゖ]/g, function(match) {
                 const charCode = match.charCodeAt(0) + 0x60;
                 return String.fromCharCode(charCode);
             });
@@ -284,33 +284,40 @@
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
+                // For date processing, we need raw numbers for some columns
+                const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
+                const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true });
 
-                if (jsonData.length < 2) { 
+                if (jsonDataWithStrings.length < 2) { 
                     excelData = [];
                     showMessage("Excelファイルに処理できるデータがありません。", "info");
                     hideMessage(2000);
                     return;
                 }
 
-                const dataRows = jsonData.slice(1);
+                const dataRowsAsStrings = jsonDataWithStrings.slice(1);
+                const dataRowsAsNumbers = jsonDataWithNumbers.slice(1);
 
-                const mappedData = dataRows.map(row => ({
-                    'ingredientName':       row[2],
-                    'yjCode':               row[4],
-                    'productName':          row[5],
-                    'standard':             row[6],
-                    'isGeneric':            row[7],
-                    'isBasicDrug':          row[8],
-                    'manufacturer':         row[9],
-                    'shipmentStatus':       row[11],
-                    'reasonForLimitation':  row[13],
-                    'shipmentVolumeStatus': row[16]
-                }));
+                const mappedData = dataRowsAsStrings.map((row, index) => {
+                    const numberRow = dataRowsAsNumbers[index];
+                    return {
+                        'ingredientName':       row[2],
+                        'yjCode':               row[4],
+                        'productName':          row[5],
+                        'standard':             row[6],
+                        'isGeneric':            row[7],
+                        'isBasicDrug':          row[8],
+                        'manufacturer':         row[9],
+                        'shipmentStatus':       row[11],
+                        'reasonForLimitation':  row[13],
+                        'resolutionProspect':   row[14],
+                        'expectedDate':         numberRow[15] || row[15],
+                        'shipmentVolumeStatus': row[16],
+                        'updateDateSerial':     numberRow[19]
+                    };
+                });
 
                 excelData = mappedData;
-                showMessage("データの読み込みが完了しました。", "success");
-                hideMessage(2000);
 
             } catch (error) {
                 console.error('Error processing data:', error);
@@ -448,7 +455,7 @@
                     }
                 }
                 if (!candidate && parts.length > 0) {
-                    candidate = parts[0].replace(/^[\uFF2C\u004C][－-]?/, '').trim();
+                    candidate = parts[0].replace(/^[ＬL][－-]?/, '').trim();
                 }
                 if (candidate) {
                     finalName = candidate;
@@ -512,7 +519,7 @@
                 const ingredientName = item.ingredientName || "";
                 
                 if (ingredientName) {
-                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a>`;
+                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a>`;
                 } else {
                     ingredientNameCell.textContent = ingredientName;
                 }
@@ -603,6 +610,21 @@
         }
 
         window.onload = function() {
+            attachSearchListeners();
+
+            const cachedData = sessionStorage.getItem('excelCache');
+            if (cachedData) {
+                console.log("Found cached data in sessionStorage.");
+                const cache = JSON.parse(cachedData);
+                excelData = cache.data;
+                showMessage("キャッシュからデータを読み込みました。", "success");
+                hideMessage(2000);
+                renderTable([]);
+                tableContainer.classList.add('hidden');
+                return;
+            }
+
+            console.log("No cached data found. Fetching from network.");
             const spreadsheetId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
             const exportUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=xlsx`;
 
@@ -614,6 +636,16 @@
                     if (response.ok) {
                         const data = await response.arrayBuffer();
                         processExcelData(new Uint8Array(data));
+
+                        if (excelData.length > 0) {
+                            console.log("Saving fetched data to sessionStorage.");
+                            const cachePayload = {
+                                timestamp: new Date().getTime(),
+                                data: excelData
+                            };
+                            sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
+                        }
+
                         renderTable([]);
                         tableContainer.classList.add('hidden'); 
                         showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
@@ -629,7 +661,6 @@
                 }
             }
             
-            attachSearchListeners();
             fetchSpreadsheetData();
         };
     </script>
