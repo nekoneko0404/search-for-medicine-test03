@@ -158,12 +158,11 @@
         }
 
         async function fetchAndProcessExcelData() {
-            const fileId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
-            const url = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+            const gasApiUrl = 'https://script.google.com/macros/s/AKfycbz25YT_a83_tYuIsW8TLe4JAZqpj3ZveXcCqAwzXKPSmoa4jMou7BkI0KFU29jsujVqxg/exec';
 
             try {
                 loadingIndicator.classList.remove('hidden');
-                const response = await fetch(url, { cache: "no-cache" });
+                const response = await fetch(gasApiUrl, { cache: "no-cache" });
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Fetch Error Body:', errorText);

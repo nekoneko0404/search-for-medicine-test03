@@ -470,13 +470,12 @@
             attachSearchListeners();
 
             console.log("No cached data found. Fetching from network.");
-            const spreadsheetId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
-            const exportUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=xlsx`;
+            const gasApiUrl = 'https://script.google.com/macros/s/AKfycbz25YT_a83_tYuIsW8TLe4JAZqpj3ZveXcCqAwzXKPSmoa4jMou7BkI0KFU29jsujVqxg/exec';
 
             async function fetchSpreadsheetData() {
                 showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
                 try {
-                    const response = await fetch(exportUrl, { cache: "no-cache" });
+                    const response = await fetch(gasApiUrl, { cache: "no-cache" });
                     if (response.ok) {
                         const data = await response.arrayBuffer();
                         processExcelData(new Uint8Array(data));
