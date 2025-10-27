@@ -554,13 +554,13 @@
                     // ボタンHTML全体をハイパーリンクで囲む
                     // `flex justify-center`を追加して、ボタンをセル内で中央揃えにする
                     const drugNameForHiyari = encodeURIComponent(drugName || ""); // 品名 (F列) を取得
-                    const hiyariLink = `<a href="./hiyari_app/index.html?drugName=${drugNameForHiyari}" target="_blank" class="text-blue-500 hover:text-blue-700 mr-1">🔵</a>`;
+                    const hiyariLink = `<a href="./hiyari_app/index.html?drugName=${drugNameForHiyari}" target="_blank" class="text-blue-500 hover:text-blue-700 mr-1 text-lg">🔵</a>`;
                     
                     if (yjCode) {
                         const yjCodeLinkUrl = `./yjcode.html?yjcode=${yjCode}`;
-                        statusCell.innerHTML = `<div class="flex items-center justify-center">${hiyariLink}<a href="${yjCodeLinkUrl}" target="_blank" class="block text-indigo-600 hover:no-underline">${statusButtonHtml}</a></div>`;
+                        statusCell.innerHTML = `<div class="flex items-center justify-start">${hiyariLink}<a href="${yjCodeLinkUrl}" target="_blank" class="text-indigo-600 hover:no-underline">${statusButtonHtml}</a></div>`;
                     } else {
-                        statusCell.innerHTML = `<div class="flex items-center justify-center">${hiyariLink}${statusButtonHtml}</div>`;
+                        statusCell.innerHTML = `<div class="flex items-center justify-start">${hiyariLink}${statusButtonHtml}</div>`;
                     }
                 }
                 
