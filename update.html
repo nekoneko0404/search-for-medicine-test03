@@ -6,6 +6,7 @@
     <title>情報更新日検索ツール</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
     <link rel="stylesheet" href="unify.css">
 </head>
@@ -203,17 +204,13 @@
                 });
 
                 if (mappedData.length > 0) {
-                    try {
-                        console.log("Saving fetched data to sessionStorage.");
-                        const cachePayload = {
-                            timestamp: new Date().getTime(),
-                            data: mappedData
-                        };
-                        sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
-                    } catch (e) {
-                        console.warn("Failed to save data to sessionStorage. It might be full.", e);
-                        showMessage("データサイズが大きいため、キャッシュの保存に失敗しました。タブを閉じるとデータは失われます。", false);
-                    }
+                    const cachePayload = {
+                        timestamp: new Date().getTime(),
+                        data: mappedData
+                    };
+                    localforage.setItem('excelCache', cachePayload).catch(err => {
+                        console.error("Failed to save data to localForage", err);
+                    });
                 }
                 return mappedData;
 
@@ -428,19 +425,17 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const cachedData = sessionStorage.getItem('excelCache');
-            let sourceData;
-
-            if (cachedData) {
-                console.log("Found cached data in sessionStorage.");
-                const cache = JSON.parse(cachedData);
-                sourceData = cache.data;
-                showMessage("キャッシュからデータを読み込みました。", false);
-            } else {
-                console.log("No cached data found. Fetching from network.");
-                sourceData = await fetchAndProcessExcelData();
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            localforage.getItem('excelCache').then(async (cachedData) => {
+                let sourceData;
+                if (cachedData) {
+                    console.log("Found cached data in localForage.");
+                    sourceData = cachedData.data;
+                    showMessage("キャッシュからデータを読み込みました。", false);
+                } else {
+                    console.log("No cached data found. Fetching from network.");
+                    sourceData = await fetchAndProcessExcelData();
+                }
 
             if (sourceData && sourceData.length > 0) {
                 // This page requires a Date object for sorting, so we process it here.
@@ -458,6 +453,10 @@
                 }
             }
 
+            }).catch(async (err) => {
+                console.error("Error reading from localForage, fetching from network.", err);
+                let sourceData = await fetchAndProcessExcelData();
+            });
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
             

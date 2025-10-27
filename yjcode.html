@@ -6,6 +6,7 @@
     <title>YJコード検索ツール</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
     <link rel="stylesheet" href="unify.css">
 </head>
@@ -199,17 +200,13 @@
                 const processedData = processExcelData(arrayBuffer);
 
                 if (processedData.length > 0) {
-                    try {
-                        console.log("Saving fetched data to sessionStorage.");
-                        const cachePayload = {
-                            timestamp: new Date().getTime(),
-                            data: processedData
-                        };
-                        sessionStorage.setItem('excelCache', JSON.stringify(cachePayload));
-                    } catch (e) {
-                        console.warn("Failed to save data to sessionStorage. It might be full.", e);
-                        showMessage("データサイズが大きいため、キャッシュの保存に失敗しました。タブを閉じるとデータは失われます。", false);
-                    }
+                    const cachePayload = {
+                        timestamp: new Date().getTime(),
+                        data: processedData
+                    };
+                    localforage.setItem('excelCache', cachePayload).catch(err => {
+                        console.error("Failed to save data to localForage", err);
+                    });
                 }
 
                 console.log(`Data loaded successfully. Number of rows: ${processedData.length}`);
@@ -436,16 +433,18 @@
             
             const manufacturerDataPromise = fetchManufacturerData();
             
-            const cachedData = sessionStorage.getItem('excelCache');
-            let excelDataPromise;
-
-            if (cachedData) {
-                console.log("Found cached data in sessionStorage.");
-                excelDataPromise = Promise.resolve({ data: JSON.parse(cachedData).data, date: 'キャッシュ' });
-            } else {
-                console.log("No cached data found. Fetching from network.");
-                excelDataPromise = fetchExcelData();
-            }
+            const excelDataPromise = localforage.getItem('excelCache').then(cachedData => {
+                if (cachedData) {
+                    console.log("Found cached data in localForage.");
+                    return { data: cachedData.data, date: 'キャッシュ' };
+                } else {
+                    console.log("No cached data found. Fetching from network.");
+                    return fetchExcelData();
+                }
+            }).catch(err => {
+                console.error("Error reading from localForage, fetching from network.", err);
+                return fetchExcelData(); // フォールバック
+            });
 
             const [manufacturerDataResult, excelDataResult] = await Promise.all([manufacturerDataPromise, excelDataPromise]);
 
