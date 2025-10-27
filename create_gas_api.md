@@ -23,6 +23,9 @@ function doGet(e) {
     const data = sheet.getDataRange().getValues();
     
     // ヘッダー行を除外（必要に応じて調整）
+    // 最初の行をスキップ（通常はタイトル行など）
+    data.shift();
+    // 2行目をヘッダーとして取得
     const headers = data.shift();
     
     const json = data.map(row => {
