@@ -139,10 +139,9 @@
         function processExcelData(data) {
             try {
                 const workbook = XLSX.read(data, {type: 'array'});
-                const sheetName = workbook.SheetNames[0];
+                const sheetName = workbook.SheetNames;
                 const worksheet = workbook.Sheets[sheetName];
                 
-                // For date processing, we need raw numbers for some columns
                 const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
                 const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true });
 
@@ -159,19 +158,19 @@
                 const mappedData = dataRowsAsStrings.map((row, index) => {
                     const numberRow = dataRowsAsNumbers[index];
                     return {
-                        'ingredientName':       row[2],
-                        'yjCode':               row[4],
-                        'productName':          row[5],
-                        'standard':             row[6],
-                        'isGeneric':            row[7],
-                        'isBasicDrug':          row[8],
-                        'manufacturer':         row[9],
-                        'shipmentStatus':       row[11],
-                        'reasonForLimitation':  row[13],
-                        'resolutionProspect':   row[14],
-                        'expectedDate':         numberRow[15] || row[15],
-                        'shipmentVolumeStatus': row[16],
-                        'updateDateSerial':     numberRow[19]
+                        'ingredientName':       row,
+                        'yjCode':               row,
+                        'productName':          row,
+                        'standard':             row,
+                        'isGeneric':            row,
+                        'isBasicDrug':          row,
+                        'manufacturer':         row,
+                        'shipmentStatus':       row,
+                        'reasonForLimitation':  row,
+                        'resolutionProspect':   row,
+                        'expectedDate':         numberRow || row,
+                        'shipmentVolumeStatus': row,
+                        'updateDateSerial':     numberRow
                     };
                 });
 
@@ -284,9 +283,9 @@
         function extractSearchTerm(text) {
             if (!text) return '';
             let match = text.match(/^([一-龯ァ-ヶー]+(?:[一-龯ァ-ヶー]+)*)/);
-            if (match && match[1]) { return match[1]; }
+            if (match && match) { return match; }
             match = text.match(/[^一-龯ァ-ヶーA-Za-z0-9]*([一-龯ァ-ヶー]+(?:[一-龯ァ-ヶー]+)*)/);
-            if (match && match[1]) { return match[1]; }
+            if (match && match) { return match; }
             return text;
         }
 
@@ -295,7 +294,7 @@
             let extractedName = extractSearchTerm(name);
 
             if (Array.isArray(extractedName)) {
-                extractedName = extractedName[0] || '';
+                extractedName = extractedName || '';
             } else if (typeof extractedName !== 'string') {
                 extractedName = String(extractedName || '');
             }
@@ -307,18 +306,18 @@
                 let candidate = '';
                 for (const p of parts) {
                     const m = p.match(/([ァ-ヶー]+)/);
-                    if (m && m[1]) {
-                        candidate = m[1];
+                    if (m && m) {
+                        candidate = m;
                         break;
                     }
                 }
                 if (!candidate && parts.length > 0) {
-                    candidate = parts[0].replace(/^[ＬL][－-]?/, '').trim();
+                    candidate = parts.replace(/^[ＬL][－-]?/, '').trim();
                 }
                 if (candidate) {
                     finalName = candidate;
                 } else if (parts.length > 0) {
-                    finalName = parts[0];
+                    finalName = parts;
                 }
             }
 

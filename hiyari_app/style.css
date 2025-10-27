@@ -50,6 +50,7 @@ main {
     flex-wrap: wrap;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
+    width: 100%; /* 親要素の幅いっぱいに広がるように設定 */
 }
 
 .search-controls,
@@ -59,11 +60,15 @@ main {
     border-radius: 8px;
     box-shadow: 0 4px 10px var(--color-shadow);
     display: flex;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; */ /* フィルターコントロール内のボタンが折り返さないように変更 */
     gap: 10px;
     align-items: center;
     flex: 1;
     min-width: 280px;
+}
+
+.filter-controls {
+    flex-wrap: nowrap; /* フィルターコントロール内のボタンが折り返さないように設定 */
 }
 
 .search-controls label,
@@ -79,7 +84,7 @@ main {
     border: 1px solid var(--color-border);
     border-radius: 5px;
     flex-grow: 1;
-    max-width: 280px;
+    /* max-width: 280px; */ /* 入力フィールドの最大幅を削除し、柔軟に幅を調整できるようにする */
     font-size: 1rem;
 }
 

@@ -163,8 +163,7 @@
 
             try {
                 loadingIndicator.classList.remove('hidden');
-                const response = await fetch(url, { cache: "no-cache" }); // キャッシュを無効化
-                console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
+                const response = await fetch(url, { cache: "no-cache" });
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Fetch Error Body:', errorText);
@@ -172,9 +171,8 @@
                 }
                 
                 const arrayBuffer = await response.arrayBuffer();
-                console.log(`Successfully fetched ${arrayBuffer.byteLength} bytes.`);
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const worksheet = workbook.Sheets[workbook.SheetNames];
                 
                 const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
                 const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true });
@@ -187,19 +185,19 @@
                 const mappedData = dataRowsAsStrings.map((row, index) => {
                     const numberRow = dataRowsAsNumbers[index];
                     return {
-                        'ingredientName':       row[2],
-                        'yjCode':               row[4],
-                        'productName':          row[5],
-                        'standard':             row[6],
-                        'isGeneric':            row[7],
-                        'isBasicDrug':          row[8],
-                        'manufacturer':         row[9],
-                        'shipmentStatus':       row[11],
-                        'reasonForLimitation':  row[13],
-                        'resolutionProspect':   row[14],
-                        'expectedDate':         numberRow[15] || row[15],
-                        'shipmentVolumeStatus': row[16],
-                        'updateDateSerial':     numberRow[19]
+                        'ingredientName':       row,
+                        'yjCode':               row,
+                        'productName':          row,
+                        'standard':             row,
+                        'isGeneric':            row,
+                        'isBasicDrug':          row,
+                        'manufacturer':         row,
+                        'shipmentStatus':       row,
+                        'reasonForLimitation':  row,
+                        'resolutionProspect':   row,
+                        'expectedDate':         numberRow || row,
+                        'shipmentVolumeStatus': row,
+                        'updateDateSerial':     numberRow
                     };
                 });
 
@@ -437,26 +435,35 @@
                     sourceData = await fetchAndProcessExcelData();
                 }
 
-            if (sourceData && sourceData.length > 0) {
-                // This page requires a Date object for sorting, so we process it here.
-                data = sourceData.map(item => {
-                    item.updateDateObj = excelSerialDateToJSDate(item.updateDateSerial);
-                    return item;
-                });
-                
-                document.querySelector('#date-filters input[data-days="all"]').checked = false;
-                document.querySelector('#date-filters input[data-days="3"]').checked = true;
-                performSearch();
-            } else {
-                if (!messageBox.textContent) {
-                    showMessage('データを読み込めませんでした。ファイルが空か、形式に問題がある可能性があります。', true);
+                if (sourceData && sourceData.length > 0) {
+                    data = sourceData.map(item => {
+                        item.updateDateObj = excelSerialDateToJSDate(item.updateDateSerial);
+                        return item;
+                    });
+                    
+                    document.querySelector('#date-filters input[data-days="all"]').checked = false;
+                    document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                    performSearch();
+                } else {
+                    if (!messageBox.textContent) {
+                        showMessage('データを読み込めませんでした。ファイルが空か、形式に問題がある可能性があります。', true);
+                    }
                 }
-            }
-
             }).catch(async (err) => {
                 console.error("Error reading from localForage, fetching from network.", err);
                 let sourceData = await fetchAndProcessExcelData();
+                if (sourceData && sourceData.length > 0) {
+                    data = sourceData.map(item => {
+                        item.updateDateObj = excelSerialDateToJSDate(item.updateDateSerial);
+                        return item;
+                    });
+                    
+                    document.querySelector('#date-filters input[data-days="all"]').checked = false;
+                    document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                    performSearch();
+                }
             });
+
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
             
