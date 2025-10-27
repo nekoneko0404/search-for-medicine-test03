@@ -470,8 +470,6 @@
         window.onload = function() {
             attachSearchListeners();
 
-            fetchSpreadsheetData();
-
             console.log("No cached data found. Fetching from network.");
             const spreadsheetId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
             const exportUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=xlsx`;
@@ -507,6 +505,8 @@
                     showMessage('共有スプレッドシートからのデータの取得中にエラーが発生しました。', 'error');
                 }
             }
+
+            fetchSpreadsheetData();
         };
     </script>
 </body>
