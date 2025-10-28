@@ -15,12 +15,12 @@
 
 ```javascript
 function doGet(e) {
-  // 対象のスプレッドシートIDを指定
-  const SPREADSHEET_ID = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
-  
-  try {
-    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheets()[0];
-    const data = sheet.getDataRange().getValues();
+// 対象のスプレッドシートIDを指定
+const SPREADSHEET_ID = '1T9zTMc6ygSLiZFASLGVEi5xbTOoCtsjeKCWUVdM3tfE';
+
+try {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheets()[0];
+  const data = sheet.getDataRange().getValues();
     
     // ヘッダー行を除外（必要に応じて調整）
     // 最初の行をスキップ（通常はタイトル行など）
