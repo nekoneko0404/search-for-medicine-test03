@@ -7,35 +7,43 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
     <link rel="stylesheet" href="../unify.css">
-    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-200 p-4 sm:p-8 flex flex-col items-center min-h-screen">
-    <header>
-        <h1>薬局ヒヤリ・ハット事例ビューア</h1>
-        <h2 id="search-title" class="search-title-style"></h2>
-    </header>
-    <main class="w-full max-w-7xl">
-        <div class="search-filter-container">
-            <div class="search-controls">
-                <label for="search-keyword">医薬品名:</label>
-                <input type="text" id="search-keyword" class="unified-input" placeholder="医薬品名または成分名を入力">
-                <button id="apply-search" class="unified-button">検索</button>
-                <button id="clear-search" class="unified-button">クリア</button>
+    <div class="page-wrapper">
+        <div class="page-header">
+            <h1 class="page-title">薬局ヒヤリ・ハット事例ビューア</h1>
+        </div>
+        <h2 id="search-title" class="text-xl sm:text-2xl font-semibold text-gray-800 text-center mb-4"></h2>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow-md flex-1">
+                <div class="flex flex-col sm:flex-row items-center gap-2">
+                    <label for="search-keyword" class="font-semibold text-gray-700 whitespace-nowrap">医薬品名:</label>
+                    <input type="text" id="search-keyword" class="unified-input flex-grow" placeholder="医薬品名または成分名を入力">
+                    <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                        <button id="apply-search" class="unified-button w-20">検索</button>
+                        <button id="clear-search" class="unified-button w-20">クリア</button>
+                    </div>
+                </div>
             </div>
-            <div class="filter-controls">
-                <label for="filter-word">絞り込み:</label>
-                <input type="text" id="filter-word" class="unified-input" placeholder="事例内容、背景・要因、発生要因で検索">
-                <button id="apply-filter" class="unified-button">絞り込み</button>
-                <button id="random-sort" class="unified-button">ランダム</button>
+            <div class="bg-white p-4 rounded-lg shadow-md flex-1">
+                <div class="flex flex-col sm:flex-row items-center gap-2">
+                    <label for="filter-word" class="font-semibold text-gray-700 whitespace-nowrap">絞り込み:</label>
+                    <input type="text" id="filter-word" class="unified-input flex-grow" placeholder="事例内容、背景・要因、発生要因で検索">
+                    <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                        <button id="apply-filter" class="unified-button w-20">絞り込み</button>
+                        <button id="random-sort" class="unified-button w-20">ランダム</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="loading-indicator" style="display: none;">
             <div class="spinner"></div>
         </div>
-        <div id="incident-list" class="incident-container">
+        <div id="incident-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- 事例はここに動的に読み込まれます -->
         </div>
-    </main>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

@@ -310,35 +310,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         incidents.forEach(incident => {
             const card = document.createElement('div');
-            card.className = 'incident-card';
+            card.className = 'bg-white rounded-xl shadow-lg border border-slate-200 p-4 transition-transform duration-200 hover:scale-[1.02]';
 
             const title = document.createElement('h2');
+            title.className = 'text-lg font-bold text-indigo-700 border-b-2 border-slate-200 pb-2 mb-3';
             title.textContent = incident.summary;
             
             const date = document.createElement('p');
-            date.className = 'incident-date';
+            date.className = 'text-sm text-gray-500 text-right mb-3';
             date.textContent = `発生年月: ${incident.year}年${incident.month}`;
 
             const content = document.createElement('p');
-            content.innerHTML = `<strong>事例の詳細:</strong><br>${incident.content.replace(/\n/g, '<br>') || '記載なし'}`;
+            content.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+            content.innerHTML = `<strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">事例の詳細:</strong><br>${incident.content.replace(/\n/g, '<br>') || '記載なし'}`;
             
             const factor = document.createElement('p');
-            factor.innerHTML = `<strong>背景・要因:</strong><br>${incident.factor.replace(/\n/g, '<br>') || '記載なし'}`;
+            factor.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+            factor.innerHTML = `<strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">背景・要因:</strong><br>${incident.factor.replace(/\n/g, '<br>') || '記載なし'}`;
             
             const factors = document.createElement('p');
-            factors.innerHTML = `<strong>発生要因:</strong><br>${incident.factors.replace(/\n/g, '<br>') || '記載なし'}`;
+            factors.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+            factors.innerHTML = `<strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">発生要因:</strong><br>${incident.factors.replace(/\n/g, '<br>') || '記載なし'}`;
 
             const factorDoubts = document.createElement('p');
-            factorDoubts.innerHTML = `<strong>発生要因(疑義照会):</strong><br>${incident.factorDoubts.replace(/\n/g, '<br>') || '記載なし'}`;
+            factorDoubts.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+            factorDoubts.innerHTML = `<strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">発生要因(疑義照会):</strong><br>${incident.factorDoubts.replace(/\n/g, '<br>') || '記載なし'}`;
             
             const improvement = document.createElement('p');
-            improvement.innerHTML = `<strong>改善策:</strong><br>${incident.improvement.replace(/\n/g, '<br>') || '記載なし'}`;
+            improvement.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+            improvement.innerHTML = `<strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">改善策:</strong><br>${incident.improvement.replace(/\n/g, '<br>') || '記載なし'}`;
 
             const estimatedText = document.createElement('p');
-            estimatedText.innerHTML = `<strong>推定される要因:</strong><br>${incident.estimatedText.replace(/\n/g, '<br>') || '記載なし'}`;
+            estimatedText.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+            estimatedText.innerHTML = `<strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">推定される要因:</strong><br>${incident.estimatedText.replace(/\n/g, '<br>') || '記載なし'}`;
 
             const effortText = document.createElement('p');
-            effortText.innerHTML = `<strong>薬局での取り組み:</strong><br>${incident.effortText.replace(/\n/g, '<br>') || '記載なし'}`;
+            effortText.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+            effortText.innerHTML = `<strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">薬局での取り組み:</strong><br>${incident.effortText.replace(/\n/g, '<br>') || '記載なし'}`;
 
             card.appendChild(title);
             card.appendChild(date);
