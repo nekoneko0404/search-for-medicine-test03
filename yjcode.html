@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
     <link rel="stylesheet" href="unify.css">
 </head>
-<body class="bg-gray-200 p-4 sm:p-8 flex flex-col items-center min-h-screen">
+<body class="bg-gray-200 p-2 sm:p-4 flex flex-col items-center min-h-screen">
 
     <div class="page-wrapper">
         <div class="page-header flex flex-col md:flex-row md:items-center md:justify-between">
@@ -19,7 +19,7 @@
                     <img src="images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-8 w-8 sm:h-10 sm:w-10">
                     <span>YJコード検索ツール</span>
                 </h2>
-                <a href="./" class="md:hidden px-3 py-1.5 bg-indigo-100 text-indigo-700 text-sm rounded-lg font-medium hover:bg-indigo-200 transition-colors duration-300 whitespace-nowrap">
+                <a href="./" class="md:hidden px-3 py-1.5 bg-indigo-100 text-indigo-700 text-sm rounded-lg font-medium hover:bg-indigo-200 transition-colors duration-300">
                     医薬品検索ツールへ戻る
                 </a>
             </div>
@@ -29,7 +29,7 @@
                     検索
                 </button>
             </div>
-            <a href="./" class="hidden md:block px-3 py-1.5 bg-indigo-100 text-indigo-700 text-sm rounded-lg font-medium hover:bg-indigo-200 transition-colors duration-300 whitespace-nowrap">
+            <a href="./" class="hidden md:block px-3 py-1.5 bg-indigo-100 text-indigo-700 text-sm rounded-lg font-medium hover:bg-indigo-200 transition-colors duration-300">
                 医薬品検索ツールへ戻る
             </a>
         </div>
@@ -97,7 +97,7 @@
         <p id="progressMessage" class="text-xs text-gray-500 mt-1 text-center"></p>
     </div>
     
-    <div id="resultsContainer" class="w-full max-w-7xl mt-8"></div>
+    <div id="resultsContainer" class="w-full max-w-7xl mt-4"></div>
 
     <script>
         let data = [];
@@ -444,7 +444,7 @@
 
             card.innerHTML = `
                 <div class="flex items-start justify-between mb-2">
-                    <h3 class="text-base font-bold text-gray-900 leading-tight">
+                    <h3 class="text-base font-bold text-gray-900 leading-tight whitespace-nowrap overflow-hidden text-overflow-ellipsis">
                         <span class="card-name-clickable name-clickable text-indigo-600 hover:underline" data-yjcode="${item.yjCode || ''}">${item.productName || '-'}</span>
                     </h3>
                     <div class="flex items-center space-x-1 flex-shrink-0">${labels}</div>
