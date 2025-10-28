@@ -38,8 +38,6 @@ function doGet(e) {
     
     const output = ContentService.createTextOutput(JSON.stringify(json));
     output.setMimeType(ContentService.MimeType.JSON);
-    // CORS対応ヘッダーを設定
-    output.setHeader('Access-Control-Allow-Origin', '*');
     
     return output;
     
@@ -49,7 +47,6 @@ function doGet(e) {
         message: error.message
       }));
     errorOutput.setMimeType(ContentService.MimeType.JSON);
-    errorOutput.setHeader('Access-Control-Allow-Origin', '*');
     return errorOutput;
   }
 }
