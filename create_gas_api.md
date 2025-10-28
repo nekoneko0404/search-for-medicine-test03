@@ -36,9 +36,8 @@ function doGet(e) {
       return obj;
     });
     
-    const output = ContentService.createTextOutput(JSON.stringify(json))
-      .setMimeType(ContentService.MimeType.JSON);
-      
+    const output = ContentService.createTextOutput(JSON.stringify(json));
+    output.setMimeType(ContentService.MimeType.JSON);
     // CORS対応ヘッダーを設定
     output.setHeader('Access-Control-Allow-Origin', '*');
     
@@ -48,8 +47,8 @@ function doGet(e) {
     const errorOutput = ContentService.createTextOutput(JSON.stringify({
         status: 'error',
         message: error.message
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
+      }));
+    errorOutput.setMimeType(ContentService.MimeType.JSON);
     errorOutput.setHeader('Access-Control-Allow-Origin', '*');
     return errorOutput;
   }
