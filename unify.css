@@ -1,5 +1,4 @@
-
-        body {
+body {
             font-family: 'Inter', sans-serif;
         }
         .message-box-center {
@@ -235,4 +234,27 @@
         .name-clickable:hover {
             text-decoration: underline;
         }
-    
+
+/* Added for style unification */
+.unified-button {
+    padding: 8px 12px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+}
+
+.unified-button:hover {
+    background-color: #5a6268;
+}
+
+.unified-input {
+    padding: 10px;
+    border: 1px solid #d1d9e6;
+    border-radius: 5px;
+    font-size: 1rem;
+}

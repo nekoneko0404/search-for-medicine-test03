@@ -41,7 +41,7 @@ header h1 {
 
 main {
     padding: 1.5rem;
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
 }
 
@@ -74,33 +74,15 @@ main {
     margin-right: 5px;
 }
 
-.search-controls input[type="text"],
-.filter-controls input[type="text"] {
-    padding: 10px;
-    border: 1px solid var(--color-border);
-    border-radius: 5px;
+.search-controls .unified-input,
+.filter-controls .unified-input {
     flex-grow: 1;
-    /* max-width: 280px; */ /* 入力フィールドの最大幅を削除し、柔軟に幅を調整できるようにする */
-    font-size: 1rem;
 }
 
-.search-controls button,
-.filter-controls button {
-    padding: 8px 12px;
-    background-color: var(--color-button-bg);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s ease;
+.search-controls .unified-button,
+.filter-controls .unified-button {
     width: 80px;
     flex-shrink: 0;
-}
-
-.search-controls button:hover,
-.filter-controls button:hover {
-    background-color: var(--color-button-hover-bg);
 }
 
 .incident-container {
@@ -188,4 +170,8 @@ main {
         flex-wrap: wrap;
         row-gap: 1rem;
     }
+}
+
+#filter-word {
+    max-width: 300px;
 }
