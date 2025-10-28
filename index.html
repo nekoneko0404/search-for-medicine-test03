@@ -139,11 +139,11 @@
         function processExcelData(data) {
             try {
                 const workbook = XLSX.read(data, {type: 'array'});
-                const sheetName = workbook.SheetNames;
+                const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 
-                const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
-                const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true });
+                const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, defval: "" });
+                const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true, defval: "" });
 
                 if (jsonDataWithStrings.length < 2) { 
                     excelData = [];
@@ -158,19 +158,19 @@
                 const mappedData = dataRowsAsStrings.map((row, index) => {
                     const numberRow = dataRowsAsNumbers[index];
                     return {
-                        'ingredientName':       row,
-                        'yjCode':               row,
-                        'productName':          row,
-                        'standard':             row,
-                        'isGeneric':            row,
-                        'isBasicDrug':          row,
-                        'manufacturer':         row,
-                        'shipmentStatus':       row,
-                        'reasonForLimitation':  row,
-                        'resolutionProspect':   row,
-                        'expectedDate':         numberRow || row,
-                        'shipmentVolumeStatus': row,
-                        'updateDateSerial':     numberRow
+                        'productName':          row[5],
+                        'ingredientName':       row[2],
+                        'manufacturer':         row[6],
+                        'shipmentStatus':       row[11],
+                        'reasonForLimitation':  row[13],
+                        'resolutionProspect':   row[14],
+                        'expectedDate':         numberRow[15] || row[15],
+                        'shipmentVolumeStatus': row[16],
+                        'yjCode':               row[4],
+                        'standard':             row[3],
+                        'isGeneric':            row[7],
+                        'isBasicDrug':          row[8],
+                        'updateDateSerial':     numberRow[12] || row[12]
                     };
                 });
 
@@ -488,11 +488,13 @@
                             localforage.setItem('excelCache', cachePayload).catch(err => {
                                 console.error("Failed to save data to localForage", err);
                             });
+                            showMessage(`${excelData.length} 件のデータを読み込みました。検索を開始できます。`, "success");
+                        } else {
+                            showMessage("データが0件でした。ファイルまたは処理ロジックを確認してください。", "error");
                         }
                         renderTable([]);
                         tableContainer.classList.add('hidden');
-                        showMessage("データの読み込みが完了しました。検索欄に入力すると自動で絞り込みが開始されます。", "success");
-                        hideMessage(2000);
+                        hideMessage(3000);
                     } else {
                         showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
                     }
@@ -503,14 +505,14 @@
             }
 
             localforage.getItem('excelCache').then(cachedData => {
-                const oneDay = 24 * 60 * 60 * 1000;
-                if (cachedData && (new Date().getTime() - cachedData.timestamp < oneDay)) {
+                const fourHours = 4 * 60 * 60 * 1000;
+                if (cachedData && (new Date().getTime() - cachedData.timestamp < fourHours)) {
                     console.log("Found recent cached data in localForage.");
                     excelData = cachedData.data;
                     renderTable([]);
                     tableContainer.classList.add('hidden');
-                    showMessage("キャッシュからデータを読み込みました。検索を開始できます。", "success");
-                    hideMessage(2000);
+                    showMessage(`キャッシュから ${excelData.length} 件のデータを読み込みました。検索を開始できます。`, "success");
+                    hideMessage(3000);
                 } else {
                     if(cachedData) {
                         console.log("Cached data is old. Fetching from network.");
