@@ -158,11 +158,12 @@
         }
 
         async function fetchAndProcessExcelData() {
-            const gasApiUrl = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiMvf0_gSfBiEUXhgqYZAPoDEtamfmCNVn6_MrpHYmrP_9RCVKAMAhAAGvpMFzampB7IEsxqJoE9eBGMm0t-s56BWCE0mPKTCPvuAbhlQLWDGPfg080hUuCeZAfeIEYmZ0nGBJB0AunqCx2AAM35QEhXt48QZqptjVpIwvCmzLJEhHxtaL6HwmhwAfU-gdj5jn9hIQoejS-VznKzQa5oHtgNfbHRw0mexhgeaspOeCaQ3fMviW05LavSzYZ1eTmDObVUSYrNqa087rIakF4Ecc00sDXFRQ4fSzN4qyW&lib=MGY1g4jNgoj_Tu74vJUcWraF6ofZOlazh';
+            const fileId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
+            const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
             try {
                 loadingIndicator.classList.remove('hidden');
-                const response = await fetch(gasApiUrl, { cache: "no-cache" });
+                const response = await fetch(googleDriveUrl, { cache: "no-cache" });
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Fetch Error Body:', errorText);
@@ -171,10 +172,10 @@
                 
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames];
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 
-                const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
-                const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true });
+                const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, defval: "" });
+                const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true, defval: "" });
 
                 if (jsonDataWithStrings.length < 2) return [];
 
@@ -184,19 +185,19 @@
                 const mappedData = dataRowsAsStrings.map((row, index) => {
                     const numberRow = dataRowsAsNumbers[index];
                     return {
-                        'ingredientName':       row,
-                        'yjCode':               row,
-                        'productName':          row,
-                        'standard':             row,
-                        'isGeneric':            row,
-                        'isBasicDrug':          row,
-                        'manufacturer':         row,
-                        'shipmentStatus':       row,
-                        'reasonForLimitation':  row,
-                        'resolutionProspect':   row,
-                        'expectedDate':         numberRow || row,
-                        'shipmentVolumeStatus': row,
-                        'updateDateSerial':     numberRow
+                        'productName':          row[5],
+                        'ingredientName':       row[2],
+                        'manufacturer':         row[6],
+                        'shipmentStatus':       row[11],
+                        'reasonForLimitation':  row[13],
+                        'resolutionProspect':   row[14],
+                        'expectedDate':         numberRow[15] || row[15],
+                        'shipmentVolumeStatus': row[16],
+                        'yjCode':               row[4],
+                        'standard':             row[3],
+                        'isGeneric':            row[7],
+                        'isBasicDrug':          row[8],
+                        'updateDateSerial':     numberRow[12] || row[12]
                     };
                 });
 

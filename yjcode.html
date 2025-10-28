@@ -149,10 +149,10 @@
         function processExcelData(arrayBuffer) {
             updateProgress('データを処理中...', 75);
             const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            const worksheet = workbook.Sheets[workbook.SheetNames];
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
             
-            const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1 });
-            const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true });
+            const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, defval: "" });
+            const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true, defval: "" });
 
             if (jsonDataWithStrings.length < 2) return [];
 
@@ -162,18 +162,18 @@
             return dataRowsAsStrings.map((row, index) => {
                 const numberRow = dataRowsAsNumbers[index];
                 return {
-                    'ingredientName':       row,
-                    'yjCode':               row,
-                    'productName':          row,
-                    'manufacturer':         row,
-                    'productCategory':      row,
-                    'isBasicDrug':          row,
-                    'shipmentStatus':       row,
-                    'reasonForLimitation':  row,
-                    'resolutionProspect':   row,
-                    'expectedDate':         numberRow || row,
-                    'shipmentVolumeStatus': row,
-                    'updateDateSerial':     numberRow
+                    'productName':          row[5],
+                    'ingredientName':       row[2],
+                    'manufacturer':         row[6],
+                    'shipmentStatus':       row[11],
+                    'reasonForLimitation':  row[13],
+                    'resolutionProspect':   row[14],
+                    'expectedDate':         numberRow[15] || row[15],
+                    'shipmentVolumeStatus': row[16],
+                    'yjCode':               row[4],
+                    'productCategory':      row[7],
+                    'isBasicDrug':          row[8],
+                    'updateDateSerial':     numberRow[12] || row[12]
                 };
             });
         }
