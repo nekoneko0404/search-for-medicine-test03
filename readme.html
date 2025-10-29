@@ -151,20 +151,25 @@
                 </h2>
                 <ul class="space-y-6">
                     <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">医薬品名での検索</h3>
-                        <p>「医薬品名」の入力欄にキーワードを入力し、「検索」ボタンをクリックすると、該当するヒヤリ・ハット事例が表示されます。医薬品名または成分名で検索できます。</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">柔軟な検索機能</h3>
+                        <p>「医薬品名」と「絞り込み（フリーワード）」の2つの入力欄を使って、柔軟な検索が可能です。検索はサーバーサイドで実行され、常に新しい事例から順に最大100件が取得されます。</p>
+                        <ul class="list-disc list-inside mt-2 ml-4 text-sm space-y-1">
+                            <li><b>医薬品名のみ入力:</b> 医薬品名または成分名で検索します。</li>
+                            <li><b>絞り込みのみ入力:</b> 事例内容全体からフリーワードで検索します。</li>
+                            <li><b>両方入力:</b> 医薬品名とフリーワードの両方を含む事例を検索します（AND検索）。</li>
+                        </ul>
                     </li>
                     <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">絞り込み検索</h3>
-                        <p>「絞り込み」の入力欄にキーワードを入力し、「絞り込み」ボタンをクリックすると、表示されている事例の中から、事例内容、背景・要因、発生要因にキーワードが含まれるものをさらに絞り込むことができます。</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">段階的な結果表示</h3>
+                        <p>検索結果は、まず30件が表示されます。取得した結果が30件より多い場合、リストの下に「さらに表示」ボタンが出現します。このボタンをクリックすることで、次の30件を順次読み込むことができ、快適なブラウジングが可能です。</p>
                     </li>
                     <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
                         <h3 class="text-xl font-semibold text-gray-900 mb-2">ランダム表示</h3>
-                        <p>「ランダム」ボタンをクリックすると、検索結果または全事例の中からランダムに50件の事例が表示されます。</p>
+                        <p>「ランダム」ボタンをクリックすると、現在の検索結果または全事例の中からランダムに事例が表示されます。</p>
                     </li>
                     <li class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200">
                         <h3 class="text-xl font-semibold text-gray-900 mb-2">事例の詳細表示</h3>
-                        <p>各事例カードには、発生年月、事例の詳細、背景・要因、発生要因、改善策などが表示されます。疑義照会に関する事例では、「推定される要因」と「薬局での取り組み」が表示されます。</p>
+                        <p>各事例カードには、発生年月、事例の詳細、背景・要因、改善策などが分かりやすく表示されます。</p>
                     </li>
                 </ul>
                 <div class="mt-6 text-center">
