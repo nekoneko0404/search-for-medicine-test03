@@ -30,8 +30,7 @@ body {
 }
 /* 1画面の情報量を多くするための調整 */
 .table-container {
-    max-height: 70vh; /* 画面の約70%を最大高さとする */
-    overflow-y: auto;
+
 }
 /* PC画面向けレイアウト */
 .search-form-grid {

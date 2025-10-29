@@ -343,8 +343,8 @@
 
                 const drugNameCell = newRow.insertCell(0);
                 drugNameCell.setAttribute('data-label', '品名');
-                drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900");
-                
+                drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "relative");
+
                 let labelsHtml = '';
                 const hColumnValue = (item.isGeneric || '').trim();
                 const iColumnValue = (item.isBasicDrug || '').trim();
@@ -362,10 +362,37 @@
                 }
 
                 const drugName = item.productName;
-                const yjCode = item.yjCode;
-                const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${yjCode}?user=1`;
-                
-                drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<a href="${pmdaLinkUrl}" target="_blank" class="text-indigo-600 font-semibold hover:underline truncate-lines">${drugName || ""}</a></div>`;
+                const drugNameForHiyari = encodeURIComponent(drugName || "");
+
+                if (!item.yjCode) {
+                    drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<span class="font-semibold truncate-lines">${drugName || ""}</span></div>`;
+                } else {
+                    const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${item.yjCode}?user=1`;
+                    const yjCodeLinkUrl = `./yjcode.html?yjcode=${item.yjCode}`;
+                    const hiyariLinkUrl = `./hiyari_app/index.html?drugName=${drugNameForHiyari}`;
+                    const dropdownContentId = `dropdown-content-${index}`;
+
+                    const dropdownButtonHtml = `
+                        <button onclick="toggleDropdown(event)" class="dropdown-button text-indigo-600 font-semibold hover:underline truncate-lines text-left w-full">
+                            ${drugName || ""}
+                        </button>
+                    `;
+
+                    const dropdownHtml = `
+                        <div class="flex items-start">
+                            ${labelsHtml}
+                            <div class="dropdown w-full">
+                                ${dropdownButtonHtml}
+                                <div id="${dropdownContentId}" class="dropdown-content hidden absolute bg-white border border-gray-300 rounded-md shadow-lg z-10" style="min-width: 120px;">
+                                    <a href="${pmdaLinkUrl}" target="_blank" class="block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap">医薬品情報</a>
+                                    <a href="${yjCodeLinkUrl}" target="_blank" class="block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap">代替薬検索</a>
+                                    <a href="${hiyariLinkUrl}" target="_blank" class="block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap">ヒヤリハット検索</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    drugNameCell.innerHTML = dropdownHtml;
+                }
                 
                 const ingredientNameCell = newRow.insertCell(1);
                 ingredientNameCell.setAttribute('data-label', '成分名');
@@ -380,20 +407,10 @@
                 
                 const statusCell = newRow.insertCell(2);
                 statusCell.setAttribute('data-label', '出荷状況');
-                statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left"); 
-                
+                statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left");
+
                 const statusValue = (item.shipmentStatus || '').trim();
-                const statusButtonHtml = renderStatusButton(statusValue);
-                
-                const drugNameForHiyari = encodeURIComponent(drugName || "");
-                const hiyariLink = `<a href="./hiyari_app/index.html?drugName=${drugNameForHiyari}" target="_blank" class="text-blue-500 hover:text-blue-700 mr-1 text-lg">🔵</a>`;
-                
-                if (yjCode) {
-                    const yjCodeLinkUrl = `./yjcode.html?yjcode=${yjCode}`;
-                    statusCell.innerHTML = `<div class="flex items-center justify-start">${hiyariLink}<a href="${yjCodeLinkUrl}" target="_blank" class="text-indigo-600 hover:no-underline">${statusButtonHtml}</a></div>`;
-                } else {
-                    statusCell.innerHTML = `<div class="flex items-center justify-start">${hiyariLink}${statusButtonHtml}</div>`;
-                }
+                statusCell.innerHTML = renderStatusButton(statusValue);
                 
                 const reasonCell = newRow.insertCell(3);
                 reasonCell.textContent = item.reasonForLimitation || "";
@@ -404,6 +421,22 @@
                 volumeCell.textContent = item.shipmentVolumeStatus || "";
                 volumeCell.setAttribute('data-label', '出荷量状況');
                 volumeCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
+            });
+        }
+
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            const content = event.currentTarget.nextElementSibling;
+            const isAlreadyOpen = !content.classList.contains('hidden');
+            closeAllDropdowns();
+            if (!isAlreadyOpen) {
+                content.classList.remove('hidden');
+            }
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                dropdown.classList.add('hidden');
             });
         }
         
@@ -465,6 +498,7 @@
 
         window.onload = function() {
             attachSearchListeners();
+            window.addEventListener('click', closeAllDropdowns);
 
             const fileId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
             const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
