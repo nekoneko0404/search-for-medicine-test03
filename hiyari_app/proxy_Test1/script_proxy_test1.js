@@ -227,7 +227,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Fetching incidents failed:', error);
-            incidentList.innerHTML = `<p>事例の読み込みに失敗しました。<br>${error.message}</p>`;
+            incidentList.innerHTML = ''; // Clear previous content
+            const p = document.createElement('p');
+            p.textContent = `事例の読み込みに失敗しました. ${error.message}`;
+            incidentList.appendChild(p);
             allIncidents = [];
         } finally {
             loadingIndicator.style.display = 'none'; // ローディングインジケーターを非表示

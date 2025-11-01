@@ -61,7 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const reports = xmlDoc.querySelectorAll('PHARMACY_REPORT');
             if (reports.length === 0) {
-                incidentList.innerHTML = '<p>関連する事例は見つかりませんでした。</p>';
+                incidentList.innerHTML = ''; // Clear previous content
+                const p = document.createElement('p');
+                p.textContent = '関連する事例は見つかりませんでした。';
+                incidentList.appendChild(p);
                 allIncidents = [];
                 return;
             }
@@ -226,7 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Fetching incidents failed:', error);
-            incidentList.innerHTML = `<p>事例の読み込みに失敗しました。<br>${error.message}</p>`;
+            incidentList.innerHTML = ''; // Clear previous content
+            const p = document.createElement('p');
+            p.textContent = `事例の読み込みに失敗しました. ${error.message}`;
+            incidentList.appendChild(p);
             allIncidents = [];
         } finally {
             loadingIndicator.style.display = 'none'; // ローディングインジケーターを非表示
@@ -304,7 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayIncidents(incidents) {
         incidentList.innerHTML = '';
         if (incidents.length === 0) {
-            incidentList.innerHTML = '<p>関連する事例は見つかりませんでした。</p>';
+            const p = document.createElement('p');
+            p.textContent = '関連する事例は見つかりませんでした。';
+            incidentList.appendChild(p);
             return;
         }
 
@@ -318,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
             p.appendChild(strong);
             p.appendChild(document.createElement('br'));
             
-            const lines = contentText.replace(/\n/g, '<br>').split('<br>');
+            const lines = contentText.split('<br>');
             lines.forEach((line, index) => {
                 p.appendChild(document.createTextNode(line));
                 if (index < lines.length - 1) {
