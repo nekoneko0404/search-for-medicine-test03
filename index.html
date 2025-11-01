@@ -191,17 +191,23 @@
 
         function renderStatusButton(status) {
             const trimmedStatus = (status || "").trim();
-            let baseClass = "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block transition-colors duration-150";
-            
+            const span = document.createElement('span');
+            span.className = "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block transition-colors duration-150";
+
             if (trimmedStatus.includes("通常出荷") || trimmedStatus.includes("通")) {
-                return `<span class="${baseClass} bg-indigo-500 text-white hover:bg-indigo-600">通常出荷</span>`; 
+                span.classList.add('bg-indigo-500', 'text-white', 'hover:bg-indigo-600');
+                span.textContent = '通常出荷';
             } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
-                return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">限定出荷</span>`;
+                span.classList.add('bg-yellow-400', 'text-gray-800', 'hover:bg-yellow-500');
+                span.textContent = '限定出荷';
             } else if (trimmedStatus.includes("供給停止") || trimmedStatus.includes("停止") || trimmedStatus.includes("停")) {
-                return `<span class="${baseClass} bg-gray-700 text-white hover:bg-gray-800">供給停止</span>`;
+                span.classList.add('bg-gray-700', 'text-white', 'hover:bg-gray-800');
+                span.textContent = '供給停止';
             } else {
-                return `<span class="${baseClass} bg-gray-200 text-gray-800 hover:bg-gray-300">${trimmedStatus || "不明"}</span>`; 
+                span.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                span.textContent = trimmedStatus || "不明";
             }
+            return span;
         }
 
         function searchData() {
@@ -354,53 +360,84 @@
                 drugNameCell.setAttribute('data-label', '品名');
                 drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "relative");
 
-                let labelsHtml = '';
+                const labelsContainer = document.createElement('div');
+                labelsContainer.className = 'vertical-labels-container';
+                
                 const hColumnValue = (item.isGeneric || '').trim();
                 const iColumnValue = (item.isBasicDrug || '').trim();
 
-                const labels = [];
                 if (hColumnValue === '後発品') {
-                    labels.push(`<span class="bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">後</span>`);
+                    const span = document.createElement('span');
+                    span.className = "bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap";
+                    span.textContent = '後';
+                    labelsContainer.appendChild(span);
                 }
                 if (iColumnValue === '基礎的医薬品') {
-                    labels.push(`<span class="bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">基</span>`);
+                    const span = document.createElement('span');
+                    span.className = "bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap";
+                    span.textContent = '基';
+                    labelsContainer.appendChild(span);
                 }
                 
-                if (labels.length > 0) {
-                    labelsHtml = `<div class="vertical-labels-container">${labels.join('')}</div>`;
+                const drugName = item.productName || "";
+                const drugNameForHiyari = encodeURIComponent(drugName);
+
+                const flexContainer = document.createElement('div');
+                flexContainer.className = 'flex items-start';
+                if (labelsContainer.hasChildNodes()) {
+                    flexContainer.appendChild(labelsContainer);
                 }
 
-                const drugName = item.productName;
-                const drugNameForHiyari = encodeURIComponent(drugName || "");
-
                 if (!item.yjCode) {
-                    drugNameCell.innerHTML = `<div class="flex items-start">${labelsHtml}<span class="font-semibold truncate-lines">${drugName || ""}</span></div>`;
+                    const span = document.createElement('span');
+                    span.className = "font-semibold truncate-lines";
+                    span.textContent = drugName;
+                    flexContainer.appendChild(span);
+                    drugNameCell.appendChild(flexContainer);
                 } else {
                     const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${item.yjCode}?user=1`;
                     const yjCodeLinkUrl = `./yjcode.html?yjcode=${item.yjCode}`;
                     const hiyariLinkUrl = `./hiyari_app/index.html?drugName=${drugNameForHiyari}`;
                     const dropdownContentId = `dropdown-content-${index}`;
 
-                    const dropdownButtonHtml = `
-                        <button onclick="toggleDropdown(event)" class="dropdown-button text-indigo-600 font-semibold hover:underline truncate-lines text-left w-full">
-                            ${drugName || ""}
-                        </button>
-                    `;
+                    const dropdownContainer = document.createElement('div');
+                    dropdownContainer.className = 'dropdown w-full';
 
-                    const dropdownHtml = `
-                        <div class="flex items-start">
-                            ${labelsHtml}
-                            <div class="dropdown w-full">
-                                ${dropdownButtonHtml}
-                                <div id="${dropdownContentId}" class="dropdown-content hidden absolute bg-white border border-gray-300 rounded-md shadow-lg z-10" style="min-width: 120px;">
-                                    <a href="${pmdaLinkUrl}" target="_blank" class="block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap">医薬品情報</a>
-                                    <a href="${yjCodeLinkUrl}" target="_blank" class="block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap">代替薬検索</a>
-                                    <a href="${hiyariLinkUrl}" target="_blank" class="block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap">ヒヤリハット検索</a>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    drugNameCell.innerHTML = dropdownHtml;
+                    const button = document.createElement('button');
+                    button.className = "dropdown-button text-indigo-600 font-semibold hover:underline truncate-lines text-left w-full";
+                    button.textContent = drugName;
+                    button.onclick = toggleDropdown;
+
+                    const dropdownContent = document.createElement('div');
+                    dropdownContent.id = dropdownContentId;
+                    dropdownContent.className = "dropdown-content hidden absolute bg-white border border-gray-300 rounded-md shadow-lg z-10";
+                    dropdownContent.style.minWidth = '120px';
+
+                    const pmdaLink = document.createElement('a');
+                    pmdaLink.href = pmdaLinkUrl;
+                    pmdaLink.target = '_blank';
+                    pmdaLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
+                    pmdaLink.textContent = '医薬品情報';
+
+                    const yjCodeLink = document.createElement('a');
+                    yjCodeLink.href = yjCodeLinkUrl;
+                    yjCodeLink.target = '_blank';
+                    yjCodeLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
+                    yjCodeLink.textContent = '代替薬検索';
+
+                    const hiyariLink = document.createElement('a');
+hiyariLink.href = hiyariLinkUrl;
+                    hiyariLink.target = '_blank';
+                    hiyariLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
+                    hiyariLink.textContent = 'ヒヤリハット検索';
+
+                    dropdownContent.appendChild(pmdaLink);
+                    dropdownContent.appendChild(yjCodeLink);
+                    dropdownContent.appendChild(hiyariLink);
+                    dropdownContainer.appendChild(button);
+                    dropdownContainer.appendChild(dropdownContent);
+                    flexContainer.appendChild(dropdownContainer);
+                    drugNameCell.appendChild(flexContainer);
                 }
                 
                 const ingredientNameCell = newRow.insertCell(1);
@@ -409,7 +446,15 @@
                 const ingredientName = item.ingredientName || "";
                 
                 if (ingredientName) {
-                    ingredientNameCell.innerHTML = `<a href="#" onclick="handleIngredientClick('${ingredientName.replace(/'/g, "\'")}')" class="text-indigo-600 font-semibold hover:underline">${ingredientName}</a>`;
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.className = 'text-indigo-600 font-semibold hover:underline';
+                    link.textContent = ingredientName;
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        handleIngredientClick(ingredientName);
+                    });
+                    ingredientNameCell.appendChild(link);
                 } else {
                     ingredientNameCell.textContent = ingredientName;
                 }
@@ -419,7 +464,7 @@
                 statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left");
 
                 const statusValue = (item.shipmentStatus || '').trim();
-                statusCell.innerHTML = renderStatusButton(statusValue);
+                statusCell.appendChild(renderStatusButton(statusValue));
                 
                 const reasonCell = newRow.insertCell(3);
                 reasonCell.textContent = item.reasonForLimitation || "";

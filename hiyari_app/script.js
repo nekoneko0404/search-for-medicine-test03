@@ -64,7 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const reports = xmlDoc.querySelectorAll('PHARMACY_REPORT');
             if (reports.length === 0) {
-                incidentList.innerHTML = '<p>関連する事例は見つかりませんでした。</p>';
+                const p = document.createElement('p');
+                p.textContent = '関連する事例は見つかりませんでした。';
+                incidentList.appendChild(p);
                 allIncidents = [];
                 return;
             }
@@ -74,7 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Fetching incidents failed:', error);
-            incidentList.innerHTML = `<p>事例の読み込みに失敗しました.<br>${error.message}</p>`;
+            incidentList.innerHTML = ''; // Clear previous content
+            const p = document.createElement('p');
+            p.textContent = `事例の読み込みに失敗しました. ${error.message}`;
+            incidentList.appendChild(p);
             allIncidents = [];
         } finally {
             loadingIndicator.style.display = 'none';
@@ -115,25 +120,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayIncidents(incidents) {
         if (incidents.length === 0 && currentlyDisplayedCount === 0) {
-            incidentList.innerHTML = '<p>関連する事例は見つかりませんでした。</p>';
+            const p = document.createElement('p');
+            p.textContent = '関連する事例は見つかりませんでした。';
+            incidentList.appendChild(p);
             return;
         }
         incidents.forEach(incident => {
             const card = document.createElement('div');
             card.className = 'bg-white rounded-xl shadow-lg border border-slate-200 p-4 transition-transform duration-200 hover:scale-[1.02]';
-            card.innerHTML = `
-                <h2 class="text-lg font-bold text-indigo-700 border-b-2 border-slate-200 pb-2 mb-3">${incident.summary}</h2>
-                <p class="text-sm text-gray-500 text-right mb-3">発生年月: ${incident.year}年${incident.month}</p>
-                <p class="text-sm text-gray-700 leading-relaxed mb-2"><strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">事例の詳細:</strong><br>${incident.content.replace(/\n/g, '<br>') || '記載なし'}</p>
-                ${incident.summary.includes('疑義照会') ? 
-                    `${(incident.estimatedText !== '記載なし' && incident.estimatedText !== 'N/A') ? `<p class="text-sm text-gray-700 leading-relaxed mb-2"><strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">推定される要因:</strong><br>${incident.estimatedText.replace(/\n/g, '<br>') || '記載なし'}</p>` : ''}
-                     ${(incident.effortText !== '記載なし' && incident.effortText !== 'N/A') ? `<p class="text-sm text-gray-700 leading-relaxed mb-2"><strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">薬局での取り組み:</strong><br>${incident.effortText.replace(/\n/g, '<br>') || '記載なし'}</p>` : ''}` : 
-                    `${(incident.factor !== '記載なし' && incident.factor !== 'N/A') ? `<p class="text-sm text-gray-700 leading-relaxed mb-2"><strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">背景・要因:</strong><br>${incident.factor.replace(/\n/g, '<br>') || '記載なし'}</p>` : ''}
-                     ${(incident.factors !== '記載なし' && incident.factors !== 'N/A') ? `<p class="text-sm text-gray-700 leading-relaxed mb-2"><strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">発生要因:</strong><br>${incident.factors.replace(/\n/g, '<br>') || '記載なし'}</p>` : ''}
-                     ${(incident.factorDoubts !== '記載なし' && incident.factorDoubts !== 'N/A') ? `<p class="text-sm text-gray-700 leading-relaxed mb-2"><strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">発生要因(疑義照会):</strong><br>${incident.factorDoubts.replace(/\n/g, '<br>') || '記載なし'}</p>` : ''}
-                     ${(incident.improvement !== '記載なし' && incident.improvement !== 'N/A') ? `<p class="text-sm text-gray-700 leading-relaxed mb-2"><strong class="font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block">改善策:</strong><br>${incident.improvement.replace(/\n/g, '<br>') || '記載なし'}</p>` : ''}`
-                }
-            `;
+
+            const createParagraph = (strongText, contentText) => {
+                if (!contentText || contentText === '記載なし' || contentText === 'N/A') return null;
+                const p = document.createElement('p');
+                p.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+                const strong = document.createElement('strong');
+                strong.className = 'font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block';
+                strong.textContent = strongText;
+                p.appendChild(strong);
+                p.appendChild(document.createElement('br'));
+                const lines = contentText.split('<br>');
+                lines.forEach((line, index) => {
+                    p.appendChild(document.createTextNode(line));
+                    if (index < lines.length - 1) {
+                        p.appendChild(document.createElement('br'));
+                    }
+                });
+                return p;
+            };
+
+            const title = document.createElement('h2');
+            title.className = 'text-lg font-bold text-indigo-700 border-b-2 border-slate-200 pb-2 mb-3';
+            title.textContent = incident.summary;
+            card.appendChild(title);
+
+            const date = document.createElement('p');
+            date.className = 'text-sm text-gray-500 text-right mb-3';
+            date.textContent = `発生年月: ${incident.year}年${incident.month}`;
+            card.appendChild(date);
+
+            const contentP = createParagraph('事例の詳細:', incident.content);
+            if (contentP) card.appendChild(contentP);
+
+            if (incident.summary.includes('疑義照会')) {
+                const estimatedTextP = createParagraph('推定される要因:', incident.estimatedText);
+                if (estimatedTextP) card.appendChild(estimatedTextP);
+                const effortTextP = createParagraph('薬局での取り組み:', incident.effortText);
+                if (effortTextP) card.appendChild(effortTextP);
+            } else {
+                const factorP = createParagraph('背景・要因:', incident.factor);
+                if (factorP) card.appendChild(factorP);
+                const factorsP = createParagraph('発生要因:', incident.factors);
+                if (factorsP) card.appendChild(factorsP);
+                const factorDoubtsP = createParagraph('発生要因(疑義照会):', incident.factorDoubts);
+                if (factorDoubtsP) card.appendChild(factorDoubtsP);
+                const improvementP = createParagraph('改善策:', incident.improvement);
+                if (improvementP) card.appendChild(improvementP);
+            }
             incidentList.appendChild(card);
         });
     }
