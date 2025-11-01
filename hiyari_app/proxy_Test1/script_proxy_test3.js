@@ -62,7 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const reports = xmlDoc.querySelectorAll('PHARMACY_REPORT');
             if (reports.length === 0) {
-                incidentList.innerHTML = '<p>関連する事例は見つかりませんでした。</p>';
+                incidentList.innerHTML = ''; // Clear previous content
+                const p = document.createElement('p');
+                p.textContent = '関連する事例は見つかりませんでした。';
+                incidentList.appendChild(p);
                 allIncidents = [];
                 return;
             }
@@ -227,7 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Fetching incidents failed:', error);
-            incidentList.innerHTML = `<p>事例の読み込みに失敗しました。<br>${error.message}</p>`;
+            incidentList.innerHTML = ''; // Clear previous content
+            const p = document.createElement('p');
+            p.textContent = `事例の読み込みに失敗しました. ${error.message}`;
+            incidentList.appendChild(p);
             allIncidents = [];
         } finally {
             loadingIndicator.style.display = 'none'; // ローディングインジケーターを非表示
@@ -305,9 +311,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayIncidents(incidents) {
         incidentList.innerHTML = '';
         if (incidents.length === 0) {
-            incidentList.innerHTML = '<p>関連する事例は見つかりませんでした。</p>';
+            const p = document.createElement('p');
+            p.textContent = '関連する事例は見つかりませんでした。';
+            incidentList.appendChild(p);
             return;
         }
+
+        const createParagraph = (strongText, contentText) => {
+            if (!contentText || contentText === '記載なし' || contentText === 'N/A') {
+                return null;
+            }
+            const p = document.createElement('p');
+            const strong = document.createElement('strong');
+            strong.textContent = strongText;
+            p.appendChild(strong);
+            p.appendChild(document.createElement('br'));
+            
+            const lines = contentText.split('<br>');
+            lines.forEach((line, index) => {
+                p.appendChild(document.createTextNode(line));
+                if (index < lines.length - 1) {
+                    p.appendChild(document.createElement('br'));
+                }
+            });
+            return p;
+        };
+
         incidents.forEach(incident => {
             const card = document.createElement('div');
             card.className = 'incident-card';
@@ -319,52 +348,31 @@ document.addEventListener('DOMContentLoaded', () => {
             date.className = 'incident-date';
             date.textContent = `発生年月: ${incident.year}年${incident.month}`;
 
-            const content = document.createElement('p');
-            content.innerHTML = `<strong>事例の詳細:</strong><br>${incident.content.replace(/\n/g, '<br>') || '記載なし'}`;
-            
-            const factor = document.createElement('p');
-            factor.innerHTML = `<strong>背景・要因:</strong><br>${incident.factor.replace(/\n/g, '<br>') || '記載なし'}`;
-            
-            const factors = document.createElement('p');
-            factors.innerHTML = `<strong>発生要因:</strong><br>${incident.factors.replace(/\n/g, '<br>') || '記載なし'}`;
-
-            const factorDoubts = document.createElement('p');
-            factorDoubts.innerHTML = `<strong>発生要因(疑義照会):</strong><br>${incident.factorDoubts.replace(/\n/g, '<br>') || '記載なし'}`;
-            
-            const improvement = document.createElement('p');
-            improvement.innerHTML = `<strong>改善策:</strong><br>${incident.improvement.replace(/\n/g, '<br>') || '記載なし'}`;
-
-            const estimatedText = document.createElement('p');
-            estimatedText.innerHTML = `<strong>推定される要因:</strong><br>${incident.estimatedText.replace(/\n/g, '<br>') || '記載なし'}`;
-
-            const effortText = document.createElement('p');
-            effortText.innerHTML = `<strong>薬局での取り組み:</strong><br>${incident.effortText.replace(/\n/g, '<br>') || '記載なし'}`;
-
             card.appendChild(title);
             card.appendChild(date);
-            card.appendChild(content);
+
+            const content = createParagraph('事例の詳細:', incident.content);
+            if (content) card.appendChild(content);
 
             // DATSUMMARYの値に応じて表示を切り替える
             if (incident.summary.includes('疑義照会')) {
-                if (incident.estimatedText !== '記載なし' && incident.estimatedText !== 'N/A') {
-                    card.appendChild(estimatedText);
-                }
-                if (incident.effortText !== '記載なし' && incident.effortText !== 'N/A') {
-                    card.appendChild(effortText);
-                }
+                const estimatedText = createParagraph('推定される要因:', incident.estimatedText);
+                if (estimatedText) card.appendChild(estimatedText);
+
+                const effortText = createParagraph('薬局での取り組み:', incident.effortText);
+                if (effortText) card.appendChild(effortText);
             } else {
-                if (incident.factor !== '記載なし' && incident.factor !== 'N/A') {
-                    card.appendChild(factor);
-                }
-                if (incident.factors !== '記載なし' && incident.factors !== 'N/A') {
-                    card.appendChild(factors);
-                }
-                if (incident.factorDoubts !== '記載なし' && incident.factorDoubts !== 'N/A') {
-                    card.appendChild(factorDoubts);
-                }
-                if (incident.improvement !== '記載なし' && incident.improvement !== 'N/A') {
-                    card.appendChild(improvement);
-                }
+                const factor = createParagraph('背景・要因:', incident.factor);
+                if (factor) card.appendChild(factor);
+
+                const factors = createParagraph('発生要因:', incident.factors);
+                if (factors) card.appendChild(factors);
+
+                const factorDoubts = createParagraph('発生要因(疑義照会):', incident.factorDoubts);
+                if (factorDoubts) card.appendChild(factorDoubts);
+                
+                const improvement = createParagraph('改善策:', incident.improvement);
+                if (improvement) card.appendChild(improvement);
             }
 
             incidentList.appendChild(card);
