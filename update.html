@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>【Kusuri Compass】情報更新日検索</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
+    <script src="https://unpkg.com/@e965/xlsx@0.20.3/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
     <link rel="stylesheet" href="unify.css">
@@ -38,7 +38,6 @@
         </div>
 
         <div class="flex flex-col lg:flex-row gap-4 mb-6">
-            <!-- 出荷状況フィルター -->
             <div class="bg-white p-4 rounded-lg shadow-md flex-grow">
                 <h3 class="font-semibold text-gray-700 mb-2 text-base">出荷状況:</h3>
                 <div id="status-filters" class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
@@ -172,7 +171,6 @@
             const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
             try {
-                loadingIndicator.classList.remove('hidden');
                 const response = await fetch(googleDriveUrl, { cache: "no-cache" });
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -226,8 +224,6 @@
                 console.error(`データ取得エラー: ${error}`);
                 showMessage(`データの取得に失敗しました。詳細: ${error.message}`, true);
                 return [];
-            } finally {
-                 loadingIndicator.classList.add('hidden');
             }
         }
         
@@ -436,6 +432,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadingIndicator.classList.remove('hidden');
             localforage.getItem('excelCache').then(async (cachedData) => {
                 let sourceData;
                 if (cachedData) {
@@ -474,34 +471,9 @@
                     document.querySelector('#date-filters input[data-days="3"]').checked = true;
                     performSearch();
                 }
+            }).finally(() => {
+                loadingIndicator.style.display = 'none';
             });
-
-            const searchInput = document.getElementById('searchInput');
-            const searchButton = document.getElementById('searchButton');
-            
-            searchButton.addEventListener('click', performSearch);
-            searchInput.addEventListener('compositionend', performSearch);
-            searchInput.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') performSearch();
-            });
-
-            document.querySelectorAll('#status-filters input').forEach(cb => {
-                cb.addEventListener('change', performSearch);
-            });
-            
-            const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
-            dateFilters.forEach(checkbox => {
-                checkbox.addEventListener('change', (e) => {
-                    if (e.target.checked) {
-                        dateFilters.forEach(other => { if (other !== e.target) other.checked = false; });
-                    }
-                    if (!Array.from(dateFilters).some(cb => cb.checked)) {
-                        document.querySelector('#date-filters input[data-days="all"]').checked = true;
-                    }
-                    performSearch();
-                });
-            });
-        });
     </script>
 </body>
 </html>

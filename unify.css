@@ -32,78 +32,7 @@ body {
 .table-container {
 
 }
-/* PC画面向けレイアウト */
-.search-form-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4つの列を均等に設定 */
-    gap: 1.5rem; /* 隙間 */
-    align-items: end; /* 縦方向の配置を下に揃える */
-}
-/* 出荷状況のセルスタイル (左揃えを維持) */
-.tight-cell {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    line-height: 1.2;
-    font-size: 0.75rem; /* text-xs相当 */
-}
 
-/* 品名ラベルの縦並びとスペース調整用のスタイル */
-.vertical-labels-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 0.25rem;
-    gap: 1px;
-}
-
-/* 【修正済み】出荷状況チェックボックスの表示制御 */
-.status-checkbox-group {
-    display: flex;
-    flex-wrap: wrap; /* 狭い画面では折り返す */
-    gap: 0.5rem; /* チェックボックス間の隙間 */
-    width: 100%;
-}
-
-/* 狭い画面（デフォルト）での2段組みレイアウト */
-.status-checkbox-group .checkbox-item {
-    /* 100% / 2 - gap/2 で計算。padding/marginを考慮して48%程度に設定 */
-    width: calc(50% - 0.25rem); /* 2つ並んで折り返すように調整 */
-    flex-shrink: 0;
-    white-space: nowrap;
-}
-
-/* 広い画面 (768px以上) では1行に3つ横並びを強制 */
-@media (min-width: 768px) {
-    .status-checkbox-group {
-        flex-wrap: nowrap; /* 強制的に折り返しを禁止 */
-        justify-content: space-between; /* 均等な間隔で配置 */
-        gap: 0.75rem; /* 広い画面での隙間 */
-    }
-    .status-checkbox-group .checkbox-item {
-         /* 広い画面では幅を固定せずにflex-shrink: 0で制御 */
-        width: auto;
-        margin-right: 0.5rem;
-    }
-    .status-checkbox-group .checkbox-item:last-child {
-        margin-right: 0;
-    }
-}
-
-/* 狭い画面向けレイアウト（mdサイズ以下）の修正 */
-@media (max-width: 767px) {
-    .search-form-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2つの列に分割 */
-        gap: 1rem; /* 隙間を狭くする */
-    }
-    .search-form-grid .full-width-on-mobile {
-        grid-column: span 2; /* 狭い画面では2列にまたがる */
-    }
-    /* チェックボックスコンテナを狭い画面では2列目に配置（flex-startに調整）*/
-    .search-form-grid .status-checkbox-container {
-        grid-column: 2 / span 1; /* 2列目の位置に配置 */
-        justify-self: start; /* 左寄せ */
-    }
-}
 
 /* スマートフォン向けにテーブルのレイアウトを調整 (変更なし) */
 @media (max-width: 640px) {

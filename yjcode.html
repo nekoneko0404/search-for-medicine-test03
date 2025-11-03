@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>【Kusuri Compass】YJコード検索</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
+    <script src="https://unpkg.com/@e965/xlsx@0.20.3/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
     <link rel="stylesheet" href="unify.css">
@@ -21,7 +21,7 @@
 </head>
 <body class="bg-gray-200 p-2 sm:p-4 flex flex-col items-center min-h-screen">
 
-    <div class="page-wrapper">
+    <div class="page-wrapper w-full">
         <div class="page-header flex flex-col md:flex-row md:items-center md:justify-between">
             <div class="flex items-center justify-between md:space-x-4">
                 <h2 class="page-title flex items-center space-x-2">
@@ -39,10 +39,10 @@
 
         </div>
         
-        <div class="search-form-grid flex flex-col lg:flex-row gap-4 mb-6">
-            <div class="input-container lg:flex lg:items-center lg:gap-2">
-                <label class="block text-gray-700 text-sm font-medium mb-1 lg:mb-0">検索項目:</label>
-                <div class="flex flex-wrap lg:flex-nowrap gap-x-4 gap-y-1 text-sm bg-slate-50 p-2 rounded-xl shadow-inner border border-slate-200">
+        <div class="search-form-grid flex flex-wrap gap-4 mb-6">
+            <div class="input-container flex items-center gap-2">
+                <label class="w-20 text-gray-700 text-sm font-medium">検索項目:</label>
+                <div class="flex-1 flex flex-wrap lg:flex-nowrap gap-x-4 gap-y-1 text-sm bg-slate-50 p-2 rounded-xl shadow-inner border border-slate-200">
                     <label class="flex items-center">
                         <input type="checkbox" id="digits3" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" checked>
                         <span class="ml-1 text-slate-700 text-xs">薬効群3桁</span>
@@ -69,9 +69,9 @@
                     </label>
                 </div>
             </div>
-            <div class="input-container lg:flex lg:items-center lg:gap-2">
-                <div class="block text-gray-700 text-sm font-medium mb-1 lg:mb-0">出荷状況:</div>
-                <div class="flex flex-wrap lg:flex-nowrap gap-x-4 gap-y-1 text-sm bg-slate-50 p-2 rounded-xl shadow-inner border border-slate-200">
+            <div class="input-container flex items-center gap-2">
+                <div class="w-20 text-gray-700 text-sm font-medium">出荷状況:</div>
+                <div class="flex-1 flex flex-wrap lg:flex-nowrap gap-x-4 gap-y-1 text-sm bg-slate-50 p-2 rounded-xl shadow-inner border border-slate-200">
                     <div class="checkbox-item flex items-center">
                         <input type="checkbox" id="statusNormal" value="通常出荷" checked class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out">
                         <label for="statusNormal" class="ml-1 text-xs text-gray-900">通常出荷</label>
@@ -86,8 +86,6 @@
                     </div>
                 </div>
             </div>
-            <span id="dataDate" class="text-gray-500 text-xs whitespace-nowrap flex items-end justify-end"></span>
-        </div>
 
         <div id="messageBox" class="mt-4 p-4 rounded-xl text-sm hidden" role="alert"></div>
     </div>
@@ -595,7 +593,7 @@ hr.className = 'my-2 border-gray-200';
                 showMessage('データの読み込みに失敗しました。ページを再読み込みしてください。');
             }
             
-            loadingIndicator.classList.add('hidden');
+            loadingIndicator.style.display = 'none';
         }
 
         document.getElementById('searchButton').addEventListener('click', performSearch);
