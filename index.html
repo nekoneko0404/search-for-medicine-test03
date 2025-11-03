@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>【Kusuri Compass】医薬品出荷状況検索</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
+    <script src="https://unpkg.com/@e965/xlsx@0.20.3/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
     <link rel="stylesheet" href="unify.css">
@@ -28,11 +28,11 @@
                 <span class="sm:hidden">医薬品 出荷状況</span>
             </h2>
             <div class="flex items-center space-x-2">
-                <a href="./update.html" target="_blank" class="bg-blue-500 text-white hover:bg-blue-600 transition duration-150 ease-in-out py-1 px-3 rounded-md shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
+                <a href="./update.html" target="_blank" rel="noopener noreferrer" class="bg-indigo-500 text-white hover:bg-indigo-600 transition duration-150 ease-in-out py-1 px-3 rounded shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
                     <span class="sm:hidden">更新日</span>
                     <span class="hidden sm:inline">情報更新日検索</span>
                 </a>
-                <a href="./readme.html" target="_blank" class="bg-indigo-500 text-white hover:bg-indigo-600 transition duration-150 ease-in-out py-1 px-3 rounded-md shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
+                <a href="./readme.html" target="_blank" rel="noopener noreferrer" class="bg-indigo-500 text-white hover:bg-indigo-600 transition duration-150 ease-in-out py-1 px-3 rounded-md shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
                     使い方
                 </a>
             </div>
@@ -40,7 +40,7 @@
         
         <div id="messageBox" class="text-sm sm:text-base text-center p-3 rounded-lg hidden message-box-center w-3/4"></div>
         
-        <div class="search-form-grid mb-6">
+        <div class="search-form-grid flex flex-wrap gap-4 mb-6">
             <div class="input-container">
                 <label for="drugName" class="block text-gray-700 text-sm font-medium mb-1">医薬品名:</label>
                 <input type="text" id="drugName" placeholder="例: ロキソニン" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
@@ -56,7 +56,7 @@
             
             <div class="status-checkbox-container flex flex-col justify-between">
                 <div class="block text-gray-700 text-sm font-medium mb-1">出荷状況:</div>
-                <div class="status-checkbox-group pb-2">
+                <div class="status-checkbox-group flex flex-wrap gap-x-4 pb-2">
                     <div class="checkbox-item flex items-center">
                         <input type="checkbox" id="statusNormal" value="通常出荷" checked class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out">
                         <label for="statusNormal" class="ml-1 text-xs text-gray-900">通常出荷</label>
@@ -98,7 +98,7 @@
         
         <div class="mt-8 text-center text-gray-500 text-sm">
             <p>ご意見・ご要望は製作者までお寄せください。</p>
-            <p>ツイッター: <a href="https://x.com/oshigoto_twitte" target="_blank" class="text-indigo-500 hover:underline">@oshigoto_twitte</a></p>
+            <p>ツイッター: <a href="https://x.com/oshigoto_twitte" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline">@oshigoto_twitte</a></p>
         </div>
     </div>
 
@@ -334,7 +334,7 @@
             }
 
             const url = `${hiyariBaseUrl}?${type}=${encodeURIComponent(finalName)}`;
-            window.open(url, '_blank');
+            window.open(url, '_blank', 'noopener,noreferrer');
         }
 
         function renderTable(data) {
@@ -416,18 +416,21 @@
                     const pmdaLink = document.createElement('a');
                     pmdaLink.href = pmdaLinkUrl;
                     pmdaLink.target = '_blank';
+                    pmdaLink.rel = 'noopener noreferrer';
                     pmdaLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
                     pmdaLink.textContent = '医薬品情報';
 
                     const yjCodeLink = document.createElement('a');
                     yjCodeLink.href = yjCodeLinkUrl;
                     yjCodeLink.target = '_blank';
+                    yjCodeLink.rel = 'noopener noreferrer';
                     yjCodeLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
                     yjCodeLink.textContent = '代替薬検索';
 
                     const hiyariLink = document.createElement('a');
 hiyariLink.href = hiyariLinkUrl;
                     hiyariLink.target = '_blank';
+                    hiyariLink.rel = 'noopener noreferrer';
                     hiyariLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
                     hiyariLink.textContent = 'ヒヤリハット検索';
 
