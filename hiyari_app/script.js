@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const date = document.createElement('p');
             date.className = 'text-sm text-gray-500 text-right mb-3';
-            date.textContent = `発生年月: ${incident.year}年${incident.month}`;
+            date.textContent = `発生年月: ${incident.year}年${incident.month}`
             card.appendChild(date);
 
             const contentP = createParagraph('事例の詳細:', incident.content);
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 displayValue = mappedValue;
                 if (text && text.trim() !== '' && mappedValue !== text.trim() && selector.includes('TEXT')) {
-                    displayValue = `${mappedValue} ${text.trim()}`;
+                    displayValue = `${mappedValue} ${text.trim()}`
                 }
                 if (displayValue) displayValues.push(displayValue);
             });

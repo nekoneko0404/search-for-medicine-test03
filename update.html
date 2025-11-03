@@ -266,7 +266,7 @@
             hideMessage(); 
             
             const rawSearchTerm = document.getElementById('searchInput').value.trim();
-            const searchTerms = rawSearchTerm.split(/[\s　]+/).map(normalizeString).filter(term => term.length > 0);
+            const searchTerms = rawSearchTerm.split(/[　 ]+/).map(normalizeString).filter(term => term.length > 0);
             
             const selectedStatuses = Array.from(document.querySelectorAll('#status-filters input:checked')).map(cb => cb.dataset.status);
             const selectedDays = document.querySelector('#date-filters input:checked')?.dataset.days || 'all';
@@ -338,7 +338,7 @@
             }
             
             const tableContainer = document.createElement('div');
-            tableContainer.className = 'table-container rounded-lg shadow-md border border-gray-200 hidden md:block';
+            tableContainer.className = 'shadow hidden md:block';
             const table = document.createElement('table');
             table.id = 'resultTable';
             table.className = 'min-w-full divide-y divide-gray-200 table-fixed';
@@ -474,6 +474,33 @@
             }).finally(() => {
                 loadingIndicator.style.display = 'none';
             });
+
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+            
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('compositionend', performSearch);
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') performSearch();
+            });
+
+            document.querySelectorAll('#status-filters input').forEach(cb => {
+                cb.addEventListener('change', performSearch);
+            });
+            
+            const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
+            dateFilters.forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        dateFilters.forEach(other => { if (other !== e.target) other.checked = false; });
+                    }
+                    if (!Array.from(dateFilters).some(cb => cb.checked)) {
+                        document.querySelector('#date-filters input[data-days="all"]').checked = true;
+                    }
+                    performSearch();
+                });
+            });
+        });
     </script>
 </body>
 </html>
