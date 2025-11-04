@@ -35,8 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
         queryParams.append('count', '100');
         queryParams.append('order', '2'); // 新しい順
 
-        const searchKeyword = searchKeywordInput.value.trim();
-        const filterWord = filterWordInput.value.trim();
+        const sanitizeInput = (input) => {
+            // 日本語、英数字、スペース、ハイフン、句読点の一部を許可
+            return input.replace(/[^ぁ-んァ-ヶー一-龯A-Za-z0-9\s\-,、.]/g, '').trim();
+        };
+
+        const searchKeyword = sanitizeInput(searchKeywordInput.value);
+        const filterWord = sanitizeInput(filterWordInput.value);
 
         if (searchKeyword && !filterWord) {
             queryParams.append('item', 'DATMEDNAME');
