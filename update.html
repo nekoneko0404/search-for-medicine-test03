@@ -9,7 +9,7 @@
         script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
         img-src 'self' data:;
-        connect-src 'self' https://docs.google.com https://hiyari-proxy-708146219355.asia-east1.run.app;
+        connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net ws://127.0.0.1:*;
     ">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16" integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/@e965/xlsx@0.20.3/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
@@ -74,6 +74,10 @@
     </div>
     
     <div id="resultsContainer" class="w-full max-w-7xl mt-8"></div>
+
+    <button id="reload-data" class="fixed bottom-4 right-4 bg-slate-700 text-white w-12 h-12 rounded-full shadow-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-opacity-50 transition-all duration-300 ease-in-out transform hover:scale-110 text-2xl flex items-center justify-center">
+        <span role="img" aria-label="データを再読み込み">🔄</span>
+    </button>
 
     <script>
         let data = [];
@@ -505,6 +509,27 @@
                         document.querySelector('#date-filters input[data-days="all"]').checked = true;
                     }
                     performSearch();
+                });
+            });
+
+            document.getElementById('reload-data').addEventListener('click', () => {
+                localforage.removeItem('excelCache').then(() => {
+                    showMessage('キャッシュをクリアしました。データを再読み込みします。', false);
+                    loadingIndicator.classList.remove('hidden');
+                    fetchAndProcessExcelData().then(sourceData => {
+                        if (sourceData && sourceData.length > 0) {
+                            data = sourceData.map(item => {
+                                item.updateDateObj = excelSerialDateToJSDate(item.updateDateSerial);
+                                return item;
+                            });
+                            performSearch();
+                        }
+                    }).finally(() => {
+                        loadingIndicator.style.display = 'none';
+                    });
+                }).catch(err => {
+                    console.error("Failed to clear cache", err);
+                    showMessage('キャッシュのクリアに失敗しました。', true);
                 });
             });
         });
