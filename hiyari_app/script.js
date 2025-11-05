@@ -37,7 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const sanitizeInput = (input) => {
             // 日本語、英数字、スペース、ハイフン、句読点の一部を許可
-            return input.replace(/[^ぁ-んァ-ヶー一-龯A-Za-z0-9\s\-,、.]/g, '').trim();
+            // 日本語、英数字、スペース、ハイフン、句読点、括弧などを許可
+            return input.replace(/[^ぁ-んァ-ヶー一-龯A-Za-z0-9\s\-,、.()（）]/g, '').trim();
         };
 
         const searchKeyword = sanitizeInput(searchKeywordInput.value);
