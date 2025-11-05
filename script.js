@@ -422,6 +422,8 @@ function formatDate(date) {
     return `${year}${month}${day}`;
 }
 
+let searchTimeout;
+
 function attachSearchListeners() {
     const inputIds = ['drugName', 'ingredientName', 'makerName'];
 
@@ -434,12 +436,14 @@ function attachSearchListeners() {
 
         element.addEventListener('compositionend', () => {
             isComposing = false;
-            searchData(); 
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(searchData, 300); // 300msのデバウンス
         });
 
         element.addEventListener('input', () => {
             if (!isComposing) {
-                searchData();
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(searchData, 300); // 300msのデバウンス
             }
         });
     });
@@ -459,9 +463,13 @@ window.onload = function() {
     async function fetchSpreadsheetData() {
         showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
         try {
+            console.log('Fetching data from:', googleDriveUrl);
             const response = await fetch(googleDriveUrl, { cache: "no-cache" });
+            console.log('Fetch response status:', response.status);
+            console.log('Fetch response ok:', response.ok);
             if (response.ok) {
                 const data = await response.arrayBuffer();
+                console.log('Data fetched successfully, size:', data.byteLength);
                 processExcelData(new Uint8Array(data));
 
                 if (excelData.length > 0) {
@@ -480,6 +488,8 @@ window.onload = function() {
                 tableContainer.classList.add('hidden');
                 hideMessage(3000);
             } else {
+                const errorText = await response.text();
+                console.error(`データの取得に失敗しました。ステータスコード: ${response.status}, レスポンス: ${errorText}`);
                 showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
             }
         } catch (error) {
