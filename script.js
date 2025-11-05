@@ -6,8 +6,13 @@
         const messageBox = document.getElementById('messageBox');
         const tableContainer = document.getElementById('tableContainer');
         let isComposing = false;
+        let messageHideTimer = null;
 
         function showMessage(text, type = 'info') {
+            if (messageHideTimer) {
+                clearTimeout(messageHideTimer);
+                messageHideTimer = null;
+            }
             messageBox.textContent = text;
             messageBox.classList.remove('hidden', 'bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800', 'bg-blue-200', 'text-blue-800');
             messageBox.classList.add('block');
@@ -20,7 +25,10 @@
             }
         }
         function hideMessage(delay) {
-            setTimeout(() => {
+            if (messageHideTimer) {
+                clearTimeout(messageHideTimer);
+            }
+            messageHideTimer = setTimeout(() => {
                 messageBox.classList.add('hidden');
             }, delay);
         }
@@ -489,7 +497,7 @@ hiyariLink.href = hiyariLinkUrl;
                         }
                         renderTable([]);
                         tableContainer.classList.add('hidden');
-                        hideMessage(3000);
+                        hideMessage(2000);
                     } else {
                         showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
                     }
