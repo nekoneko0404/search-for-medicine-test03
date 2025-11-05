@@ -84,7 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Fetching incidents failed:', error);
             incidentList.innerHTML = ''; // Clear previous content
             const p = document.createElement('p');
-            p.textContent = `事例の読み込みに失敗しました. ${error.message}`;
+            if (error.message.includes('検索結果が存在しません')) {
+                p.textContent = '検索結果が存在しません。メーカー名、規格、剤形などを削除、絞り込みのワードを変更して再検索してください。';
+            } else {
+                p.textContent = `事例の読み込みに失敗しました. ${error.message}`;
+            }
             incidentList.appendChild(p);
             allIncidents = [];
         } finally {
