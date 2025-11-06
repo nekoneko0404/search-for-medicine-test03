@@ -307,7 +307,7 @@
                 'standard': 3,
                 'isGeneric': 7,
                 'isBasicDrug': 8,
-                'updateDateSerial': 12
+                'updateDateSerial': 19
             };
 
             if (limitedResults.length === 0) {
