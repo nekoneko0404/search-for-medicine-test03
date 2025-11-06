@@ -121,7 +121,7 @@
                     'yjCode':               row[4],
                     'productCategory':      row[7],
                     'isBasicDrug':          row[8],
-                    'updateDateSerial':     numberRow[12] || row[12],
+                    'updateDateSerial':     numberRow[19] || row[19],
                     'updatedCells':         updatedCells // Add the parsed updated cells info
                 };
             });
