@@ -8,26 +8,38 @@
         const progressMessage = document.getElementById('progressMessage');
         const messageBox = document.getElementById('messageBox');
 
+        let messageHideTimer = null;
+
         let sortStates = {
             yjCode: 'asc',
             productName: 'asc',
             ingredientName: 'asc'
         };
         
-        function showMessage(message, isError = true) {
-            messageBox.textContent = message;
-            messageBox.classList.remove('hidden');
-            if (isError) {
-                messageBox.classList.remove('bg-green-100', 'text-green-700');
-                messageBox.classList.add('bg-red-100', 'text-red-700');
+        function showMessage(text, type = 'info') {
+            if (messageHideTimer) {
+                clearTimeout(messageHideTimer);
+                messageHideTimer = null;
+            }
+            messageBox.textContent = text;
+            messageBox.classList.remove('hidden', 'bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800', 'bg-blue-200', 'text-blue-800');
+            messageBox.classList.add('block');
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-200', 'text-red-800');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-200', 'text-green-800');
             } else {
-                messageBox.classList.remove('bg-red-100', 'text-red-700');
-                messageBox.classList.add('bg-green-100', 'text-green-700');
+                messageBox.classList.add('bg-blue-200', 'text-blue-800');
             }
         }
 
-        function hideMessage() {
-            messageBox.classList.add('hidden');
+        function hideMessage(delay) {
+            if (messageHideTimer) {
+                clearTimeout(messageHideTimer);
+            }
+            messageHideTimer = setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, delay);
         }
 
         function normalizeString(str) {
@@ -128,7 +140,7 @@
                 return { data: processedData, date: 'Google Drive' };
             } catch (error) {
                 console.error(`データの取得に失敗しました: ${googleDriveUrl} ${error}`);
-                showMessage(`データの取得に失敗しました。詳細: ${error.message}`);
+                showMessage(`データの取得に失敗しました。詳細: ${error.message}`, 'error');
             } finally {
                 setTimeout(() => progressBarContainer.classList.add('hidden'), 1000);
             }
@@ -170,7 +182,8 @@
 
         function sortResults(key) {
             if (filteredResults.length === 0) {
-                showMessage("ソートするデータがありません。", false);
+                showMessage("ソートするデータがありません。", 'info');
+                hideMessage(2000);
                 return;
             }
             const newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
@@ -197,7 +210,8 @@
 
             displayResults(filteredResults);
             const sortKeyName = key === 'yjCode' ? 'YJコード' : (key === 'productName' ? '品名' : '成分名');
-            showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, false);
+            showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, 'success');
+            hideMessage(2000);
         }
 
         function performSearch() {
@@ -209,18 +223,18 @@
             const statusLimited = document.getElementById('statusLimited').checked;
             const statusStop = document.getElementById('statusStop').checked;
 
-            hideMessage();
             document.getElementById('resultsContainer').innerHTML = '';
 
             if (isAnyDigitChecked) {
                 if (!yjCode || yjCode.length !== 12 || !/^[0-9a-zA-Z]+$/.test(yjCode)) {
-                    showMessage('検索項目をチェックした際は、正しい12桁のYJコードを入力してください。');
+                    showMessage('検索項目をチェックした際は、正しい12桁のYJコードを入力してください。', 'error');
                     return;
                 }
             }
 
             if (!isAnyDigitChecked && !statusNormal && !statusLimited && !statusStop) {
-                showMessage('検索項目と出荷状況のチェックを全て外したため、検索結果は表示されません。', false);
+                showMessage('検索項目と出荷状況のチェックを全て外したため、検索結果は表示されません。', 'info');
+                hideMessage(2000);
                 return;
             }
 
@@ -269,7 +283,8 @@
 
             displayResults(filteredResults.slice(0, 500));
             if (filteredResults.length === 0) {
-                showMessage('条件に一致する医薬品は見つかりませんでした。', false);
+                showMessage('条件に一致する医薬品は見つかりませんでした。', 'info');
+                hideMessage(2000);
             }
         }
 
@@ -543,10 +558,11 @@ hr.className = 'my-2 border-gray-200';
                     document.getElementById('yjCodeInput').value = String(yjCodeFromUrl).trim();
                     performSearch();
                 } else {
-                    showMessage('データの準備ができました。YJコードを入力して検索してください。', false);
+                    showMessage('データの準備ができました。YJコードを入力して検索してください。', 'success');
+                    hideMessage(3000);
                 }
             } else {
-                showMessage('データの読み込みに失敗しました。ページを再読み込みしてください。');
+                showMessage('データの読み込みに失敗しました。ページを再読み込みしてください。', 'error');
             }
             
             loadingIndicator.style.display = 'none';

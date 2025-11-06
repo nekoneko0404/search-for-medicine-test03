@@ -3,7 +3,7 @@
         let filteredResults = [];
         const loadingIndicator = document.getElementById('loadingIndicator');
         const messageBox = document.getElementById('messageBox');
-        let messageTimer = null;
+        let messageHideTimer = null;
         
         const MAX_RESULTS = 500;
 
@@ -13,41 +13,30 @@
             updateDate: 'desc'
         };
 
-        function showMessage(message, isError = false) {
-            if (messageTimer) clearTimeout(messageTimer);
-            
-            messageBox.textContent = message;
-            messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700');
-            
-            let bgColor, textColor;
-            let isTransient = true;
-
-            if (isError) {
-                bgColor = 'bg-red-100';
-                textColor = 'text-red-700';
-                isTransient = false;
-            } else if (message.includes('件の医薬品が見つかりました') || message.includes('キャッシュから')) {
-                bgColor = 'bg-green-100';
-                textColor = 'text-green-700';
-            } else {
-                bgColor = 'bg-yellow-100';
-                textColor = 'text-yellow-700';
+        function showMessage(text, type = 'info') {
+            if (messageHideTimer) {
+                clearTimeout(messageHideTimer);
+                messageHideTimer = null;
             }
-            
-            messageBox.classList.add(bgColor, textColor);
-
-            if (isTransient) {
-                messageTimer = setTimeout(hideMessage, 2000);
+            messageBox.textContent = text;
+            messageBox.classList.remove('hidden', 'bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800', 'bg-blue-200', 'text-blue-800');
+            messageBox.classList.add('block');
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-200', 'text-red-800');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-200', 'text-green-800');
+            } else {
+                messageBox.classList.add('bg-blue-200', 'text-blue-800');
             }
         }
 
-        function hideMessage() {
-            messageBox.classList.add('hidden');
-            messageBox.textContent = '';
-            if (messageTimer) {
-                clearTimeout(messageTimer);
-                messageTimer = null;
+        function hideMessage(delay) {
+            if (messageHideTimer) {
+                clearTimeout(messageHideTimer);
             }
+            messageHideTimer = setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, delay);
         }
 
         function excelSerialDateToJSDate(serial) {
@@ -157,14 +146,15 @@
 
             } catch (error) {
                 console.error(`データ取得エラー: ${error}`);
-                showMessage(`データの取得に失敗しました。詳細: ${error.message}`, true);
+                showMessage(`データの取得に失敗しました。詳細: ${error.message}`, 'error');
                 return [];
             }
         }
         
         function sortResults(key) {
             if (filteredResults.length === 0) {
-                showMessage("ソートするデータがありません。", false);
+                showMessage("ソートするデータがありません。", 'info');
+                hideMessage(2000);
                 return;
             }
             const newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
@@ -198,12 +188,11 @@
 
             displayResults(filteredResults);
             const sortKeyName = key === 'updateDate' ? '更新日' : (key === 'productName' ? '品名' : '成分名');
-            showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, false);
+            showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, 'success');
+            hideMessage(2000);
         }
 
         function performSearch() {
-            hideMessage(); 
-            
             const rawSearchTerm = document.getElementById('searchInput').value.trim();
             const searchTerms = rawSearchTerm.split(/[　 ]+/).map(normalizeString).filter(term => term.length > 0);
             
@@ -212,14 +201,15 @@
 
             if (selectedStatuses.length === 0) {
                 document.getElementById('resultsContainer').innerHTML = '';
-                showMessage('出荷状況のチェックがすべて外れています。少なくとも1つ選択してください。', true);
+                showMessage('出荷状況のチェックがすべて外れています。少なくとも1つ選択してください。', 'error');
                 return;
             }
 
             const isDefaultState = rawSearchTerm === '' && selectedDays === 'all' && selectedStatuses.length === document.querySelectorAll('#status-filters input').length;
             if (data.length > 0 && isDefaultState) {
                 document.getElementById('resultsContainer').innerHTML = '';
-                showMessage('品名、成分名を入力するか、フィルターを絞り込んでください。'); 
+                showMessage('品名、成分名を入力するか、フィルターを絞り込んでください。', 'info'); 
+                hideMessage(2000);
                 return;
             }
             
@@ -286,7 +276,8 @@
 
             if (limitedResults.length === 0) {
                 if (!messageBox.textContent.includes('失敗')) {
-                    showMessage('条件に一致する医薬品は見つかりませんでした。');
+                    showMessage('条件に一致する医薬品は見つかりませんでした。', 'info');
+                    hideMessage(2000);
                 }
                 return;
             } else {
@@ -294,7 +285,8 @@
                 if (results.length > MAX_RESULTS) {
                     message += ` ただし、表示は最新の${MAX_RESULTS}件に限定しています。`;
                 }
-                showMessage(message, false);
+                showMessage(message, 'success');
+                hideMessage(2000);
             }
             
             const tableContainer = document.createElement('div');
@@ -400,7 +392,8 @@
                 if (cachedData) {
                     console.log("Found cached data in localForage.");
                     sourceData = cachedData.data;
-                    showMessage("キャッシュからデータを読み込みました。", false);
+                    showMessage("キャッシュからデータを読み込みました。", 'success');
+                    hideMessage(3000);
                 } else {
                     console.log("No cached data found. Fetching from network.");
                     sourceData = await fetchAndProcessExcelData();
@@ -417,7 +410,7 @@
                     performSearch();
                 } else {
                     if (!messageBox.textContent) {
-                        showMessage('データを読み込めませんでした。ファイルが空か、形式に問題がある可能性があります。', true);
+                        showMessage('データを読み込めませんでした。ファイルが空か、形式に問題がある可能性があります。', 'error');
                     }
                 }
             }).catch(async (err) => {
@@ -475,7 +468,8 @@
 
             document.getElementById('reload-data').addEventListener('click', () => {
                 localforage.removeItem('excelCache').then(() => {
-                    showMessage('キャッシュをクリアしました。データを再読み込みします。');
+                    showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
+                    hideMessage(2000);
                     loadingIndicator.classList.remove('hidden');
                     fetchAndProcessExcelData().then(sourceData => {
                         if (sourceData && sourceData.length > 0) {
@@ -490,7 +484,7 @@
                     });
                 }).catch(err => {
                     console.error("Failed to clear cache", err);
-                    showMessage('キャッシュのクリアに失敗しました。', true);
+                    showMessage('キャッシュのクリアに失敗しました。', 'error');
                 });
             });
         });
