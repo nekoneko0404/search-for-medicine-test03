@@ -383,14 +383,22 @@
                     yjCodeLink.textContent = '代替薬検索';
 
                     const hiyariLink = document.createElement('a');
-hiyariLink.href = hiyariLinkUrl;
+                    hiyariLink.href = hiyariLinkUrl;
                     hiyariLink.target = '_blank';
                     hiyariLink.rel = 'noopener noreferrer';
                     hiyariLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
                     hiyariLink.textContent = 'ヒヤリハット検索';
 
+                    const updateDateLink = document.createElement('a');
+                    updateDateLink.href = `./update/index.html?productName=${encodeURIComponent(drugName)}&shippingStatus=all&updateDate=all`;
+                    updateDateLink.target = '_blank';
+                    updateDateLink.rel = 'noopener noreferrer';
+                    updateDateLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
+                    updateDateLink.textContent = '情報更新日';
+
                     dropdownContent.appendChild(pmdaLink);
                     dropdownContent.appendChild(yjCodeLink);
+                    dropdownContent.appendChild(updateDateLink);
                     dropdownContent.appendChild(hiyariLink);
                     dropdownContainer.appendChild(button);
                     dropdownContainer.appendChild(dropdownContent);

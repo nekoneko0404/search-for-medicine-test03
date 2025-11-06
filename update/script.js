@@ -422,6 +422,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productName = urlParams.get('productName');
+            const shippingStatus = urlParams.get('shippingStatus');
+            const updateDate = urlParams.get('updateDate');
+
+            if (productName) {
+                document.getElementById('searchInput').value = productName;
+            }
+
             loadingIndicator.classList.remove('hidden');
             localforage.getItem('excelCache').then(async (cachedData) => {
                 let sourceData;
@@ -446,8 +455,18 @@
                         return item;
                     });
                     
-                    document.querySelector('#date-filters input[data-days="all"]').checked = false;
-                    document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                    if (shippingStatus === 'all') {
+                        document.querySelectorAll('#status-filters input').forEach(cb => cb.checked = true);
+                    }
+            
+                    if (updateDate === 'all') {
+                        document.querySelectorAll('#date-filters input[type="checkbox"]').forEach(cb => {
+                            cb.checked = cb.dataset.days === 'all';
+                        });
+                    } else {
+                        document.querySelector('#date-filters input[data-days="all"]').checked = false;
+                        document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                    }
                     performSearch();
                 } else {
                     if (!messageBox.textContent) {
@@ -463,8 +482,18 @@
                         return item;
                     });
                     
-                    document.querySelector('#date-filters input[data-days="all"]').checked = false;
-                    document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                    if (shippingStatus === 'all') {
+                        document.querySelectorAll('#status-filters input').forEach(cb => cb.checked = true);
+                    }
+            
+                    if (updateDate === 'all') {
+                        document.querySelectorAll('#date-filters input[type="checkbox"]').forEach(cb => {
+                            cb.checked = cb.dataset.days === 'all';
+                        });
+                    } else {
+                        document.querySelector('#date-filters input[data-days="all"]').checked = false;
+                        document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                    }
                     performSearch();
                 }
             }).finally(() => {
