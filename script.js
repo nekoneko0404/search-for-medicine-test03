@@ -570,9 +570,9 @@
             });
 
             const fileId = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
-            const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
             async function fetchSpreadsheetData() {
+                const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx&cb=${new Date().getTime()}`;
                 showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
                 try {
                     const response = await fetch(googleDriveUrl, { cache: "no-cache" });
