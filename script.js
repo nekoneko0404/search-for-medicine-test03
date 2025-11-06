@@ -597,8 +597,8 @@ hiyariLink.href = hiyariLinkUrl;
             }
 
             localforage.getItem('excelCache').then(cachedData => {
-                const fourHours = 4 * 60 * 60 * 1000;
-                if (cachedData && (new Date().getTime() - cachedData.timestamp < fourHours)) {
+                const oneHour = 1 * 60 * 60 * 1000; // 1時間
+                if (cachedData && (new Date().getTime() - cachedData.timestamp < oneHour)) {
                                                             console.log("Found recent cached data in localForage.");
                                                             excelData = cachedData.data;
                                                             renderTable([]);

@@ -588,11 +588,16 @@ hr.className = 'my-2 border-gray-200';
             const manufacturerDataPromise = fetchManufacturerData();
             
             const excelDataPromise = localforage.getItem('excelCache').then(cachedData => {
-                if (cachedData) {
-                    console.log("Found cached data in localForage.");
+                const oneHour = 1 * 60 * 60 * 1000; // 1時間
+                if (cachedData && (new Date().getTime() - cachedData.timestamp < oneHour)) {
+                    console.log("Found recent cached data in localForage.");
                     return { data: cachedData.data, date: 'キャッシュ' };
                 } else {
-                    console.log("No cached data found. Fetching from network.");
+                    if(cachedData) {
+                        console.log("Cached data is old. Fetching from network.");
+                    } else {
+                        console.log("No cached data found. Fetching from network.");
+                    }
                     return fetchExcelData();
                 }
             }).catch(err => {
