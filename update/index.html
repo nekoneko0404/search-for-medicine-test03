@@ -31,11 +31,12 @@
         </div>
         <span id="dataDate" class="text-gray-500 text-xs whitespace-nowrap mb-4 block text-center"></span>
         
-        <div class="flex flex-col sm:flex-row items-center justify-between sm:space-x-4 space-y-2 sm:space-y-0 mb-6">
-            <input type="text" id="searchInput" placeholder="品名、成分名で検索 (Enterまたはボタンで実行)" class="unified-input w-full">
-            <button id="searchButton" class="unified-button">
-                検索
-            </button>
+        <div class="flex items-center gap-2 mb-6">
+            <input type="text" id="searchInput" placeholder="品名、成分名で検索" class="unified-input flex-grow">
+            <div class="flex gap-2 flex-shrink-0">
+                <button id="searchButton" class="unified-button">検索</button>
+                <button id="clearButton" class="unified-button">クリア</button>
+            </div>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-4 mb-6">

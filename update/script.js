@@ -439,8 +439,18 @@
 
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
+            const clearButton = document.getElementById('clearButton');
             
             searchButton.addEventListener('click', performSearch);
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                document.querySelectorAll('#status-filters input').forEach(cb => cb.checked = true);
+                dateFilters.forEach(cb => {
+                    cb.checked = cb.dataset.days === '3';
+                });
+                performSearch();
+            });
+
             searchInput.addEventListener('compositionend', performSearch);
             searchInput.addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') performSearch();
