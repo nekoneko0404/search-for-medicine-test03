@@ -475,7 +475,7 @@
 
             const cardListContainer = document.createElement('div');
             cardListContainer.className = 'block md:hidden w-full space-y-4 mt-4';
-            results.forEach(item => cardListContainer.appendChild(createCardElement(item, columnMap))); // Pass columnMap to createCardElement
+            results.forEach((item, index) => cardListContainer.appendChild(createCardElement(item, columnMap, index))); // Pass columnMap to createCardElement
             container.appendChild(cardListContainer);
 
             document.querySelectorAll('#resultsContainer .name-clickable').forEach(element => {
@@ -491,9 +491,10 @@
             });
         }
 
-        function createCardElement(item, columnMap) {
+        function createCardElement(item, columnMap, index) {
             const card = document.createElement('div');
-            card.className = 'bg-white rounded-lg shadow border border-gray-200 p-4';
+            const cardBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
+            card.className = `${cardBgClass} rounded-lg shadow border border-gray-200 p-4`;
             
             const header = document.createElement('div');
             header.className = 'flex items-start justify-between mb-2';

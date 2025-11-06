@@ -277,6 +277,38 @@
 
             displayResults(filteredResults);
         }
+
+        function performRecoverySearch() {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setHours(0, 0, 0, 0);
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+            filteredResults = data.filter(item => {
+                if (!item.updateDateObj) return false;
+                const itemDate = new Date(item.updateDateObj);
+                itemDate.setHours(0, 0, 0, 0);
+
+                const isWithin7Days = itemDate >= sevenDaysAgo;
+                const isNormalShipment = (item.shipmentStatus || '').includes('通常出荷');
+                const isShipmentStatusUpdated = item.updatedCells && item.updatedCells.includes(11);
+
+                return isWithin7Days && isNormalShipment && isShipmentStatusUpdated;
+            });
+
+            sortStates.productName = 'asc';
+            sortStates.ingredientName = 'asc';
+            sortStates.updateDate = 'desc';
+
+            filteredResults.sort((a, b) => {
+                const aValue = a.updateDateObj ? a.updateDateObj.getTime() : 0;
+                const bValue = b.updateDateObj ? b.updateDateObj.getTime() : 0;
+                return bValue - aValue;
+            });
+
+            displayResults(filteredResults);
+            showMessage(`「復旧情報」の検索が完了しました。`, 'success');
+            hideMessage(2000);
+        }
         
         function displayResults(results) {
             const container = document.getElementById('resultsContainer');
@@ -375,16 +407,17 @@
             });
             tableContainer.appendChild(table);
             container.appendChild(tableContainer);
-            
+
             document.getElementById('sort-productName-button').addEventListener('click', () => sortResults('productName'));
             document.getElementById('sort-ingredientName-button').addEventListener('click', () => sortResults('ingredientName'));
             document.getElementById('sort-updateDate-button').addEventListener('click', () => sortResults('updateDate'));
 
             const cardListContainer = document.createElement('div');
             cardListContainer.className = 'block md:hidden w-full space-y-4 mt-4';
-            limitedResults.forEach(item => {
+            limitedResults.forEach((item, index) => {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-lg shadow-md border border-gray-200 p-4';
+                const cardBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
+                card.className = `${cardBgClass} rounded-lg shadow-md border border-gray-200 p-4`;
                 card.innerHTML = `
                     <div class="flex items-start justify-between mb-2">
                         <h3 class="text-base font-semibold text-gray-900 leading-tight pr-2 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}">${escapeHTML(item.productName) || '-'}</h3>
@@ -405,6 +438,7 @@
                 `;
                 cardListContainer.appendChild(card);
             });
+            container.appendChild(cardListContainer);
 
             
             document.querySelectorAll('.ingredient-link').forEach(link => {
@@ -503,6 +537,7 @@
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
             const clearButton = document.getElementById('clearButton');
+            const recoveryButton = document.getElementById('recoveryButton');
             
             searchButton.addEventListener('click', performSearch);
             clearButton.addEventListener('click', () => {
@@ -513,6 +548,8 @@
                 });
                 performSearch();
             });
+
+            recoveryButton.addEventListener('click', performRecoverySearch);
 
             searchInput.addEventListener('compositionend', performSearch);
             searchInput.addEventListener('keyup', (e) => {
