@@ -68,6 +68,21 @@
 
                 const mappedData = dataRowsAsStrings.map((row, index) => {
                     const numberRow = dataRowsAsNumbers[index];
+                    // Determine the index of the '更新セル情報' column dynamically
+                    const updatedCellsMetadataColIndex = row.length - 1;
+                    let updatedCells = [];
+                    try {
+                        const metadata = row[updatedCellsMetadataColIndex];
+                        if (metadata) {
+                            const parsedMetadata = JSON.parse(metadata);
+                            if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
+                                updatedCells = parsedMetadata.updated_cols;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("Failed to parse updatedCells metadata:", e, row[updatedCellsMetadataColIndex]);
+                    }
+
                     return {
                         'productName':          row[5],
                         'ingredientName':       row[2],
@@ -81,7 +96,8 @@
                         'standard':             row[3],
                         'isGeneric':            row[7],
                         'isBasicDrug':          row[8],
-                        'updateDateSerial':     numberRow[12] || row[12]
+                        'updateDateSerial':     numberRow[12] || row[12],
+                        'updatedCells':         updatedCells // Add the parsed updated cells info
                     };
                 });
 
@@ -94,7 +110,7 @@
             }
         }
 
-        function renderStatusButton(status) {
+        function renderStatusButton(status, isUpdated = false) {
             const trimmedStatus = (status || "").trim();
             const span = document.createElement('span');
             span.className = "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block transition-colors duration-150";
@@ -111,6 +127,10 @@
             } else {
                 span.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
                 span.textContent = trimmedStatus || "不明";
+            }
+
+            if (isUpdated) {
+                span.classList.add('border-red-500', 'border-2');
             }
             return span;
         }
@@ -262,6 +282,22 @@
             }
 
             const displayResults = data.slice(0, 500);
+            const columnMap = {
+                'productName': 5,
+                'ingredientName': 2,
+                'manufacturer': 6,
+                'shipmentStatus': 11,
+                'reasonForLimitation': 13,
+                'resolutionProspect': 14,
+                'expectedDate': 15,
+                'shipmentVolumeStatus': 16,
+                'yjCode': 4,
+                'standard': 3,
+                'isGeneric': 7,
+                'isBasicDrug': 8,
+                'updateDateSerial': 12
+            };
+
             displayResults.forEach((item, index) => {
                 const newRow = resultBody.insertRow();
                 const rowBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
@@ -270,6 +306,9 @@
                 const drugNameCell = newRow.insertCell(0);
                 drugNameCell.setAttribute('data-label', '品名');
                 drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "relative");
+                if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
+                    drugNameCell.classList.add('text-red-600', 'font-bold');
+                }
 
                 const labelsContainer = document.createElement('div');
                 labelsContainer.className = 'vertical-labels-container';
@@ -315,7 +354,12 @@
                     dropdownContainer.className = 'dropdown w-full';
 
                     const button = document.createElement('button');
-                    button.className = "dropdown-button text-indigo-600 font-semibold hover:underline truncate-lines text-left w-full";
+                    let buttonClass = "dropdown-button text-indigo-600 font-semibold hover:underline truncate-lines text-left w-full";
+                    const isYjCodeUpdated = item.updatedCells && item.updatedCells.includes(columnMap.yjCode);
+                    if (isYjCodeUpdated) {
+                        buttonClass += ' border-red-500 border-2';
+                    }
+                    button.className = buttonClass;
                     button.textContent = drugName;
                     button.onclick = toggleDropdown;
 
@@ -357,6 +401,9 @@ hiyariLink.href = hiyariLinkUrl;
                 const ingredientNameCell = newRow.insertCell(1);
                 ingredientNameCell.setAttribute('data-label', '成分名');
                 ingredientNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
+                if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
+                    ingredientNameCell.classList.add('text-red-600', 'font-bold');
+                }
                 const ingredientName = item.ingredientName || "";
                 
                 if (ingredientName) {
@@ -376,19 +423,28 @@ hiyariLink.href = hiyariLinkUrl;
                 const statusCell = newRow.insertCell(2);
                 statusCell.setAttribute('data-label', '出荷状況');
                 statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left");
-
+                const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
+                if (isStatusUpdated) {
+                    statusCell.classList.add('text-red-600', 'font-bold');
+                }
                 const statusValue = (item.shipmentStatus || '').trim();
-                statusCell.appendChild(renderStatusButton(statusValue));
+                statusCell.appendChild(renderStatusButton(statusValue, isStatusUpdated));
                 
                 const reasonCell = newRow.insertCell(3);
                 reasonCell.textContent = item.reasonForLimitation || "";
                 reasonCell.setAttribute('data-label', '制限理由');
                 reasonCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900", "truncate-lines");
+                if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) {
+                    reasonCell.classList.add('text-red-600', 'font-bold');
+                }
 
                 const volumeCell = newRow.insertCell(4);
                 volumeCell.textContent = item.shipmentVolumeStatus || "";
                 volumeCell.setAttribute('data-label', '出荷量状況');
                 volumeCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
+                if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) {
+                    volumeCell.classList.add('text-red-600', 'font-bold');
+                }
             });
         }
 
@@ -505,7 +561,7 @@ hiyariLink.href = hiyariLinkUrl;
                 });
             });
 
-            const fileId = '1yhDbdCbnmDoXKRSj_CuLgKkIH2ohK1LD';
+            const fileId = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
             const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
             async function fetchSpreadsheetData() {
@@ -543,10 +599,10 @@ hiyariLink.href = hiyariLinkUrl;
             localforage.getItem('excelCache').then(cachedData => {
                 const fourHours = 4 * 60 * 60 * 1000;
                 if (cachedData && (new Date().getTime() - cachedData.timestamp < fourHours)) {
-                    console.log("Found recent cached data in localForage.");
-                    excelData = cachedData.data;
-                    renderTable([]);
-                    tableContainer.classList.add('hidden');
+                                                            console.log("Found recent cached data in localForage.");
+                                                            excelData = cachedData.data;
+                                                            renderTable([]);
+                                                            tableContainer.classList.add('hidden');
                     showMessage(`キャッシュから ${excelData.length} 件のデータを読み込みました。検索を開始できます。`, "success");
                     hideMessage(3000);
                 } else {
@@ -560,5 +616,5 @@ hiyariLink.href = hiyariLinkUrl;
             }).catch(err => {
                 console.error("Error reading from localForage, fetching from network.", err);
                 fetchSpreadsheetData();
-            });
-        };
+                        });
+                    };
