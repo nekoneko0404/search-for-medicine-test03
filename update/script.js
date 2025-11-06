@@ -1,12 +1,17 @@
 
         let data = [];
+        let filteredResults = [];
         const loadingIndicator = document.getElementById('loadingIndicator');
         const messageBox = document.getElementById('messageBox');
         let messageTimer = null;
         
-        let currentSortColumn = 'updateDate';
-        let currentSortDirection = 'desc'; 
         const MAX_RESULTS = 500;
+
+        let sortStates = {
+            productName: 'asc',
+            ingredientName: 'asc',
+            updateDate: 'desc'
+        };
 
         function showMessage(message, isError = false) {
             if (messageTimer) clearTimeout(messageTimer);
@@ -15,19 +20,18 @@
             messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700');
             
             let bgColor, textColor;
-            let isTransient = false;
+            let isTransient = true;
 
             if (isError) {
                 bgColor = 'bg-red-100';
                 textColor = 'text-red-700';
+                isTransient = false;
             } else if (message.includes('件の医薬品が見つかりました') || message.includes('キャッシュから')) {
                 bgColor = 'bg-green-100';
                 textColor = 'text-green-700';
-                isTransient = true;
             } else {
                 bgColor = 'bg-yellow-100';
                 textColor = 'text-yellow-700';
-                isTransient = true;
             }
             
             messageBox.classList.add(bgColor, textColor);
@@ -158,39 +162,43 @@
             }
         }
         
-        function sortData(data, column, direction) {
-            const isAsc = direction === 'asc';
-            return data.sort((a, b) => {
-                let valA, valB;
-                if (column === 'updateDate') {
-                    valA = a.updateDateObj ? a.updateDateObj.getTime() : (isAsc ? Infinity : -Infinity);
-                    valB = b.updateDateObj ? b.updateDateObj.getTime() : (isAsc ? Infinity : -Infinity);
-                    return isAsc ? valA - valB : valB - valA;
-                } else if (column === 'productName') {
-                    valA = normalizeString(a.productName);
-                    valB = normalizeString(b.productName);
-                    if (valA < valB) return isAsc ? -1 : 1;
-                    if (valA > valB) return isAsc ? 1 : -1;
-                    return 0;
-                }
-                return 0;
-            });
-        }
-        
-        function handleSortClick(column) {
-            if (currentSortColumn === column) {
-                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSortColumn = column;
-                currentSortDirection = (column === 'updateDate') ? 'desc' : 'asc'; 
+        function sortResults(key) {
+            if (filteredResults.length === 0) {
+                showMessage("ソートするデータがありません。", false);
+                return;
             }
-            performSearch();
-        }
+            const newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
+            
+            for (const k in sortStates) {
+                if (k !== key) {
+                    sortStates[k] = 'asc';
+                }
+                const icon = document.getElementById(`sort-${k}-icon`);
+                if (icon && k !== key) {
+                    icon.textContent = '↕';
+                }
+            }
 
-        function resetDateFilters() {
-            document.querySelectorAll('#date-filters input[type="checkbox"]').forEach(cb => {
-                cb.checked = cb.dataset.days === 'all';
+            sortStates[key] = newDirection;
+            document.getElementById(`sort-${key}-icon`).textContent = newDirection === 'asc' ? '↑' : '↓';
+
+            filteredResults.sort((a, b) => {
+                let aValue, bValue;
+                if (key === 'updateDate') {
+                    aValue = a.updateDateObj ? a.updateDateObj.getTime() : 0;
+                    bValue = b.updateDateObj ? b.updateDateObj.getTime() : 0;
+                } else {
+                    aValue = normalizeString(a[key]);
+                    bValue = normalizeString(b[key]);
+                }
+                
+                const compare = aValue < bValue ? -1 : (aValue > bValue ? 1 : 0);
+                return newDirection === 'asc' ? compare : -compare;
             });
+
+            displayResults(filteredResults);
+            const sortKeyName = key === 'updateDate' ? '更新日' : (key === 'productName' ? '品名' : '成分名');
+            showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, false);
         }
 
         function performSearch() {
@@ -204,25 +212,25 @@
 
             if (selectedStatuses.length === 0) {
                 document.getElementById('resultsContainer').innerHTML = '';
-                showMessage('出荷状況のチェックがすべて外れています。少なくとも1つ選択してください。', false);
+                showMessage('出荷状況のチェックがすべて外れています。少なくとも1つ選択してください。', true);
                 return;
             }
 
             const isDefaultState = rawSearchTerm === '' && selectedDays === 'all' && selectedStatuses.length === document.querySelectorAll('#status-filters input').length;
             if (data.length > 0 && isDefaultState) {
                 document.getElementById('resultsContainer').innerHTML = '';
-                showMessage('品名、成分名を入力するか、フィルターを絞り込んでください。', false); 
+                showMessage('品名、成分名を入力するか、フィルターを絞り込んでください。'); 
                 return;
             }
             
-            let filteredData = data.filter(item => {
+            filteredResults = data.filter(item => {
                 const productName = normalizeString(item.productName);
                 const ingredientName = normalizeString(item.ingredientName);
                 return searchTerms.every(term => productName.includes(term) || ingredientName.includes(term));
             });
 
             if (selectedStatuses.length < document.querySelectorAll('#status-filters input').length) {
-                 filteredData = filteredData.filter(item => {
+                 filteredResults = filteredResults.filter(item => {
                     const itemStatus = item.shipmentStatus || '';
                     return selectedStatuses.some(status => {
                         if (itemStatus.includes(status)) return true;
@@ -238,16 +246,25 @@
                 cutoffDate.setHours(0, 0, 0, 0);
                 cutoffDate.setDate(cutoffDate.getDate() - days + 1); 
                 
-                filteredData = filteredData.filter(item => {
+                filteredResults = filteredResults.filter(item => {
                     if (!item.updateDateObj) return false;
                     const itemDate = new Date(item.updateDateObj);
                     itemDate.setHours(0, 0, 0, 0);
                     return itemDate >= cutoffDate;
                 });
             }
+            
+            sortStates.productName = 'asc';
+            sortStates.ingredientName = 'asc';
+            sortStates.updateDate = 'desc';
+            
+            filteredResults.sort((a, b) => {
+                const aValue = a.updateDateObj ? a.updateDateObj.getTime() : 0;
+                const bValue = b.updateDateObj ? b.updateDateObj.getTime() : 0;
+                return bValue - aValue;
+            });
 
-            const sortedData = sortData(filteredData, currentSortColumn, currentSortDirection);
-            displayResults(sortedData);
+            displayResults(filteredResults);
         }
         
         function displayResults(results) {
@@ -268,12 +285,14 @@
             const limitedResults = results.slice(0, MAX_RESULTS); 
 
             if (limitedResults.length === 0) {
-                showMessage('条件に一致する医薬品は見つかりませんでした。', false);
+                if (!messageBox.textContent.includes('失敗')) {
+                    showMessage('条件に一致する医薬品は見つかりませんでした。');
+                }
                 return;
             } else {
                 let message = `${results.length}件の医薬品が見つかりました。`;
                 if (results.length > MAX_RESULTS) {
-                    message += `ただし、表示は最新の${MAX_RESULTS}件に限定しています。`;
+                    message += ` ただし、表示は最新の${MAX_RESULTS}件に限定しています。`;
                 }
                 showMessage(message, false);
             }
@@ -284,23 +303,22 @@
             table.id = 'resultTable';
             table.className = 'min-w-full divide-y divide-gray-200 table-fixed';
             
-            const getSortIcon = (column) => currentSortColumn === column ? (currentSortDirection === 'asc' ? '▲' : '▼') : '↕';
-            const getSortClass = (column) => currentSortColumn === column ? 'text-indigo-600 font-bold' : 'text-gray-700';
-
             table.innerHTML = `
                 <thead class="bg-indigo-100 sticky top-0">
                     <tr>
-                        <th id="sort-productName" class="px-2 py-2 text-left text-xs font-semibold ${getSortClass('productName')} uppercase tracking-wider whitespace-nowrap lg:w-[20%] hover:bg-indigo-200 transition-colors duration-150">
-                            <div class="flex items-center justify-start"><span>品名</span><button class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span class="sort-icon">${getSortIcon('productName')}</span></button></div>
+                        <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[20%]">
+                            <div class="flex items-center justify-start"><span>品名</span><button id="sort-productName-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span id="sort-productName-icon">↕</span></button></div>
                         </th>
-                        <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[20%]">成分名</th>
+                        <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[20%]">
+                            <div class="flex items-center justify-start"><span>成分名</span><button id="sort-ingredientName-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span id="sort-ingredientName-icon">↕</span></button></div>
+                        </th>
                         <th class="px-1 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[10%]">出荷状況</th>
                         <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[15%]">制限理由</th>
                         <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[10%]">解消見込み</th>
                         <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[10%]">見込み時期</th>
                         <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[5%]">出荷量</th>
-                        <th id="sort-updateDate" class="px-2 py-2 text-left text-xs font-semibold ${getSortClass('updateDate')} uppercase tracking-wider whitespace-nowrap lg:w-[10%] hover:bg-indigo-200 transition-colors duration-150">
-                            <div class="flex items-center justify-start"><span>更新日</span><button class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span class="sort-icon">${getSortIcon('updateDate')}</span></button></div>
+                        <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[10%]">
+                            <div class="flex items-center justify-start"><span>更新日</span><button id="sort-updateDate-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span id="sort-updateDate-icon">↓</span></button></div>
                         </th>
                     </tr>
                 </thead>
@@ -330,8 +348,9 @@
             tableContainer.appendChild(table);
             container.appendChild(tableContainer);
             
-            document.getElementById('sort-productName').addEventListener('click', () => handleSortClick('productName'));
-            document.getElementById('sort-updateDate').addEventListener('click', () => handleSortClick('updateDate'));
+            document.getElementById('sort-productName-button').addEventListener('click', () => sortResults('productName'));
+            document.getElementById('sort-ingredientName-button').addEventListener('click', () => sortResults('ingredientName'));
+            document.getElementById('sort-updateDate-button').addEventListener('click', () => sortResults('updateDate'));
 
             const cardListContainer = document.createElement('div');
             cardListContainer.className = 'block md:hidden w-full space-y-4 mt-4';
@@ -365,7 +384,9 @@
                     const ingredientName = e.target.dataset.ingredient;
                     if (ingredientName && ingredientName.trim()) {
                         document.getElementById('searchInput').value = ingredientName.trim();
-                        resetDateFilters();
+                        document.querySelectorAll('#date-filters input[type="checkbox"]').forEach(cb => {
+                            cb.checked = cb.dataset.days === 'all';
+                        });
                         performSearch();
                     }
                 });
@@ -444,7 +465,7 @@
 
             document.getElementById('reload-data').addEventListener('click', () => {
                 localforage.removeItem('excelCache').then(() => {
-                    showMessage('キャッシュをクリアしました。データを再読み込みします。', false);
+                    showMessage('キャッシュをクリアしました。データを再読み込みします。');
                     loadingIndicator.classList.remove('hidden');
                     fetchAndProcessExcelData().then(sourceData => {
                         if (sourceData && sourceData.length > 0) {

@@ -1,11 +1,18 @@
 
         let data = [];
+        let filteredResults = [];
         let manufacturerLinks = {};
         const loadingIndicator = document.getElementById('loadingIndicator');
         const progressBarContainer = document.getElementById('progressBarContainer');
         const progressBar = document.getElementById('progressBar');
         const progressMessage = document.getElementById('progressMessage');
         const messageBox = document.getElementById('messageBox');
+
+        let sortStates = {
+            yjCode: 'asc',
+            productName: 'asc',
+            ingredientName: 'asc'
+        };
         
         function showMessage(message, isError = true) {
             messageBox.textContent = message;
@@ -161,6 +168,38 @@
             }
         }
 
+        function sortResults(key) {
+            if (filteredResults.length === 0) {
+                showMessage("ソートするデータがありません。", false);
+                return;
+            }
+            const newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
+
+            for (const k in sortStates) {
+                if (k !== key) {
+                    sortStates[k] = 'asc';
+                }
+                 const icon = document.getElementById(`sort-${k}-icon`);
+                if (icon && k !== key) {
+                    icon.textContent = '↕';
+                }
+            }
+
+            sortStates[key] = newDirection;
+            document.getElementById(`sort-${key}-icon`).textContent = newDirection === 'asc' ? '↑' : '↓';
+
+            filteredResults.sort((a, b) => {
+                const aValue = normalizeString(a[key]);
+                const bValue = normalizeString(b[key]);
+                const compare = aValue.localeCompare(bValue, 'ja', { sensitivity: 'base' });
+                return newDirection === 'asc' ? compare : -compare;
+            });
+
+            displayResults(filteredResults);
+            const sortKeyName = key === 'yjCode' ? 'YJコード' : (key === 'productName' ? '品名' : '成分名');
+            showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, false);
+        }
+
         function performSearch() {
             const yjCodeInput = document.getElementById('yjCodeInput');
             const yjCode = normalizeString(yjCodeInput.value.trim());
@@ -185,7 +224,7 @@
                 return;
             }
 
-            let filteredData = data;
+            filteredResults = data;
             
             if (isAnyDigitChecked) {
                 const checks = {
@@ -197,7 +236,7 @@
                     d3: document.getElementById('digits3').checked
                 };
 
-                filteredData = filteredData.filter(item => {
+                filteredResults = filteredResults.filter(item => {
                     const itemYjCode = normalizeString(item.yjCode || '');
                     if (!itemYjCode) return false;
 
@@ -215,7 +254,7 @@
             }
             
             if (statusNormal || statusLimited || statusStop) {
-                filteredData = filteredData.filter(item => {
+                filteredResults = filteredResults.filter(item => {
                     const status = normalizeString(item.shipmentStatus || '');
                     if (statusNormal && (status.includes('通常出荷') || status.includes('通'))) return true;
                     if (statusLimited && (status.includes('限定出荷') || status.includes('出荷制限') || status.includes('限') || status.includes('制'))) return true;
@@ -224,8 +263,12 @@
                 });
             }
 
-            displayResults(filteredData.slice(0, 500));
-            if (filteredData.length === 0) {
+            sortStates.yjCode = 'asc';
+            sortStates.productName = 'asc';
+            sortStates.ingredientName = 'asc';
+
+            displayResults(filteredResults.slice(0, 500));
+            if (filteredResults.length === 0) {
                 showMessage('条件に一致する医薬品は見つかりませんでした。', false);
             }
         }
@@ -242,13 +285,26 @@
             table.className = 'min-w-full divide-y divide-gray-200 table-fixed';
             const thead = table.createTHead();
             thead.className = "bg-indigo-100 sticky top-0";
+            
             const headerRow = thead.insertRow();
-            const headers = ['YJコード', '品名', '成分名', 'メーカー', '出荷状況', '制限理由', '出荷量状況'];
-            const widths = ['10%', '25%', '20%', '15%', '10%', '10%', '10%'];
-            headers.forEach((headerText, index) => {
+            const headers = [
+                { key: 'yjCode', text: 'YJコード', width: '10%' },
+                { key: 'productName', text: '品名', width: '25%' },
+                { key: 'ingredientName', text: '成分名', width: '20%' },
+                { key: null, text: 'メーカー', width: '15%' },
+                { key: null, text: '出荷状況', width: '10%' },
+                { key: null, text: '制限理由', width: '10%' },
+                { key: null, text: '出荷量状況', width: '10%' }
+            ];
+
+            headers.forEach(header => {
                 const th = document.createElement('th');
-                th.className = `px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap w-[${widths[index]}]`;
-                th.textContent = headerText;
+                th.className = `px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap w-[${header.width}]`;
+                if (header.key) {
+                    th.innerHTML = `<div class="flex items-center justify-start"><span>${header.text}</span><button id="sort-${header.key}-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span id="sort-${header.key}-icon">↕</span></button></div>`;
+                } else {
+                    th.textContent = header.text;
+                }
                 headerRow.appendChild(th);
             });
             
@@ -342,6 +398,10 @@
             table.appendChild(tbody);
             tableContainer.appendChild(table);
             container.appendChild(tableContainer);
+
+            document.getElementById('sort-yjCode-button').addEventListener('click', () => sortResults('yjCode'));
+            document.getElementById('sort-productName-button').addEventListener('click', () => sortResults('productName'));
+            document.getElementById('sort-ingredientName-button').addEventListener('click', () => sortResults('ingredientName'));
 
             const cardListContainer = document.createElement('div');
             cardListContainer.className = 'block md:hidden w-full space-y-4 mt-4';
