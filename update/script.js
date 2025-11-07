@@ -332,6 +332,7 @@
         }
 
         function performRecoverySearch() {
+            document.getElementById('searchInput').value = ''; // Clear search input
             // Uncheck all status and trend checkboxes
             document.querySelectorAll('#status-filters input[data-status]').forEach(cb => cb.checked = false);
             document.querySelectorAll('#status-filters input[data-trend]').forEach(cb => cb.checked = false);
