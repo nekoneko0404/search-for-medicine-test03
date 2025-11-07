@@ -111,16 +111,27 @@
                 const row = rowString.slice(1, -1).split('","');
                 
                 let updatedCells = [];
+                let shippingStatusTrend = ''; // New variable for the trend icon
                 try {
-                    const metadata = row[row.length - 1];
-                    if (metadata) {
-                        const parsedMetadata = JSON.parse(metadata);
+                    let colW = row[22] || ''; // Get content of column W for trend
+                    let colX = row[23] || ''; // Get content of column X for metadata
+
+                    // Parse updatedCells from colX
+                    if (colX.length > 1 && colX.startsWith('{')) {
+                        const unescaped = colX.replace(/""/g, '"');
+                        const parsedMetadata = JSON.parse(unescaped);
                         if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
                             updatedCells = parsedMetadata.updated_cols;
                         }
                     }
+
+                    // Use colW for trend icon
+                    if (colW === '▲' || colW === '▼') {
+                        shippingStatusTrend = colW;
+                    }
+
                 } catch (e) {
-                    // console.warn("Failed to parse updatedCells metadata:", e, row[row.length - 1]);
+                    // console.warn("Failed to parse metadata or trend:", e);
                 }
 
                 return {
@@ -136,7 +147,8 @@
                     'productCategory':      row[7],
                     'isBasicDrug':          row[8],
                     'updateDateSerial':     parseGvizDateToSerial(row[19]),
-                    'updatedCells':         updatedCells
+                    'updatedCells':         updatedCells,
+                    'shippingStatusTrend':  shippingStatusTrend // Add this
                 };
             });
         }
@@ -461,6 +473,13 @@
                 const statusDiv = document.createElement('div');
                 statusDiv.className = 'flex items-center justify-start';
                 statusDiv.appendChild(renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus)));
+
+                if (item.shippingStatusTrend) {
+                    const trendIcon = document.createElement('span');
+                    trendIcon.className = 'ml-1 text-red-500';
+                    trendIcon.textContent = item.shippingStatusTrend;
+                    statusDiv.appendChild(trendIcon);
+                }
                 statusCell.appendChild(statusDiv);
 
                 const reasonCell = newRow.insertCell(5);
@@ -587,7 +606,18 @@
             const hr = document.createElement('hr');
 hr.className = 'my-2 border-gray-200';
             body.appendChild(hr);
-            body.appendChild(createCardItem('出荷状況:', renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus)), true, 'shipmentStatus'));
+
+            const statusContainer = document.createElement('div');
+            statusContainer.className = 'flex items-center justify-end'; // justify-end for card view
+            statusContainer.appendChild(renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus)));
+
+            if (item.shippingStatusTrend) {
+                const trendIcon = document.createElement('span');
+                trendIcon.className = 'ml-1 text-red-500';
+                trendIcon.textContent = item.shippingStatusTrend;
+                statusContainer.appendChild(trendIcon);
+            }
+            body.appendChild(createCardItem('出荷状況:', statusContainer, true, 'shipmentStatus'));
 
             body.appendChild(createCardItem('制限理由:', item.reasonForLimitation || '-', false, 'reasonForLimitation'));
             body.appendChild(createCardItem('出荷量状況:', item.shipmentVolumeStatus || '-', false, 'shipmentVolumeStatus'));

@@ -152,19 +152,27 @@
                     const row = rowString.slice(1, -1).split('","');
                     
                     let updatedCells = [];
+                    let shippingStatusTrend = ''; // New variable for the trend icon
                     try {
-                        let metadataString = row[row.length - 1];
-                        if (metadataString && metadataString.length > 1) {
-                            const unescaped = metadataString.replace(/""/g, '"');
-                            if (unescaped.startsWith('{') && unescaped.endsWith('}')) {
-                                const parsedMetadata = JSON.parse(unescaped);
-                                if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
-                                    updatedCells = parsedMetadata.updated_cols;
-                                }
+                        let colW = row[22] || ''; // Get content of column W for trend
+                        let colX = row[23] || ''; // Get content of column X for metadata
+
+                        // Parse updatedCells from colX
+                        if (colX.length > 1 && colX.startsWith('{')) {
+                            const unescaped = colX.replace(/""/g, '"');
+                            const parsedMetadata = JSON.parse(unescaped);
+                            if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
+                                updatedCells = parsedMetadata.updated_cols;
                             }
                         }
+
+                        // Use colW for trend icon
+                        if (colW === '▲' || colW === '▼') {
+                            shippingStatusTrend = colW;
+                        }
+
                     } catch (e) {
-                        // console.warn("Failed to parse updatedCells metadata:", e, row[row.length - 1]);
+                        // console.warn("Failed to parse metadata or trend:", e);
                     }
 
                     return {
@@ -181,7 +189,8 @@
                         'isGeneric':            row[7],
                         'isBasicDrug':          row[8],
                         'updateDateObj':        parseGvizDate(row[19]),
-                        'updatedCells':         updatedCells
+                        'updatedCells':         updatedCells,
+                        'shippingStatusTrend':  shippingStatusTrend // Add this
                     };
                 });
 
@@ -428,7 +437,15 @@
                             ${escapeHTML(item.ingredientName) || '-'}
                         </span>
                     </td>
-                    <td class="px-1 py-2 text-sm text-gray-900 text-left">${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}</td>
+                    <td class="px-1 py-2 text-sm text-gray-900 text-left">
+                        <div class="flex items-center">
+                            ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
+                            ${ (item.shippingStatusTrend)
+                                ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend}</span>`
+                                : ''
+                            }
+                        </div>
+                    </td>
                     <td class="px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation) ? 'text-red-600 font-bold' : ''}">${escapeHTML(item.reasonForLimitation) || '-'}</td>
                     <td class="px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect) ? 'text-red-600 font-bold' : ''}">${escapeHTML(item.resolutionProspect) || '-'}</td>
                     <td class="px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.expectedDate) ? 'text-red-600 font-bold' : ''}">${escapeHTML(formatExpectedDate(item.expectedDate))}</td>
@@ -452,7 +469,15 @@
                 card.innerHTML = `
                     <div class="flex items-start justify-between mb-2">
                         <h3 class="text-base font-semibold text-gray-900 leading-tight pr-2 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}">${escapeHTML(item.productName) || '-'}</h3>
-                        <div class="flex-shrink-0">${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}</div>
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center">
+                                ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
+                                ${ (item.shippingStatusTrend)
+                                    ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend}</span>`
+                                    : ''
+                                }
+                            </div>
+                        </div>
                     </div>
                     <div class="text-sm space-y-1 text-gray-700">
                         <div class="flex items-center"><strong class="w-24 font-medium text-gray-600">成分名:</strong>

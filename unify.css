@@ -334,3 +334,11 @@ a.manufacturer-link:hover {
 #filter-word {
     max-width: 300px;
 }
+
+.text-red-500 {
+    color: #ef4444;
+}
+
+.text-red-600 {
+    color: #dc2626;
+}

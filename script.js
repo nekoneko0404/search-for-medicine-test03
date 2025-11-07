@@ -105,19 +105,27 @@
                     const row = rowString.slice(1, -1).split('","');
                     
                     let updatedCells = [];
+                    let shippingStatusTrend = ''; // New variable for the trend icon
                     try {
-                        let metadataString = row[row.length - 1];
-                        if (metadataString && metadataString.length > 1) {
-                            const unescaped = metadataString.replace(/""/g, '"');
-                            if (unescaped.startsWith('{') && unescaped.endsWith('}')) {
-                                const parsedMetadata = JSON.parse(unescaped);
-                                if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
-                                    updatedCells = parsedMetadata.updated_cols;
-                                }
+                        let colW = row[22] || ''; // Get content of column W for trend
+                        let colX = row[23] || ''; // Get content of column X for metadata
+
+                        // Parse updatedCells from colX
+                        if (colX.length > 1 && colX.startsWith('{')) {
+                            const unescaped = colX.replace(/""/g, '"');
+                            const parsedMetadata = JSON.parse(unescaped);
+                            if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
+                                updatedCells = parsedMetadata.updated_cols;
                             }
                         }
+
+                        // Use colW for trend icon
+                        if (colW === '▲' || colW === '▼') {
+                            shippingStatusTrend = colW;
+                        }
+
                     } catch (e) {
-                        // console.warn("Failed to parse updatedCells metadata:", e, row[row.length - 1]);
+                        // console.warn("Failed to parse metadata or trend:", e);
                     }
 
                     return {
@@ -134,7 +142,8 @@
                         'isGeneric':            row[7],
                         'isBasicDrug':          row[8],
                         'updateDateObj':        parseGvizDate(row[19]),
-                        'updatedCells':         updatedCells
+                        'updatedCells':         updatedCells,
+                        'shippingStatusTrend':  shippingStatusTrend // Add this
                     };
                 });
 
@@ -468,12 +477,25 @@
                 const statusCell = newRow.insertCell(2);
                 statusCell.setAttribute('data-label', '出荷状況');
                 statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left");
+
+                const statusContainer = document.createElement('div');
+                statusContainer.className = 'flex items-center';
+
                 const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
                 if (isStatusUpdated) {
                     statusCell.classList.add('text-red-600', 'font-bold');
                 }
+
                 const statusValue = (item.shipmentStatus || '').trim();
-                statusCell.appendChild(renderStatusButton(statusValue, isStatusUpdated));
+                statusContainer.appendChild(renderStatusButton(statusValue, isStatusUpdated));
+
+                if (item.shippingStatusTrend) {
+                    const trendIcon = document.createElement('span');
+                    trendIcon.className = 'ml-1 text-red-500'; // Added text-red-500
+                    trendIcon.textContent = item.shippingStatusTrend;
+                    statusContainer.appendChild(trendIcon);
+                }
+                statusCell.appendChild(statusContainer);
                 
                 const reasonCell = newRow.insertCell(3);
                 reasonCell.textContent = item.reasonForLimitation || "";
