@@ -80,26 +80,39 @@
         }
 
 
-        function processExcelData(arrayBuffer) {
+        function processCsvData(csvText) {
             updateProgress('データを処理中...', 75);
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            
-            const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, defval: "" });
-            const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true, defval: "" });
+            const rows = csvText.trim().split('\n');
+            if (rows.length < 2) return [];
 
-            if (jsonDataWithStrings.length < 2) return [];
+            const dataRows = rows.slice(1);
 
-            const dataRowsAsStrings = jsonDataWithStrings.slice(1);
-            const dataRowsAsNumbers = jsonDataWithNumbers.slice(1);
+            const parseGvizDateToSerial = (gvizDate) => {
+                if (typeof gvizDate !== 'string' || !gvizDate.startsWith('Date(')) {
+                    const num = parseFloat(gvizDate);
+                    return isNaN(num) ? gvizDate : num;
+                }
+                try {
+                    const parts = gvizDate.match(/\d+/g);
+                    if (parts && parts.length >= 3) {
+                        const year = parseInt(parts[0]);
+                        const month = parseInt(parts[1]); // 0-indexed
+                        const day = parseInt(parts[2]);
+                        const jsDate = new Date(Date.UTC(year, month, day));
+                        return (jsDate.getTime() / 86400000) + 25569;
+                    }
+                    return gvizDate;
+                } catch {
+                    return gvizDate;
+                }
+            };
 
-            return dataRowsAsStrings.map((row, index) => {
-                const numberRow = dataRowsAsNumbers[index];
-                // Determine the index of the '更新セル情報' column dynamically
-                const updatedCellsMetadataColIndex = row.length - 1;
+            return dataRows.map(rowString => {
+                const row = rowString.slice(1, -1).split('","');
+                
                 let updatedCells = [];
                 try {
-                    const metadata = row[updatedCellsMetadataColIndex];
+                    const metadata = row[row.length - 1];
                     if (metadata) {
                         const parsedMetadata = JSON.parse(metadata);
                         if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
@@ -107,8 +120,9 @@
                         }
                     }
                 } catch (e) {
-                    console.warn("Failed to parse updatedCells metadata:", e, row[updatedCellsMetadataColIndex]);
+                    // console.warn("Failed to parse updatedCells metadata:", e, row[row.length - 1]);
                 }
+
                 return {
                     'productName':          row[5],
                     'ingredientName':       row[2],
@@ -116,35 +130,35 @@
                     'shipmentStatus':       row[11],
                     'reasonForLimitation':  row[13],
                     'resolutionProspect':   row[14],
-                    'expectedDate':         numberRow[15] || row[15],
+                    'expectedDate':         row[15],
                     'shipmentVolumeStatus': row[16],
                     'yjCode':               row[4],
                     'productCategory':      row[7],
                     'isBasicDrug':          row[8],
-                    'updateDateSerial':     numberRow[19] || row[19],
-                    'updatedCells':         updatedCells // Add the parsed updated cells info
+                    'updateDateSerial':     parseGvizDateToSerial(row[19]),
+                    'updatedCells':         updatedCells
                 };
             });
         }
 
         async function fetchExcelData() {
-            console.log('Fetching Excel data from Google Drive...');
+            console.log('Fetching CSV data from Google Drive...');
             updateProgress('Google Driveからデータを読み込み中...', 0);
             
             const fileId = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
-            const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&cb=${new Date().getTime()}`;
 
             try {
                 updateProgress('データをダウンロード中...', 50);
-                const response = await fetch(googleDriveUrl, { cache: "no-cache" });
+                const response = await fetch(csvUrl, { cache: "no-cache" });
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Fetch Error Body:', errorText);
                     throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                 }
                 
-                const arrayBuffer = await response.arrayBuffer();
-                const processedData = processExcelData(arrayBuffer);
+                const csvText = await response.text();
+                const processedData = processCsvData(csvText);
 
                 if (processedData.length > 0) {
                     const cachePayload = {
@@ -160,7 +174,7 @@
                 updateProgress('データの読み込みが完了しました！', 100);
                 return { data: processedData, date: 'Google Drive' };
             } catch (error) {
-                console.error(`データの取得に失敗しました: ${googleDriveUrl} ${error}`);
+                console.error(`データの取得に失敗しました: ${csvUrl} ${error}`);
                 showMessage(`データの取得に失敗しました。詳細: ${error.message}`, 'error');
             } finally {
                 setTimeout(() => progressBarContainer.classList.add('hidden'), 1000);

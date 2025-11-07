@@ -39,15 +39,8 @@
             }, delay);
         }
 
-        function excelSerialDateToJSDate(serial) {
-            if (typeof serial !== 'number' || isNaN(serial)) return null;
-            const adjustedSerial = serial > 60 ? serial - 1 : serial;
-            const excelEpoch = new Date(Date.UTC(1899, 11, 31));
-            return new Date(excelEpoch.getTime() + adjustedSerial * 86400000);
-        }
-
         function formatExpectedDate(dateValue) {
-            if (typeof dateValue === 'number') {
+            if (typeof dateValue === 'number') { // This path might not be used anymore, but kept for safety
                 const dateObj = excelSerialDateToJSDate(dateValue);
                 if (dateObj) {
                     const year = String(dateObj.getFullYear()).slice(-2);
@@ -56,6 +49,20 @@
                     return `${year}-${month}-${day}`; 
                 }
             } else if (typeof dateValue === 'string') {
+                // Handle gviz date format e.g. "Date(2024,10,2)"
+                if (dateValue.startsWith('Date(')) {
+                    try {
+                        const parts = dateValue.match(/\d+/g);
+                        if (parts && parts.length >= 3) {
+                            const year = parts[0].slice(-2);
+                            const month = String(parseInt(parts[1]) + 1).padStart(2, '0');
+                            const day = String(parseInt(parts[2])).padStart(2, '0');
+                            return `${year}-${month}-${day}`;
+                        }
+                    } catch {
+                        return dateValue; // return original on error
+                    }
+                }
                 return dateValue;
             }
             return '-';
@@ -97,43 +104,67 @@
 
         async function fetchAndProcessExcelData() {
             const fileId = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
-            const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&cb=${new Date().getTime()}`;
 
             try {
-                const response = await fetch(googleDriveUrl, { cache: "no-cache" });
+                const response = await fetch(csvUrl, { cache: "no-cache" });
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Fetch Error Body:', errorText);
                     throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                 }
                 
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const csvText = await response.text();
                 
-                const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, defval: "" });
-                const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true, defval: "" });
+                const rows = csvText.trim().split('\n');
+                if (rows.length < 2) return [];
 
-                if (jsonDataWithStrings.length < 2) return [];
+                const dataRows = rows.slice(1); // Skip header row
 
-                const dataRowsAsStrings = jsonDataWithStrings.slice(1);
-                const dataRowsAsNumbers = jsonDataWithNumbers.slice(1);
+                const parseGvizDate = (gvizDate) => {
+                    if (typeof gvizDate !== 'string' || gvizDate.trim() === '') {
+                        return null;
+                    }
+                    try {
+                        // Handle gviz date format e.g. "Date(2024,10,2)"
+                        if (gvizDate.startsWith('Date(')) {
+                            const parts = gvizDate.match(/\d+/g);
+                            if (parts && parts.length >= 3) {
+                                const year = parseInt(parts[0]);
+                                const month = parseInt(parts[1]); // 0-indexed
+                                const day = parseInt(parts[2]);
+                                return new Date(Date.UTC(year, month, day));
+                            }
+                        }
+                        // Handle ISO-like date strings "YYYY-MM-DD ..."
+                        const date = new Date(gvizDate);
+                        if (!isNaN(date.getTime())) {
+                            // Create a new Date object at UTC midnight to avoid timezone issues in comparisons
+                            return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                        }
+                    } catch {
+                        return null;
+                    }
+                    return null;
+                };
 
-                const mappedData = dataRowsAsStrings.map((row, index) => {
-                    const numberRow = dataRowsAsNumbers[index];
-                    // Determine the index of the '更新セル情報' column dynamically
-                    const updatedCellsMetadataColIndex = row.length - 1;
+                const mappedData = dataRows.map(rowString => {
+                    const row = rowString.slice(1, -1).split('","');
+                    
                     let updatedCells = [];
                     try {
-                        const metadata = row[updatedCellsMetadataColIndex];
-                        if (metadata) {
-                            const parsedMetadata = JSON.parse(metadata);
-                            if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
-                                updatedCells = parsedMetadata.updated_cols;
+                        let metadataString = row[row.length - 1];
+                        if (metadataString && metadataString.length > 1) {
+                            const unescaped = metadataString.replace(/""/g, '"');
+                            if (unescaped.startsWith('{') && unescaped.endsWith('}')) {
+                                const parsedMetadata = JSON.parse(unescaped);
+                                if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
+                                    updatedCells = parsedMetadata.updated_cols;
+                                }
                             }
                         }
                     } catch (e) {
-                        console.warn("Failed to parse updatedCells metadata:", e, row[updatedCellsMetadataColIndex]);
+                        // console.warn("Failed to parse updatedCells metadata:", e, row[row.length - 1]);
                     }
 
                     return {
@@ -143,14 +174,14 @@
                         'shipmentStatus':       row[11],
                         'reasonForLimitation':  row[13],
                         'resolutionProspect':   row[14],
-                        'expectedDate':         numberRow[15] || row[15],
+                        'expectedDate':         row[15],
                         'shipmentVolumeStatus': row[16],
                         'yjCode':               row[4],
                         'standard':             row[3],
                         'isGeneric':            row[7],
-                        'isBasicDrug':            row[8],
-                        'updateDateSerial':     numberRow[19] || row[19],
-                        'updatedCells':         updatedCells // Add the parsed updated cells info
+                        'isBasicDrug':          row[8],
+                        'updateDateObj':        parseGvizDate(row[19]),
+                        'updatedCells':         updatedCells
                     };
                 });
 
@@ -484,10 +515,7 @@
                 }
 
                 if (sourceData && sourceData.length > 0) {
-                    data = sourceData.map(item => {
-                        item.updateDateObj = excelSerialDateToJSDate(item.updateDateSerial);
-                        return item;
-                    });
+                    data = sourceData; // Simplified: No more mapping needed here
                     
                     if (shippingStatus === 'all') {
                         document.querySelectorAll('#status-filters input').forEach(cb => cb.checked = true);
@@ -511,10 +539,7 @@
                 console.error("Error reading from localForage, fetching from network.", err);
                 let sourceData = await fetchAndProcessExcelData();
                 if (sourceData && sourceData.length > 0) {
-                    data = sourceData.map(item => {
-                        item.updateDateObj = excelSerialDateToJSDate(item.updateDateSerial);
-                        return item;
-                    });
+                    data = sourceData; // Simplified: No more mapping needed here
                     
                     if (shippingStatus === 'all') {
                         document.querySelectorAll('#status-filters input').forEach(cb => cb.checked = true);
@@ -580,10 +605,7 @@
                     loadingIndicator.classList.remove('hidden');
                     fetchAndProcessExcelData().then(sourceData => {
                         if (sourceData && sourceData.length > 0) {
-                            data = sourceData.map(item => {
-                                item.updateDateObj = excelSerialDateToJSDate(item.updateDateSerial);
-                                return item;
-                            });
+                            data = sourceData; // Simplified: No more mapping needed here
                             performSearch();
                         }
                     }).finally(() => {

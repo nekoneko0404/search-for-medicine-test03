@@ -47,32 +47,62 @@
             return input.split(/\s+|　+/).filter(keyword => keyword !== '').map(keyword => normalizeString(keyword));
         }
 
-        function processExcelData(data) {
+        function processCsvData(csvText) {
             try {
-                const workbook = XLSX.read(data, {type: 'array'});
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                
-                const jsonDataWithStrings = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, defval: "" });
-                const jsonDataWithNumbers = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 1, raw: true, defval: "" });
-
-                if (jsonDataWithStrings.length < 2) { 
+                const rows = csvText.trim().split('\n');
+                if (rows.length < 2) {
                     excelData = [];
-                    showMessage("Excelファイルに処理できるデータがありません。", "info");
+                    showMessage("CSVファイルに処理できるデータがありません。", "info");
                     hideMessage(2000);
                     return;
                 }
 
-                const dataRowsAsStrings = jsonDataWithStrings.slice(1);
-                const dataRowsAsNumbers = jsonDataWithNumbers.slice(1);
+                const dataRows = rows.slice(1); // Skip header row
 
-                const mappedData = dataRowsAsStrings.map((row, index) => {
-                    const numberRow = dataRowsAsNumbers[index];
-                    // Determine the index of the '更新セル情報' column dynamically
-                    const updatedCellsMetadataColIndex = row.length - 1;
+                const parseGvizDateToString = (gvizDate) => {
+                    if (typeof gvizDate !== 'string' || !gvizDate.startsWith('Date(')) {
+                        return gvizDate;
+                    }
+                    try {
+                        const parts = gvizDate.match(/\d+/g);
+                        if (parts && parts.length >= 3) {
+                            const year = parts[0];
+                            const month = String(parseInt(parts[1]) + 1).padStart(2, '0');
+                            const day = String(parseInt(parts[2])).padStart(2, '0');
+                            return `${year}-${month}-${day}`;
+                        }
+                        return gvizDate;
+                    } catch {
+                        return gvizDate;
+                    }
+                };
+
+                const parseGvizDateToSerial = (gvizDate) => {
+                    if (typeof gvizDate !== 'string' || !gvizDate.startsWith('Date(')) {
+                        const num = parseFloat(gvizDate);
+                        return isNaN(num) ? gvizDate : num;
+                    }
+                    try {
+                        const parts = gvizDate.match(/\d+/g);
+                        if (parts && parts.length >= 3) {
+                            const year = parseInt(parts[0]);
+                            const month = parseInt(parts[1]); // 0-indexed
+                            const day = parseInt(parts[2]);
+                            const jsDate = new Date(Date.UTC(year, month, day));
+                            return (jsDate.getTime() / 86400000) + 25569;
+                        }
+                        return gvizDate;
+                    } catch {
+                        return gvizDate;
+                    }
+                };
+
+                const mappedData = dataRows.map(rowString => {
+                    const row = rowString.slice(1, -1).split('","');
+                    
                     let updatedCells = [];
                     try {
-                        const metadata = row[updatedCellsMetadataColIndex];
+                        const metadata = row[row.length - 1];
                         if (metadata) {
                             const parsedMetadata = JSON.parse(metadata);
                             if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
@@ -80,7 +110,7 @@
                             }
                         }
                     } catch (e) {
-                        console.warn("Failed to parse updatedCells metadata:", e, row[updatedCellsMetadataColIndex]);
+                        // console.warn("Failed to parse updatedCells metadata:", e, row[row.length - 1]);
                     }
 
                     return {
@@ -90,14 +120,14 @@
                         'shipmentStatus':       row[11],
                         'reasonForLimitation':  row[13],
                         'resolutionProspect':   row[14],
-                        'expectedDate':         numberRow[15] || row[15],
+                        'expectedDate':         parseGvizDateToString(row[15]),
                         'shipmentVolumeStatus': row[16],
                         'yjCode':               row[4],
                         'standard':             row[3],
                         'isGeneric':            row[7],
                         'isBasicDrug':          row[8],
-                        'updateDateSerial':     numberRow[19] || row[19],
-                        'updatedCells':         updatedCells // Add the parsed updated cells info
+                        'updateDateSerial':     parseGvizDateToSerial(row[19]),
+                        'updatedCells':         updatedCells
                     };
                 });
 
@@ -569,16 +599,16 @@
                 });
             });
 
-            const fileId = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
 
             async function fetchSpreadsheetData() {
-                const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx&cb=${new Date().getTime()}`;
+                const fileId = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
+                const csvUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&cb=${new Date().getTime()}`;
                 showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
                 try {
-                    const response = await fetch(googleDriveUrl, { cache: "no-cache" });
+                    const response = await fetch(csvUrl, { cache: "no-cache" });
                     if (response.ok) {
-                        const data = await response.arrayBuffer();
-                        processExcelData(new Uint8Array(data));
+                        const csvText = await response.text();
+                        processCsvData(csvText);
 
                         if (excelData.length > 0) {
                             const cachePayload = {
