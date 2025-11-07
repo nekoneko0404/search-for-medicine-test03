@@ -59,42 +59,46 @@
 
                 const dataRows = rows.slice(1); // Skip header row
 
-                const parseGvizDateToString = (gvizDate) => {
-                    if (typeof gvizDate !== 'string' || !gvizDate.startsWith('Date(')) {
-                        return gvizDate;
+                const parseGvizDate = (gvizDate) => {
+                    if (typeof gvizDate !== 'string' || gvizDate.trim() === '') {
+                        return null;
                     }
                     try {
-                        const parts = gvizDate.match(/\d+/g);
-                        if (parts && parts.length >= 3) {
-                            const year = parts[0];
-                            const month = String(parseInt(parts[1]) + 1).padStart(2, '0');
-                            const day = String(parseInt(parts[2])).padStart(2, '0');
-                            return `${year}-${month}-${day}`;
+                        // Handle gviz date format e.g. "Date(2024,10,2)"
+                        if (gvizDate.startsWith('Date(')) {
+                            const parts = gvizDate.match(/\d+/g);
+                            if (parts && parts.length >= 3) {
+                                const year = parseInt(parts[0]);
+                                const month = parseInt(parts[1]); // 0-indexed
+                                const day = parseInt(parts[2]);
+                                return new Date(Date.UTC(year, month, day));
+                            }
                         }
-                        return gvizDate;
+                        // Handle ISO-like date strings "YYYY-MM-DD ..."
+                        const date = new Date(gvizDate);
+                        if (!isNaN(date.getTime())) {
+                            // Create a new Date object at UTC midnight to avoid timezone issues in comparisons
+                            return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                        }
                     } catch {
-                        return gvizDate;
+                        return null;
                     }
+                    return null;
                 };
-
-                const parseGvizDateToSerial = (gvizDate) => {
-                    if (typeof gvizDate !== 'string' || !gvizDate.startsWith('Date(')) {
-                        const num = parseFloat(gvizDate);
-                        return isNaN(num) ? gvizDate : num;
+                
+                const parseGvizDateToString = (gvizDate) => {
+                    const dateObj = parseGvizDate(gvizDate);
+                    if(dateObj){
+                        const year = dateObj.getUTCFullYear();
+                        const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+                        const day = String(dateObj.getUTCDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
                     }
-                    try {
-                        const parts = gvizDate.match(/\d+/g);
-                        if (parts && parts.length >= 3) {
-                            const year = parseInt(parts[0]);
-                            const month = parseInt(parts[1]); // 0-indexed
-                            const day = parseInt(parts[2]);
-                            const jsDate = new Date(Date.UTC(year, month, day));
-                            return (jsDate.getTime() / 86400000) + 25569;
-                        }
-                        return gvizDate;
-                    } catch {
+                    // Fallback for values that are not dates but might be in the date column
+                    if (typeof gvizDate === 'string') {
                         return gvizDate;
                     }
+                    return '-';
                 };
 
                 const mappedData = dataRows.map(rowString => {
@@ -102,11 +106,14 @@
                     
                     let updatedCells = [];
                     try {
-                        const metadata = row[row.length - 1];
-                        if (metadata) {
-                            const parsedMetadata = JSON.parse(metadata);
-                            if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
-                                updatedCells = parsedMetadata.updated_cols;
+                        let metadataString = row[row.length - 1];
+                        if (metadataString && metadataString.length > 1) {
+                            const unescaped = metadataString.replace(/""/g, '"');
+                            if (unescaped.startsWith('{') && unescaped.endsWith('}')) {
+                                const parsedMetadata = JSON.parse(unescaped);
+                                if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
+                                    updatedCells = parsedMetadata.updated_cols;
+                                }
                             }
                         }
                     } catch (e) {
@@ -126,7 +133,7 @@
                         'standard':             row[3],
                         'isGeneric':            row[7],
                         'isBasicDrug':          row[8],
-                        'updateDateSerial':     parseGvizDateToSerial(row[19]),
+                        'updateDateObj':        parseGvizDate(row[19]),
                         'updatedCells':         updatedCells
                     };
                 });
