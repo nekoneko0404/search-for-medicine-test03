@@ -40,28 +40,32 @@
         }
 
         function formatExpectedDate(dateValue) {
-            if (typeof dateValue === 'number') { // This path might not be used anymore, but kept for safety
-                const dateObj = excelSerialDateToJSDate(dateValue);
-                if (dateObj) {
-                    const year = String(dateObj.getFullYear()).slice(-2);
-                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                    const day = String(dateObj.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`; 
-                }
-            } else if (typeof dateValue === 'string') {
+            if (typeof dateValue === 'string') {
                 // Handle gviz date format e.g. "Date(2024,10,2)"
                 if (dateValue.startsWith('Date(')) {
                     try {
                         const parts = dateValue.match(/\d+/g);
                         if (parts && parts.length >= 3) {
-                            const year = parts[0].slice(-2);
-                            const month = String(parseInt(parts[1]) + 1).padStart(2, '0');
-                            const day = String(parseInt(parts[2])).padStart(2, '0');
-                            return `${year}-${month}-${day}`;
+                            const year = parseInt(parts[0]);
+                            const month = parseInt(parts[1]); // 0-indexed
+                            const day = parseInt(parts[2]);
+                            const dateObj = new Date(Date.UTC(year, month, day)); // Create UTC date object
+                            const displayYear = String(dateObj.getUTCFullYear()).slice(-2);
+                            const displayMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+                            const displayDay = String(dateObj.getUTCDate()).padStart(2, '0');
+                            return `${displayYear}-${displayMonth}-${displayDay}`;
                         }
                     } catch {
                         return dateValue; // return original on error
                     }
+                }
+                // If it's an ISO-like string, parse it as UTC
+                const dateObj = new Date(dateValue + 'T00:00:00Z'); // Append T00:00:00Z to force UTC parsing
+                if (!isNaN(dateObj.getTime())) {
+                    const displayYear = String(dateObj.getUTCFullYear()).slice(-2);
+                    const displayMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+                    const displayDay = String(dateObj.getUTCDate()).padStart(2, '0');
+                    return `${displayYear}-${displayMonth}-${displayDay}`;
                 }
                 return dateValue;
             }
@@ -69,7 +73,11 @@
         }
 
         function formatDate(date) {
-            if (!date || !(date instanceof Date)) return '-';
+            if (!date) return '-';
+            if (typeof date === 'string') {
+                date = new Date(date);
+            }
+            if (!(date instanceof Date) || isNaN(date)) return '-';
             const year = String(date.getFullYear()).slice(-2);
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
@@ -133,14 +141,13 @@
                                 const year = parseInt(parts[0]);
                                 const month = parseInt(parts[1]); // 0-indexed
                                 const day = parseInt(parts[2]);
-                                return new Date(Date.UTC(year, month, day));
+                                return new Date(year, month, day);
                             }
                         }
                         // Handle ISO-like date strings "YYYY-MM-DD ..."
                         const date = new Date(gvizDate);
                         if (!isNaN(date.getTime())) {
-                            // Create a new Date object at UTC midnight to avoid timezone issues in comparisons
-                            return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                            return date;
                         }
                     } catch {
                         return null;
@@ -257,16 +264,17 @@
             const rawSearchTerm = document.getElementById('searchInput').value.trim();
             const searchTerms = rawSearchTerm.split(/[　 ]+/).map(normalizeString).filter(term => term.length > 0);
             
-            const selectedStatuses = Array.from(document.querySelectorAll('#status-filters input:checked')).map(cb => cb.dataset.status);
+            const selectedStatuses = Array.from(document.querySelectorAll('#status-filters input[data-status]:checked')).map(cb => cb.dataset.status);
+            const selectedTrends = Array.from(document.querySelectorAll('#status-filters input[data-trend]:checked')).map(cb => cb.dataset.trend);
             const selectedDays = document.querySelector('#date-filters input:checked')?.dataset.days || 'all';
 
-            if (selectedStatuses.length === 0) {
+            if (selectedStatuses.length === 0 && selectedTrends.length === 0) {
                 document.getElementById('resultsContainer').innerHTML = '';
                 showMessage('出荷状況のチェックがすべて外れています。少なくとも1つ選択してください。', 'error');
                 return;
             }
 
-            const isDefaultState = rawSearchTerm === '' && selectedDays === 'all' && selectedStatuses.length === document.querySelectorAll('#status-filters input').length;
+            const isDefaultState = rawSearchTerm === '' && selectedDays === 'all' && selectedStatuses.length === document.querySelectorAll('#status-filters input[data-status]').length && selectedTrends.length === 0;
             if (data.length > 0 && isDefaultState) {
                 document.getElementById('resultsContainer').innerHTML = '';
                 showMessage('品名、成分名を入力するか、フィルターを絞り込んでください。', 'info'); 
@@ -280,14 +288,19 @@
                 return searchTerms.every(term => productName.includes(term) || ingredientName.includes(term));
             });
 
-            if (selectedStatuses.length < document.querySelectorAll('#status-filters input').length) {
-                 filteredResults = filteredResults.filter(item => {
+            if (selectedStatuses.length > 0 || selectedTrends.length > 0) {
+                filteredResults = filteredResults.filter(item => {
                     const itemStatus = item.shipmentStatus || '';
-                    return selectedStatuses.some(status => {
+                    
+                    const statusMatch = !selectedStatuses.length || selectedStatuses.some(status => {
                         if (itemStatus.includes(status)) return true;
                         if (status === "出荷制限" && itemStatus.includes("限定出荷")) return true;
                         return false;
                     });
+
+                    const trendMatch = !selectedTrends.length || selectedTrends.includes(item.shippingStatusTrend);
+
+                    return statusMatch && trendMatch;
                 });
             }
 
@@ -300,7 +313,7 @@
                 filteredResults = filteredResults.filter(item => {
                     if (!item.updateDateObj) return false;
                     const itemDate = new Date(item.updateDateObj);
-                    itemDate.setHours(0, 0, 0, 0);
+                    itemDate.setHours(0,0,0,0);
                     return itemDate >= cutoffDate;
                 });
             }
@@ -319,33 +332,22 @@
         }
 
         function performRecoverySearch() {
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setHours(0, 0, 0, 0);
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+            // Uncheck all status and trend checkboxes
+            document.querySelectorAll('#status-filters input[data-status]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('#status-filters input[data-trend]').forEach(cb => cb.checked = false);
 
-            filteredResults = data.filter(item => {
-                if (!item.updateDateObj) return false;
-                const itemDate = new Date(item.updateDateObj);
-                itemDate.setHours(0, 0, 0, 0);
+            // Check only "通常出荷" and "▲"
+            document.querySelector('#status-filters input[data-status="通常出荷"]').checked = true;
+            document.querySelector('#status-filters input[data-trend="▲"]').checked = true;
 
-                const isWithin7Days = itemDate >= sevenDaysAgo;
-                const isNormalShipment = (item.shipmentStatus || '').includes('通常出荷');
-                const isShipmentStatusUpdated = item.updatedCells && item.updatedCells.includes(11);
+            // Uncheck all date filter checkboxes
+            const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
+            dateFilters.forEach(cb => cb.checked = false);
 
-                return isWithin7Days && isNormalShipment && isShipmentStatusUpdated;
-            });
+            // Check only "7日以内"
+            document.querySelector('#date-filters input[data-days="7"]').checked = true;
 
-            sortStates.productName = 'asc';
-            sortStates.ingredientName = 'asc';
-            sortStates.updateDate = 'desc';
-
-            filteredResults.sort((a, b) => {
-                const aValue = a.updateDateObj ? a.updateDateObj.getTime() : 0;
-                const bValue = b.updateDateObj ? b.updateDateObj.getTime() : 0;
-                return bValue - aValue;
-            });
-
-            displayResults(filteredResults);
+            performSearch();
             showMessage(`「復旧情報」の検索が完了しました。`, 'success');
             hideMessage(2000);
         }
@@ -540,10 +542,16 @@
                 }
 
                 if (sourceData && sourceData.length > 0) {
-                    data = sourceData; // Simplified: No more mapping needed here
+                    sourceData.forEach(item => {
+                        if (item.updateDateObj && typeof item.updateDateObj === 'string') {
+                            item.updateDateObj = new Date(item.updateDateObj);
+                        }
+                    });
+                    data = sourceData;
                     
                     if (shippingStatus === 'all') {
-                        document.querySelectorAll('#status-filters input').forEach(cb => cb.checked = true);
+                        document.querySelectorAll('#status-filters input[data-status]').forEach(cb => cb.checked = true);
+                        document.querySelectorAll('#status-filters input[data-trend]').forEach(cb => cb.checked = false);
                     }
             
                     if (updateDate === 'all') {
@@ -564,7 +572,7 @@
                 console.error("Error reading from localForage, fetching from network.", err);
                 let sourceData = await fetchAndProcessExcelData();
                 if (sourceData && sourceData.length > 0) {
-                    data = sourceData; // Simplified: No more mapping needed here
+                    data = sourceData;
                     
                     if (shippingStatus === 'all') {
                         document.querySelectorAll('#status-filters input').forEach(cb => cb.checked = true);
@@ -592,7 +600,8 @@
             searchButton.addEventListener('click', performSearch);
             clearButton.addEventListener('click', () => {
                 searchInput.value = '';
-                document.querySelectorAll('#status-filters input').forEach(cb => cb.checked = true);
+                document.querySelectorAll('#status-filters input[data-status]').forEach(cb => cb.checked = true);
+                document.querySelectorAll('#status-filters input[data-trend]').forEach(cb => cb.checked = false);
                 dateFilters.forEach(cb => {
                     cb.checked = cb.dataset.days === '3';
                 });
@@ -607,7 +616,15 @@
             });
 
             document.querySelectorAll('#status-filters input').forEach(cb => {
-                cb.addEventListener('change', performSearch);
+                cb.addEventListener('change', (e) => {
+                    // if no checkbox is checked, check all status checkboxes
+                    if (document.querySelectorAll('#status-filters input:checked').length === 0) {
+                        document.querySelectorAll('#status-filters input[data-status]').forEach(statusCb => {
+                            statusCb.checked = true;
+                        });
+                    }
+                    performSearch();
+                });
             });
             
             const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');

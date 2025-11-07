@@ -71,14 +71,13 @@
                                 const year = parseInt(parts[0]);
                                 const month = parseInt(parts[1]); // 0-indexed
                                 const day = parseInt(parts[2]);
-                                return new Date(Date.UTC(year, month, day));
+                                return new Date(year, month, day);
                             }
                         }
                         // Handle ISO-like date strings "YYYY-MM-DD ..."
                         const date = new Date(gvizDate);
                         if (!isNaN(date.getTime())) {
-                            // Create a new Date object at UTC midnight to avoid timezone issues in comparisons
-                            return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                            return date;
                         }
                     } catch {
                         return null;
@@ -89,9 +88,9 @@
                 const parseGvizDateToString = (gvizDate) => {
                     const dateObj = parseGvizDate(gvizDate);
                     if(dateObj){
-                        const year = dateObj.getUTCFullYear();
-                        const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
-                        const day = String(dateObj.getUTCDate()).padStart(2, '0');
+                        const year = dateObj.getFullYear();
+                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const day = String(dateObj.getDate()).padStart(2, '0');
                         return `${year}-${month}-${day}`;
                     }
                     // Fallback for values that are not dates but might be in the date column
