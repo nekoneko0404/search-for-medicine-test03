@@ -580,8 +580,17 @@
             return `${year}${month}${day}`;
         }
 
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
         function attachSearchListeners() {
             const inputIds = ['drugName', 'ingredientName', 'makerName'];
+            const debouncedSearch = debounce(searchData, 300);
 
             inputIds.forEach(id => {
                 const element = document.getElementById(id);
@@ -592,12 +601,12 @@
 
                 element.addEventListener('compositionend', () => {
                     isComposing = false;
-                    searchData(); 
+                    debouncedSearch(); 
                 });
 
                 element.addEventListener('input', () => {
                     if (!isComposing) {
-                        searchData();
+                        debouncedSearch();
                     }
                 });
             });
