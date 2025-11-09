@@ -2,10 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"name": "search-for-medicine-test02",
-			"path": "../search-for-medicine-test02"
 		}
 	],
 	"settings": {}
