@@ -455,7 +455,7 @@
                 }
                 const manufacturerName = item.manufacturer || '-';
                 const manufacturerUrl = manufacturerLinks[manufacturerName];
-                if (manufacturerUrl) {
+                if (manufacturerUrl && (manufacturerUrl.startsWith('http:') || manufacturerUrl.startsWith('https:'))) {
                     const link = document.createElement('a');
                     link.href = manufacturerUrl;
                     link.target = '_blank';
@@ -584,7 +584,7 @@
             const manufacturerName = item.manufacturer || '-';
             const manufacturerUrl = manufacturerLinks[manufacturerName];
             let manufacturerContent;
-            if (manufacturerUrl) {
+            if (manufacturerUrl && (manufacturerUrl.startsWith('http:') || manufacturerUrl.startsWith('https:'))) {
                 const link = document.createElement('a');
                 link.href = manufacturerUrl;
                 link.target = '_blank';
