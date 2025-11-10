@@ -563,7 +563,7 @@
                         });
                     } else {
                         document.querySelector('#date-filters input[data-days="all"]').checked = false;
-                        document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                        document.querySelector('#date-filters input[data-days="7"]').checked = true;
                     }
                     performSearch();
                 } else {
@@ -587,7 +587,7 @@
                         });
                     } else {
                         document.querySelector('#date-filters input[data-days="all"]').checked = false;
-                        document.querySelector('#date-filters input[data-days="3"]').checked = true;
+                        document.querySelector('#date-filters input[data-days="7"]').checked = true;
                     }
                     performSearch();
                 }
@@ -606,7 +606,7 @@
                 document.querySelectorAll('#status-filters input[data-status]').forEach(cb => cb.checked = true);
                 document.querySelectorAll('#status-filters input[data-trend]').forEach(cb => cb.checked = false);
                 dateFilters.forEach(cb => {
-                    cb.checked = cb.dataset.days === '3';
+                    cb.checked = cb.dataset.days === '7';
                 });
                 performSearch();
             });
