@@ -175,9 +175,9 @@
 
                         // Use colW for trend icon
                         if (colW === '▲' || colW === '⤴️') {
-                            shippingStatusTrend = '⤴️';
+                            shippingStatusTrend = '▲';
                         } else if (colW === '▼' || colW === '⤵️') {
-                            shippingStatusTrend = '⤵️';
+                            shippingStatusTrend = '▼';
                         }
 
                     } catch (e) {
@@ -339,9 +339,9 @@
             document.querySelectorAll('#status-filters input[data-status]').forEach(cb => cb.checked = false);
             document.querySelectorAll('#status-filters input[data-trend]').forEach(cb => cb.checked = false);
 
-            // Check only "通常出荷" and "⤴️"
+            // Check only "通常出荷" and "▲"
             document.querySelector('#status-filters input[data-status="通常出荷"]').checked = true;
-            document.querySelector('#status-filters input[data-trend="⤴️"]').checked = true;
+            document.querySelector('#status-filters input[data-trend="▲"]').checked = true;
 
             // Uncheck all date filter checkboxes
             const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
@@ -446,7 +446,7 @@
                         <div class="flex items-center">
                             ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
                             ${ (item.shippingStatusTrend)
-                                ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend}</span>`
+                                ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend === '▲' ? '⤴️' : '⤵️'}</span>`
                                 : ''
                             }
                         </div>
@@ -478,7 +478,7 @@
                             <div class="flex items-center">
                                 ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
                                 ${ (item.shippingStatusTrend)
-                                    ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend}</span>`
+                                    ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend === '▲' ? '⤴️' : '⤵️'}</span>`
                                     : ''
                                 }
                             </div>

@@ -119,8 +119,10 @@
                         }
 
                         // Use colW for trend icon
-                        if (colW === '▲' || colW === '▼') {
-                            shippingStatusTrend = colW;
+                        if (colW === '▲' || colW === '⤴️') {
+                            shippingStatusTrend = '⤴️';
+                        } else if (colW === '▼' || colW === '⤵️') {
+                            shippingStatusTrend = '⤵️';
                         }
 
                     } catch (e) {
