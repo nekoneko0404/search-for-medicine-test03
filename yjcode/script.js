@@ -87,24 +87,30 @@
 
             const dataRows = rows.slice(1);
 
-            const parseGvizDateToSerial = (gvizDate) => {
-                if (typeof gvizDate !== 'string' || !gvizDate.startsWith('Date(')) {
-                    const num = parseFloat(gvizDate);
-                    return isNaN(num) ? gvizDate : num;
+            const parseGvizDate = (gvizDate) => {
+                if (typeof gvizDate !== 'string' || gvizDate.trim() === '') {
+                    return null;
                 }
                 try {
-                    const parts = gvizDate.match(/\d+/g);
-                    if (parts && parts.length >= 3) {
-                        const year = parseInt(parts[0]);
-                        const month = parseInt(parts[1]); // 0-indexed
-                        const day = parseInt(parts[2]);
-                        const jsDate = new Date(Date.UTC(year, month, day));
-                        return (jsDate.getTime() / 86400000) + 25569;
+                    // Handle gviz date format e.g. "Date(2024,10,2)"
+                    if (gvizDate.startsWith('Date(')) {
+                        const parts = gvizDate.match(/\d+/g);
+                        if (parts && parts.length >= 3) {
+                            const year = parseInt(parts[0]);
+                            const month = parseInt(parts[1]); // 0-indexed
+                            const day = parseInt(parts[2]);
+                            return new Date(year, month, day);
+                        }
                     }
-                    return gvizDate;
+                    // Handle ISO-like date strings "YYYY-MM-DD ..."
+                    const date = new Date(gvizDate);
+                    if (!isNaN(date.getTime())) {
+                        return date;
+                    }
                 } catch {
-                    return gvizDate;
+                    return null;
                 }
+                return null;
             };
 
             return dataRows.map(rowString => {
@@ -148,7 +154,7 @@
                     'yjCode':               row[4],
                     'productCategory':      row[7],
                     'isBasicDrug':          row[8],
-                    'updateDateSerial':     parseGvizDateToSerial(row[19]),
+                    'updateDateObj':        parseGvizDate(row[19]),
                     'updatedCells':         updatedCells,
                     'shippingStatusTrend':  shippingStatusTrend // Add this
                 };
@@ -387,8 +393,7 @@
                 'expectedDate': 15,
                 'shipmentVolumeStatus': 16,
                 'productCategory': 7,
-                'isBasicDrug': 8,
-                'updateDateSerial': 12
+                'isBasicDrug': 8
             };
 
             results.forEach((item, index) => {
@@ -638,6 +643,11 @@ hr.className = 'my-2 border-gray-200';
                 const oneHour = 1 * 60 * 60 * 1000; // 1時間
                 if (cachedData && (new Date().getTime() - cachedData.timestamp < oneHour)) {
                     console.log("Found recent cached data in localForage.");
+                    cachedData.data.forEach(item => {
+                        if (item.updateDateObj && typeof item.updateDateObj === 'string') {
+                            item.updateDateObj = new Date(item.updateDateObj);
+                        }
+                    });
                     return { data: cachedData.data, date: 'キャッシュ' };
                 } else {
                     if(cachedData) {
