@@ -174,8 +174,10 @@
                         }
 
                         // Use colW for trend icon
-                        if (colW === '▲' || colW === '▼') {
-                            shippingStatusTrend = colW;
+                        if (colW === '▲' || colW === '⤴️') {
+                            shippingStatusTrend = '⤴️';
+                        } else if (colW === '▼' || colW === '⤵️') {
+                            shippingStatusTrend = '⤵️';
                         }
 
                     } catch (e) {
@@ -337,9 +339,9 @@
             document.querySelectorAll('#status-filters input[data-status]').forEach(cb => cb.checked = false);
             document.querySelectorAll('#status-filters input[data-trend]').forEach(cb => cb.checked = false);
 
-            // Check only "通常出荷" and "▲"
+            // Check only "通常出荷" and "⤴️"
             document.querySelector('#status-filters input[data-status="通常出荷"]').checked = true;
-            document.querySelector('#status-filters input[data-trend="▲"]').checked = true;
+            document.querySelector('#status-filters input[data-trend="⤴️"]').checked = true;
 
             // Uncheck all date filter checkboxes
             const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
