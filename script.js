@@ -699,3 +699,4 @@
                 console.error("Error reading from localForage, fetching from network.", err);
                 fetchSpreadsheetData();
             });
+        };
