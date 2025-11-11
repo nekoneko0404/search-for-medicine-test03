@@ -435,8 +435,31 @@
                 const newRow = tbody.insertRow();
                 const rowBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
                 newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-200`;
+
+                let labelsHTML = '';
+                const hColumnValue = (item.isGeneric || '').trim();
+                const iColumnValue = (item.isBasicDrug || '').trim();
+
+                if (hColumnValue === '後発品') {
+                    labelsHTML += `<span class="bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">後</span>`;
+                }
+                if (iColumnValue === '基礎的医薬品') {
+                    labelsHTML += `<span class="bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">基</span>`;
+                }
+                
+                let labelsContainerHTML = '';
+                if (labelsHTML) {
+                    labelsContainerHTML = `<div class="vertical-labels-container">${labelsHTML}</div>`;
+                }
+
+                const productNameHTML = `
+                    <div class="flex items-start">
+                        ${labelsContainerHTML}
+                        <span class="font-semibold">${escapeHTML(item.productName) || '-'}</span>
+                    </div>`;
+
                 newRow.innerHTML = `
-                    <td class="px-2 py-2 text-sm text-gray-900 font-semibold ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}">${escapeHTML(item.productName) || '-'}</td>
+                    <td class="px-2 py-2 text-sm text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}">${productNameHTML}</td>
                     <td class="px-2 py-2 text-sm text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}">
                         <span class="ingredient-link cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline transition-colors" data-ingredient="${escapeHTML(item.ingredientName || '')}">
                             ${escapeHTML(item.ingredientName) || '-'}
@@ -471,9 +494,32 @@
                 const card = document.createElement('div');
                 const cardBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
                 card.className = `${cardBgClass} rounded-lg shadow-md border border-gray-200 p-4`;
+
+                let labelsHTML = '';
+                const hColumnValue = (item.isGeneric || '').trim();
+                const iColumnValue = (item.isBasicDrug || '').trim();
+
+                if (hColumnValue === '後発品') {
+                    labelsHTML += `<span class="bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">後</span>`;
+                }
+                if (iColumnValue === '基礎的医薬品') {
+                    labelsHTML += `<span class="bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">基</span>`;
+                }
+                
+                let labelsContainerHTML = '';
+                if (labelsHTML) {
+                    labelsContainerHTML = `<div class="vertical-labels-container">${labelsHTML}</div>`;
+                }
+
+                const productNameHTML = `
+                    <div class="flex items-start">
+                        ${labelsContainerHTML}
+                        <h3 class="text-base font-semibold text-gray-900 leading-tight pr-2 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}">${escapeHTML(item.productName) || '-'}</h3>
+                    </div>`;
+
                 card.innerHTML = `
                     <div class="flex items-start justify-between mb-2">
-                        <h3 class="text-base font-semibold text-gray-900 leading-tight pr-2 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}">${escapeHTML(item.productName) || '-'}</h3>
+                        ${productNameHTML}
                         <div class="flex-shrink-0">
                             <div class="flex items-center">
                                 ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
