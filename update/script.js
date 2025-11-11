@@ -86,7 +86,12 @@
 
         function normalizeString(str) {
             if (!str) return '';
-            return String(str).trim().toLowerCase().replace(/[ァ-ヶ]/g, s => String.fromCharCode(s.charCodeAt(0) - 0x60));
+            const hiraToKata = str.replace(/[ぁ-ゖ]/g, function(match) {
+                const charCode = match.charCodeAt(0) + 0x60;
+                return String.fromCharCode(charCode);
+            });
+            const normalizedStr = hiraToKata.normalize('NFKC');
+            return normalizedStr.toLowerCase();
         }
 
         function renderStatusButton(status, isUpdated = false) { // isUpdated引数を追加
@@ -109,6 +114,14 @@
             }
         }
 
+        let isComposing = false;
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
 
         function sortResults(key) {
             if (filteredResults.length === 0) {
@@ -153,7 +166,15 @@
 
         function performSearch() {
             const rawSearchTerm = document.getElementById('searchInput').value.trim();
-            const searchTerms = rawSearchTerm.split(/[　 ]+/).map(normalizeString).filter(term => term.length > 0);
+            const allTerms = rawSearchTerm.split(/[　 ]+/).filter(term => term.length > 0);
+
+            const inclusionTerms = allTerms
+                .filter(term => !term.startsWith('ー') && !term.startsWith('-'))
+                .map(normalizeString);
+            const exclusionTerms = allTerms
+                .filter(term => term.startsWith('ー') || term.startsWith('-'))
+                .map(term => normalizeString(term.substring(1)).trim())
+                .filter(Boolean);
             
             const selectedStatuses = Array.from(document.querySelectorAll('#status-filters input[data-status]:checked')).map(cb => cb.dataset.status);
             const selectedTrends = Array.from(document.querySelectorAll('#status-filters input[data-trend]:checked')).map(cb => cb.dataset.trend);
@@ -176,7 +197,12 @@
             filteredResults = data.filter(item => {
                 const productName = normalizeString(item.productName);
                 const ingredientName = normalizeString(item.ingredientName);
-                return searchTerms.every(term => productName.includes(term) || ingredientName.includes(term));
+                const makerName = normalizeString((item.standard || "") + (item.manufacturer || ""));
+                
+                const matchesInclusion = inclusionTerms.every(term => productName.includes(term) || ingredientName.includes(term) || makerName.includes(term));
+                const matchesExclusion = exclusionTerms.length > 0 && exclusionTerms.some(term => productName.includes(term) || ingredientName.includes(term) || makerName.includes(term));
+
+                return matchesInclusion && !matchesExclusion;
             });
 
             if (selectedStatuses.length > 0 || selectedTrends.length > 0) {
@@ -502,6 +528,8 @@
             const clearButton = document.getElementById('clearButton');
             const recoveryButton = document.getElementById('recoveryButton');
             
+            const debouncedSearch = debounce(performSearch, 500);
+
             searchButton.addEventListener('click', performSearch);
             clearButton.addEventListener('click', () => {
                 searchInput.value = '';
@@ -515,9 +543,17 @@
 
             recoveryButton.addEventListener('click', performRecoverySearch);
 
-            searchInput.addEventListener('compositionend', performSearch);
-            searchInput.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') performSearch();
+            searchInput.addEventListener('compositionstart', () => {
+                isComposing = true;
+            });
+            searchInput.addEventListener('compositionend', () => {
+                isComposing = false;
+                debouncedSearch();
+            });
+            searchInput.addEventListener('input', () => {
+                if (!isComposing) {
+                    debouncedSearch();
+                }
             });
 
             document.querySelectorAll('#status-filters input').forEach(cb => {

@@ -72,83 +72,181 @@
             return span;
         }
 
-        function searchData() {
-            if (excelData.length === 0) {
-                return;
-            }
+                function searchData() {
 
-            const drugKeywords = getSearchKeywords(document.getElementById('drugName').value);
-            const ingredientKeywords = getSearchKeywords(document.getElementById('ingredientName').value);
-            const makerKeywords = getSearchKeywords(document.getElementById('makerName').value);
-            
-            const allCheckboxesChecked = document.getElementById('statusNormal').checked && document.getElementById('statusLimited').checked && document.getElementById('statusStopped').checked;
-            const allSearchFieldsEmpty = drugKeywords.length === 0 && ingredientKeywords.length === 0 && makerKeywords.length === 0;
+                    if (excelData.length === 0) {
 
-            if (allSearchFieldsEmpty && allCheckboxesChecked) {
-                renderTable([]);
-                tableContainer.classList.add('hidden');
-                hideMessage(0);
-                return;
-            } else {
-                tableContainer.classList.remove('hidden');
-            }
-            
-            const statusFilters = [];
-            if (document.getElementById('statusNormal').checked) statusFilters.push("通常出荷");
-            if (document.getElementById('statusLimited').checked) statusFilters.push("限定出荷");
-            if (document.getElementById('statusStopped').checked) statusFilters.push("供給停止");
+                        return;
 
-            filteredResults = excelData.filter(item => {
-                if (!item) return false;
+                    }
 
-                const drugName = normalizeString(item.productName || "");
-                const ingredientName = normalizeString(item.ingredientName || "");
-                const makerName = normalizeString((item.standard || "") + (item.manufacturer || ""));
+        
 
-                const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
-                const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
-                const matchMaker = makerKeywords.every(keyword => drugName.includes(keyword) || makerName.includes(keyword));
-                
-                if (statusFilters.length === 0) return false;
+                    const drugKeywords = getSearchKeywords(document.getElementById('drugName').value);
 
-                const currentStatus = (item.shipmentStatus || '').trim();
-                let matchStatus = false;
+                    const ingredientKeywords = getSearchKeywords(document.getElementById('ingredientName').value);
 
-                if (statusFilters.includes("通常出荷") && (currentStatus.includes("通常出荷") || currentStatus.includes("通"))) {
-                    matchStatus = true;
+        
+
+                    const makerInput = document.getElementById('makerName').value;
+
+                    const allMakerKeywords = makerInput.split(/\s+|　+/).filter(keyword => keyword !== '');
+
+                    const inclusionMakerKeywords = allMakerKeywords
+
+                        .filter(keyword => !keyword.startsWith('ー') && !keyword.startsWith('-'))
+
+                        .map(keyword => normalizeString(keyword));
+
+                    const exclusionMakerKeywords = allMakerKeywords
+
+                        .filter(keyword => keyword.startsWith('ー') || keyword.startsWith('-'))
+
+                        .map(keyword => normalizeString(keyword.substring(1)).trim())
+
+                        .filter(Boolean);
+
+        
+
+                    const allCheckboxesChecked = document.getElementById('statusNormal').checked && document.getElementById('statusLimited').checked && document.getElementById('statusStopped').checked;
+
+                    const allSearchFieldsEmpty = drugKeywords.length === 0 && ingredientKeywords.length === 0 && allMakerKeywords.length === 0;
+
+        
+
+                    if (allSearchFieldsEmpty && allCheckboxesChecked) {
+
+                        renderTable([]);
+
+                        tableContainer.classList.add('hidden');
+
+                        hideMessage(0);
+
+                        return;
+
+                    } else {
+
+                        tableContainer.classList.remove('hidden');
+
+                    }
+
+                    
+
+                    const statusFilters = [];
+
+                    if (document.getElementById('statusNormal').checked) statusFilters.push("通常出荷");
+
+                    if (document.getElementById('statusLimited').checked) statusFilters.push("限定出荷");
+
+                    if (document.getElementById('statusStopped').checked) statusFilters.push("供給停止");
+
+        
+
+                    filteredResults = excelData.filter(item => {
+
+                        if (!item) return false;
+
+        
+
+                        const drugName = normalizeString(item.productName || "");
+
+                        const ingredientName = normalizeString(item.ingredientName || "");
+
+                        const makerName = normalizeString((item.standard || "") + (item.manufacturer || ""));
+
+        
+
+                        const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
+
+                        const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
+
+                        
+
+                        const matchMaker = inclusionMakerKeywords.every(keyword => drugName.includes(keyword) || makerName.includes(keyword) || ingredientName.includes(keyword));
+
+                        const mismatchMaker = exclusionMakerKeywords.length > 0 && exclusionMakerKeywords.some(keyword => drugName.includes(keyword) || makerName.includes(keyword) || ingredientName.includes(keyword));
+
+        
+
+                        if (statusFilters.length === 0) return false;
+
+        
+
+                        const currentStatus = (item.shipmentStatus || '').trim();
+
+                        let matchStatus = false;
+
+        
+
+                        if (statusFilters.includes("通常出荷") && (currentStatus.includes("通常出荷") || currentStatus.includes("通"))) {
+
+                            matchStatus = true;
+
+                        }
+
+                        if (statusFilters.includes("限定出荷") && (currentStatus.includes("限定出荷") || currentStatus.includes("出荷制限") || currentStatus.includes("限") || currentStatus.includes("制"))) {
+
+                            matchStatus = true;
+
+                        }
+
+                        if (statusFilters.includes("供給停止") && (currentStatus.includes("供給停止") || currentStatus.includes("停止") || currentStatus.includes("停"))) {
+
+                            matchStatus = true;
+
+                        }
+
+                        
+
+                        return matchDrug && matchIngredient && matchMaker && !mismatchMaker && matchStatus;
+
+                    });
+
+                    
+
+                    renderTable(filteredResults);
+
+                    
+
+                    if (filteredResults.length === 0) {
+
+                         showMessage("検索結果が見つかりませんでした。", "info");
+
+                         hideMessage(2000);
+
+                    } else if (filteredResults.length > 500) {
+
+                         showMessage(`${filteredResults.length} 件のデータが見つかりました。\n表示は上位 500 件に制限されています。`, "success");
+
+                         hideMessage(2000);
+
+                    } else {
+
+                         showMessage(`${filteredResults.length} 件のデータが見つかりました。`, "success");
+
+                         hideMessage(2000);
+
+                    }
+
+        
+
+                    sortStates.status = 'asc';
+
+                    sortStates.productName = 'asc';
+
+                    const statusIcon = document.getElementById('sort-status-icon');
+
+                    if (statusIcon) statusIcon.textContent = '↕';
+
+                    const productNameIcon = document.getElementById('sort-productName-icon');
+
+                    if (productNameIcon) productNameIcon.textContent = '↕';
+
+                    const ingredientNameIcon = document.getElementById('sort-ingredientName-icon');
+
+                    if (ingredientNameIcon) ingredientNameIcon.textContent = '↕';
+
                 }
-                if (statusFilters.includes("限定出荷") && (currentStatus.includes("限定出荷") || currentStatus.includes("出荷制限") || currentStatus.includes("限") || currentStatus.includes("制"))) {
-                    matchStatus = true;
-                }
-                if (statusFilters.includes("供給停止") && (currentStatus.includes("供給停止") || currentStatus.includes("停止") || currentStatus.includes("停"))) {
-                    matchStatus = true;
-                }
-                
-                return matchDrug && matchIngredient && matchMaker && matchStatus;
-            });
-            
-            renderTable(filteredResults);
-            
-            if (filteredResults.length === 0) {
-                 showMessage("検索結果が見つかりませんでした。", "info");
-                 hideMessage(2000);
-            } else if (filteredResults.length > 500) {
-                 showMessage(`${filteredResults.length} 件のデータが見つかりました。\n表示は上位 500 件に制限されています。`, "success");
-                 hideMessage(2000);
-            } else {
-                 showMessage(`${filteredResults.length} 件のデータが見つかりました。`, "success");
-                 hideMessage(2000);
-            }
-
-            sortStates.status = 'asc';
-            sortStates.productName = 'asc';
-            const statusIcon = document.getElementById('sort-status-icon');
-            if (statusIcon) statusIcon.textContent = '↕';
-            const productNameIcon = document.getElementById('sort-productName-icon');
-            if (productNameIcon) productNameIcon.textContent = '↕';
-            const ingredientNameIcon = document.getElementById('sort-ingredientName-icon');
-            if (ingredientNameIcon) ingredientNameIcon.textContent = '↕';
-        }
         
         function handleIngredientClick(ingredient) {
             document.getElementById('drugName').value = '';
