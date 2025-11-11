@@ -80,161 +80,6 @@
         }
 
 
-        function processCsvData(csvText) {
-            updateProgress('データを処理中...', 75);
-            const rows = csvText.trim().split('\n');
-            if (rows.length < 2) return [];
-
-            const dataRows = rows.slice(1);
-
-            const parseGvizDate = (gvizDate) => {
-                if (typeof gvizDate !== 'string' || gvizDate.trim() === '') {
-                    return null;
-                }
-                try {
-                    // Handle gviz date format e.g. "Date(2024,10,2)"
-                    if (gvizDate.startsWith('Date(')) {
-                        const parts = gvizDate.match(/\d+/g);
-                        if (parts && parts.length >= 3) {
-                            const year = parseInt(parts[0]);
-                            const month = parseInt(parts[1]); // 0-indexed
-                            const day = parseInt(parts[2]);
-                            return new Date(year, month, day);
-                        }
-                    }
-                    // Handle ISO-like date strings "YYYY-MM-DD ..."
-                    const date = new Date(gvizDate);
-                    if (!isNaN(date.getTime())) {
-                        return date;
-                    }
-                } catch {
-                    return null;
-                }
-                return null;
-            };
-
-            return dataRows.map(rowString => {
-                const row = rowString.slice(1, -1).split('","');
-                
-                let updatedCells = [];
-                let shippingStatusTrend = ''; // New variable for the trend icon
-                try {
-                    let colW = row[22] || ''; // Get content of column W for trend
-                    let colX = row[23] || ''; // Get content of column X for metadata
-
-                    // Parse updatedCells from colX
-                    if (colX.length > 1 && colX.startsWith('{')) {
-                        const unescaped = colX.replace(/""/g, '"');
-                        const parsedMetadata = JSON.parse(unescaped);
-                        if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
-                            updatedCells = parsedMetadata.updated_cols;
-                        }
-                    }
-
-                    // Use colW for trend icon
-                    if (colW === '▲' || colW === '⤴️') {
-                        shippingStatusTrend = '⤴️';
-                    } else if (colW === '▼' || colW === '⤵️') {
-                        shippingStatusTrend = '⤵️';
-                    }
-
-                } catch (e) {
-                    // console.warn("Failed to parse metadata or trend:", e);
-                }
-
-                return {
-                    'productName':          row[5],
-                    'ingredientName':       row[2],
-                    'manufacturer':         row[6],
-                    'shipmentStatus':       row[11],
-                    'reasonForLimitation':  row[13],
-                    'resolutionProspect':   row[14],
-                    'expectedDate':         row[15],
-                    'shipmentVolumeStatus': row[16],
-                    'yjCode':               row[4],
-                    'productCategory':      row[7],
-                    'isBasicDrug':          row[8],
-                    'updateDateObj':        parseGvizDate(row[19]),
-                    'updatedCells':         updatedCells,
-                    'shippingStatusTrend':  shippingStatusTrend // Add this
-                };
-            });
-        }
-
-        async function fetchExcelData() {
-            console.log('Fetching CSV data from Google Drive...');
-            updateProgress('Google Driveからデータを読み込み中...', 0);
-            
-            const fileId = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
-            const csvUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&cb=${new Date().getTime()}`;
-
-            try {
-                updateProgress('データをダウンロード中...', 50);
-                const response = await fetch(csvUrl, { cache: "no-cache" });
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Fetch Error Body:', errorText);
-                    throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
-                }
-                
-                const csvText = await response.text();
-                const processedData = processCsvData(csvText);
-
-                if (processedData.length > 0) {
-                    const cachePayload = {
-                        timestamp: new Date().getTime(),
-                        data: processedData
-                    };
-                    localforage.setItem('excelCache', cachePayload).catch(err => {
-                        console.error("Failed to save data to localForage", err);
-                    });
-                }
-
-                console.log(`Data loaded successfully. Number of rows: ${processedData.length}`);
-                updateProgress('データの読み込みが完了しました！', 100);
-                return { data: processedData, date: 'Google Drive' };
-            } catch (error) {
-                console.error(`データの取得に失敗しました: ${csvUrl} ${error}`);
-                showMessage(`データの取得に失敗しました。詳細: ${error.message}`, 'error');
-            } finally {
-                setTimeout(() => progressBarContainer.classList.add('hidden'), 1000);
-            }
-            return { data: null, date: null };
-        }
-
-        async function fetchManufacturerData() {
-            console.log('Fetching manufacturer data from Google Drive...');
-            const fileId = '1lTHHbUj6ySAgtum8zJrHjWAxYnbOO9r8H8Cnu-Y0TnA';
-            const googleDriveUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
-
-            try {
-                const response = await fetch(googleDriveUrl, { cache: "no-cache" });
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Fetch Error Body (Manufacturer):', errorText);
-                    throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
-                }
-                
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                
-                const range = XLSX.utils.decode_range(worksheet['!ref']);
-                const links = {};
-                for(let R = range.s.r + 1; R <= range.e.r; ++R) {
-                    const cellA = worksheet[XLSX.utils.encode_cell({r: R, c: 0})];
-                    const cellB = worksheet[XLSX.utils.encode_cell({r: R, c: 1})];
-                    const manufacturerName = cellA ? XLSX.utils.format_cell(cellA) : null;
-                    const url = cellB ? XLSX.utils.format_cell(cellB) : null;
-                    if (manufacturerName && url) links[manufacturerName.trim()] = url.trim();
-                };
-                return links;
-            } catch (error) {
-                console.error(`メーカーデータの取得に失敗しました: ${googleDriveUrl} ${error}`);
-                return {};
-            }
-        }
-
         function sortResults(key) {
             if (filteredResults.length === 0) {
                 showMessage("ソートするデータがありません。", 'info');
@@ -364,7 +209,8 @@
                 { key: null, text: 'メーカー', width: '15%' },
                 { key: null, text: '出荷状況', width: '10%' },
                 { key: null, text: '制限理由', width: '10%' },
-                { key: null, text: '出荷量状況', width: '10%' }
+                { key: null, text: '出荷量状況', width: '10%' },
+                { key: null, text: '変更箇所', width: '10%' }
             ];
 
             headers.forEach(header => {
@@ -393,7 +239,8 @@
                 'expectedDate': 15,
                 'shipmentVolumeStatus': 16,
                 'productCategory': 7,
-                'isBasicDrug': 8
+                'isBasicDrug': 8,
+                'changedPart': 23
             };
 
             results.forEach((item, index) => {
@@ -503,6 +350,14 @@
                 volumeCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
                 if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) {
                     volumeCell.classList.add('text-red-600', 'font-bold');
+                }
+
+                const changedPartCell = newRow.insertCell(7);
+                changedPartCell.textContent = item.changedPart || '-';
+                changedPartCell.setAttribute('data-label', '変更箇所');
+                changedPartCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
+                if (item.updatedCells && item.updatedCells.includes(columnMap.changedPart)) {
+                    changedPartCell.classList.add('text-red-600', 'font-bold');
                 }
             });
             table.appendChild(tbody);
@@ -628,6 +483,7 @@ hr.className = 'my-2 border-gray-200';
 
             body.appendChild(createCardItem('制限理由:', item.reasonForLimitation || '-', false, 'reasonForLimitation'));
             body.appendChild(createCardItem('出荷量状況:', item.shipmentVolumeStatus || '-', false, 'shipmentVolumeStatus'));
+            body.appendChild(createCardItem('変更箇所:', item.changedPart || '-', false, 'changedPart'));
 
             card.appendChild(header);
             card.appendChild(body);
@@ -635,56 +491,55 @@ hr.className = 'my-2 border-gray-200';
         }
 
         async function initializeApp() {
-            loadingIndicator.classList.remove('hidden');
-            
-            const manufacturerDataPromise = fetchManufacturerData();
-            
-            const excelDataPromise = localforage.getItem('excelCache').then(cachedData => {
-                const oneHour = 1 * 60 * 60 * 1000; // 1時間
-                if (cachedData && (new Date().getTime() - cachedData.timestamp < oneHour)) {
-                    console.log("Found recent cached data in localForage.");
-                    cachedData.data.forEach(item => {
-                        if (item.updateDateObj && typeof item.updateDateObj === 'string') {
-                            item.updateDateObj = new Date(item.updateDateObj);
-                        }
-                    });
-                    return { data: cachedData.data, date: 'キャッシュ' };
-                } else {
-                    if(cachedData) {
-                        console.log("Cached data is old. Fetching from network.");
-                    } else {
-                        console.log("No cached data found. Fetching from network.");
-                    }
-                    return fetchExcelData();
-                }
-            }).catch(err => {
-                console.error("Error reading from localForage, fetching from network.", err);
-                return fetchExcelData(); // フォールバック
-            });
+    if(loadingIndicator) loadingIndicator.classList.remove('hidden');
+    
+    const [excelDataResult, manufacturerDataResult] = await Promise.all([
+        loadAndCacheData(),
+        fetchManufacturerData()
+    ]);
 
-            const [manufacturerDataResult, excelDataResult] = await Promise.all([manufacturerDataPromise, excelDataPromise]);
+    manufacturerLinks = manufacturerDataResult;
+    
+    if (excelDataResult && excelDataResult.data) {
+        data = excelDataResult.data;
+        if(document.getElementById('dataDate')) {
+            document.getElementById('dataDate').textContent = '';
+        }
 
-            manufacturerLinks = manufacturerDataResult;
+        const urlParams = new URLSearchParams(window.location.search);
+        const yjCodeFromUrl = urlParams.get('yjcode');
+        if (yjCodeFromUrl) {
+            document.getElementById('yjCodeInput').value = String(yjCodeFromUrl).trim();
+            performSearch();
+        } else {
+            showMessage('データの準備ができました。YJコードを入力して検索してください。', 'success');
+            hideMessage(2000);
+        }
+    } else {
+        showMessage('データの読み込みに失敗しました。ページを再読み込みしてください。', 'error');
+    }
+    
+    if(loadingIndicator) loadingIndicator.style.display = 'none';
+
+    // Add reload button listener
+    const reloadButton = document.querySelector('#reload-data'); // Assuming reload button exists in yjcode/index.html
+    if (reloadButton) {
+        reloadButton.addEventListener('click', async () => {
+            await localforage.removeItem('excelCache');
+            showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
+            hideMessage(2000);
+            if(loadingIndicator) loadingIndicator.classList.remove('hidden');
             
-            if (excelDataResult && excelDataResult.data) {
-                data = excelDataResult.data;
-                document.getElementById('dataDate').textContent = '';
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const yjCodeFromUrl = urlParams.get('yjcode');
-                if (yjCodeFromUrl) {
-                    document.getElementById('yjCodeInput').value = String(yjCodeFromUrl).trim();
-                    performSearch();
-                } else {
-                    showMessage('データの準備ができました。YJコードを入力して検索してください。', 'success');
-                    hideMessage(3000);
-                }
-            } else {
-                showMessage('データの読み込みに失敗しました。ページを再読み込みしてください。', 'error');
+            const freshResult = await loadAndCacheData();
+            if (freshResult && freshResult.data) {
+                data = freshResult.data;
+                performSearch(); // Re-run search to refresh view
             }
             
-            loadingIndicator.style.display = 'none';
-        }
+            if(loadingIndicator) loadingIndicator.style.display = 'none';
+        });
+    }
+}
 
         document.getElementById('searchButton').addEventListener('click', performSearch);
         document.getElementById('yjCodeInput').addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });

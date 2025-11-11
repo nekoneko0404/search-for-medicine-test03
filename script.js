@@ -47,116 +47,6 @@
             return input.split(/\s+|　+/).filter(keyword => keyword !== '').map(keyword => normalizeString(keyword));
         }
 
-        function processCsvData(csvText) {
-            try {
-                const rows = csvText.trim().split('\n');
-                if (rows.length < 2) {
-                    excelData = [];
-                    showMessage("CSVファイルに処理できるデータがありません。", "info");
-                    hideMessage(2000);
-                    return;
-                }
-
-                const dataRows = rows.slice(1); // Skip header row
-
-                const parseGvizDate = (gvizDate) => {
-                    if (typeof gvizDate !== 'string' || gvizDate.trim() === '') {
-                        return null;
-                    }
-                    try {
-                        // Handle gviz date format e.g. "Date(2024,10,2)"
-                        if (gvizDate.startsWith('Date(')) {
-                            const parts = gvizDate.match(/\d+/g);
-                            if (parts && parts.length >= 3) {
-                                const year = parseInt(parts[0]);
-                                const month = parseInt(parts[1]); // 0-indexed
-                                const day = parseInt(parts[2]);
-                                return new Date(year, month, day);
-                            }
-                        }
-                        // Handle ISO-like date strings "YYYY-MM-DD ..."
-                        const date = new Date(gvizDate);
-                        if (!isNaN(date.getTime())) {
-                            return date;
-                        }
-                    } catch {
-                        return null;
-                    }
-                    return null;
-                };
-                
-                const parseGvizDateToString = (gvizDate) => {
-                    const dateObj = parseGvizDate(gvizDate);
-                    if(dateObj){
-                        const year = dateObj.getFullYear();
-                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                        const day = String(dateObj.getDate()).padStart(2, '0');
-                        return `${year}-${month}-${day}`;
-                    }
-                    // Fallback for values that are not dates but might be in the date column
-                    if (typeof gvizDate === 'string') {
-                        return gvizDate;
-                    }
-                    return '-';
-                };
-
-                const mappedData = dataRows.map(rowString => {
-                    const row = rowString.slice(1, -1).split('","');
-                    
-                    let updatedCells = [];
-                    let shippingStatusTrend = ''; // New variable for the trend icon
-                    try {
-                        let colW = row[22] || ''; // Get content of column W for trend
-                        let colX = row[23] || ''; // Get content of column X for metadata
-
-                        // Parse updatedCells from colX
-                        if (colX.length > 1 && colX.startsWith('{')) {
-                            const unescaped = colX.replace(/""/g, '"');
-                            const parsedMetadata = JSON.parse(unescaped);
-                            if (parsedMetadata && Array.isArray(parsedMetadata.updated_cols)) {
-                                updatedCells = parsedMetadata.updated_cols;
-                            }
-                        }
-
-                        // Use colW for trend icon
-                        if (colW === '▲' || colW === '⤴️') {
-                            shippingStatusTrend = '⤴️';
-                        } else if (colW === '▼' || colW === '⤵️') {
-                            shippingStatusTrend = '⤵️';
-                        }
-
-                    } catch (e) {
-                        // console.warn("Failed to parse metadata or trend:", e);
-                    }
-
-                    return {
-                        'productName':          row[5],
-                        'ingredientName':       row[2],
-                        'manufacturer':         row[6],
-                        'shipmentStatus':       row[11],
-                        'reasonForLimitation':  row[13],
-                        'resolutionProspect':   row[14],
-                        'expectedDate':         parseGvizDateToString(row[15]),
-                        'shipmentVolumeStatus': row[16],
-                        'yjCode':               row[4],
-                        'standard':             row[3],
-                        'isGeneric':            row[7],
-                        'isBasicDrug':          row[8],
-                        'updateDateObj':        parseGvizDate(row[19]),
-                        'updatedCells':         updatedCells,
-                        'shippingStatusTrend':  shippingStatusTrend // Add this
-                    };
-                });
-
-                excelData = mappedData;
-
-            } catch (error) {
-                console.error('Error processing data:', error);
-                showMessage("データの処理中にエラーが発生しました。", "error");
-                hideMessage(2000);
-            }
-        }
-
         function renderStatusButton(status, isUpdated = false) {
             const trimmedStatus = (status || "").trim();
             const span = document.createElement('span');
@@ -359,17 +249,17 @@
 
                 const labelsContainer = document.createElement('div');
                 labelsContainer.className = 'vertical-labels-container';
-                
-                const hColumnValue = (item.isGeneric || '').trim();
-                const iColumnValue = (item.isBasicDrug || '').trim();
 
-                if (hColumnValue === '後発品') {
+                const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
+                const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
+
+                if (isGeneric) {
                     const span = document.createElement('span');
                     span.className = "bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap";
                     span.textContent = '後';
                     labelsContainer.appendChild(span);
                 }
-                if (iColumnValue === '基礎的医薬品') {
+                if (isBasic) {
                     const span = document.createElement('span');
                     span.className = "bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap";
                     span.textContent = '基';
@@ -622,81 +512,34 @@
             document.getElementById('sort-status-button').addEventListener('click', () => sortResults('status'));
         }
 
-        window.onload = function() {
+        window.onload = async function() {
             attachSearchListeners();
             window.addEventListener('click', closeAllDropdowns);
 
             document.getElementById('reload-data').addEventListener('click', () => {
-                localforage.removeItem('excelCache').then(() => {
+                localforage.removeItem('excelCache').then(async () => {
                     showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
                     hideMessage(2000);
-                    fetchSpreadsheetData();
+                    const result = await loadAndCacheData();
+                    if (result && result.data) {
+                        excelData = result.data;
+                        showMessage(`データを再読み込みしました: ${excelData.length}件`, 'success');
+                        hideMessage(2000);
+                    }
                 }).catch(err => {
                     console.error("Failed to clear cache", err);
                     showMessage('キャッシュのクリアに失敗しました。', 'error');
-                    hideMessage(2000);
                 });
             });
 
-
-            async function fetchSpreadsheetData() {
-                const fileId = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
-                const csvUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv&cb=${new Date().getTime()}`;
-                showMessage('共有スプレッドシートからデータを読み込み中です...', 'info');
-                try {
-                    const response = await fetch(csvUrl, { cache: "no-cache" });
-                    if (response.ok) {
-                        const csvText = await response.text();
-                        processCsvData(csvText);
-
-                        if (excelData.length > 0) {
-                            const cachePayload = {
-                                timestamp: new Date().getTime(),
-                                data: excelData
-                            };
-                            localforage.setItem('excelCache', cachePayload).catch(err => {
-                                console.error("Failed to save data to localForage", err);
-                            });
-                            showMessage(`${excelData.length} 件のデータを読み込みました。検索を開始できます。`, "success");
-                        } else {
-                            showMessage("データが0件でした。ファイルまたは処理ロジックを確認してください。", "error");
-                        }
-                        renderTable([]);
-                        tableContainer.classList.add('hidden');
-                        hideMessage(2000);
-                    } else {
-                        showMessage(`データの取得に失敗しました。ステータスコード: ${response.status}`, 'error');
-                    }
-                } catch (error) {
-                    console.error('データの取得に失敗しました:', error);
-                    showMessage('共有スプレッドシートからのデータの取得中にエラーが発生しました。', 'error');
-                }
+            const result = await loadAndCacheData();
+            if (result && result.data) {
+                excelData = result.data;
+                renderTable([]);
+                tableContainer.classList.add('hidden');
+                showMessage(`データ(${result.date}) ${excelData.length} 件を読み込みました。検索を開始できます。`, "success");
+                hideMessage(2000);
+            } else {
+                 showMessage('データの読み込みに失敗しました。リロードボタンで再試行してください。', "error");
             }
-
-            localforage.getItem('excelCache').then(cachedData => {
-                const oneHour = 1 * 60 * 60 * 1000; // 1時間
-                if (cachedData && (new Date().getTime() - cachedData.timestamp < oneHour)) {
-                    console.log("Found recent cached data in localForage.");
-                    cachedData.data.forEach(item => {
-                        if (item.updateDateObj && typeof item.updateDateObj === 'string') {
-                            item.updateDateObj = new Date(item.updateDateObj);
-                        }
-                    });
-                    excelData = cachedData.data;
-                    renderTable([]);
-                    tableContainer.classList.add('hidden');
-                    showMessage(`キャッシュから ${excelData.length} 件のデータを読み込みました。検索を開始できます。`, "success");
-                    hideMessage(3000);
-                } else {
-                    if(cachedData) {
-                        console.log("Cached data is old. Fetching from network.");
-                    } else {
-                        console.log("No cached data found. Fetching from network.");
-                    }
-                    fetchSpreadsheetData();
-                }
-            }).catch(err => {
-                console.error("Error reading from localForage, fetching from network.", err);
-                fetchSpreadsheetData();
-            });
         };
