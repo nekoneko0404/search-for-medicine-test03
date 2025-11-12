@@ -611,6 +611,10 @@
         }
 
         window.onload = async function() {
+            document.getElementById('sort-status-icon').textContent = '↕';
+            document.getElementById('sort-productName-icon').textContent = '↕';
+            document.getElementById('sort-ingredientName-icon').textContent = '↕';
+
             attachSearchListeners();
             window.addEventListener('click', closeAllDropdowns);
 

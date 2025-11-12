@@ -1,5 +1,4 @@
-
-        let data = [];
+let data = [];
         let filteredResults = [];
         const loadingIndicator = document.getElementById('loadingIndicator');
         const messageBox = document.getElementById('messageBox');
@@ -12,6 +11,7 @@
             ingredientName: 'asc',
             updateDate: 'desc'
         };
+        let activeSortKey = 'updateDate';
 
         function showMessage(text, type = 'info') {
             if (messageHideTimer) {
@@ -41,7 +41,6 @@
 
         function formatExpectedDate(dateValue) {
             if (typeof dateValue === 'string') {
-                // Handle gviz date format e.g. "Date(2024,10,2)"
                 if (dateValue.startsWith('Date(')) {
                     try {
                         const parts = dateValue.match(/\d+/g);
@@ -49,18 +48,17 @@
                             const year = parseInt(parts[0]);
                             const month = parseInt(parts[1]); // 0-indexed
                             const day = parseInt(parts[2]);
-                            const dateObj = new Date(Date.UTC(year, month, day)); // Create UTC date object
+                            const dateObj = new Date(Date.UTC(year, month, day));
                             const displayYear = String(dateObj.getUTCFullYear()).slice(-2);
                             const displayMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
                             const displayDay = String(dateObj.getUTCDate()).padStart(2, '0');
                             return `${displayYear}-${displayMonth}-${displayDay}`;
                         }
                     } catch {
-                        return dateValue; // return original on error
+                        return dateValue;
                     }
                 }
-                // If it's an ISO-like string, parse it as UTC
-                const dateObj = new Date(dateValue + 'T00:00:00Z'); // Append T00:00:00Z to force UTC parsing
+                const dateObj = new Date(dateValue + 'T00:00:00Z');
                 if (!isNaN(dateObj.getTime())) {
                     const displayYear = String(dateObj.getUTCFullYear()).slice(-2);
                     const displayMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
@@ -94,11 +92,11 @@
             return normalizedStr.toLowerCase();
         }
 
-        function renderStatusButton(status, isUpdated = false) { // isUpdated引数を追加
+        function renderStatusButton(status, isUpdated = false) {
             const trimmedStatus = (status || "").trim();
             let baseClass = "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block transition-colors duration-150";
             
-            if (isUpdated) { // isUpdatedがtrueの場合に赤枠を追加
+            if (isUpdated) {
                 baseClass += ' border-red-500 border-2';
             }
 
@@ -129,20 +127,16 @@
                 hideMessage(2000);
                 return;
             }
-            const newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
-            
-            for (const k in sortStates) {
-                if (k !== key) {
-                    sortStates[k] = 'asc';
-                }
-                const icon = document.getElementById(`sort-${k}-icon`);
-                if (icon && k !== key) {
-                    icon.textContent = '↕';
-                }
-            }
 
+            let newDirection;
+            if (activeSortKey === key) {
+                newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
+            } else {
+                newDirection = (key === 'updateDate') ? 'desc' : 'asc';
+            }
+            
             sortStates[key] = newDirection;
-            document.getElementById(`sort-${key}-icon`).textContent = newDirection === 'asc' ? '↑' : '↓';
+            activeSortKey = key;
 
             filteredResults.sort((a, b) => {
                 let aValue, bValue;
@@ -150,8 +144,8 @@
                     aValue = a.updateDateObj ? a.updateDateObj.getTime() : 0;
                     bValue = b.updateDateObj ? b.updateDateObj.getTime() : 0;
                 } else {
-                    aValue = normalizeString(a[key]);
-                    bValue = normalizeString(b[key]);
+                    aValue = normalizeString(a[key] || "");
+                    bValue = normalizeString(b[key] || "");
                 }
                 
                 const compare = aValue < bValue ? -1 : (aValue > bValue ? 1 : 0);
@@ -159,14 +153,20 @@
             });
 
             displayResults(filteredResults);
-            const sortKeyName = key === 'updateDate' ? '更新日' : (key === 'productName' ? '品名' : '成分名');
+            
+            const sortKeyNameMap = {
+                updateDate: '更新日',
+                productName: '品名',
+                ingredientName: '成分名'
+            };
+            const sortKeyName = sortKeyNameMap[key] || key;
             showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, 'success');
             hideMessage(2000);
         }
 
         function performSearch() {
             const rawSearchTerm = document.getElementById('searchInput').value.trim();
-            const allTerms = rawSearchTerm.split(/[　 ]+/).filter(term => term.length > 0);
+            const allTerms = rawSearchTerm.split(/[\s　]+/).filter(term => term.length > 0);
 
             const inclusionTerms = allTerms
                 .filter(term => !term.startsWith('ー') && !term.startsWith('-'))
@@ -189,7 +189,7 @@
             const isDefaultState = rawSearchTerm === '' && selectedDays === 'all' && selectedStatuses.length === document.querySelectorAll('#status-filters input[data-status]').length && selectedTrends.length === 0;
             if (data.length > 0 && isDefaultState) {
                 document.getElementById('resultsContainer').innerHTML = '';
-                showMessage('品名、成分名を入力するか、フィルターを絞り込んでください。', 'info'); 
+                showMessage('品名、成分などを入力するか、フィルターを絞り込んでください。', 'info'); 
                 hideMessage(2000);
                 return;
             }
@@ -209,11 +209,21 @@
                 filteredResults = filteredResults.filter(item => {
                     const itemStatus = item.shipmentStatus || '';
                     
-                    const statusMatch = !selectedStatuses.length || selectedStatuses.some(status => {
-                        if (itemStatus.includes(status)) return true;
-                        if (status === "出荷制限" && itemStatus.includes("限定出荷")) return true;
-                        return false;
-                    });
+                    let statusMatch = !selectedStatuses.length;
+                    if (!statusMatch) {
+                        statusMatch = selectedStatuses.some(status => {
+                            if (status === "通常出荷") {
+                                return itemStatus.includes("通常出荷") || itemStatus.includes("通");
+                            }
+                            if (status === "出荷制限") { // "限定出荷" checkbox has data-status="出荷制限"
+                                return itemStatus.includes("限定出荷") || itemStatus.includes("出荷制限") || itemStatus.includes("限") || itemStatus.includes("制") || itemStatus.includes("調整") || itemStatus.includes("出荷調整") || itemStatus.includes("供給調整");
+                            }
+                            if (status === "供給停止") {
+                                return itemStatus.includes("供給停止") || itemStatus.includes("停止") || itemStatus.includes("停");
+                            }
+                            return false;
+                        });
+                    }
 
                     const trendMatch = !selectedTrends.length || selectedTrends.includes(item.shippingStatusTrend);
 
@@ -235,8 +245,7 @@
                 });
             }
             
-            sortStates.productName = 'asc';
-            sortStates.ingredientName = 'asc';
+            activeSortKey = 'updateDate';
             sortStates.updateDate = 'desc';
             
             filteredResults.sort((a, b) => {
@@ -249,24 +258,21 @@
         }
 
         function performRecoverySearch() {
-            document.getElementById('searchInput').value = ''; // Clear search input
             // Uncheck all status and trend checkboxes
             document.querySelectorAll('#status-filters input[data-status]').forEach(cb => cb.checked = false);
             document.querySelectorAll('#status-filters input[data-trend]').forEach(cb => cb.checked = false);
 
-            // Check only "通常出荷" and "⤴️"
+            // Check the three specified boxes
             document.querySelector('#status-filters input[data-status="通常出荷"]').checked = true;
             document.querySelector('#status-filters input[data-trend="⤴️"]').checked = true;
 
-            // Uncheck all date filter checkboxes
+            // Uncheck all date filter checkboxes and check the correct one
             const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
             dateFilters.forEach(cb => cb.checked = false);
-
-            // Check only "7日以内"
             document.querySelector('#date-filters input[data-days="7"]').checked = true;
 
             performSearch();
-            showMessage(`「復旧情報」の検索が完了しました。`, 'success');
+            showMessage(`「復旧情報」の条件で検索しました。`, 'success');
             hideMessage(2000);
         }
         
@@ -294,7 +300,7 @@
 
             if (limitedResults.length === 0) {
                 if (!messageBox.textContent.includes('失敗')) {
-                    showMessage('条件に一致する医薬品は見つかりませんでした。', 'info');
+                    showMessage('条件に一致する医薬品が見つかりませんでした。', 'info');
                     hideMessage(2000);
                 }
                 return;
@@ -332,7 +338,11 @@
                 th.className = `px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap`;
                 th.style.width = header.width;
                 if (header.key) {
-                    th.innerHTML = `<div class="flex items-center justify-start"><span>${header.text}</span><button id="sort-${header.key}-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span id="sort-${header.key}-icon">${sortStates[header.key] === 'desc' ? '↓' : '↑'}</span></button></div>`;
+                    let icon = '↕';
+                    if (activeSortKey === header.key) {
+                        icon = sortStates[header.key] === 'desc' ? '↓' : '↑';
+                    }
+                    th.innerHTML = `<div class="flex items-center justify-start"><span>${header.text}</span><button id="sort-${header.key}-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span id="sort-${header.key}-icon">${icon}</span></button></div>`;
                 } else {
                     th.textContent = header.text;
                 }
@@ -348,7 +358,6 @@
                 const rowBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
                 newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-200`;
 
-                // Cell 1: 品名
                 const productNameCell = newRow.insertCell();
                 productNameCell.className = `px-2 py-2 text-sm text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
                 
@@ -369,12 +378,10 @@
                         <span class="font-semibold">${escapeHTML(item.productName) || '-'}</span>
                     </div>`;
 
-                // Cell 2: 成分名
                 const ingredientNameCell = newRow.insertCell();
                 ingredientNameCell.className = `px-2 py-2 text-sm text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
                 ingredientNameCell.innerHTML = `<span class="ingredient-link cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline transition-colors" data-ingredient="${escapeHTML(item.ingredientName || '')}">${escapeHTML(item.ingredientName) || '-'}</span>`;
 
-                // Cell 3: 出荷状況
                 const statusCell = newRow.insertCell();
                 statusCell.className = 'px-1 py-2 text-sm text-gray-900 text-left';
                 statusCell.innerHTML = `
@@ -383,27 +390,22 @@
                         ${item.shippingStatusTrend ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend}</span>` : ''}
                     </div>`;
 
-                // Cell 4: 制限理由
                 const reasonCell = newRow.insertCell();
                 reasonCell.className = `px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation) ? 'text-red-600 font-bold' : ''}`;
                 reasonCell.textContent = item.reasonForLimitation || '-';
 
-                // Cell 5: 解消見込み
                 const resolutionCell = newRow.insertCell();
                 resolutionCell.className = `px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect) ? 'text-red-600 font-bold' : ''}`;
                 resolutionCell.textContent = item.resolutionProspect || '-';
 
-                // Cell 6: 見込み時期
                 const expectedDateCell = newRow.insertCell();
                 expectedDateCell.className = `px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.expectedDate) ? 'text-red-600 font-bold' : ''}`;
                 expectedDateCell.textContent = formatExpectedDate(item.expectedDate);
 
-                // Cell 7: 出荷量
                 const volumeCell = newRow.insertCell();
                 volumeCell.className = `px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus) ? 'text-red-600 font-bold' : ''}`;
                 volumeCell.textContent = item.shipmentVolumeStatus || '-';
 
-                // Cell 8: 更新日
                 const updateDateCell = newRow.insertCell();
                 updateDateCell.className = `px-2 py-2 text-xs text-gray-900 whitespace-nowrap ${item.updatedCells && item.updatedCells.includes(columnMap.updateDateObj) ? 'text-red-600 font-bold' : ''}`;
                 updateDateCell.textContent = formatDate(item.updateDateObj);
@@ -412,12 +414,10 @@
             tableContainer.appendChild(table);
             container.appendChild(tableContainer);
 
-            // Add sort listeners
             document.getElementById('sort-productName-button').addEventListener('click', () => sortResults('productName'));
             document.getElementById('sort-ingredientName-button').addEventListener('click', () => sortResults('ingredientName'));
             document.getElementById('sort-updateDate-button').addEventListener('click', () => sortResults('updateDate'));
 
-            // Create and append cards for mobile view
             const cardListContainer = document.createElement('div');
             cardListContainer.className = 'block md:hidden w-full space-y-4 mt-4';
             limitedResults.forEach((item, index) => {
@@ -467,7 +467,6 @@
             });
             container.appendChild(cardListContainer);
 
-            // Add ingredient link listeners
             document.querySelectorAll('.ingredient-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     const ingredientName = e.target.dataset.ingredient;
@@ -527,6 +526,7 @@
             const searchButton = document.getElementById('searchButton');
             const clearButton = document.getElementById('clearButton');
             const recoveryButton = document.getElementById('recoveryButton');
+            const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
             
             const debouncedSearch = debounce(performSearch, 500);
 
@@ -567,7 +567,6 @@
                 });
             });
             
-            const dateFilters = document.querySelectorAll('#date-filters input[type="checkbox"]');
             dateFilters.forEach(checkbox => {
                 checkbox.addEventListener('change', (e) => {
                     if (e.target.checked) {
@@ -593,4 +592,3 @@
                 loadingIndicator.style.display = 'none';
             });
         });
-    
