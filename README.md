@@ -69,7 +69,7 @@ YJコードを基に、薬効や剤形が類似する代替薬を検索する機
     *   **医薬品情報:** Google Sheets (File ID: `1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU`)
     *   **メーカーURL:** Google Sheets (File ID: `1lTHHbUj6ySAgtum8zJrHjWAxYnbOO9r8H8Cnu-Y0TnA`)
 *   **利用API:**
-    *   Google Sheets API (gviz/tq CSVエクスポート)
+    *   Google Sheets API (gviz/tq CSVエクスポート) 
     *   薬局ヒヤリ・ハット事例提供API (プロキシ経由)
 *   **その他:**
     *   **分析:** Google Analytics (gtag.js)

@@ -73,6 +73,7 @@
         }
 
                 function searchData() {
+                    document.getElementById('help-image-container').classList.add('hidden');
 
                     if (excelData.length === 0) {
 
@@ -114,17 +115,31 @@
 
         
 
-                    if (allSearchFieldsEmpty && allCheckboxesChecked) {
+                                        if (allSearchFieldsEmpty && allCheckboxesChecked) {
 
-                        renderTable([]);
+        
 
-                        tableContainer.classList.add('hidden');
+                                            renderTable([]);
 
-                        hideMessage(0);
+        
 
-                        return;
+                                            tableContainer.classList.add('hidden');
 
-                    } else {
+        
+
+                                            document.getElementById('help-image-container').classList.remove('hidden');
+
+        
+
+                                            hideMessage(0);
+
+        
+
+                                            return;
+
+        
+
+                                        } else {
 
                         tableContainer.classList.remove('hidden');
 
