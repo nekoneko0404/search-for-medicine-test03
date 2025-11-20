@@ -73,7 +73,7 @@
         }
 
                 function searchData() {
-                    document.getElementById('help-image-container').classList.add('hidden');
+                    document.getElementById('usage-guide').classList.add('hidden');
 
                     if (excelData.length === 0) {
 
@@ -127,7 +127,7 @@
 
         
 
-                                            document.getElementById('help-image-container').classList.remove('hidden');
+                                            document.getElementById('usage-guide').classList.remove('hidden');
 
         
 
