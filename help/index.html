@@ -83,15 +83,15 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-indigo-500 pb-2">🚀 クイックスタート</h2>
             <p class="mb-6 text-gray-600">最も基本的な「医薬品の出荷状況」を調べる方法です。</p>
             <div class="space-y-4">
-                <div class="step">
+                <div class="step bg-indigo-50 p-4 rounded-lg">
                     <div class="step-number">1</div>
                     <div><strong class="text-gray-800">キーワード入力:</strong> トップページの「医薬品名」または「成分名」に、探している薬の名前を入力します。入力の途中でも自動で検索が始まります。</div>
                 </div>
-                <div class="step">
+                <div class="step bg-indigo-50 p-4 rounded-lg">
                     <div class="step-number">2</div>
                     <div><strong class="text-gray-800">結果の確認:</strong> 該当する医薬品が一覧で表示されます。「出荷状況」の列で、現在の供給ステータス（通常出荷、限定出荷、供給停止）を確認できます。</div>
                 </div>
-                <div class="step">
+                <div class="step bg-indigo-50 p-4 rounded-lg">
                     <div class="step-number">3</div>
                     <div><strong class="text-gray-800">詳細情報へ:</strong> さらに詳しい情報が必要な場合は、品名をクリックすると表示されるメニューから「医薬品情報(PMDA)」や「代替薬検索」など、次のアクションに進めます。</div>
                 </div>
@@ -111,6 +111,7 @@
                             <li>「医薬品名」「成分名」「規格、剤形、メーカー」のいずれか、または複数にキーワードを入力します。</li>
                             <li>入力と同時に、下部に検索結果が自動で表示されます。</li>
                             <li>「出荷状況」のチェックボックスで、表示するステータスを絞り込めます。</li>
+                            <li>キーワードの前に <code class="bg-gray-200 text-red-600 font-mono px-1 rounded">-</code> を付けると、その語句を除外して検索できます。</li>
                             <li>結果の品名をクリックすると、さらに詳細な情報（添付文書、代替薬、ヒヤリハット事例など）へアクセスできます。</li>
                         </ol>
                     </div>
@@ -188,11 +189,14 @@
         <section id="tips" class="mb-12">
             <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-yellow-500 pb-2"><i class="fas fa-lightbulb text-yellow-500 mr-2"></i>便利なTips</h2>
             <div class="section-card space-y-4 text-sm">
-                <p><strong><i class="fas fa-search-plus mr-1"></i>複数キーワードで絞り込み:</strong> 検索欄にスペース区切りで複数の単語（例：「ロキソプロフェン 60mg」）を入れると、両方を含むものだけを検索できます（AND検索）。</p>
+                <p><strong><i class="fas fa-search-plus mr-1"></i>高度な検索テクニック:</strong><br>
+                    ・検索欄にスペース区切りで複数の単語（例: <code class="bg-gray-200 font-mono px-1 rounded">ロキソプロフェン 60mg</code>）を入れると、両方を含むAND検索になります。<br>
+                    ・単語の前に <code class="bg-gray-200 text-red-600 font-mono px-1 rounded">-</code> を付けると、その単語を除外できます。（例: <code class="bg-gray-200 font-mono px-1 rounded">AG -アメル</code>）
+                </p>
                 <p><strong><i class="fas fa-info-circle mr-1"></i>アイコンの意味:</strong><br>
-                    <span class="inline-block bg-green-200 text-green-800 px-2 py-0.5 rounded-md text-xs font-bold">後</span>: 後発医薬品 (ジェネリック)<br>
-                    <span class="inline-block bg-purple-200 text-purple-800 px-2 py-0.5 rounded-md text-xs font-bold">基</span>: 基礎的医薬品<br>
-                    <span class="inline-block text-red-500 font-bold">⤴️ / ⤵️</span>: 供給状況の変動を表します。（情報更新日検索ツール）
+                    <span class="inline-block bg-green-200 text-green-800 px-2 py-0.5 rounded-md text-xs font-bold">後</span> : 後発医薬品 (ジェネリック) を示します。<br>
+                    <span class="inline-block bg-purple-200 text-purple-800 px-2 py-0.5 rounded-md text-xs font-bold">基</span> : 基礎的医薬品を示します。<br>
+                    <span class="inline-block text-red-500 font-bold">⤴️ / ⤵️</span> : 「情報更新日検索」ツールで、供給状況の変動（改善/悪化）を表します。
                 </p>
                 <p><strong><i class="fas fa-sync-alt mr-1"></i>データが古い？:</strong> 画面右下の <span class="text-2xl">🔄</span> ボタンを押すと、キャッシュがクリアされ、最新のデータが強制的に読み込まれます。</p>
             </div>
