@@ -1,7 +1,8 @@
 /** 
  * Hiyari Hat App Main Logic (test03)
- * - No localforage caching (not needed for this app)
- * - Uses keyword query to proxy API
+ * - Optimized API queries searching both DATMEDNAME and DATGENERIC
+ * - Compact single-row UI with auto-search on Enter
+ * - 3-column grid layout for wide screens
  */
 
 import { normalizeString, debounce } from '../../js/utils.js';
@@ -13,12 +14,11 @@ const batchSize = 30;
 // DOM Elements
 const elements = {
     searchInput: null,
-    searchBtn: null,
+    filterInput: null,
     randomBtn: null,
     resultsContainer: null,
     loadingIndicator: null,
     errorMsg: null,
-    countDisplay: null,
 };
 
 let currentData = [];
@@ -29,12 +29,11 @@ let currentlyDisplayedCount = 0;
 ------------------------------------------------- */
 function initElements() {
     elements.searchInput = document.getElementById('search-input');
-    elements.searchBtn = document.getElementById('search-btn');
+    elements.filterInput = document.getElementById('filter-input');
     elements.randomBtn = document.getElementById('random-btn');
     elements.resultsContainer = document.getElementById('results-container');
     elements.loadingIndicator = document.getElementById('loading');
     elements.errorMsg = document.getElementById('error-msg');
-    elements.countDisplay = document.getElementById('count-display');
 }
 
 /* -------------------------------------------------
@@ -54,40 +53,62 @@ function hideError() {
     elements.errorMsg.classList.add('hidden');
 }
 
-function updateCountDisplay(count) {
-    if (count === 0) {
-        elements.countDisplay.textContent = '該当する事例は見つかりませんでした。';
-    } else {
-        elements.countDisplay.textContent = `${count} 件の事例が見つかりました。`;
-    }
-}
-
 /* -------------------------------------------------
    API URL 生成
 ------------------------------------------------- */
-function buildApiUrl(keyword) {
+function buildApiUrl(searchKeyword, filterWord) {
     const params = new URLSearchParams();
-    if (keyword) params.append('keyword', keyword);
+    params.append('count', '100'); // Limit results for performance
+    params.append('order', '2'); // Sort by newest first
+
+    // Sanitize inputs
+    const sanitize = (input) => {
+        return input.replace(/[^ぁ-んァ-ヶー一-龯A-Za-z0-9\s\-,、.()（）]/g, '').trim();
+    };
+
+    const cleanSearch = sanitize(searchKeyword);
+    const cleanFilter = sanitize(filterWord);
+
+    if (cleanSearch && !cleanFilter) {
+        // Drug/Ingredient name only - search in both DATMEDNAME and DATGENERIC fields
+        params.append('item', 'DATMEDNAME');
+        params.append('item', 'DATGENERIC');
+        params.append('word', cleanSearch);
+        params.append('condition', 'any'); // OR search across fields
+    } else {
+        // Combined search - full-text search
+        const combinedWord = [cleanSearch, cleanFilter].filter(Boolean).join(' ');
+        if (combinedWord) {
+            params.append('word', combinedWord);
+            if (cleanSearch && cleanFilter) {
+                params.append('condition', 'all'); // AND search
+            }
+        }
+    }
+
     return `${PROXY_URL}?${params.toString()}`;
 }
 
 /* -------------------------------------------------
    データ取得
 ------------------------------------------------- */
-async function fetchIncidents(keyword) {
-    if (!keyword) {
-        showError('検索キーワードを入力してください。');
+async function fetchIncidents() {
+    const searchKeyword = elements.searchInput.value.trim();
+    const filterWord = elements.filterInput.value.trim();
+
+    if (!searchKeyword && !filterWord) {
+        elements.resultsContainer.innerHTML = '';
+        hideError();
         return;
     }
 
     showLoading(true);
     hideError();
     elements.resultsContainer.innerHTML = '';
-    elements.countDisplay.textContent = '';
     currentlyDisplayedCount = 0;
 
     try {
-        const response = await fetch(buildApiUrl(keyword));
+        const response = await fetch(buildApiUrl(searchKeyword, filterWord));
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
         const xmlText = await response.text();
@@ -99,13 +120,15 @@ async function fetchIncidents(keyword) {
 
         const reports = xmlDoc.querySelectorAll('PHARMACY_REPORT');
         if (reports.length === 0) {
-            updateCountDisplay(0);
+            const p = document.createElement('p');
+            p.className = 'col-span-full text-center text-gray-500 py-8';
+            p.textContent = '該当する事例は見つかりませんでした。';
+            elements.resultsContainer.appendChild(p);
             return;
         }
 
         currentData = Array.from(reports).map(parseReport);
         displayNextBatch();
-        updateCountDisplay(currentData.length);
     } catch (err) {
         console.error('Fetching incidents failed:', err);
         showError(`データ取得に失敗しました: ${err.message}`);
@@ -217,6 +240,7 @@ function displayNextBatch() {
 function displayIncidents(incidents) {
     if (incidents.length === 0 && currentlyDisplayedCount === 0) {
         const p = document.createElement('p');
+        p.className = 'col-span-full text-center text-gray-500 py-8';
         p.textContent = '関連する事例は見つかりませんでした。';
         elements.resultsContainer.appendChild(p);
         return;
@@ -298,21 +322,23 @@ function shuffleAndDisplay() {
 function init() {
     initElements();
 
-    elements.searchBtn.addEventListener('click', () =>
-        fetchIncidents(elements.searchInput.value.trim())
-    );
+    // Enter key triggers search on both inputs
     elements.searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter')
-            fetchIncidents(elements.searchInput.value.trim());
+        if (e.key === 'Enter') fetchIncidents();
     });
-    elements.randomBtn.addEventListener('click', shuffleAndDisplay);
+    elements.filterInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') fetchIncidents();
+    });
+
+    // Random button
+    if (elements.randomBtn) elements.randomBtn.addEventListener('click', shuffleAndDisplay);
 
     // URL パラメータで自動検索
     const params = new URLSearchParams(window.location.search);
     const kw = params.get('drugName') || params.get('ingredientName') || params.get('keyword');
     if (kw) {
         elements.searchInput.value = kw;
-        fetchIncidents(kw);
+        fetchIncidents();
     }
 }
 
