@@ -1,160 +1,240 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【Kusuri Compass】医薬品出荷状況検索</title>
+    <title>医薬品出荷状況検索 | Kusuri Compass</title>
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com;
+        script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com 'unsafe-inline';
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
         img-src 'self' data:;
-        connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net;
+        connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com ws://127.0.0.1:*;
     ">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
-    <link rel="stylesheet" href="unify.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;500;600;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VXSZGE4HP7"></script>
     <script src="gtag.js"></script>
+
     <meta property="og:url" content="https://nekoneko0404.github.io/search-for-medicine-test03/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="【Kusuri Compass】医薬品出荷状況検索">
     <meta property="og:description" content="医薬品の出荷状況を検索できるウェブサイトです。">
     <meta property="og:site_name" content="Kusuri Compass">
-    <meta property="og:image" content="https://nekoneko0404.github.io/search-for-medicine-test03/images/KusuriCompass.png">
+    <meta property="og:image"
+        content="https://nekoneko0404.github.io/search-for-medicine-test03/images/KusuriCompass.png">
 </head>
-<body class="bg-gray-200 p-4 sm:p-8 flex flex-col items-center min-h-screen">
-    <div class="page-wrapper">
-        <div class="page-header">
-            <h2 class="page-title flex items-center space-x-2">
-                <a href="./index.html"><img src="images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-12 w-12 object-contain"></a>
-                <span class="hidden sm:inline">【Kusuri Compass】出荷状況検索</span>
-                <span class="sm:hidden">医薬品 出荷状況</span>
-            </h2>
-            <div class="flex items-center space-x-2">
-                <a href="./update/index.html" target="_blank" rel="noopener noreferrer" class="bg-indigo-500 text-white hover:bg-indigo-600 transition duration-150 ease-in-out py-1 px-3 rounded shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
-                    <span class="sm:hidden">更新日</span>
-                    <span class="hidden sm:inline">情報更新日検索</span>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="./index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <img src="images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
+                    <h1 class="text-xl font-bold text-indigo-900 hidden sm:block">Kusuri Compass</h1>
                 </a>
-                <a href="./help/index.html" target="_blank" rel="noopener noreferrer" class="bg-indigo-500 text-white hover:bg-indigo-600 transition duration-150 ease-in-out py-1 px-3 rounded-md shadow-sm font-medium whitespace-nowrap text-sm sm:text-base">
+            </div>
+            <nav class="flex items-center gap-2 sm:gap-4">
+                <a href="./update/index.html" target="_blank" rel="noopener noreferrer"
+                    class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-3 py-2 rounded-md transition-colors">
+                    <span class="hidden sm:inline">情報更新日検索</span>
+                    <span class="sm:hidden">更新日</span>
+                </a>
+                <a href="./help/index.html" target="_blank" rel="noopener noreferrer"
+                    class="text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">
                     使い方
                 </a>
-            </div>
+            </nav>
         </div>
-        
-        <div id="messageBox" class="text-sm sm:text-base text-center p-3 rounded-lg hidden message-box-center w-3/4"></div>
-        
-        <div class="search-form-grid flex flex-wrap gap-4 mb-6">
-            <div class="input-container">
-                <label for="drugName" class="block text-gray-700 text-sm font-medium mb-1">医薬品名:</label>
-                <input type="text" id="drugName" placeholder="例: ロキソニン" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
-            </div>
-            <div class="input-container">
-                <label for="ingredientName" class="block text-gray-700 text-sm font-medium mb-1">成分名:</label>
-                <input type="text" id="ingredientName" placeholder="例: ロキソプロフェン" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
-            </div>
-            <div class="input-container">
-                <label for="makerName" class="block text-gray-700 text-sm font-medium mb-1">規格、剤形、ﾒｰｶｰ:</label>
-                <input type="text" id="makerName" placeholder="例: 60mg" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition ease-in-out duration-150 p-2">
-            </div>
-            
-            <div class="status-checkbox-container flex flex-col justify-between">
-                <div class="block text-gray-700 text-sm font-medium mb-1">出荷状況:</div>
-                <div class="status-checkbox-group flex flex-wrap gap-x-4 pb-2">
-                    <div class="checkbox-item flex items-center">
-                        <input type="checkbox" id="statusNormal" value="通常出荷" checked class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out">
-                        <label for="statusNormal" class="ml-1 text-xs text-gray-900">通常出荷</label>
-                    </div>
-                    <div class="checkbox-item flex items-center">
-                        <input type="checkbox" id="statusLimited" value="限定出荷" checked class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out">
-                        <label for="statusLimited" class="ml-1 text-xs text-gray-900">限定出荷</label>
-                    </div>
-                    <div class="checkbox-item flex items-center">
-                        <input type="checkbox" id="statusStopped" value="供給停止" checked class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out">
-                        <label for="statusStopped" class="ml-1 text-xs text-gray-900">供給停止</label>
-                    </div>
-                </div>
-            </div>
-            
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+
+        <!-- Title Section -->
+        <div class="text-center mb-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">医薬品出荷状況検索</h2>
+            <p class="text-gray-500 text-sm">最新の供給状況をリアルタイムで確認できます</p>
         </div>
 
-        <div id="usage-guide" class="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-6">
-            <h3 class="text-lg font-semibold text-indigo-700 mb-4 flex items-center">
-                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <!-- Search Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="space-y-2">
+                    <label for="drugName" class="block text-sm font-semibold text-gray-700">医薬品名</label>
+                    <div class="relative">
+                        <input type="text" id="drugName" placeholder="例: ロキソニン"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2.5">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label for="ingredientName" class="block text-sm font-semibold text-gray-700">成分名</label>
+                    <div class="relative">
+                        <input type="text" id="ingredientName" placeholder="例: ロキソプロフェン"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2.5">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label for="makerName" class="block text-sm font-semibold text-gray-700">規格・剤形・メーカー</label>
+                    <input type="text" id="makerName" placeholder="例: 60mg"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2.5">
+                </div>
+            </div>
+
+            <div
+                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-gray-700 mr-2">出荷状況:</span>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="statusNormal" value="通常出荷" checked
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-sm text-gray-700">通常出荷</span>
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer ml-4">
+                        <input type="checkbox" id="statusLimited" value="限定出荷" checked
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-sm text-gray-700">限定出荷</span>
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer ml-4">
+                        <input type="checkbox" id="statusStopped" value="供給停止" checked
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-sm text-gray-700">供給停止</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Guide -->
+        <div id="usage-guide" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+            <h3 class="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 基本的な使い方
             </h3>
-            <div class="grid md:grid-cols-2 gap-4">
-                <div class="bg-indigo-50 p-4 rounded-lg">
-                    <h4 class="font-semibold text-gray-800 mb-2">検索のヒント</h4>
-                    <ul class="list-disc list-inside space-y-2 text-gray-700">
-                        <li><span class="font-semibold">医薬品名・成分名</span>などで検索できます。</li>
-                        <li>スペース区切りで複数キーワードを指定するとAND検索になります。</li>
-                        <li><code class="bg-gray-200 text-red-600 font-mono px-1 rounded">-（マイナス）</code>を付けて検索すると、そのキーワードを除外します。（例: <code class="bg-gray-200 font-mono px-1 rounded">AG -アメル</code>）</li>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                    <h4 class="font-bold text-indigo-900 mb-3">検索のヒント</h4>
+                    <ul class="space-y-2 text-sm text-indigo-800">
+                        <li class="flex items-start gap-2"><span
+                                class="text-indigo-500">•</span><span>スペース区切りで複数キーワードを指定するとAND検索になります。</span></li>
+                        <li class="flex items-start gap-2"><span class="text-indigo-500">•</span><span><code
+                                    class="bg-white px-1 py-0.5 rounded text-red-600 font-mono">-（マイナス）</code>を付けて検索すると、そのキーワードを除外します。（例:
+                                <code class="bg-white px-1 py-0.5 rounded font-mono">AG -アメル</code>）</span></li>
                     </ul>
                 </div>
-                <div class="bg-green-50 p-4 rounded-lg">
-                    <h4 class="font-semibold text-gray-800 mb-2">便利な機能</h4>
-                    <ul class="list-disc list-inside space-y-2 text-gray-700">
-                        <li><span class="text-indigo-600 font-semibold cursor-pointer">医薬品名</span>をクリックすると、代替薬検索やヒヤリハット事例などのメニューが表示されます。</li>
-                        <li><span class="text-indigo-600 font-semibold cursor-pointer">成分名</span>をクリックすると、その成分で再検索します。</li>
-                        <li>出荷状況のチェックボックスで、表示するステータスを絞り込めます。</li>
+                <div class="bg-green-50 p-5 rounded-lg border border-green-100">
+                    <h4 class="font-bold text-green-900 mb-3">便利な機能</h4>
+                    <ul class="space-y-2 text-sm text-green-800">
+                        <li class="flex items-start gap-2"><span class="text-green-500">•</span><span><span
+                                    class="font-bold">医薬品名</span>をクリックすると、代替薬検索やヒヤリハット事例などのメニューが表示されます。</span></li>
+                        <li class="flex items-start gap-2"><span class="text-green-500">•</span><span><span
+                                    class="font-bold">成分名</span>をクリックすると、その成分で再検索します。</span></li>
                     </ul>
                 </div>
             </div>
         </div>
-        
-        <div id="tableContainer" class="table-container rounded-lg shadow-md border border-gray-200 hidden">
-            <table id="resultTable" class="min-w-full divide-y divide-gray-200 table-fixed">
-                <thead class="bg-indigo-100 sticky top-0">
+
+        <!-- Results Table -->
+        <div id="tableContainer" class="table-container bg-white hidden min-h-[280px]">
+            <table id="resultTable" class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50 sticky top-0 z-10">
                     <tr>
-                        <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[28%]">
-                            <div class="flex items-center justify-start">
-                                <span class="whitespace-nowrap">品名</span>
-                                <button id="sort-productName-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150">
-                                    <span id="sort-productName-icon">↕</span>
-                                </button>
+                        <th scope="col"
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-productName-button">
+                                品名 <span id="sort-productName-icon" class="text-indigo-500">↕</span>
                             </div>
                         </th>
-                        <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[28%]">
-                            <div class="flex items-center justify-start">
-                                <span class="whitespace-nowrap">成分名</span>
-                                <button id="sort-ingredientName-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150">
-                                    <span id="sort-ingredientName-icon">↕</span>
-                                </button>
+                        <th scope="col"
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-ingredientName-button">
+                                成分名 <span id="sort-ingredientName-icon" class="text-indigo-500">↕</span>
                             </div>
                         </th>
-                        <th class="px-1 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[15%]">
-                            <div class="flex items-center justify-start"> <span class="whitespace-nowrap">出荷状況</span>
-                                <button id="sort-status-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150">
-                                    <span id="sort-status-icon">↕</span>
-                                </button>
+                        <th scope="col"
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-status-button">
+                                出荷状況 <span id="sort-status-icon" class="text-indigo-500">↕</span>
                             </div>
                         </th>
-                        <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[18%]">制限理由</th>
-                        <th class="px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap lg:w-[11%]">出荷量状況</th>
+                        <th scope="col"
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[18%]">
+                            制限理由</th>
+                        <th scope="col"
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[11%]">
+                            出荷量状況</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="resultTableBody">
-                    </tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
             </table>
         </div>
-        
-        <footer class="mt-8 text-center text-gray-500 text-sm">
-            <p>ご意見・ご要望は製作者までお寄せください。</p>
-            <p>ツイッター: <a href="https://x.com/oshigoto_twitte" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline">@oshigoto_twitte</a></p>
-            <p class="mt-4">© 2025 【Kusuri Compass】</p>
-        </footer>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center text-sm text-gray-500">
+                <p class="mb-2">ご意見・ご要望は製作者までお寄せください。</p>
+                <p class="mb-4">ツイッター: <a href="https://x.com/oshigoto_twitte" target="_blank" rel="noopener noreferrer"
+                        class="text-indigo-600 hover:underline font-medium">@oshigoto_twitte</a></p>
+                <p>© 2025 【Kusuri Compass】</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Message -->
+    <div id="messageBox"
+        class="hidden fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-opacity duration-300 opacity-0 transform translate-y-[-20px]">
     </div>
 
-    <button id="reload-data" class="fixed bottom-4 right-4 text-4xl transition-all duration-300 ease-in-out transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        <span role="img" aria-label="データを再読み込み">🔄</span>
+    <!-- Progress Bar -->
+    <div id="progressBarContainer" class="fixed top-0 left-0 w-full h-1 z-50 hidden">
+        <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300 w-0"></div>
+        <div id="progressMessage"
+            class="absolute top-2 right-2 text-xs text-gray-600 bg-white px-2 py-1 rounded shadow hidden">
+        </div>
+    </div>
+
+    <!-- Reload Button -->
+    <button id="reload-data"
+        class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
+        aria-label="データを更新">
+        <svg class="w-10 h-10 transform transition-transform duration-700 ease-in-out group-hover:rotate-180"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+            </path>
+        </svg>
     </button>
 
-    <script src="common.js"></script>
-    <script src="script.js?v=1.4"></script>
-   
+    <!-- Main Script -->
+    <script type="module" src="js/main.js"></script>
 </body>
+
 </html>

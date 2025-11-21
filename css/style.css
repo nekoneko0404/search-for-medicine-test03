@@ -1,0 +1,113 @@
+/* Custom Styles */
+:root {
+    --color-background: #f8fafc;
+    /* slate-50 */
+    --color-primary: #4f46e5;
+    /* indigo-600 */
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-background);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c7c7cc;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1aa;
+}
+
+/* Table Styles */
+.table-container {
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Mobile Table View */
+@media (max-width: 640px) {
+    .table-container table {
+        display: block;
+    }
+
+    .table-container thead {
+        display: none;
+    }
+
+    .table-container tbody {
+        display: block;
+    }
+
+    .table-container tr {
+        display: block;
+        margin-bottom: 1rem;
+        background-color: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .table-container td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table-container td:last-child {
+        border-bottom: none;
+    }
+
+    .table-container td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #64748b;
+        /* slate-500 */
+        font-size: 0.75rem;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Loading Spinner */
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid #4f46e5;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

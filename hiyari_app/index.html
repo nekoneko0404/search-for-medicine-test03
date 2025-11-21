@@ -1,68 +1,97 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【Kusuri Compass】薬局ヒヤリ・ハット事例ビューア</title>
+    <title>薬局ヒヤリ・ハット事例ビューア</title>
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com;
+        script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com 'unsafe-inline';
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
         img-src 'self' data:;
-        connect-src 'self' https://hiyari-proxy-708146219355.asia-east1.run.app https://www.google-analytics.com https://cdn.jsdelivr.net;
+        connect-src 'self' https://hiyari-proxy-708146219355.asia-east1.run.app https://www.google-analytics.com https://analytics.google.com https://cdn.jsdelivr.net ws://127.0.0.1:*;
     ">
+
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;700&display=swap">
-    <link rel="stylesheet" href="../unify.css">
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;500;600;700&display=swap">
+    <link rel="stylesheet" href="../css/style.css">
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VXSZGE4HP7"></script>
     <script src="../gtag.js"></script>
 </head>
-<body class="bg-gray-200 p-4 sm:p-8 flex flex-col items-center min-h-screen">
-    <div class="page-wrapper">
-        <div class="page-header">
-            <h1 class="page-title flex items-center space-x-2">
-                <a href="../index.html"><img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-12 w-12 object-contain"></a>
-                <span>【Kusuri Compass】薬局ヒヤリ・ハット事例ビューア</span>
-            </h1>
-        </div>
-        <h2 id="search-title" class="text-xl sm:text-2xl font-semibold text-gray-800 text-center mb-4"></h2>
 
-        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-            <div class="bg-white p-4 rounded-lg shadow-md flex-1">
-                <div class="flex flex-col sm:flex-row items-center gap-2">
-                    <label for="search-keyword" class="font-semibold text-gray-700 whitespace-nowrap">医薬品名:</label>
-                    <input type="text" id="search-keyword" class="unified-input flex-grow" placeholder="医薬品名または成分名を入力">
-                    <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
-                        <button id="apply-search" class="unified-button w-20">検索</button>
-                        <button id="clear-search" class="unified-button w-20">クリア</button>
-                    </div>
-                </div>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
+                    <h1 class="text-xl font-bold text-indigo-900 hidden sm:block">Kusuri Compass</h1>
+                </a>
             </div>
-            <div class="bg-white p-4 rounded-lg shadow-md flex-1">
-                <div class="flex flex-col sm:flex-row items-center gap-2">
-                    <label for="filter-word" class="font-semibold text-gray-700 whitespace-nowrap">絞り込み:</label>
-                    <input type="text" id="filter-word" class="unified-input flex-grow" placeholder="事例内容、背景・要因、発生要因で検索">
-                    <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
-                        <button id="apply-filter" class="unified-button w-20">絞り込み</button>
-                        <button id="random-sort" class="unified-button w-20">ランダム</button>
-                    </div>
-                </div>
+            <nav class="flex items-center gap-4">
+                <span class="text-sm font-bold text-gray-500">ヒヤリ・ハット事例</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-5xl">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">薬局ヒヤリ・ハット事例検索</h2>
+            <p class="text-gray-500 text-sm">公益財団法人日本医療機能評価機構のデータを検索します</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <input type="text" id="search-input" placeholder="キーワードを入力 (例: 誤薬)"
+                    class="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2.5">
+                <button id="search-btn"
+                    class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    検索
+                </button>
             </div>
         </div>
-        <div id="loading-indicator" style="display: none;">
+
+        <div class="flex justify-between items-center mb-4">
+            <div id="count-display" class="text-sm font-semibold text-gray-700"></div>
+            <button id="random-btn"
+                class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                表示順をシャッフル
+            </button>
+        </div>
+
+        <div id="loading" class="hidden py-12 flex justify-center">
             <div class="spinner"></div>
         </div>
-        <div id="incident-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- 事例はここに動的に読み込まれます -->
+
+        <div id="error-msg"
+            class="hidden bg-red-100 text-red-800 p-4 rounded-lg mb-6 border border-red-200 text-center"></div>
+
+        <div id="results-container" class="grid gap-6 md:grid-cols-2">
+            <!-- Cards will be inserted here -->
         </div>
-        <div class="text-center mt-6">
-            <button id="load-more" class="unified-button" style="display: none;">さらに表示</button>
-        </div>
-        <footer class="mt-8 text-center text-gray-500 text-sm">
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-gray-500">
             <p>© 2025 【Kusuri Compass】</p>
-        </footer>
-    </div>
-    <script src="script.js"></script>
+        </div>
+    </footer>
+
+    <script type="module" src="js/main.js"></script>
 </body>
+
 </html>
