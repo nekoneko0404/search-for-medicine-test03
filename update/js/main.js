@@ -2,7 +2,7 @@
  * Update Search App Main Logic
  */
 
-import { loadAndCacheData } from '../../js/data.js';
+import { loadAndCacheData, clearCacheAndReload } from '../../js/data.js';
 import { normalizeString, debounce, formatDate } from '../../js/utils.js';
 import { showMessage, renderStatusButton, updateProgress, createDropdown } from '../../js/ui.js';
 
@@ -19,6 +19,7 @@ const elements = {
     resultTableBody: null,
     tableContainer: null,
     loadingIndicator: null,
+    reloadDataBtn: null,
     statusCheckboxes: {
         normal: null,
         limited: null,
@@ -39,6 +40,7 @@ function initElements() {
     elements.resultTableBody = document.getElementById('resultTableBody');
     elements.tableContainer = document.getElementById('tableContainer');
     elements.loadingIndicator = document.getElementById('loadingIndicator');
+    elements.reloadDataBtn = document.getElementById('reload-data');
 
     elements.statusCheckboxes.normal = document.getElementById('statusNormal');
     elements.statusCheckboxes.limited = document.getElementById('statusLimited');
@@ -92,6 +94,22 @@ async function initApp() {
 
     // Event Listeners
     elements.searchBtn.addEventListener('click', searchData);
+
+    if (elements.reloadDataBtn) {
+        elements.reloadDataBtn.addEventListener('click', async () => {
+            showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
+            try {
+                const result = await clearCacheAndReload(updateProgress);
+                if (result && result.data) {
+                    excelData = result.data;
+                    showMessage(`データを再読み込みしました: ${excelData.length}件`, 'success');
+                    searchData();
+                }
+            } catch (err) {
+                showMessage('キャッシュのクリアに失敗しました。', 'error');
+            }
+        });
+    }
 
     elements.clearBtn.addEventListener('click', () => {
         elements.searchInput.value = '';
@@ -299,7 +317,13 @@ function renderTable(data) {
         const cellExpected = row.insertCell(5);
         cellExpected.className = "px-2 py-3 text-xs text-gray-600 align-top";
         if (item.updatedCells && item.updatedCells.includes(columnMap.expectedDate)) cellExpected.classList.add('text-red-600', 'font-bold');
-        cellExpected.textContent = item.expectedDate || '-';
+
+        if (item.expectedDateObj) {
+            const dateStr = formatDate(item.expectedDateObj);
+            cellExpected.textContent = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : (item.expectedDate || '-');
+        } else {
+            cellExpected.textContent = item.expectedDate || '-';
+        }
 
         // 7. Shipment Volume
         const cellVolume = row.insertCell(6);

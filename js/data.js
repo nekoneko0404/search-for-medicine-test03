@@ -32,23 +32,84 @@ export function loadScript(src) {
 
 /**
  * Parse GViz Date string
+ * Handles various formats including Japanese date strings
  * @param {string} gvizDate - Date string from Google Visualization API
  * @returns {Date|null} Date object or null
  */
 function parseGvizDate(gvizDate) {
     if (typeof gvizDate !== 'string' || gvizDate.trim() === '') return null;
-    try {
-        if (gvizDate.startsWith('Date(')) {
-            const parts = gvizDate.match(/\d+/g);
-            if (parts && parts.length >= 3) {
-                return new Date(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+
+    // 1. Try standard Date constructor
+    let date = new Date(gvizDate);
+    if (!isNaN(date.getTime())) return date;
+
+    // 2. Handle "Date(2023,0,1)" format
+    if (gvizDate.startsWith('Date(')) {
+        const parts = gvizDate.match(/\d+/g);
+        if (parts && parts.length >= 3) {
+            return new Date(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        }
+    }
+
+    // 3. Handle Japanese format like "金曜日, 1月 17, 2025" or "2025年1月17日"
+    // Extract numbers: Year (4 digits), Month (1-2 digits), Day (1-2 digits)
+    const numbers = gvizDate.match(/\d+/g);
+    if (numbers && numbers.length >= 3) {
+        // Assuming order might be Year, Month, Day OR Month, Day, Year
+        // Heuristic: Year is usually > 1900
+        let y, m, d;
+
+        // Check for 4-digit year
+        const yearIndex = numbers.findIndex(n => parseInt(n) > 1900);
+
+        if (yearIndex !== -1) {
+            y = parseInt(numbers[yearIndex]);
+            // Remove year from array to find month and day
+            const remaining = numbers.filter((_, i) => i !== yearIndex);
+            if (remaining.length >= 2) {
+                // Usually Month comes before Day in these formats
+                m = parseInt(remaining[0]) - 1; // Month is 0-indexed
+                d = parseInt(remaining[1]);
+
+                date = new Date(y, m, d);
+                if (!isNaN(date.getTime())) return date;
             }
         }
-        const date = new Date(gvizDate);
-        return !isNaN(date.getTime()) ? date : null;
-    } catch {
-        return null;
     }
+
+    return null;
+}
+
+/**
+ * Robust CSV Line Parser
+ * Handles quoted fields and escaped quotes correctly
+ * @param {string} text - CSV line text
+ * @returns {Array<string>} Array of fields
+ */
+function parseCSVLine(text) {
+    const result = [];
+    let current = '';
+    let inQuote = false;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+
+        if (char === '"') {
+            if (inQuote && text[i + 1] === '"') {
+                current += '"';
+                i++; // Skip escaped quote
+            } else {
+                inQuote = !inQuote;
+            }
+        } else if (char === ',' && !inQuote) {
+            result.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    result.push(current);
+    return result;
 }
 
 /**
@@ -62,13 +123,33 @@ function processCsvData(csvText, onProgress) {
     const rows = csvText.trim().split('\n');
     if (rows.length < 2) return [];
 
-    const dataRows = rows.slice(1);
+    // Skip header rows. 
+    // User reported data starts from row 3 (index 2) in the sheet.
+    // GViz CSV might contain headers. We filter out rows that look like headers.
+    // Header usually has "品名" in col 5 or "更新" in col 19.
 
-    return dataRows.map(rowString => {
-        // Simple CSV parser handling quoted strings
-        // Note: This is a simplified parser based on the original code. 
-        // For robust CSV parsing, a library might be better, but we stick to original logic for now.
-        const row = rowString.slice(1, -1).split('","');
+    const dataRows = [];
+    for (let i = 0; i < rows.length; i++) {
+        const rowString = rows[i].trim();
+        if (!rowString) continue;
+
+        const row = parseCSVLine(rowString);
+
+        // Basic validation to skip header/empty rows
+        // Check if 'productName' (index 5) is '品名' or empty
+        // Check if 'updateDate' (index 19) contains '更新' (header text)
+        if (row.length < 5) continue;
+
+        const col5 = row[5] || '';
+        const col19 = row[19] || '';
+
+        // Skip if it looks like a header
+        if (col5.includes('品名') || col19.includes('更新有無') || col19.includes('当該品目')) {
+            continue;
+        }
+
+        // Skip if essential data is missing (optional, but good for safety)
+        if (!col5 && !row[2]) continue;
 
         let updatedCells = [];
         let shippingStatusTrend = '';
@@ -95,7 +176,7 @@ function processCsvData(csvText, onProgress) {
             // console.warn("Failed to parse metadata or trend:", e);
         }
 
-        return {
+        dataRows.push({
             'productName': row[5],  // ⑥品名
             'ingredientName': row[2],  // ③成分名
             'manufacturer': row[6],  // ⑦製造販売業者名
@@ -103,6 +184,7 @@ function processCsvData(csvText, onProgress) {
             'reasonForLimitation': row[13], // ⑭制限理由
             'resolutionProspect': row[14], // ⑮解消見込み
             'expectedDate': row[15], // ⑯見込み時期
+            'expectedDateObj': parseGvizDate(row[15]), // ⑯見込み時期(日付オブジェクト)
             'shipmentVolumeStatus': row[16], // ⑰出荷量状況
             'yjCode': row[4],  // ⑤YJコード
             'productCategory': row[7],  // ⑧製品区分
@@ -111,8 +193,10 @@ function processCsvData(csvText, onProgress) {
             'updatedCells': updatedCells,
             'shippingStatusTrend': shippingStatusTrend, // W列
             'changedPart': changedPart // X列
-        };
-    });
+        });
+    }
+
+    return dataRows;
 }
 
 /**
@@ -164,6 +248,7 @@ export async function fetchManufacturerData() {
     }
 }
 
+
 /**
  * Fetch main data from Google Sheets
  * @param {Function} onProgress - Callback for progress updates
@@ -201,7 +286,6 @@ async function fetchExcelData(onProgress) {
         throw error;
     }
 }
-
 /**
  * Load data (try cache first, then network)
  * @param {Function} onProgress - Callback for progress updates
@@ -220,6 +304,9 @@ export async function loadAndCacheData(onProgress) {
                 if (item.updateDateObj && typeof item.updateDateObj === 'string') {
                     item.updateDateObj = new Date(item.updateDateObj);
                 }
+                if (item.expectedDateObj && typeof item.expectedDateObj === 'string') {
+                    item.expectedDateObj = new Date(item.expectedDateObj);
+                }
             });
             if (onProgress) onProgress('キャッシュから読み込み完了', 100);
             return { data: cachedData.data, date: 'キャッシュ' };
@@ -233,11 +320,6 @@ export async function loadAndCacheData(onProgress) {
     }
 }
 
-/**
- * Clear cache and reload data
- * @param {Function} onProgress - Callback for progress updates
- * @returns {Promise<Object>} { data: Array, date: string }
- */
 export async function clearCacheAndReload(onProgress) {
     try {
         await window.localforage.removeItem('excelCache');

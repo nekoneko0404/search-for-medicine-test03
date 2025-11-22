@@ -2,7 +2,7 @@
  * YJ Code Search App Main Logic
  */
 
-import { loadAndCacheData, fetchManufacturerData } from '../../js/data.js';
+import { loadAndCacheData, fetchManufacturerData, clearCacheAndReload } from '../../js/data.js';
 import { normalizeString, debounce } from '../../js/utils.js';
 import { showMessage, renderStatusButton, updateProgress, createDropdown } from '../../js/ui.js';
 
@@ -19,6 +19,7 @@ const elements = {
     loadingIndicator: null,
     tableContainer: null,
     cardContainer: null,
+    reloadDataBtn: null,
     checkboxes: {
         class3: null,     // 薬効 (3 digits)
         class4: null,     // 薬効 (4 digits)
@@ -42,6 +43,7 @@ function initElements() {
     elements.loadingIndicator = document.getElementById('loadingIndicator');
     elements.tableContainer = document.getElementById('tableContainer');
     elements.cardContainer = document.getElementById('cardContainer');
+    elements.reloadDataBtn = document.getElementById('reload-data');
 
     elements.checkboxes.class3 = document.getElementById('filter-class3');
     elements.checkboxes.class4 = document.getElementById('filter-class4');
@@ -100,6 +102,22 @@ async function initApp() {
 
     // Event Listeners
     elements.searchBtn.addEventListener('click', () => searchYjCode());
+
+    if (elements.reloadDataBtn) {
+        elements.reloadDataBtn.addEventListener('click', async () => {
+            showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
+            try {
+                const result = await clearCacheAndReload(updateProgress);
+                if (result && result.data) {
+                    excelData = result.data;
+                    showMessage(`データを再読み込みしました: ${excelData.length}件`, 'success');
+                    searchYjCode();
+                }
+            } catch (err) {
+                showMessage('キャッシュのクリアに失敗しました。', 'error');
+            }
+        });
+    }
     elements.yjCodeInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') searchYjCode();
     });
