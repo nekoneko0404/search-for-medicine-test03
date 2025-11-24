@@ -347,7 +347,19 @@ function renderResults(data) {
         cellStatus.className = "px-4 py-3 align-top";
         cellStatus.setAttribute('data-label', '出荷状況');
         const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
-        cellStatus.appendChild(renderStatusButton(item.shipmentStatus, isStatusUpdated));
+        
+        const statusContainer = document.createElement('div');
+        statusContainer.className = 'flex items-center gap-1';
+        statusContainer.appendChild(renderStatusButton(item.shipmentStatus, isStatusUpdated));
+
+        if (item.shippingStatusTrend) {
+            const trendIcon = document.createElement('span');
+            trendIcon.className = 'text-base text-red-500 font-bold';
+            trendIcon.textContent = item.shippingStatusTrend;
+            statusContainer.appendChild(trendIcon);
+        }
+        cellStatus.appendChild(statusContainer);
+
         // Highlight if shipment status was recently updated
         if (isStatusUpdated) {
             cellStatus.classList.add('text-red-600', 'font-bold');
