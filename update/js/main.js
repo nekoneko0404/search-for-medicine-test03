@@ -282,9 +282,34 @@ function renderTable(data) {
 
         // 2. Ingredient Name
         const cellIngredient = row.insertCell(1);
-        cellIngredient.className = "px-2 py-3 text-sm text-gray-600 align-top";
+        cellIngredient.className = "px-2 py-3 text-sm align-top";
         if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) cellIngredient.classList.add('text-red-600', 'font-bold');
-        cellIngredient.textContent = item.ingredientName || '';
+
+        // Make ingredient name clickable to search within this page
+        if (item.ingredientName) {
+            const span = document.createElement('span');
+            span.className = "text-indigo-600 font-semibold hover:underline cursor-pointer";
+            span.textContent = item.ingredientName;
+            span.addEventListener('click', () => {
+                // Clear filters first (same as clear button)
+                elements.searchInput.value = item.ingredientName;
+                elements.updatePeriod.value = 'all';
+
+                elements.statusCheckboxes.normal.checked = true;
+                elements.statusCheckboxes.limited.checked = true;
+                elements.statusCheckboxes.stopped.checked = true;
+
+                if (elements.trendCheckboxes.up) elements.trendCheckboxes.up.checked = false;
+                if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = false;
+
+                // Execute search
+                searchData();
+            });
+            cellIngredient.appendChild(span);
+        } else {
+            cellIngredient.className += " text-gray-600";
+            cellIngredient.textContent = '';
+        }
 
         // 3. Shipment Status
         const cellStatus = row.insertCell(2);
