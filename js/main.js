@@ -370,10 +370,58 @@ function sortResults(key) {
 }
 
 /**
+ * Load notification content
+ */
+async function loadNotification() {
+    try {
+        const response = await fetch('notification.md');
+        if (response.ok) {
+            const markdownContent = await response.text();
+            // Filter out content enclosed in <!-- -->
+            const filteredContent = markdownContent.replace(/<!--[\s\S]*?-->/g, '').trim();
+
+            if (filteredContent === '') {
+                if (elements.notificationArea) {
+                    elements.notificationArea.style.display = 'none';
+                }
+                return;
+            }
+
+            const htmlContent = marked.parse(filteredContent);
+            if (elements.notificationArea) {
+                elements.notificationArea.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="text-amber-900 text-sm space-y-1 leading-relaxed">
+                            ${htmlContent}
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            console.error('Failed to load notification:', response.statusText);
+            if (elements.notificationArea) {
+                elements.notificationArea.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching notification:', error);
+        if (elements.notificationArea) {
+            elements.notificationArea.style.display = 'none';
+        }
+    }
+}
+
+/**
  * Initialize application
  */
 async function initApp() {
     initElements();
+    loadNotification();
 
     // Attach Event Listeners
     const inputIds = ['drugName', 'ingredientName', 'makerName'];

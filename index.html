@@ -13,10 +13,40 @@
         connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com ws://127.0.0.1:*;
     ">
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;500;600;700&display=swap">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        #notificationArea ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        #notificationArea li {
+            margin-bottom: 0.25rem;
+        }
+        #notificationArea a {
+            color: #4f46e5; /* indigo-600 */
+            text-decoration: underline;
+        }
+        #notificationArea a:hover {
+            color: #3730a3; /* indigo-800 */
+        }
+        #notificationArea h1, #notificationArea h2, #notificationArea h3, #notificationArea h4, #notificationArea h5, #notificationArea h6 {
+            font-weight: bold;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        #notificationArea h1 { font-size: 1.5rem; }
+        #notificationArea h2 { font-size: 1.25rem; }
+        #notificationArea h3 { font-size: 1.125rem; }
+        #notificationArea p {
+            margin-bottom: 0.5rem;
+        }
+    </style>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VXSZGE4HP7"></script>
@@ -160,19 +190,6 @@
 
             <!-- Notification -->
             <div id="notificationArea" class="bg-amber-50 border border-amber-200 rounded-xl p-6 flex-shrink-0">
-                <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="text-amber-900 text-sm space-y-1 leading-relaxed">
-                        <p class="font-bold">11/22 0:04～9:55 の間、データが読み込めない事象が発生しました。</p>
-                        <p class="pl-4">厚生労働省の元データのシート名が「公表」から「公表 」に変更されて、情報更新に失敗していました。</p>
-                        <p class="pl-4">現在（11/22 10:00）は、どちらの記載でも対応できるよう修正済みです。</p>
-                        <p class="pl-4">元データ作成者の人為的なミスかとは思いますが、同様のことがあった時には調査・修正するのでお知らせください。</p>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -214,18 +231,6 @@
             </table>
         </div>
     </main>
-
-    <!-- Footer -->
-    <footer id="pageFooter" class="bg-white border-t border-gray-200 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="text-center text-sm text-gray-500">
-                <p class="mb-2">ご意見・ご要望は製作者までお寄せください。</p>
-                <p class="mb-4">ツイッター: <a href="https://x.com/oshigoto_twitte" target="_blank" rel="noopener noreferrer"
-                        class="text-indigo-600 hover:underline font-medium">@oshigoto_twitte</a></p>
-                <p>© 2025 【Kusuri Compass】</p>
-            </div>
-        </div>
-    </footer>
 
     <!-- Toast Message -->
     <div id="messageBox"
