@@ -266,7 +266,8 @@ function renderTable(data) {
 
     displayData.forEach((item, index) => {
         const row = elements.resultTableBody.insertRow();
-        row.className = "hover:bg-indigo-50 transition-colors group";
+        const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
+        row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group`;
 
         // 1. Product Name
         const cellName = row.insertCell(0);

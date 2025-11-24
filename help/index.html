@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,11 +27,13 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             border: 1px solid #e5e7eb;
         }
+
         .step {
             display: flex;
             align-items: flex-start;
             gap: 1rem;
         }
+
         .step-number {
             flex-shrink: 0;
             width: 2rem;
@@ -45,13 +48,15 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 p-4 sm:p-8 flex flex-col items-center min-h-screen">
 
-    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-6xl">
+<body class="bg-slate-50 p-4 sm:p-8 flex flex-col items-center min-h-screen">
+
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-7xl">
         <!-- ヘッダー -->
         <header class="text-center mb-8">
             <div class="flex justify-center items-center mb-4 space-x-3">
-                <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-12 w-12 object-contain flex-shrink-0">
+                <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon"
+                    class="h-12 w-12 object-contain flex-shrink-0">
                 <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Kusuri Compass 取扱説明書</h1>
             </div>
             <p class="text-gray-600">医薬品の情報を、もっと速く、もっと分かりやすく。</p>
@@ -61,20 +66,28 @@
         <section class="mb-10 text-center">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">機能の全体像</h2>
             <p class="text-sm text-gray-600 mb-4">Kusuri Compassは、4つのツールが連携して医薬品情報を多角的に提供します。</p>
-            <img src="../images/Map.png" alt="Kusuri Compass 全体図" class="mx-auto rounded-lg shadow-md border border-gray-200 max-w-full h-auto">
+            <img src="../images/Map.png" alt="Kusuri Compass 全体図"
+                class="mx-auto rounded-lg shadow-md border border-gray-200 max-w-full h-auto">
         </section>
 
         <!-- 目次 -->
         <nav class="mb-12 p-4 bg-gray-50 rounded-lg shadow-inner border">
             <h3 class="font-bold text-xl mb-3 text-gray-800 text-center">目次</h3>
             <ul class="columns-2 sm:columns-3 space-y-2 text-sm">
-                <li><a href="#quick-start" class="text-indigo-600 hover:underline font-semibold"><i class="fas fa-rocket mr-1"></i>クイックスタート</a></li>
-                <li><a href="#main-search" class="text-indigo-600 hover:underline"><i class="fas fa-pills mr-1"></i>出荷状況検索</a></li>
-                <li><a href="#update-search" class="text-indigo-600 hover:underline"><i class="fas fa-calendar-alt mr-1"></i>情報更新日検索</a></li>
-                <li><a href="#yj-code-search" class="text-indigo-600 hover:underline"><i class="fas fa-barcode mr-1"></i>YJコード検索</a></li>
-                <li><a href="#hiyari-search" class="text-indigo-600 hover:underline"><i class="fas fa-exclamation-circle mr-1"></i>ヒヤリハット検索</a></li>
-                <li><a href="#tips" class="text-indigo-600 hover:underline"><i class="fas fa-lightbulb mr-1"></i>便利なTips</a></li>
-                <li><a href="#notes" class="text-indigo-600 hover:underline"><i class="fas fa-exclamation-triangle mr-1"></i>注意事項</a></li>
+                <li><a href="#quick-start" class="text-indigo-600 hover:underline font-semibold"><i
+                            class="fas fa-rocket mr-1"></i>クイックスタート</a></li>
+                <li><a href="#main-search" class="text-indigo-600 hover:underline"><i
+                            class="fas fa-pills mr-1"></i>出荷状況検索</a></li>
+                <li><a href="#update-search" class="text-indigo-600 hover:underline"><i
+                            class="fas fa-calendar-alt mr-1"></i>情報更新日検索</a></li>
+                <li><a href="#yj-code-search" class="text-indigo-600 hover:underline"><i
+                            class="fas fa-barcode mr-1"></i>YJコード検索</a></li>
+                <li><a href="#hiyari-search" class="text-indigo-600 hover:underline"><i
+                            class="fas fa-exclamation-circle mr-1"></i>ヒヤリハット検索</a></li>
+                <li><a href="#tips" class="text-indigo-600 hover:underline"><i
+                            class="fas fa-lightbulb mr-1"></i>便利なTips</a></li>
+                <li><a href="#notes" class="text-indigo-600 hover:underline"><i
+                            class="fas fa-exclamation-triangle mr-1"></i>注意事項</a></li>
             </ul>
         </nav>
 
@@ -85,44 +98,52 @@
             <div class="space-y-4">
                 <div class="step bg-indigo-50 p-4 rounded-lg">
                     <div class="step-number">1</div>
-                    <div><strong class="text-gray-800">キーワード入力:</strong> トップページの「医薬品名」または「成分名」に、探している薬の名前を入力します。入力の途中でも自動で検索が始まります。</div>
+                    <div><strong class="text-gray-800">キーワード入力:</strong>
+                        トップページの「医薬品名」または「成分名」に、探している薬の名前を入力します。入力の途中でも自動で検索が始まります。</div>
                 </div>
                 <div class="step bg-indigo-50 p-4 rounded-lg">
                     <div class="step-number">2</div>
-                    <div><strong class="text-gray-800">結果の確認:</strong> 該当する医薬品が一覧で表示されます。「出荷状況」の列で、現在の供給ステータス（通常出荷、限定出荷、供給停止）を確認できます。</div>
+                    <div><strong class="text-gray-800">結果の確認:</strong>
+                        該当する医薬品が一覧で表示されます。「出荷状況」の列で、現在の供給ステータス（通常出荷、限定出荷、供給停止）を確認できます。</div>
                 </div>
                 <div class="step bg-indigo-50 p-4 rounded-lg">
                     <div class="step-number">3</div>
-                    <div><strong class="text-gray-800">詳細情報へ:</strong> さらに詳しい情報が必要な場合は、品名をクリックすると表示されるメニューから「医薬品情報(PMDA)」や「代替薬検索」など、次のアクションに進めます。</div>
+                    <div><strong class="text-gray-800">詳細情報へ:</strong>
+                        さらに詳しい情報が必要な場合は、品名をクリックすると表示されるメニューから「医薬品情報(PMDA)」や「代替薬検索」など、次のアクションに進めます。</div>
                 </div>
             </div>
         </section>
 
         <!-- 1. 医薬品出荷状況検索 -->
         <section id="main-search" class="mb-12">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-indigo-500 pb-2"><i class="fas fa-pills text-indigo-500 mr-2"></i>医薬品出荷状況検索</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-indigo-500 pb-2"><i
+                    class="fas fa-pills text-indigo-500 mr-2"></i>医薬品出荷状況検索</h2>
             <div class="section-card">
                 <div class="grid md:grid-cols-2 gap-8 items-center">
                     <div>
                         <h3 class="text-xl font-semibold text-gray-900 mb-3">できること</h3>
-                        <p class="text-sm text-gray-600 mb-4">医薬品の品名や成分名から、現在の出荷状況を素早く検索できます。このツールがKusuri Compassの入り口です。</p>
+                        <p class="text-sm text-gray-600 mb-4">医薬品の品名や成分名から、現在の出荷状況を素早く検索できます。このツールがKusuri Compassの入り口です。
+                        </p>
                         <h4 class="font-semibold text-gray-800 mb-2">操作手順:</h4>
                         <ol class="list-decimal list-inside space-y-2 text-sm">
                             <li>「医薬品名」「成分名」「規格、剤形、メーカー」のいずれか、または複数にキーワードを入力します。</li>
                             <li>入力と同時に、下部に検索結果が自動で表示されます。</li>
                             <li>「出荷状況」のチェックボックスで、表示するステータスを絞り込めます。</li>
-                            <li>キーワードの前に <code class="bg-gray-200 text-red-600 font-mono px-1 rounded">-</code> を付けると、その語句を除外して検索できます。</li>
+                            <li>キーワードの前に <code class="bg-gray-200 text-red-600 font-mono px-1 rounded">-</code>
+                                を付けると、その語句を除外して検索できます。</li>
                             <li>結果の品名をクリックすると、さらに詳細な情報（添付文書、代替薬、ヒヤリハット事例など）へアクセスできます。</li>
                         </ol>
                     </div>
-                    <img src="../images/screenshot_index.png" alt="医薬品出荷状況検索ツールのスクリーンショット" class="rounded-lg shadow-md border">
+                    <img src="../images/screenshot_index.png" alt="医薬品出荷状況検索ツールのスクリーンショット"
+                        class="rounded-lg shadow-md border">
                 </div>
             </div>
         </section>
 
         <!-- 2. 情報更新日検索 -->
         <section id="update-search" class="mb-12">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-blue-500 pb-2"><i class="fas fa-calendar-alt text-blue-500 mr-2"></i>情報更新日検索</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-blue-500 pb-2"><i
+                    class="fas fa-calendar-alt text-blue-500 mr-2"></i>情報更新日検索</h2>
             <div class="section-card">
                 <div class="grid md:grid-cols-2 gap-8 items-center">
                     <div>
@@ -136,14 +157,16 @@
                             <li>最近情報が更新された医薬品が一覧で表示されます。特に供給が再開された薬などを探すのに便利です。</li>
                         </ol>
                     </div>
-                    <img src="../images/screenshot_update.png" alt="情報更新日検索ツールのスクリーンショット" class="rounded-lg shadow-md border">
+                    <img src="../images/screenshot_update.png" alt="情報更新日検索ツールのスクリーンショット"
+                        class="rounded-lg shadow-md border">
                 </div>
             </div>
         </section>
 
         <!-- 3. YJコード検索 -->
         <section id="yj-code-search" class="mb-12">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-green-500 pb-2"><i class="fas fa-barcode text-green-500 mr-2"></i>YJコード検索</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-green-500 pb-2"><i
+                    class="fas fa-barcode text-green-500 mr-2"></i>YJコード検索</h2>
             <div class="section-card">
                 <div class="grid md:grid-cols-2 gap-8 items-center">
                     <div>
@@ -157,14 +180,16 @@
                             <li>結果から「通常出荷」されている薬を選ぶことで、代替薬を見つけやすくなります。</li>
                         </ol>
                     </div>
-                    <img src="../images/screenshot_yjcode.png" alt="YJコード検索ツールのスクリーンショット" class="rounded-lg shadow-md border">
+                    <img src="../images/screenshot_yjcode.png" alt="YJコード検索ツールのスクリーンショット"
+                        class="rounded-lg shadow-md border">
                 </div>
             </div>
         </section>
 
         <!-- 4. 薬局ヒヤリ・ハット事例ビューア -->
         <section id="hiyari-search" class="mb-12">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-red-500 pb-2"><i class="fas fa-exclamation-circle text-red-500 mr-2"></i>薬局ヒヤリ・ハット事例ビューア</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-red-500 pb-2"><i
+                    class="fas fa-exclamation-circle text-red-500 mr-2"></i>薬局ヒヤリ・ハット事例ビューア</h2>
             <div class="section-card">
                 <div class="grid md:grid-cols-2 gap-8 items-center">
                     <div>
@@ -177,45 +202,62 @@
                             <li>検索結果はカード形式で表示されます。「さらに表示」で続きを読むことができます。</li>
                         </ol>
                         <div class="mt-4 pt-3 border-t border-gray-200 text-xs text-gray-500">
-                            <p><strong><i class="fas fa-database mr-1"></i>データソース:</strong> このツールは、公益財団法人日本医療機能評価機構が提供する「薬局ヒヤリ・ハット事例収集・分析事業」の公式APIを使用しています。データはプロキシ (`https://hiyari-proxy-708146219355.asia-east1.run.app/proxy`) を経由して取得されます。</p>
+                            <p><strong><i class="fas fa-database mr-1"></i>データソース:</strong>
+                                このツールは、公益財団法人日本医療機能評価機構が提供する「薬局ヒヤリ・ハット事例収集・分析事業」の公式APIを使用しています。データはプロキシ
+                                (`https://hiyari-proxy-708146219355.asia-east1.run.app/proxy`) を経由して取得されます。</p>
                         </div>
                     </div>
-                    <img src="../images/screenshot_hiyari.png" alt="薬局ヒヤリ・ハット事例ビューアのスクリーンショット" class="rounded-lg shadow-md border">
+                    <img src="../images/screenshot_hiyari.png" alt="薬局ヒヤリ・ハット事例ビューアのスクリーンショット"
+                        class="rounded-lg shadow-md border">
                 </div>
             </div>
         </section>
 
         <!-- 便利なTips -->
         <section id="tips" class="mb-12">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-yellow-500 pb-2"><i class="fas fa-lightbulb text-yellow-500 mr-2"></i>便利なTips</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-yellow-500 pb-2"><i
+                    class="fas fa-lightbulb text-yellow-500 mr-2"></i>便利なTips</h2>
             <div class="section-card space-y-4 text-sm">
                 <p><strong><i class="fas fa-search-plus mr-1"></i>高度な検索テクニック:</strong><br>
-                    ・検索欄にスペース区切りで複数の単語（例: <code class="bg-gray-200 font-mono px-1 rounded">ロキソプロフェン 60mg</code>）を入れると、両方を含むAND検索になります。<br>
-                    ・単語の前に <code class="bg-gray-200 text-red-600 font-mono px-1 rounded">-</code> を付けると、その単語を除外できます。（例: <code class="bg-gray-200 font-mono px-1 rounded">AG -アメル</code>）
+                    ・検索欄にスペース区切りで複数の単語（例: <code
+                        class="bg-gray-200 font-mono px-1 rounded">ロキソプロフェン 60mg</code>）を入れると、両方を含むAND検索になります。<br>
+                    ・単語の前に <code class="bg-gray-200 text-red-600 font-mono px-1 rounded">-</code> を付けると、その単語を除外できます。（例:
+                    <code class="bg-gray-200 font-mono px-1 rounded">AG -アメル</code>）
                 </p>
                 <p><strong><i class="fas fa-info-circle mr-1"></i>アイコンの意味:</strong><br>
-                    <span class="inline-block bg-green-200 text-green-800 px-2 py-0.5 rounded-md text-xs font-bold">後</span> : 後発医薬品 (ジェネリック) を示します。<br>
-                    <span class="inline-block bg-purple-200 text-purple-800 px-2 py-0.5 rounded-md text-xs font-bold">基</span> : 基礎的医薬品を示します。<br>
-                    <span class="inline-block text-red-500 font-bold">⤴️ / ⤵️</span> : 「情報更新日検索」ツールで、供給状況の変動（改善/悪化）を表します。
+                    <span
+                        class="inline-block bg-green-200 text-green-800 px-2 py-0.5 rounded-md text-xs font-bold">後</span>
+                    : 後発医薬品 (ジェネリック) を示します。<br>
+                    <span
+                        class="inline-block bg-purple-200 text-purple-800 px-2 py-0.5 rounded-md text-xs font-bold">基</span>
+                    : 基礎的医薬品を示します。<br>
+                    <span class="inline-block text-red-500 font-bold">⤴️ / ⤵️</span> :
+                    「情報更新日検索」ツールで、供給状況の変動（改善/悪化）を表します。
                 </p>
-                <p><strong><i class="fas fa-sync-alt mr-1"></i>データが古い？:</strong> 画面右下の <span class="text-2xl">🔄</span> ボタンを押すと、キャッシュがクリアされ、最新のデータが強制的に読み込まれます。</p>
+                <p><strong><i class="fas fa-sync-alt mr-1"></i>データが古い？:</strong> 画面右下の <span class="text-2xl">🔄</span>
+                    ボタンを押すと、キャッシュがクリアされ、最新のデータが強制的に読み込まれます。</p>
             </div>
         </section>
 
         <!-- 注意事項 -->
         <section id="notes">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-400 pb-2"><i class="fas fa-exclamation-triangle text-gray-500 mr-2"></i>注意事項</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-400 pb-2"><i
+                    class="fas fa-exclamation-triangle text-gray-500 mr-2"></i>注意事項</h2>
             <div class="section-card text-xs text-gray-600 space-y-2">
                 <p>・本ツールは、公的機関が公開しているデータに基づいて情報を表示しますが、その正確性、完全性、最新性を保証するものではありません。最終的な判断は、必ず公式サイトや添付文書をご確認ください。</p>
-                <p>・本ツールからリンクされるPMDAの医薬品情報（患者向医薬品ガイド、電子化された添付文書など）は、製造販売業者が著作権を有しています。所属する医療機関や薬局内での利用を除き、無断での複製・転載・配布は禁じられています。</p>
+                <p>・本ツールからリンクされるPMDAの医薬品情報（患者向医薬品ガイド、電子化された添付文書など）は、製造販売業者が著作権を有しています。所属する医療機関や薬局内での利用を除き、無断での複製・転載・配布は禁じられています。
+                </p>
                 <p>・本ツールの著作権は開発者に帰属します。無断での複製、配布、販売は禁止します。</p>
-                <p class="font-bold mt-2">【免責事項】<br>本ツールの利用は、利用者自身の責任において行うものとします。開発者は、本ツールの利用によって生じたいかなる損害（データの損失、業務の中断、その他の金銭的損害を含むがこれに限らない）についても、一切の責任を負いません。提供される情報の利用に関わる最終的な判断は、すべて利用者に委ねられます。</p>
+                <p class="font-bold mt-2">
+                    【免責事項】<br>本ツールの利用は、利用者自身の責任において行うものとします。開発者は、本ツールの利用によって生じたいかなる損害（データの損失、業務の中断、その他の金銭的損害を含むがこれに限らない）についても、一切の責任を負いません。提供される情報の利用に関わる最終的な判断は、すべて利用者に委ねられます。
+                </p>
             </div>
         </section>
 
         <!-- フッター -->
         <footer class="mt-12 text-center">
-            <a href="../index.html" class="bg-indigo-600 text-white hover:bg-indigo-700 transition duration-150 ease-in-out py-2 px-6 rounded-lg font-medium shadow-md">
+            <a href="../index.html"
+                class="bg-indigo-600 text-white hover:bg-indigo-700 transition duration-150 ease-in-out py-2 px-6 rounded-lg font-medium shadow-md">
                 出荷状況検索ツールへ戻る
             </a>
             <p class="mt-6 text-sm text-gray-500">© 2025 【Kusuri Compass】</p>
@@ -223,4 +265,5 @@
     </div>
 
 </body>
+
 </html>

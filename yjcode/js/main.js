@@ -255,9 +255,10 @@ function renderResults(data) {
         'shipmentStatus': 11
     };
 
-    displayData.forEach(item => {
+    displayData.forEach((item, index) => {
         const row = elements.resultTableBody.insertRow();
-        row.className = "hover:bg-indigo-50 transition-colors group";
+        const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
+        row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group`;
 
         // YJ Code
         const cellYj = row.insertCell(0);
