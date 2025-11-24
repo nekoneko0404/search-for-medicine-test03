@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMoreButton.style.display = 'none';
 
         let queryParams = new URLSearchParams();
-        queryParams.append('count', '100');
+        queryParams.append('count', '50');
         queryParams.append('order', '2'); // 新しい順
 
         const sanitizeInput = (input) => {
