@@ -24,9 +24,9 @@
     <script src="../gtag.js"></script>
 </head>
 
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:h-screen md:overflow-hidden">
 
-    <header class="bg-white shadow-sm sticky top-0 z-30">
+    <header class="bg-white shadow-sm sticky top-0 z-30 flex-shrink-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -40,13 +40,14 @@
         </div>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
-        <div class="text-center mb-8">
+    <main
+        class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl md:h-full md:flex md:flex-col md:overflow-hidden">
+        <div class="text-center mb-8 flex-shrink-0">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">YJコード検索</h2>
             <p class="text-gray-500 text-sm">YJコードから医薬品情報を検索します</p>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 flex-shrink-0">
             <!-- Row 1: Search Conditions & Input -->
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <!-- Left: Search Conditions -->
@@ -124,7 +125,8 @@
             </div>
         </div>
 
-        <div id="tableContainer" class="table-container bg-white hidden min-h-[280px]">
+        <div id="tableContainer"
+            class="table-container bg-white hidden min-h-[280px] md:flex-grow md:overflow-y-auto md:min-h-0">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>

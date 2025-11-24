@@ -29,7 +29,12 @@ const elements = {
     sortStatusIcon: null,
     sortProductNameIcon: null,
     sortIngredientNameIcon: null,
-    reloadDataBtn: null
+    reloadDataBtn: null,
+    notificationArea: null,
+    reloadDataBtn: null,
+    notificationArea: null,
+    pageFooter: null,
+    infoContainer: null
 };
 
 /**
@@ -49,6 +54,9 @@ function initElements() {
     elements.sortProductNameIcon = document.getElementById('sort-productName-icon');
     elements.sortIngredientNameIcon = document.getElementById('sort-ingredientName-icon');
     elements.reloadDataBtn = document.getElementById('reload-data');
+    elements.notificationArea = document.getElementById('notificationArea');
+    elements.pageFooter = document.getElementById('pageFooter');
+    elements.infoContainer = document.getElementById('infoContainer');
 }
 
 /**
@@ -64,8 +72,11 @@ function getSearchKeywords(input) {
  * Search and filter data
  */
 function searchData() {
-    if (!elements.usageGuide) return; // Guard if elements not init
-    elements.usageGuide.classList.add('hidden');
+    if (elements.infoContainer) elements.infoContainer.classList.add('hidden');
+    if (elements.pageFooter) elements.pageFooter.classList.add('hidden');
+
+
+
 
     if (excelData.length === 0) return;
 
@@ -88,7 +99,8 @@ function searchData() {
     if (allSearchFieldsEmpty && allCheckboxesChecked) {
         renderTable([]);
         elements.tableContainer.classList.add('hidden');
-        elements.usageGuide.classList.remove('hidden');
+        if (elements.infoContainer) elements.infoContainer.classList.remove('hidden');
+        if (elements.pageFooter) elements.pageFooter.classList.remove('hidden');
         return;
     } else {
         elements.tableContainer.classList.remove('hidden');
