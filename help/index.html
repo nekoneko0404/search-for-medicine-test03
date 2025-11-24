@@ -255,12 +255,20 @@
         </section>
 
         <!-- フッター -->
-        <footer class="mt-12 text-center">
+        <!-- フッター -->
+        <footer class="mt-12 text-center border-t border-gray-200 pt-8">
             <a href="../index.html"
-                class="bg-indigo-600 text-white hover:bg-indigo-700 transition duration-150 ease-in-out py-2 px-6 rounded-lg font-medium shadow-md">
+                class="bg-indigo-600 text-white hover:bg-indigo-700 transition duration-150 ease-in-out py-2 px-6 rounded-lg font-medium shadow-md inline-block mb-6">
                 出荷状況検索ツールへ戻る
             </a>
-            <p class="mt-6 text-sm text-gray-500">© 2025 【Kusuri Compass】</p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 text-sm text-gray-500">
+                <span>&copy; 2025 【Kusuri Compass】</span>
+                <span class="hidden md:inline">|</span>
+                <div class="flex gap-4">
+                    <a href="../terms.html" class="hover:text-indigo-600 transition-colors">利用規約</a>
+                    <a href="../privacy.html" class="hover:text-indigo-600 transition-colors">プライバシーポリシー</a>
+                </div>
+            </div>
         </footer>
     </div>
 
