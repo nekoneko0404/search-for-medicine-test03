@@ -51,7 +51,7 @@
             <div class="flex flex-col md:flex-row gap-4 mb-4">
                 <div class="flex-grow">
                     <label for="searchInput" class="sr-only">キーワード検索</label>
-                    <input type="text" id="searchInput" placeholder="医薬品名・成分名・メーカー名で検索 (スペースでAND検索)"
+                    <input type="text" id="searchInput"
                         class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2.5 px-4">
                 </div>
                 <div class="flex gap-2 shrink-0">
@@ -206,6 +206,16 @@
     </button>
 
     <script type="module" src="js/main.js"></script>
+
+    <!-- Typing Animation Script -->
+    <script type="module">
+        import { typewriterPlaceholder } from '../js/typing-animation.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            typewriterPlaceholder(searchInput, '医薬品名・成分名・メーカー名で検索 (スペースでAND検索)', 80);
+        });
+    </script>
 </body>
 
 </html>

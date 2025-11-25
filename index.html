@@ -119,7 +119,7 @@
                 <div class="space-y-2">
                     <label for="drugName" class="block text-sm font-semibold text-gray-700">医薬品名</label>
                     <div class="relative">
-                        <input type="text" id="drugName" placeholder="例: ロキソニン"
+                        <input type="text" id="drugName"
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2.5">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@
                 <div class="space-y-2">
                     <label for="ingredientName" class="block text-sm font-semibold text-gray-700">成分名</label>
                     <div class="relative">
-                        <input type="text" id="ingredientName" placeholder="例: ロキソプロフェン"
+                        <input type="text" id="ingredientName"
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2.5">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,7 +145,7 @@
                 </div>
                 <div class="space-y-2">
                     <label for="makerName" class="block text-sm font-semibold text-gray-700">規格・剤形・メーカー</label>
-                    <input type="text" id="makerName" placeholder="例: 60mg"
+                    <input type="text" id="makerName"
                         class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2.5">
                 </div>
             </div>
@@ -297,6 +297,21 @@
 
     <!-- Main Script -->
     <script type="module" src="js/main.js"></script>
+
+    <!-- Typing Animation Script -->
+    <script type="module">
+        import { typewriterMultiple } from './js/typing-animation.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = [
+                { element: document.getElementById('drugName'), text: '例: ロキソニン', speed: 150 },
+                { element: document.getElementById('ingredientName'), text: '例: ロキソプロフェン', speed: 150 },
+                { element: document.getElementById('makerName'), text: '例: 60mg', speed: 150 }
+            ];
+
+            typewriterMultiple(inputs, 400);
+        });
+    </script>
 </body>
 
 </html>

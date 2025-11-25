@@ -49,10 +49,10 @@
             <div class="flex flex-col sm:flex-row items-center gap-4">
                 <label for="search-input"
                     class="font-semibold text-gray-700 whitespace-nowrap text-sm">医薬品名・成分名:</label>
-                <input type="text" id="search-input" placeholder="医薬品名または成分名を入力"
+                <input type="text" id="search-input"
                     class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2 pl-3 pr-3 text-sm">
                 <label for="filter-input" class="font-semibold text-gray-700 whitespace-nowrap text-sm">絞り込み:</label>
-                <input type="text" id="filter-input" placeholder="事例内容、背景・要因で検索"
+                <input type="text" id="filter-input"
                     class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2 pl-3 pr-3 text-sm">
             </div>
         </div>
@@ -88,6 +88,20 @@
     </footer>
 
     <script type="module" src="js/main.js"></script>
+
+    <!-- Typing Animation Script -->
+    <script type="module">
+        import { typewriterMultiple } from '../js/typing-animation.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = [
+                { element: document.getElementById('search-input'), text: '医薬品名または成分名を入力', speed: 100 },
+                { element: document.getElementById('filter-input'), text: '事例内容、背景・要因で検索', speed: 100 }
+            ];
+
+            typewriterMultiple(inputs, 300);
+        });
+    </script>
 </body>
 
 </html>

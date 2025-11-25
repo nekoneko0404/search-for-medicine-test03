@@ -86,7 +86,7 @@
                 </div>
 
                 <!-- Right: Search Input -->
-                <input type="text" id="yjCodeInput" placeholder="YJコード (例: 1124009F1020)"
+                <input type="text" id="yjCodeInput"
                     class="w-60 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2.5">
             </div>
 
@@ -200,6 +200,16 @@
     </button>
 
     <script type="module" src="js/main.js"></script>
+
+    <!-- Typing Animation Script -->
+    <script type="module">
+        import { typewriterPlaceholder } from '../js/typing-animation.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const yjCodeInput = document.getElementById('yjCodeInput');
+            typewriterPlaceholder(yjCodeInput, 'YJコード (例: 1124009F1020)', 100);
+        });
+    </script>
 </body>
 
 </html>
