@@ -168,16 +168,55 @@ export function createDropdown(item, index) {
 
     // Position check on mouse enter
     dropdownContainer.addEventListener('mouseenter', () => {
-        const rect = dropdownContainer.getBoundingClientRect();
-        const spaceBelow = window.innerHeight - rect.bottom;
-        const dropdownHeight = 200; // Approximate height
+        // Desktop hover behavior
+        if (window.innerWidth > 640) {
+            const rect = dropdownContainer.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const dropdownHeight = 200; // Approximate height
 
-        if (spaceBelow < dropdownHeight) {
-            dropdownContent.classList.remove('top-full', 'mt-1');
-            dropdownContent.classList.add('bottom-full', 'mb-1');
-        } else {
-            dropdownContent.classList.remove('bottom-full', 'mb-1');
-            dropdownContent.classList.add('top-full', 'mt-1');
+            if (spaceBelow < dropdownHeight) {
+                dropdownContent.classList.remove('top-full', 'mt-1');
+                dropdownContent.classList.add('bottom-full', 'mb-1');
+            } else {
+                dropdownContent.classList.remove('bottom-full', 'mb-1');
+                dropdownContent.classList.add('top-full', 'mt-1');
+            }
+        }
+    });
+
+    // Mobile click behavior
+    button.addEventListener('click', (e) => {
+        if (window.innerWidth <= 640) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Close other open dropdowns
+            document.querySelectorAll('[id^="dropdown-content-"]').forEach(el => {
+                if (el.id !== dropdownContentId) {
+                    el.classList.remove('!visible', '!opacity-100');
+                }
+            });
+
+            // Toggle current dropdown
+            const isVisible = dropdownContent.classList.contains('!visible');
+            if (!isVisible) {
+                // Position check for mobile (similar to desktop but on click)
+                const rect = dropdownContainer.getBoundingClientRect();
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const dropdownHeight = 200;
+
+                if (spaceBelow < dropdownHeight) {
+                    dropdownContent.classList.remove('top-full', 'mt-1');
+                    dropdownContent.classList.add('bottom-full', 'mb-1');
+                } else {
+                    dropdownContent.classList.remove('bottom-full', 'mb-1');
+                    dropdownContent.classList.add('top-full', 'mt-1');
+                }
+                
+                dropdownContent.classList.add('!visible', '!opacity-100');
+            } else {
+                dropdownContent.classList.remove('!visible', '!opacity-100');
+            }
         }
     });
 
@@ -205,3 +244,15 @@ export function createDropdown(item, index) {
 
     return dropdownContainer;
 }
+
+// Global listener to close dropdowns when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 640) {
+        // If click is not inside a dropdown container
+        if (!e.target.closest('.group\\/dropdown')) {
+             document.querySelectorAll('[id^="dropdown-content-"]').forEach(el => {
+                el.classList.remove('!visible', '!opacity-100');
+            });
+        }
+    }
+});

@@ -73,7 +73,7 @@ function getSearchKeywords(input) {
  */
 function searchData() {
     if (elements.infoContainer) elements.infoContainer.classList.add('hidden');
-    if (elements.pageFooter) elements.pageFooter.classList.add('hidden');
+    // Footer visibility is handled by CSS animation via body class
 
 
 
@@ -100,10 +100,11 @@ function searchData() {
         renderTable([]);
         elements.tableContainer.classList.add('hidden');
         if (elements.infoContainer) elements.infoContainer.classList.remove('hidden');
-        if (elements.pageFooter) elements.pageFooter.classList.remove('hidden');
+        document.body.classList.remove('search-mode');
         return;
     } else {
         elements.tableContainer.classList.remove('hidden');
+        document.body.classList.add('search-mode');
     }
 
     const statusFilters = [];

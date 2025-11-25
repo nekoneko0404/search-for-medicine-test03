@@ -111,3 +111,46 @@ body {
         transform: rotate(360deg);
     }
 }
+
+/* Header/Footer Animation */
+#mainHeader,
+#mainFooter {
+    /* Ensure initial state allows for animation */
+    max-height: 200px;
+    /* Arbitrary large value */
+    opacity: 1;
+    overflow: hidden;
+    transition:
+        max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        padding 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+        margin 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.search-mode #mainHeader {
+    transform: translateY(-20px);
+    /* Slight movement up */
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    pointer-events: none;
+    border: none;
+    /* Remove border to prevent line remaining */
+}
+
+body.search-mode #mainFooter {
+    transform: translateY(20px);
+    /* Slight movement down */
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    pointer-events: none;
+    border: none;
+}
