@@ -259,10 +259,12 @@ function renderResults(data) {
 
     if (data.length === 0) {
         elements.tableContainer.classList.add('hidden');
+        document.body.classList.remove('search-mode');
         return;
     }
 
     elements.tableContainer.classList.remove('hidden');
+    document.body.classList.add('search-mode');
 
     // Limit results for performance
     const displayData = data.slice(0, 500);
@@ -347,7 +349,7 @@ function renderResults(data) {
         cellStatus.className = "px-4 py-3 align-top";
         cellStatus.setAttribute('data-label', '出荷状況');
         const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
-        
+
         const statusContainer = document.createElement('div');
         statusContainer.className = 'flex items-center gap-1';
         statusContainer.appendChild(renderStatusButton(item.shipmentStatus, isStatusUpdated));

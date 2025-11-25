@@ -246,9 +246,11 @@ function renderTable(data) {
 
     if (data.length === 0) {
         elements.tableContainer.classList.add('hidden');
+        document.body.classList.remove('search-mode');
         return;
     }
     elements.tableContainer.classList.remove('hidden');
+    document.body.classList.add('search-mode');
 
     const displayData = data.slice(0, 200); // Limit display
 

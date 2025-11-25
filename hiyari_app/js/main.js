@@ -99,6 +99,7 @@ async function fetchIncidents() {
     if (!searchKeyword && !filterWord) {
         elements.resultsContainer.innerHTML = '';
         hideError();
+        document.body.classList.remove('search-mode');
         return;
     }
 
@@ -124,10 +125,12 @@ async function fetchIncidents() {
             p.className = 'col-span-full text-center text-gray-500 py-8';
             p.textContent = '該当する事例は見つかりませんでした。';
             elements.resultsContainer.appendChild(p);
+            document.body.classList.remove('search-mode');
             return;
         }
 
         currentData = Array.from(reports).map(parseReport);
+        document.body.classList.add('search-mode');
         displayNextBatch();
     } catch (err) {
         console.error('Fetching incidents failed:', err);
