@@ -189,44 +189,16 @@ function performSearch() {
 }
 
 function displayResults(results) {
-    const container = document.getElementById('resultsContainer');
-    container.innerHTML = '';
-    if (results.length === 0) return;
+    const tableContainer = document.getElementById('tableContainer');
+    const resultTableBody = document.getElementById('resultTableBody');
+    resultTableBody.innerHTML = ''; // Clear previous results
 
-    const tableContainer = document.createElement('div');
-    tableContainer.className = 'table-container rounded-lg shadow border border-gray-200 hidden md:block';
-    const table = document.createElement('table');
-    table.id = 'resultTable';
-    table.className = 'min-w-full divide-y divide-gray-200 table-fixed';
-    const thead = table.createTHead();
-    thead.className = "bg-indigo-100 sticky top-0";
+    if (results.length === 0) {
+        tableContainer.classList.add('hidden');
+        return;
+    }
+    tableContainer.classList.remove('hidden');
 
-    const headerRow = thead.insertRow();
-    const headers = [
-        { key: 'yjCode', text: 'YJコード', width: '10%' },
-        { key: 'productName', text: '品名', width: '25%' },
-        { key: 'ingredientName', text: '成分名', width: '20%' },
-        { key: null, text: 'メーカー', width: '15%' },
-        { key: null, text: '出荷状況', width: '10%' },
-        { key: null, text: '制限理由', width: '10%' },
-        { key: null, text: '出荷量状況', width: '10%' },
-        { key: null, text: '変更箇所', width: '10%' }
-    ];
-
-    headers.forEach(header => {
-        const th = document.createElement('th');
-        th.className = `px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap w-[${header.width}]`;
-        if (header.key) {
-            th.innerHTML = `<div class="flex items-center justify-start"><span>${header.text}</span><button id="sort-${header.key}-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span id="sort-${header.key}-icon">↕</span></button></div>`;
-        } else {
-            th.textContent = header.text;
-        }
-        headerRow.appendChild(th);
-    });
-
-    const tbody = table.createTBody();
-    tbody.id = 'resultTableBody';
-    tbody.className = 'bg-white divide-y divide-gray-200';
 
     const columnMap = {
         'yjCode': 4,
@@ -244,54 +216,55 @@ function displayResults(results) {
     };
 
     results.forEach((item, index) => {
-        const newRow = tbody.insertRow();
-        const rowBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
-        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-200`;
+        const newRow = resultTableBody.insertRow();
+        const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
+        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-50 group fade-in-up`;
+        newRow.style.animationDelay = `${index * 0.05}s`;
 
         const yjCodeCell = newRow.insertCell(0);
         yjCodeCell.setAttribute('data-label', 'YJコード');
-        yjCodeCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900");
+        yjCodeCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900", "align-top");
         if (item.updatedCells && item.updatedCells.includes(columnMap.yjCode)) {
             yjCodeCell.classList.add('text-red-600', 'font-bold');
         }
         const yjCodeLink = document.createElement('span');
-        yjCodeLink.className = "yjcode-link text-indigo-600 font-semibold hover:underline cursor-pointer";
+        yjCodeLink.className = "yjcode-link text-indigo-600 font-medium hover:underline cursor-pointer";
         yjCodeLink.dataset.yjcode = item.yjCode || '';
         yjCodeLink.textContent = item.yjCode || '-';
         yjCodeCell.appendChild(yjCodeLink);
 
         const drugNameCell = newRow.insertCell(1);
         drugNameCell.setAttribute('data-label', '品名');
-        drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
+        drugNameCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900", "align-top");
         if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
             drugNameCell.classList.add('text-red-600', 'font-bold');
         }
 
         const labelsContainer = document.createElement('div');
-        labelsContainer.className = 'vertical-labels-container';
+        labelsContainer.className = 'flex gap-1 mb-1';
         const isBase = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
         const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
         if (isGeneric) {
             const span = document.createElement('span');
-            span.className = "bg-green-200 text-green-800 px-1 rounded-xs text-xs font-bold whitespace-nowrap";
-            span.textContent = '後';
+            span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
+            span.textContent = '後発';
             labelsContainer.appendChild(span);
         }
         if (isBase) {
             const span = document.createElement('span');
-            span.className = "bg-purple-200 text-purple-800 px-1 rounded-xs text-xs font-bold whitespace-nowrap";
-            span.textContent = '基';
+            span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
+            span.textContent = '基礎';
             labelsContainer.appendChild(span);
         }
 
         const flexContainer = document.createElement('div');
-        flexContainer.className = 'flex items-start';
+        flexContainer.className = 'flex flex-col items-start';
         if (labelsContainer.hasChildNodes()) {
             flexContainer.appendChild(labelsContainer);
         }
 
         const nameSpan = document.createElement('span');
-        nameSpan.className = "name-clickable text-indigo-600 font-semibold hover:underline truncate-lines";
+        nameSpan.className = "name-clickable text-indigo-600 font-medium hover:underline break-words";
         nameSpan.dataset.yjcode = item.yjCode || '';
         nameSpan.textContent = item.productName || '-';
         flexContainer.appendChild(nameSpan);
@@ -299,7 +272,7 @@ function displayResults(results) {
 
         const ingredientNameCell = newRow.insertCell(2);
         ingredientNameCell.setAttribute('data-label', '成分名');
-        ingredientNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
+        ingredientNameCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900", "align-top", "break-words");
         if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
             ingredientNameCell.classList.add('text-red-600', 'font-bold');
         }
@@ -307,7 +280,7 @@ function displayResults(results) {
 
         const manufacturerCell = newRow.insertCell(3);
         manufacturerCell.setAttribute('data-label', 'メーカー');
-        manufacturerCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900");
+        manufacturerCell.classList.add("px-4", "py-3", "text-sm", "text-gray-900", "align-top");
         if (item.updatedCells && item.updatedCells.includes(columnMap.manufacturer)) {
             manufacturerCell.classList.add('text-red-600', 'font-bold');
         }
@@ -327,81 +300,38 @@ function displayResults(results) {
 
         const statusCell = newRow.insertCell(4);
         statusCell.setAttribute('data-label', '出荷状況');
-        statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left");
+        statusCell.classList.add("px-4", "py-3", "text-gray-900", "text-left", "align-top");
         const statusDiv = document.createElement('div');
-        statusDiv.className = 'flex items-center justify-start';
+        statusDiv.className = 'flex items-center justify-start gap-2';
         statusDiv.appendChild(renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus)));
 
         if (item.shippingStatusTrend) {
             const trendIcon = document.createElement('span');
-            trendIcon.className = 'ml-1 text-red-500';
+            trendIcon.className = 'text-lg text-red-500 font-bold';
             trendIcon.textContent = item.shippingStatusTrend;
             statusDiv.appendChild(trendIcon);
         }
         statusCell.appendChild(statusDiv);
-
-        const reasonCell = newRow.insertCell(5);
-        reasonCell.textContent = item.reasonForLimitation || '-';
-        reasonCell.setAttribute('data-label', '制限理由');
-        reasonCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900", "truncate-lines");
-        if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) {
-            reasonCell.classList.add('text-red-600', 'font-bold');
-        }
-
-        const volumeCell = newRow.insertCell(6);
-        volumeCell.textContent = item.shipmentVolumeStatus || '-';
-        volumeCell.setAttribute('data-label', '出荷量状況');
-        volumeCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
-        if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) {
-            volumeCell.classList.add('text-red-600', 'font-bold');
-        }
-
-        const changedPartCell = newRow.insertCell(7);
-        changedPartCell.textContent = item.changedPart || '-';
-        changedPartCell.setAttribute('data-label', '変更箇所');
-        changedPartCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
-        if (item.updatedCells && item.updatedCells.includes(columnMap.changedPart)) {
-            changedPartCell.classList.add('text-red-600', 'font-bold');
-        }
     });
-    table.appendChild(tbody);
-    tableContainer.appendChild(table);
-    container.appendChild(tableContainer);
 
-    document.getElementById('sort-yjCode-button').addEventListener('click', () => sortResults('yjCode'));
-    document.getElementById('sort-productName-button').addEventListener('click', () => sortResults('productName'));
-    document.getElementById('sort-ingredientName-button').addEventListener('click', () => sortResults('ingredientName'));
-
-    const cardListContainer = document.createElement('div');
-    cardListContainer.className = 'block md:hidden w-full space-y-4 mt-4';
-    results.forEach((item, index) => cardListContainer.appendChild(createCardElement(item, columnMap, index))); // Pass columnMap to createCardElement
-    container.appendChild(cardListContainer);
-
-    document.querySelectorAll('#resultsContainer .name-clickable').forEach(element => {
+    // Re-attach event listeners
+    document.querySelectorAll('#resultTableBody .name-clickable').forEach(element => {
         element.addEventListener('click', (e) => {
             const yjCode = e.currentTarget.dataset.yjcode;
             if (yjCode) {
                 document.getElementById('yjCodeInput').value = yjCode;
-                ['digits3', 'digits4', 'digits7', 'statusNormal'].forEach(id => document.getElementById(id).checked = true);
-                ['digits8', 'digits9', 'digits11', 'statusLimited', 'statusStop'].forEach(id => document.getElementById(id).checked = false);
+                ['filter-class3', 'filter-class4', 'filter-form', 'statusNormal'].forEach(id => document.getElementById(id).checked = true);
+                ['filter-ingredient', 'filter-standard', 'filter-brand', 'statusLimited', 'statusStop'].forEach(id => document.getElementById(id).checked = false);
                 performSearch();
             }
         });
     });
-    document.querySelectorAll('#resultsContainer .yjcode-link').forEach(element => {
+    document.querySelectorAll('#resultTableBody .yjcode-link').forEach(element => {
         element.addEventListener('click', (e) => {
             const yjCode = e.currentTarget.dataset.yjcode;
             if (yjCode) {
                 document.getElementById('yjCodeInput').value = yjCode;
-                document.getElementById('digits3').checked = true;
-                document.getElementById('digits4').checked = true;
-                document.getElementById('digits7').checked = true;
-                document.getElementById('digits8').checked = true;
-                document.getElementById('digits9').checked = false;
-                document.getElementById('digits11').checked = false;
-                document.getElementById('statusNormal').checked = true;
-                document.getElementById('statusLimited').checked = true;
-                document.getElementById('statusStop').checked = true;
+                ['filter-class3', 'filter-class4', 'filter-form', 'filter-ingredient', 'filter-standard', 'filter-brand', 'statusNormal', 'statusLimited', 'statusStop'].forEach(id => document.getElementById(id).checked = true);
                 performSearch();
             }
         });

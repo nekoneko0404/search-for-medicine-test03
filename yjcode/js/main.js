@@ -280,7 +280,8 @@ function renderResults(data) {
     displayData.forEach((item, index) => {
         const row = elements.resultTableBody.insertRow();
         const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
-        row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group`;
+        row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group fade-in-up`;
+        row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
         // YJ Code
         const cellYj = row.insertCell(0);

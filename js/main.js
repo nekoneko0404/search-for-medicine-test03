@@ -70,12 +70,7 @@ function getSearchKeywords(input) {
  * Search and filter data
  */
 function searchData() {
-    if (elements.infoContainer) elements.infoContainer.classList.add('hidden');
     // Footer visibility is handled by CSS animation via body class
-
-
-
-
     if (excelData.length === 0) return;
 
     const drugKeywords = getSearchKeywords(elements.drugName.value);
@@ -101,6 +96,7 @@ function searchData() {
         document.body.classList.remove('search-mode');
         return;
     } else {
+        if (elements.infoContainer) elements.infoContainer.classList.add('hidden');
         elements.tableContainer.classList.remove('hidden');
         document.body.classList.add('search-mode');
     }

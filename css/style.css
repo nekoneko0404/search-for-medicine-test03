@@ -32,9 +32,25 @@ body {
 
 /* Table Styles */
 .table-container {
-    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 70vh;
+    /* 縦スクロールを有効にし、最大の高さを設定 */
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+
+.table-container tr {
+    position: relative;
+}
+
+.table-container tr:hover {
+    z-index: 10;
+}
+
+.table-container td {
+    position: relative;
+    /* For tooltip positioning */
 }
 
 /* Mobile Table View */
@@ -183,22 +199,37 @@ body.search-mode #mainFooter {
     border: none;
 }
 
-/* Input field hover and focus enhancements */
-input[type="text"] {
-    border: 2px solid #d1d5db;
+/* Tooltip/Menu Style */
+.tooltip-menu {
+    position: absolute;
+    z-index: 1000;
+    /* Ensure it's on top */
+}
+
+/* Input field styles */
+input[type="text"],
+input[type="search"],
+textarea {
+    border-width: 1px;
+    border-color: #d1d5db;
     /* gray-300 */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        border-color 0.2s ease-in-out,
+        box-shadow 0.2s ease-in-out;
 }
 
-input[type="text"]:hover {
+input[type="text"]:hover,
+input[type="search"]:hover,
+textarea:hover {
+    border-color: #a5b4fc !important;
+    /* indigo-300 */
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+textarea:focus {
     border-color: #818cf8 !important;
-    /* More vivid indigo */
-    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3) !important;
-}
-
-input[type="text"]:focus {
-    border-color: #4f46e5 !important;
-    /* Primary indigo */
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.4) !important;
-    outline: none;
+    /* indigo-400 */
+    box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.4) !important;
+    outline: none !important;
 }

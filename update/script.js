@@ -277,14 +277,27 @@ function performRecoverySearch() {
 }
 
 function displayResults(results) {
-    const container = document.getElementById('resultsContainer');
-    container.innerHTML = '';
-    loadingIndicator.classList.add('hidden');
+    const tableContainer = document.getElementById('tableContainer');
+    const resultTableBody = document.getElementById('resultTableBody');
+    resultTableBody.innerHTML = ''; // Clear previous results
 
-    const escapeHTML = (str) => {
-        if (!str) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-    };
+    if (results.length === 0) {
+        tableContainer.classList.add('hidden');
+        if (!messageBox.textContent.includes('失敗')) {
+            showMessage('条件に一致する医薬品が見つかりませんでした。', 'info');
+            hideMessage(2000);
+        }
+        return;
+    }
+
+    tableContainer.classList.remove('hidden');
+    let message = `${results.length}件の医薬品が見つかりました。`;
+    if (results.length > MAX_RESULTS) {
+        message += ` ただし、表示は最新の${MAX_RESULTS}件に限定しています。`;
+    }
+    showMessage(message, 'success');
+    hideMessage(2000);
+
 
     const limitedResults = results.slice(0, MAX_RESULTS);
     const columnMap = {
@@ -297,184 +310,85 @@ function displayResults(results) {
         'shipmentVolumeStatus': 16,
         'updateDateObj': 19
     };
-
-    if (limitedResults.length === 0) {
-        if (!messageBox.textContent.includes('失敗')) {
-            showMessage('条件に一致する医薬品が見つかりませんでした。', 'info');
-            hideMessage(2000);
-        }
-        return;
-    } else {
-        let message = `${results.length}件の医薬品が見つかりました。`;
-        if (results.length > MAX_RESULTS) {
-            message += ` ただし、表示は最新の${MAX_RESULTS}件に限定しています。`;
-        }
-        showMessage(message, 'success');
-        hideMessage(2000);
-    }
-
-    const tableContainer = document.createElement('div');
-    tableContainer.className = 'table-container rounded-lg shadow border border-gray-200 hidden md:block';
-    const table = document.createElement('table');
-    table.id = 'resultTable';
-    table.className = 'min-w-full divide-y divide-gray-200 table-fixed';
-
-    const thead = table.createTHead();
-    thead.className = "bg-indigo-100 sticky top-0";
-    const headerRow = thead.insertRow();
-    const headers = [
-        { key: 'productName', text: '品名', width: '20%' },
-        { key: 'ingredientName', text: '成分名', width: '20%' },
-        { key: null, text: '出荷状況', width: '10%' },
-        { key: null, text: '制限理由', width: '15%' },
-        { key: null, text: '解消見込み', width: '10%' },
-        { key: null, text: '見込み時期', width: '10%' },
-        { key: null, text: '出荷量', width: '5%' },
-        { key: 'updateDate', text: '更新日', width: '10%' }
-    ];
-
-    headers.forEach(header => {
-        const th = document.createElement('th');
-        th.className = `px-2 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap`;
-        th.style.width = header.width;
-        if (header.key) {
-            let icon = '↕';
-            if (activeSortKey === header.key) {
-                icon = sortStates[header.key] === 'desc' ? '↓' : '↑';
-            }
-            th.innerHTML = `<div class="flex items-center justify-start"><span>${header.text}</span><button id="sort-${header.key}-button" class="ml-1 text-indigo-600 hover:text-indigo-800 transition-colors duration-150"><span id="sort-${header.key}-icon">${icon}</span></button></div>`;
-        } else {
-            th.textContent = header.text;
-        }
-        headerRow.appendChild(th);
-    });
-
-    const tbody = table.createTBody();
-    tbody.id = 'resultTableBody';
-    tbody.className = 'bg-white divide-y divide-gray-200';
+    const escapeHTML = (str) => {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    };
 
     limitedResults.forEach((item, index) => {
-        const newRow = tbody.insertRow();
-        const rowBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
-        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-200`;
+        const newRow = resultTableBody.insertRow();
+        const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
+        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-50 group fade-in-up`;
+        newRow.style.animationDelay = `${index * 0.05}s`;
 
+        // 1. 品名
         const productNameCell = newRow.insertCell();
-        productNameCell.className = `px-2 py-2 text-sm text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
-
+        productNameCell.className = `px-2 py-3 text-sm text-gray-900 align-top ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
+        
         let labelsHTML = '';
         const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
         const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
 
         if (isGeneric) {
-            labelsHTML += `<span class="bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">後</span>`;
+            labelsHTML += `<span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200">後発</span>`;
         }
         if (isBasic) {
-            labelsHTML += `<span class="bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">基</span>`;
+            labelsHTML += `<span class="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200">基礎</span>`;
         }
 
         productNameCell.innerHTML = `
-                    <div class="flex items-start">
-                        ${labelsHTML ? `<div class="vertical-labels-container">${labelsHTML}</div>` : ''}
-                        <span class="font-semibold">${escapeHTML(item.productName) || '-'}</span>
-                    </div>`;
+            <div class="flex flex-col">
+                ${labelsHTML ? `<div class="flex gap-1 mb-1">${labelsHTML}</div>` : ''}
+                <span class="font-semibold break-words">${escapeHTML(item.productName) || '-'}</span>
+            </div>`;
 
+        // 2. 成分名
         const ingredientNameCell = newRow.insertCell();
-        ingredientNameCell.className = `px-2 py-2 text-sm ${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
-        ingredientNameCell.innerHTML = `<span class="ingredient-link cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline transition-colors" data-ingredient="${escapeHTML(item.ingredientName || '')}">${escapeHTML(item.ingredientName) || '-'}</span>`;
+        ingredientNameCell.className = `px-2 py-3 text-sm align-top ${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
+        ingredientNameCell.innerHTML = `<span class="ingredient-link cursor-pointer text-indigo-600 font-medium hover:text-indigo-800 hover:underline transition-colors break-words" data-ingredient="${escapeHTML(item.ingredientName || '')}">${escapeHTML(item.ingredientName) || '-'}</span>`;
 
+        // 3. 出荷状況
         const statusCell = newRow.insertCell();
-        statusCell.className = 'px-1 py-2 text-sm text-gray-900 text-left';
+        statusCell.className = 'px-2 py-3 text-sm text-gray-900 text-left align-top';
         statusCell.innerHTML = `
-                    <div class="flex items-center">
-                        ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
-                        ${item.shippingStatusTrend ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend}</span>` : ''}
-                    </div>`;
+            <div class="flex items-center gap-1">
+                ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
+                ${item.shippingStatusTrend ? `<span class="text-red-500 font-bold text-lg">${item.shippingStatusTrend}</span>` : ''}
+            </div>`;
 
+        // 4. 制限理由
         const reasonCell = newRow.insertCell();
-        reasonCell.className = `px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation) ? 'text-red-600 font-bold' : ''}`;
+        reasonCell.className = `px-2 py-3 text-xs text-gray-600 break-words align-top ${item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation) ? 'text-red-600 font-bold' : ''}`;
         reasonCell.textContent = item.reasonForLimitation || '-';
-
+        
+        // 5. 解消見込み
         const resolutionCell = newRow.insertCell();
-        resolutionCell.className = `px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect) ? 'text-red-600 font-bold' : ''}`;
+        resolutionCell.className = `px-2 py-3 text-xs text-gray-600 align-top ${item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect) ? 'text-red-600 font-bold' : ''}`;
         resolutionCell.textContent = item.resolutionProspect || '-';
 
+        // 6. 見込み時期
         const expectedDateCell = newRow.insertCell();
-        expectedDateCell.className = `px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.expectedDate) ? 'text-red-600 font-bold' : ''}`;
+        expectedDateCell.className = `px-2 py-3 text-xs text-gray-600 align-top ${item.updatedCells && item.updatedCells.includes(columnMap.expectedDate) ? 'text-red-600 font-bold' : ''}`;
         expectedDateCell.textContent = formatExpectedDate(item.expectedDate);
 
+        // 7. 出荷量
         const volumeCell = newRow.insertCell();
-        volumeCell.className = `px-2 py-2 text-xs text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus) ? 'text-red-600 font-bold' : ''}`;
+        volumeCell.className = `px-2 py-3 text-xs text-gray-600 align-top ${item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus) ? 'text-red-600 font-bold' : ''}`;
         volumeCell.textContent = item.shipmentVolumeStatus || '-';
-
+        
+        // 8. 更新日
         const updateDateCell = newRow.insertCell();
-        updateDateCell.className = `px-2 py-2 text-xs text-gray-900 whitespace-nowrap ${item.updatedCells && item.updatedCells.includes(columnMap.updateDateObj) ? 'text-red-600 font-bold' : ''}`;
+        updateDateCell.className = `px-2 py-3 text-xs text-gray-600 whitespace-nowrap align-top ${item.updatedCells && item.updatedCells.toString().includes(columnMap.updateDateObj.toString()) ? 'text-red-600 font-bold' : ''}`;
         updateDateCell.textContent = formatDate(item.updateDateObj);
     });
 
-    tableContainer.appendChild(table);
-    container.appendChild(tableContainer);
-
-    document.getElementById('sort-productName-button').addEventListener('click', () => sortResults('productName'));
-    document.getElementById('sort-ingredientName-button').addEventListener('click', () => sortResults('ingredientName'));
-    document.getElementById('sort-updateDate-button').addEventListener('click', () => sortResults('updateDate'));
-
-    const cardListContainer = document.createElement('div');
-    cardListContainer.className = 'block md:hidden w-full space-y-4 mt-4';
-    limitedResults.forEach((item, index) => {
-        const card = document.createElement('div');
-        const cardBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
-        card.className = `${cardBgClass} rounded-lg shadow-md border border-gray-200 p-4`;
-
-        let labelsHTML = '';
-        const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
-        const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
-
-        if (isGeneric) {
-            labelsHTML += `<span class="bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">後</span>`;
-        }
-        if (isBasic) {
-            labelsHTML += `<span class="bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap">基</span>`;
-        }
-
-        const createCardRow = (label, value, dataKey) => {
-            const isUpdated = item.updatedCells && item.updatedCells.includes(columnMap[dataKey]);
-            return `<div class="flex items-center"><strong class="w-24 font-medium text-gray-600">${label}:</strong><span class="${isUpdated ? 'text-red-600 font-bold' : ''}">${value}</span></div>`;
-        };
-
-        card.innerHTML = `
-                    <div class="flex items-start justify-between mb-2">
-                        <div class="flex items-start">
-                            ${labelsHTML ? `<div class="vertical-labels-container">${labelsHTML}</div>` : ''}
-                            <h3 class="text-base font-semibold text-gray-900 leading-tight pr-2 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}">${escapeHTML(item.productName) || '-'}</h3>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
-                                ${item.shippingStatusTrend ? `<span class="ml-1 text-red-500">${item.shippingStatusTrend}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-sm space-y-1 text-gray-700">
-                        ${createCardRow('成分名', `<span class="ingredient-link cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline transition-colors" data-ingredient="${escapeHTML(item.ingredientName || '')}">${escapeHTML(item.ingredientName) || '-'}</span>`, 'ingredientName')}
-                        ${createCardRow('制限理由', escapeHTML(item.reasonForLimitation) || '-', 'reasonForLimitation')}
-                        ${createCardRow('解消見込み', escapeHTML(item.resolutionProspect) || '-', 'resolutionProspect')}
-                        ${createCardRow('見込み時期', escapeHTML(formatExpectedDate(item.expectedDate)), 'expectedDate')}
-                        ${createCardRow('出荷量', escapeHTML(item.shipmentVolumeStatus) || '-', 'shipmentVolumeStatus')}
-                        ${createCardRow('情報更新日', escapeHTML(formatDate(item.updateDateObj)), 'updateDateObj')}
-                    </div>
-                `;
-        cardListContainer.appendChild(card);
-    });
-    container.appendChild(cardListContainer);
-
+    // Re-attach ingredient link listeners
     document.querySelectorAll('.ingredient-link').forEach(link => {
         link.addEventListener('click', (e) => {
             const ingredientName = e.target.dataset.ingredient;
             if (ingredientName && ingredientName.trim()) {
                 document.getElementById('searchInput').value = ingredientName.trim();
-                document.querySelectorAll('#date-filters input[type="checkbox"]').forEach(cb => {
-                    cb.checked = cb.dataset.days === 'all';
-                });
+                document.getElementById('updatePeriod').value = 'all';
                 performSearch();
             }
         });

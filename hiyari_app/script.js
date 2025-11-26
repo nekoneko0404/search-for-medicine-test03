@@ -135,19 +135,19 @@ document.addEventListener('DOMContentLoaded', () => {
             incidentList.appendChild(p);
             return;
         }
-        incidents.forEach(incident => {
+        incidents.forEach((incident, index) => {
             const card = document.createElement('div');
-            card.className = 'bg-white rounded-xl shadow-lg border border-slate-200 p-4 transition-transform duration-200 hover:scale-[1.02]';
+            card.className = 'bg-white rounded-xl shadow-lg border border-slate-200 p-6 transition-transform duration-300 hover:shadow-xl hover:-translate-y-1 fade-in-up';
+            card.style.animationDelay = `${(currentlyDisplayedCount + index) * 0.05}s`;
 
             const createParagraph = (strongText, contentText) => {
                 if (!contentText || contentText === '記載なし' || contentText === 'N/A') return null;
                 const p = document.createElement('p');
-                p.className = 'text-sm text-gray-700 leading-relaxed mb-2';
+                p.className = 'text-sm text-gray-700 leading-relaxed mb-3';
                 const strong = document.createElement('strong');
-                strong.className = 'font-semibold text-indigo-600 border-b border-slate-300 pb-0.5 mb-1 inline-block';
+                strong.className = 'font-semibold text-indigo-800 border-b-2 border-indigo-200 pb-1 mb-2 block text-base';
                 strong.textContent = strongText;
                 p.appendChild(strong);
-                p.appendChild(document.createElement('br'));
                 const lines = contentText.split('<br>');
                 lines.forEach((line, index) => {
                     p.appendChild(document.createTextNode(line));
@@ -159,12 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             const title = document.createElement('h2');
-            title.className = 'text-lg font-bold text-indigo-700 border-b-2 border-slate-200 pb-2 mb-3';
+            title.className = 'text-lg font-bold text-indigo-900 border-b-2 border-slate-200 pb-2 mb-3';
             title.textContent = incident.summary;
             card.appendChild(title);
 
             const date = document.createElement('p');
-            date.className = 'text-sm text-gray-500 text-right mb-3';
+            date.className = 'text-xs text-gray-500 text-right mb-4';
             date.textContent = `発生年月: ${incident.year}年${incident.month}`
             card.appendChild(date);
 
