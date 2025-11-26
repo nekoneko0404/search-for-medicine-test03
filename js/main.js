@@ -162,7 +162,7 @@ function searchData() {
 function handleIngredientClick(ingredient) {
     elements.drugName.value = '';
     elements.makerName.value = '';
-    const searchIngredient = ingredient.length > 5 ? ingredient.substring(0, 5) : ingredient;
+    const searchIngredient = ingredient;
     elements.ingredientName.value = searchIngredient;
     searchData();
     showMessage(`「${searchIngredient}」で再検索を実行しました。`, 'info');
