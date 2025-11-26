@@ -49,13 +49,11 @@ function initElements() {
     elements.statusStopped = document.getElementById('statusStopped');
     elements.tableContainer = document.getElementById('tableContainer');
     elements.resultTableBody = document.getElementById('resultTableBody');
-    elements.usageGuide = document.getElementById('usage-guide');
     elements.sortStatusIcon = document.getElementById('sort-status-icon');
     elements.sortProductNameIcon = document.getElementById('sort-productName-icon');
     elements.sortIngredientNameIcon = document.getElementById('sort-ingredientName-icon');
     elements.reloadDataBtn = document.getElementById('reload-data');
     elements.notificationArea = document.getElementById('notificationArea');
-    elements.pageFooter = document.getElementById('pageFooter');
     elements.infoContainer = document.getElementById('infoContainer');
 }
 
@@ -210,7 +208,9 @@ function renderTable(data) {
     displayResults.forEach((item, index) => {
         const newRow = elements.resultTableBody.insertRow();
         const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
-        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-50 group`;
+        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-50 group fade-in-up`;
+        // First row appears instantly, others staggered slower
+        newRow.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
         // 1. Drug Name Cell
         const drugNameCell = newRow.insertCell(0);

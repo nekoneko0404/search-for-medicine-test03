@@ -88,8 +88,36 @@ body {
     }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .animate-fade-in {
     animation: fadeIn 0.3s ease-out forwards;
+}
+
+.fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
 }
 
 /* Loading Spinner */
@@ -153,4 +181,24 @@ body.search-mode #mainFooter {
     margin-bottom: 0 !important;
     pointer-events: none;
     border: none;
+}
+
+/* Input field hover and focus enhancements */
+input[type="text"] {
+    border: 2px solid #d1d5db;
+    /* gray-300 */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:hover {
+    border-color: #818cf8 !important;
+    /* More vivid indigo */
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3) !important;
+}
+
+input[type="text"]:focus {
+    border-color: #4f46e5 !important;
+    /* Primary indigo */
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.4) !important;
+    outline: none;
 }
