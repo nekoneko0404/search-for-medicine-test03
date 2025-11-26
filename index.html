@@ -78,7 +78,7 @@
     <meta property="og:title" content="【Kusuri Compass】医薬品出荷状況検索">
 </head>
 
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:h-screen md:overflow-hidden">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
     <!-- Header -->
     <header id="mainHeader" class="bg-white shadow-sm sticky top-0 z-30 flex-shrink-0">
@@ -105,7 +105,7 @@
 
     <!-- Main Content -->
     <main
-        class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl md:flex md:flex-col md:overflow-hidden">
+        class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl md:flex md:flex-col pb-32">
 
         <!-- Title Section -->
         <div class="text-center mb-8 flex-shrink-0">
@@ -174,7 +174,7 @@
         </div>
 
         <!-- Info Container (Usage Guide & Notification) -->
-        <div id="infoContainer" class="flex flex-col gap-8 md:flex-grow md:overflow-y-auto md:min-h-0">
+        <div id="infoContainer" class="flex flex-col gap-8 md:flex-grow md:min-h-0">
             <!-- Usage Guide -->
             <div id="usage-guide" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex-shrink-0">
                 <h3 class="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
@@ -216,7 +216,7 @@
 
         <!-- Results Table -->
         <div id="tableContainer"
-            class="table-container bg-white hidden min-h-[280px] md:flex-grow md:overflow-y-auto md:min-h-0">
+            class="table-container bg-white hidden min-h-[280px] md:flex-grow md:min-h-0">
             <table id="resultTable" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50 sticky top-0 z-10">
                     <tr>
@@ -254,7 +254,7 @@
     </main>
 
     <!-- Footer -->
-    <footer id="mainFooter" class="bg-white border-t border-gray-200 mt-auto flex-shrink-0">
+    <footer id="mainFooter" class="bg-white border-t border-gray-200 flex-shrink-0 fixed bottom-0 w-full z-20">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="text-sm text-gray-500">

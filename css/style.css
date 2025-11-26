@@ -32,9 +32,9 @@ body {
 
 /* Table Styles */
 .table-container {
-    overflow-y: auto;
-    max-height: 70vh;
-    /* 縦スクロールを有効にし、最大の高さを設定 */
+    /* overflow-y: auto; */
+    /* max-height: 70vh; */
+    /* 縦スクロールを有効にし、最大の高さを設定 -> 廃止: 画面全体スクロールへ変更 */
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -165,11 +165,11 @@ body {
     opacity: 1;
     overflow: hidden;
     transition:
-        max-height 1.5s cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-        padding 1.5s cubic-bezier(0.4, 0, 0.2, 1),
-        margin 1.5s cubic-bezier(0.4, 0, 0.2, 1),
-        transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        max-height 4.5s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 3.6s cubic-bezier(0.4, 0, 0.2, 1),
+        padding 4.5s cubic-bezier(0.4, 0, 0.2, 1),
+        margin 4.5s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 4.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.search-mode #mainHeader {
@@ -229,7 +229,18 @@ input[type="text"]:focus,
 input[type="search"]:focus,
 textarea:focus {
     border-color: #818cf8 !important;
-    /* indigo-400 */
-    box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.4) !important;
-    outline: none !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:hover,
+input[type="search"]:hover {
+    border-color: #818cf8 !important;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3) !important;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus {
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.4) !important;
+    outline: none;
 }

@@ -151,6 +151,8 @@ async function initApp() {
     });
 }
 
+
+
 function searchYjCode() {
     const code = elements.yjCodeInput.value;
     const normalizedCode = normalizeString(code);
@@ -281,6 +283,7 @@ function renderResults(data) {
         const row = elements.resultTableBody.insertRow();
         const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
         row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group fade-in-up`;
+        // First row appears instantly, others staggered slower
         row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
         // YJ Code

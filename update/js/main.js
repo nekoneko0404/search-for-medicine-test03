@@ -84,7 +84,7 @@ async function initApp() {
             if (productName || shippingStatus || updateDate) {
                 searchData();
             } else {
-                setTimeout(searchData, 500);
+                clearAndResetSearch();
             }
         }
     } catch (e) {
@@ -111,19 +111,7 @@ async function initApp() {
         });
     }
 
-    elements.clearBtn.addEventListener('click', () => {
-        elements.searchInput.value = '';
-        elements.updatePeriod.value = '7days'; // Default
-
-        elements.statusCheckboxes.normal.checked = true;
-        elements.statusCheckboxes.limited.checked = true;
-        elements.statusCheckboxes.stopped.checked = true;
-
-        if (elements.trendCheckboxes.up) elements.trendCheckboxes.up.checked = false;
-        if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = false;
-
-        searchData();
-    });
+    elements.clearBtn.addEventListener('click', clearAndResetSearch);
 
     elements.recoveryBtn.addEventListener('click', () => {
         // Clear inputs
@@ -152,6 +140,20 @@ async function initApp() {
     Object.values(elements.trendCheckboxes).forEach(cb => {
         if (cb) cb.addEventListener('change', searchData);
     });
+}
+
+function clearAndResetSearch() {
+    elements.searchInput.value = '';
+    elements.updatePeriod.value = '7days'; // Default
+
+    elements.statusCheckboxes.normal.checked = true;
+    elements.statusCheckboxes.limited.checked = true;
+    elements.statusCheckboxes.stopped.checked = true;
+
+    if (elements.trendCheckboxes.up) elements.trendCheckboxes.up.checked = false;
+    if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = false;
+
+    searchData();
 }
 
 function searchData() {
@@ -232,13 +234,24 @@ function searchData() {
         return dateB - dateA;
     });
 
-    renderTable(filteredResults);
-
-    if (filteredResults.length === 0) {
-        showMessage('条件に一致する更新情報はありません。', 'info');
+    // Add or remove search-mode class before rendering
+    if (filteredResults.length > 0) {
+        document.body.classList.add('search-mode');
     } else {
-        showMessage(`${filteredResults.length} 件の更新情報が見つかりました。`, 'success');
+        document.body.classList.remove('search-mode');
     }
+
+    // A small delay to allow the CSS transition to start before the DOM is heavily manipulated.
+    // This prevents a visual glitch where the table content starts moving up before the header has finished animating out.
+    setTimeout(() => {
+        renderTable(filteredResults);
+
+        if (filteredResults.length === 0) {
+            showMessage('条件に一致する更新情報はありません。', 'info');
+        } else {
+            showMessage(`${filteredResults.length} 件の更新情報が見つかりました。`, 'success');
+        }
+    }, 100);
 }
 
 function renderTable(data) {
@@ -246,11 +259,9 @@ function renderTable(data) {
 
     if (data.length === 0) {
         elements.tableContainer.classList.add('hidden');
-        document.body.classList.remove('search-mode');
         return;
     }
     elements.tableContainer.classList.remove('hidden');
-    document.body.classList.add('search-mode');
 
     const displayData = data.slice(0, 200); // Limit display
 
@@ -270,6 +281,7 @@ function renderTable(data) {
         const row = elements.resultTableBody.insertRow();
         const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
         row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group fade-in-up`;
+        // First row appears instantly, others staggered slower
         row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
         // 1. Product Name

@@ -1,15 +1,24 @@
-
 :root {
-    --color-background: #f0f2f5; /* 非常に薄いグレー/オフホワイト */
-    --color-header-bg: #e0e6ed; /* 薄い青みがかったグレー */
-    --color-header-text: #34495e; /* 濃いグレー */
-    --color-text-primary: #34495e; /* 濃いグレー */
-    --color-text-secondary: #5c6f82; /* 中程度のグレー */
-    --color-accent: #6c757d; /* 青みがかった紫 */
-    --color-button-bg: #6c757d; /* 青みがかった紫 */
-    --color-button-hover-bg: #5a6268; /* 濃い青みがかった紫 */
-    --color-card-bg: #ffffff; /* 白 */
-    --color-border: #d1d9e6; /* 薄いグレー */
+    --color-background: #f0f2f5;
+    /* 非常に薄いグレー/オフホワイト */
+    --color-header-bg: #e0e6ed;
+    /* 薄い青みがかったグレー */
+    --color-header-text: #34495e;
+    /* 濃いグレー */
+    --color-text-primary: #34495e;
+    /* 濃いグレー */
+    --color-text-secondary: #5c6f82;
+    /* 中程度のグレー */
+    --color-accent: #6c757d;
+    /* 青みがかった紫 */
+    --color-button-bg: #6c757d;
+    /* 青みがかった紫 */
+    --color-button-hover-bg: #5a6268;
+    /* 濃い青みがかった紫 */
+    --color-card-bg: #ffffff;
+    /* 白 */
+    --color-border: #d1d9e6;
+    /* 薄いグレー */
     --color-shadow: rgba(0, 0, 0, 0.08);
 }
 
@@ -26,12 +35,12 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 50;
-    white-space: pre-wrap; /* 複数行のメッセージに対応 */
+    white-space: pre-wrap;
+    /* 複数行のメッセージに対応 */
 }
-/* 1画面の情報量を多くするための調整 */
-.table-container {
 
-}
+/* 1画面の情報量を多くするための調整 */
+
 
 
 /* スマートフォン向けにテーブルのレイアウトを調整 (変更なし) */
@@ -40,30 +49,41 @@ body {
         table-layout: fixed;
         width: 100%;
     }
-    .table-container th, .table-container td {
+
+    .table-container th,
+    .table-container td {
         word-wrap: break-word;
         white-space: normal;
         padding: 0.5rem;
     }
+
     .table-container thead {
-        display: none; /* スマホではヘッダーを非表示 */
+        display: none;
+        /* スマホではヘッダーを非表示 */
     }
-    .table-container tbody, .table-container tr {
-        display: block; /* tbodyとtrをブロック要素にして積み重ねる */
+
+    .table-container tbody,
+    .table-container tr {
+        display: block;
+        /* tbodyとtrをブロック要素にして積み重ねる */
     }
+
     .table-container tr {
         margin-bottom: 1rem;
         padding: 0.5rem;
         border: 1px solid #e5e7eb;
         border-radius: 0.5rem;
     }
+
     .table-container td {
-        display: flex; /* Flexboxを使って項目と内容を横並びに */
+        display: flex;
+        /* Flexboxを使って項目と内容を横並びに */
         align-items: flex-start;
         width: 100%;
         border-bottom: none;
         padding: 0.25rem 0.5rem;
     }
+
     .table-container td:before {
         content: attr(data-label);
         font-weight: 600;
@@ -71,16 +91,24 @@ body {
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        flex-shrink: 0; /* ラベルが縮まないように固定 */
-        width: 80px; /* ラベルの幅を確保 */
-        margin-right: 0.5rem; /* ラベルと内容の間にスペースを追加 */
+        flex-shrink: 0;
+        /* ラベルが縮まないように固定 */
+        width: 80px;
+        /* ラベルの幅を確保 */
+        margin-right: 0.5rem;
+        /* ラベルと内容の間にスペースを追加 */
     }
+
     .truncate-lines {
         display: -webkit-box;
-        -webkit-line-clamp: 2; /* 2行に制限 */
+        -webkit-line-clamp: 2;
+        /* 2行に制限 */
+        line-clamp: 2;
+        /* 標準プロパティ */
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+
     /* スマートフォンで非表示にする項目 (変更なし) */
     td[data-label='成分名'],
     td[data-label='出荷量状況'] {
@@ -94,7 +122,7 @@ body {
     font-size: 0.75rem;
     font-weight: 600;
     white-space: nowrap;
-    transition-colors: 0.15s;
+    transition: color 0.15s, background-color 0.15s;
     line-height: 1;
 }
 
@@ -107,7 +135,8 @@ body {
 
 .spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #4f46e5; /* Tailwind's indigo-600 */
+    border-left-color: #4f46e5;
+    /* Tailwind's indigo-600 */
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -115,7 +144,9 @@ body {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .sort-header {
@@ -123,7 +154,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    user-select: none; /* テキスト選択を防ぐ */
+    user-select: none;
+    /* テキスト選択を防ぐ */
 }
 
 .sort-icon {
@@ -142,7 +174,8 @@ body {
 
 .progress-bar-fill {
     height: 100%;
-    background-color: #6366f1; /* Tailwind's indigo-500 */
+    background-color: #6366f1;
+    /* Tailwind's indigo-500 */
     transition: width 0.3s ease-in-out;
 }
 
@@ -156,7 +189,8 @@ body {
 }
 
 a.manufacturer-link {
-    color: #4f46e5; /* indigo-600 */
+    color: #4f46e5;
+    /* indigo-600 */
     text-decoration: none;
 }
 
@@ -173,7 +207,8 @@ a.manufacturer-link:hover {
 }
 
 .name-clickable {
-    color: #3730a3; /* indigo-700 */
+    color: #3730a3;
+    /* indigo-700 */
     text-decoration: none;
     cursor: pointer;
 }
@@ -240,10 +275,12 @@ a.manufacturer-link:hover {
 
 .search-controls,
 .filter-controls {
-    background-color: #ffffff; /* var(--color-card-bg) */
+    background-color: #ffffff;
+    /* var(--color-card-bg) */
     padding: 1.2rem;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* var(--color-shadow) */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    /* var(--color-shadow) */
     display: flex;
     gap: 10px;
     align-items: center;
@@ -255,7 +292,8 @@ a.manufacturer-link:hover {
 .search-controls label,
 .filter-controls label {
     font-weight: bold;
-    color: #34495e; /* var(--color-text-primary) */
+    color: #34495e;
+    /* var(--color-text-primary) */
     margin-right: 5px;
 }
 
@@ -277,11 +315,14 @@ a.manufacturer-link:hover {
 }
 
 .incident-card {
-    background-color: #ffffff; /* var(--color-card-bg) */
-    border: 1px solid #d1d9e6; /* var(--color-border) */
+    background-color: #ffffff;
+    /* var(--color-card-bg) */
+    border: 1px solid #d1d9e6;
+    /* var(--color-border) */
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* var(--color-shadow) */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    /* var(--color-shadow) */
     transition: transform 0.2s ease-in-out;
 }
 
@@ -292,8 +333,10 @@ a.manufacturer-link:hover {
 .incident-card h2 {
     margin-top: 0;
     font-size: 1.3rem;
-    color: #6c757d; /* var(--color-accent) */
-    border-bottom: 2px solid #d1d9e6; /* var(--color-border) */
+    color: #6c757d;
+    /* var(--color-accent) */
+    border-bottom: 2px solid #d1d9e6;
+    /* var(--color-border) */
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
 }
@@ -301,13 +344,16 @@ a.manufacturer-link:hover {
 .incident-card p {
     font-size: 0.95rem;
     line-height: 1.7;
-    color: #5c6f82; /* var(--color-text-secondary) */
+    color: #5c6f82;
+    /* var(--color-text-secondary) */
     margin-bottom: 1em;
 }
 
 .incident-card p strong {
-    color: #6c757d; /* var(--color-accent) */
-    border-bottom: 2px solid #d1d9e6; /* var(--color-border) */
+    color: #6c757d;
+    /* var(--color-accent) */
+    border-bottom: 2px solid #d1d9e6;
+    /* var(--color-border) */
     padding-bottom: 2px;
     display: inline-block;
     margin-bottom: 0.5em;
@@ -315,7 +361,8 @@ a.manufacturer-link:hover {
 
 .incident-date {
     font-size: 0.85rem;
-    color: #5c6f82; /* var(--color-text-secondary) */
+    color: #5c6f82;
+    /* var(--color-text-secondary) */
     text-align: right;
     margin-top: 1rem;
 }
@@ -324,6 +371,7 @@ a.manufacturer-link:hover {
     .search-filter-container {
         flex-direction: column;
     }
+
     .search-controls,
     .filter-controls {
         flex-wrap: wrap;
