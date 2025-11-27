@@ -11,8 +11,7 @@ let filteredResults = [];
 let sortStates = {
     status: 'asc',
     productName: 'asc',
-    ingredientName: 'asc',
-    yjCode: 'asc'
+    ingredientName: 'asc'
 };
 
 // DOM Elements
@@ -38,14 +37,12 @@ const elements = {
     sortButtons: {
         status: null,
         productName: null,
-        ingredientName: null,
-        yjCode: null
+        ingredientName: null
     },
     sortIcons: {
         status: null,
         productName: null,
-        ingredientName: null,
-        yjCode: null
+        ingredientName: null
     }
 };
 
@@ -70,12 +67,10 @@ function initElements() {
     elements.sortButtons.status = document.getElementById('sort-status-button');
     elements.sortButtons.productName = document.getElementById('sort-productName-button');
     elements.sortButtons.ingredientName = document.getElementById('sort-ingredientName-button');
-    elements.sortButtons.yjCode = document.getElementById('sort-yjCode-button');
 
     elements.sortIcons.status = document.getElementById('sort-status-icon');
     elements.sortIcons.productName = document.getElementById('sort-productName-icon');
     elements.sortIcons.ingredientName = document.getElementById('sort-ingredientName-icon');
-    elements.sortIcons.yjCode = document.getElementById('sort-yjCode-icon');
 }
 
 async function initApp() {
@@ -173,7 +168,6 @@ async function initApp() {
     if (elements.sortButtons.productName) elements.sortButtons.productName.addEventListener('click', () => sortResults('productName'));
     if (elements.sortButtons.ingredientName) elements.sortButtons.ingredientName.addEventListener('click', () => sortResults('ingredientName'));
     if (elements.sortButtons.status) elements.sortButtons.status.addEventListener('click', () => sortResults('status'));
-    if (elements.sortButtons.yjCode) elements.sortButtons.yjCode.addEventListener('click', () => sortResults('yjCode'));
 }
 
 function clearAndResetSearch() {
@@ -225,9 +219,6 @@ function sortResults(key) {
         } else if (key === 'ingredientName') {
             aValue = (a.ingredientName || '').trim();
             bValue = (b.ingredientName || '').trim();
-        } else if (key === 'yjCode') {
-            aValue = (a.yjCode || '').trim();
-            bValue = (b.yjCode || '').trim();
         }
 
         const compare = aValue.localeCompare(bValue, 'ja', { sensitivity: 'base' });
@@ -240,7 +231,6 @@ function sortResults(key) {
         case 'status': sortKeyName = '出荷状況'; break;
         case 'productName': sortKeyName = '品名'; break;
         case 'ingredientName': sortKeyName = '成分名'; break;
-        case 'yjCode': sortKeyName = 'YJコード'; break;
     }
     showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, "success");
 }
@@ -270,14 +260,13 @@ function searchData() {
         const drugName = normalizeString(item.productName || "");
         const makerName = normalizeString((item.standard || "") + (item.manufacturer || ""));
         const ingredientName = normalizeString(item.ingredientName || "");
-        const yjCode = normalizeString(item.yjCode || "");
 
         const matchKeywords = searchKeywords.length === 0 || searchKeywords.every(k => {
             if (k.startsWith('-')) {
                 const negK = k.substring(1);
-                return !drugName.includes(negK) && !makerName.includes(negK) && !ingredientName.includes(negK) && !yjCode.includes(negK);
+                return !drugName.includes(negK) && !makerName.includes(negK) && !ingredientName.includes(negK);
             }
-            return drugName.includes(k) || makerName.includes(k) || ingredientName.includes(k) || yjCode.includes(k);
+            return drugName.includes(k) || makerName.includes(k) || ingredientName.includes(k);
         });
 
         if (!matchKeywords) return false;
@@ -328,11 +317,9 @@ function searchData() {
     sortStates.status = 'asc';
     sortStates.productName = 'asc';
     sortStates.ingredientName = 'asc';
-    sortStates.yjCode = 'asc';
     if (elements.sortIcons.status) elements.sortIcons.status.textContent = '↕';
     if (elements.sortIcons.productName) elements.sortIcons.productName.textContent = '↕';
     if (elements.sortIcons.ingredientName) elements.sortIcons.ingredientName.textContent = '↕';
-    if (elements.sortIcons.yjCode) elements.sortIcons.yjCode.textContent = '↕';
 
     // Add or remove search-mode class before rendering
     if (filteredResults.length > 0) {
@@ -374,8 +361,7 @@ function renderTable(data) {
         'resolutionProspect': 14,
         'expectedDate': 15,
         'shipmentVolumeStatus': 16,
-        'updateDate': 24,
-        'yjCode': 4
+        'updateDate': 24
     };
 
     displayData.forEach((item, index) => {
@@ -385,14 +371,8 @@ function renderTable(data) {
         // First row appears instantly, others staggered slower
         row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
-        // 0. YJ Code (New Column)
-        const cellYJ = row.insertCell(0);
-        cellYJ.className = "px-2 py-3 text-xs text-gray-500 align-top font-mono";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.yjCode)) cellYJ.classList.add('text-red-600', 'font-bold');
-        cellYJ.textContent = item.yjCode || '-';
-
-        // 1. Product Name
-        const cellName = row.insertCell(1);
+        // 0. Product Name
+        const cellName = row.insertCell(0);
         cellName.className = "px-2 py-3 text-sm text-gray-900 font-medium align-top";
         if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) cellName.classList.add('text-red-600', 'font-bold');
 
@@ -402,8 +382,8 @@ function renderTable(data) {
             cellName.textContent = item.productName || '';
         }
 
-        // 2. Ingredient Name
-        const cellIngredient = row.insertCell(2);
+        // 1. Ingredient Name
+        const cellIngredient = row.insertCell(1);
         cellIngredient.className = "px-2 py-3 text-sm align-top";
         if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) cellIngredient.classList.add('text-red-600', 'font-bold');
 
@@ -433,8 +413,8 @@ function renderTable(data) {
             cellIngredient.textContent = '';
         }
 
-        // 3. Shipment Status
-        const cellStatus = row.insertCell(3);
+        // 2. Shipment Status
+        const cellStatus = row.insertCell(2);
         cellStatus.className = "px-2 py-3 align-top";
 
         const statusContainer = document.createElement('div');
@@ -449,20 +429,20 @@ function renderTable(data) {
         }
         cellStatus.appendChild(statusContainer);
 
-        // 4. Reason
-        const cellReason = row.insertCell(4);
+        // 3. Reason
+        const cellReason = row.insertCell(3);
         cellReason.className = "px-2 py-3 text-xs text-gray-600 align-top break-words";
         if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) cellReason.classList.add('text-red-600', 'font-bold');
         cellReason.textContent = item.reasonForLimitation || '-';
 
-        // 5. Resolution Prospect
-        const cellResolution = row.insertCell(5);
+        // 4. Resolution Prospect
+        const cellResolution = row.insertCell(4);
         cellResolution.className = "px-2 py-3 text-xs text-gray-600 align-top";
         if (item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect)) cellResolution.classList.add('text-red-600', 'font-bold');
         cellResolution.textContent = item.resolutionProspect || '-';
 
-        // 6. Expected Date
-        const cellExpected = row.insertCell(6);
+        // 5. Expected Date
+        const cellExpected = row.insertCell(5);
         cellExpected.className = "px-2 py-3 text-xs text-gray-600 align-top";
         if (item.updatedCells && item.updatedCells.includes(columnMap.expectedDate)) cellExpected.classList.add('text-red-600', 'font-bold');
 
@@ -473,14 +453,14 @@ function renderTable(data) {
             cellExpected.textContent = item.expectedDate || '-';
         }
 
-        // 7. Shipment Volume
-        const cellVolume = row.insertCell(7);
+        // 6. Shipment Volume
+        const cellVolume = row.insertCell(6);
         cellVolume.className = "px-2 py-3 text-xs text-gray-600 align-top";
         if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) cellVolume.classList.add('text-red-600', 'font-bold');
         cellVolume.textContent = item.shipmentVolumeStatus || '-';
 
-        // 8. Update Date
-        const cellDate = row.insertCell(8);
+        // 7. Update Date
+        const cellDate = row.insertCell(7);
         cellDate.className = "px-2 py-3 text-xs text-gray-600 whitespace-nowrap align-top";
         // Only highlight if the update date column itself was updated
         if (item.updatedCells && item.updatedCells.includes(columnMap.updateDate)) {
