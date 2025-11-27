@@ -125,26 +125,37 @@
             </div>
         </div>
 
-        <div id="tableContainer"
-            class="table-container bg-white hidden min-h-[280px] md:flex-grow md:min-h-0">
+        <div id="tableContainer" class="table-container bg-white hidden min-h-[280px] md:flex-grow md:min-h-0">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%]">
-                            YJコード</th>
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-yjCode-button">
+                                YJコード <span id="sort-yjCode-icon" class="text-indigo-500">↕</span>
+                            </div>
+                        </th>
                         <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[30%]">
-                            品名</th>
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[30%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-productName-button">
+                                品名 <span id="sort-productName-icon" class="text-indigo-500">↕</span>
+                            </div>
+                        </th>
                         <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[20%]">
-                            成分名</th>
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[20%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-ingredientName-button">
+                                成分名 <span id="sort-ingredientName-icon" class="text-indigo-500">↕</span>
+                            </div>
+                        </th>
                         <th scope="col"
                             class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[20%]">
                             メーカー</th>
                         <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%]">
-                            出荷状況</th>
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-status-button">
+                                出荷状況 <span id="sort-status-icon" class="text-indigo-500">↕</span>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="resultTableBody">

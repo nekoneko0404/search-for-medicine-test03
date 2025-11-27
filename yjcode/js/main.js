@@ -8,7 +8,12 @@ import { showMessage, renderStatusButton, updateProgress, createDropdown } from 
 
 let excelData = [];
 let manufacturerLinks = {};
-let sortState = { key: 'yjCode', direction: 'asc' };
+let sortStates = {
+    status: 'asc',
+    productName: 'asc',
+    ingredientName: 'asc',
+    yjCode: 'asc'
+};
 
 // DOM Elements
 const elements = {
@@ -32,6 +37,18 @@ const elements = {
         normal: null,
         limited: null,
         stopped: null
+    },
+    sortButtons: {
+        status: null,
+        productName: null,
+        ingredientName: null,
+        yjCode: null
+    },
+    sortIcons: {
+        status: null,
+        productName: null,
+        ingredientName: null,
+        yjCode: null
     }
 };
 
@@ -55,6 +72,16 @@ function initElements() {
     elements.statusCheckboxes.normal = document.getElementById('statusNormal');
     elements.statusCheckboxes.limited = document.getElementById('statusLimited');
     elements.statusCheckboxes.stopped = document.getElementById('statusStop');
+
+    elements.sortButtons.status = document.getElementById('sort-status-button');
+    elements.sortButtons.productName = document.getElementById('sort-productName-button');
+    elements.sortButtons.ingredientName = document.getElementById('sort-ingredientName-button');
+    elements.sortButtons.yjCode = document.getElementById('sort-yjCode-button');
+
+    elements.sortIcons.status = document.getElementById('sort-status-icon');
+    elements.sortIcons.productName = document.getElementById('sort-productName-icon');
+    elements.sortIcons.ingredientName = document.getElementById('sort-ingredientName-icon');
+    elements.sortIcons.yjCode = document.getElementById('sort-yjCode-icon');
 }
 
 async function initApp() {
@@ -149,9 +176,70 @@ async function initApp() {
     Object.values(elements.statusCheckboxes).forEach(cb => {
         if (cb) cb.addEventListener('change', () => searchYjCode());
     });
+
+    // Sort Event Listeners
+    if (elements.sortButtons.productName) elements.sortButtons.productName.addEventListener('click', () => sortResults('productName'));
+    if (elements.sortButtons.ingredientName) elements.sortButtons.ingredientName.addEventListener('click', () => sortResults('ingredientName'));
+    if (elements.sortButtons.status) elements.sortButtons.status.addEventListener('click', () => sortResults('status'));
+    if (elements.sortButtons.yjCode) elements.sortButtons.yjCode.addEventListener('click', () => sortResults('yjCode'));
 }
 
+let filteredResults = [];
 
+/**
+ * Sort results
+ * @param {string} key - Sort key
+ */
+function sortResults(key) {
+    if (filteredResults.length === 0) {
+        showMessage("ソートするデータがありません。", "info");
+        return;
+    }
+    const newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
+    sortStates[key] = newDirection;
+
+    // Reset other sort icons
+    for (const otherKey in sortStates) {
+        if (otherKey !== key) {
+            sortStates[otherKey] = 'asc';
+            const icon = elements.sortIcons[otherKey];
+            if (icon) icon.textContent = '↕';
+        }
+    }
+
+    const icon = elements.sortIcons[key];
+    if (icon) icon.textContent = newDirection === 'asc' ? '↑' : '↓';
+
+    filteredResults.sort((a, b) => {
+        let aValue, bValue;
+        if (key === 'status') {
+            aValue = (a.shipmentStatus || '').trim();
+            bValue = (b.shipmentStatus || '').trim();
+        } else if (key === 'productName') {
+            aValue = (a.productName || '').trim();
+            bValue = (b.productName || '').trim();
+        } else if (key === 'ingredientName') {
+            aValue = (a.ingredientName || '').trim();
+            bValue = (b.ingredientName || '').trim();
+        } else if (key === 'yjCode') {
+            aValue = (a.yjCode || '').trim();
+            bValue = (b.yjCode || '').trim();
+        }
+
+        const compare = aValue.localeCompare(bValue, 'ja', { sensitivity: 'base' });
+        return newDirection === 'asc' ? compare : -compare;
+    });
+
+    renderResults(filteredResults);
+    let sortKeyName = '';
+    switch (key) {
+        case 'status': sortKeyName = '出荷状況'; break;
+        case 'productName': sortKeyName = '品名'; break;
+        case 'ingredientName': sortKeyName = '成分名'; break;
+        case 'yjCode': sortKeyName = 'YJコード'; break;
+    }
+    showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, "success");
+}
 
 function searchYjCode() {
     const code = elements.yjCodeInput.value;
@@ -189,7 +277,7 @@ function searchYjCode() {
         return;
     }
 
-    const results = excelData.filter(item => {
+    filteredResults = excelData.filter(item => {
         const itemYjCode = normalizeString(item.yjCode || '');
         if (!itemYjCode) return false;
 
@@ -244,12 +332,22 @@ function searchYjCode() {
         return true;
     });
 
-    renderResults(results);
+    // Reset sort icons
+    sortStates.status = 'asc';
+    sortStates.productName = 'asc';
+    sortStates.ingredientName = 'asc';
+    sortStates.yjCode = 'asc';
+    if (elements.sortIcons.status) elements.sortIcons.status.textContent = '↕';
+    if (elements.sortIcons.productName) elements.sortIcons.productName.textContent = '↕';
+    if (elements.sortIcons.ingredientName) elements.sortIcons.ingredientName.textContent = '↕';
+    if (elements.sortIcons.yjCode) elements.sortIcons.yjCode.textContent = '↕';
 
-    if (results.length === 0) {
+    renderResults(filteredResults);
+
+    if (filteredResults.length === 0) {
         showMessage('条件に一致するデータが見つかりませんでした。', 'info');
     } else {
-        showMessage(`${results.length} 件見つかりました。`, 'success');
+        showMessage(`${filteredResults.length} 件見つかりました。`, 'success');
     }
 }
 
