@@ -8,13 +8,15 @@
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com 'unsafe-inline';
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+        font-src 'self' https://cdnjs.cloudflare.com;
         img-src 'self' data:;
         connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com;
     ">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Google tag (gtag.js) -->
@@ -36,82 +38,210 @@
             <nav class="flex items-center gap-2 sm:gap-4">
                 <a href="./index.html"
                     class="text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">
-                    ホームに戻る
+                    <i class="fas fa-home mr-1"></i>ホームに戻る
                 </a>
             </nav>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12">
-            <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">利用規約</h1>
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-4xl pb-32">
+        <!-- Title Card -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">利用規約</h1>
+            <p class="text-gray-600">Kusuri Compassのご利用にあたって</p>
+        </div>
 
-            <div class="prose prose-slate max-w-none space-y-6 text-gray-600">
-                <p>この利用規約（以下，「本規約」といいます。）は，Kusuri
-                    Compass（以下，「当サービス」といいます。）の利用条件を定めるものです。登録ユーザーの皆さま（以下，「ユーザー」といいます。）には，本規約に従って，本サービスをご利用いただきます。</p>
+        <!-- Content Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="p-8 sm:p-12 space-y-10">
 
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第1条（適用）</h2>
-                    <p>本規約は，ユーザーと当サービスとの間の本サービスの利用に関わる一切の関係に適用されるものとします。</p>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第2条（禁止事項）</h2>
-                    <p>ユーザーは，本サービスの利用にあたり，以下の行為をしてはなりません。</p>
-                    <ul class="list-disc pl-5 space-y-1 mt-2">
-                        <li>法令または公序良俗に違反する行為</li>
-                        <li>犯罪行為に関連する行為</li>
-                        <li>当サービスのサーバーまたはネットワークの機能を破壊したり，妨害したりする行為</li>
-                        <li>当サービスのサービスの運営を妨害するおそれのある行為</li>
-                        <li>他のユーザーに関する個人情報等を収集または蓄積する行為</li>
-                        <li>不正アクセスをし，またはこれを試みる行為</li>
-                        <li>その他，当サービスが不適切と判断する行為</li>
-                    </ul>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第3条（本サービスの提供の停止等）</h2>
-                    <p>当サービスは，以下のいずれかの事由があると判断した場合，ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします。</p>
-                    <ul class="list-disc pl-5 space-y-1 mt-2">
-                        <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
-                        <li>地震，落雷，火災，停電または天災などの不可抗力により，本サービスの提供が困難となった場合</li>
-                        <li>コンピュータまたは通信回線等が事故により停止した場合</li>
-                        <li>その他，当サービスが本サービスの提供が困難と判断した場合</li>
-                    </ul>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第4条（免責事項）</h2>
-                    <p>当サービスの債務不履行責任は，当サービスの故意または重過失によらない場合には免責されるものとします。</p>
-                    <p>当サービスは，本サービスに関して，ユーザーと他のユーザーまたは第三者との間において生じた取引，連絡または紛争等について一切責任を負いません。</p>
-                    <p>本サービスで提供される医薬品の出荷状況等の情報は，あくまで参考情報であり，その正確性，完全性，最新性を保証するものではありません。医療上の判断は，必ず医師や薬剤師等の専門家にご相談ください。
+                <div class="prose prose-slate max-w-none text-gray-600 leading-relaxed">
+                    <p>
+                        この利用規約（以下，「本規約」といいます。）は，Kusuri
+                        Compass（以下，「当サービス」といいます。）の利用条件を定めるものです。登録ユーザーの皆さま（以下，「ユーザー」といいます。）には，本規約に従って，本サービスをご利用いただきます。
                     </p>
-                    <p>本ツールからリンクされるPMDAの医薬品情報（患者向医薬品ガイド、電子化された添付文書など）は、製造販売業者が著作権を有しています。所属する医療機関や薬局内での利用を除き、無断での複製・転載・配布は禁じられています。
+                </div>
+
+                <!-- Section 1 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">1</span>
+                        第1条（適用）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        本規約は，ユーザーと当サービスとの間の本サービスの利用に関わる一切の関係に適用されるものとします。
                     </p>
                 </section>
 
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第5条（サービス内容の変更等）</h2>
-                    <p>当サービスは，ユーザーに通知することなく，本サービスの内容を変更しまたは本サービスの提供を中止することができるものとし，これによってユーザーに生じた損害について一切の責任を負いません。</p>
+                <!-- Section 2 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">2</span>
+                        第2条（禁止事項）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+                        ユーザーは，本サービスの利用にあたり，以下の行為をしてはなりません。
+                    </p>
+                    <ul class="grid sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                        <li class="flex items-start bg-gray-50 p-2 rounded">
+                            <i class="fas fa-ban text-red-400 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>法令または公序良俗に違反する行為</span>
+                        </li>
+                        <li class="flex items-start bg-gray-50 p-2 rounded">
+                            <i class="fas fa-ban text-red-400 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>犯罪行為に関連する行為</span>
+                        </li>
+                        <li class="flex items-start bg-gray-50 p-2 rounded">
+                            <i class="fas fa-ban text-red-400 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>当サービスのサーバーまたはネットワークの機能を破壊したり，妨害したりする行為</span>
+                        </li>
+                        <li class="flex items-start bg-gray-50 p-2 rounded">
+                            <i class="fas fa-ban text-red-400 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>当サービスのサービスの運営を妨害するおそれのある行為</span>
+                        </li>
+                        <li class="flex items-start bg-gray-50 p-2 rounded">
+                            <i class="fas fa-ban text-red-400 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>他のユーザーに関する個人情報等を収集または蓄積する行為</span>
+                        </li>
+                        <li class="flex items-start bg-gray-50 p-2 rounded">
+                            <i class="fas fa-ban text-red-400 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>不正アクセスをし，またはこれを試みる行為</span>
+                        </li>
+                        <li class="flex items-start bg-gray-50 p-2 rounded sm:col-span-2">
+                            <i class="fas fa-ban text-red-400 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>その他，当サービスが不適切と判断する行為</span>
+                        </li>
+                    </ul>
                 </section>
 
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第6条（利用規約の変更）</h2>
-                    <p>当サービスは，必要と判断した場合には，ユーザーに通知することなくいつでも本規約を変更することができるものとします。</p>
+                <!-- Section 3 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">3</span>
+                        第3条（本サービスの提供の停止等）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+                        当サービスは，以下のいずれかの事由があると判断した場合，ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします。
+                    </p>
+                    <ul class="list-none space-y-2 text-sm text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>地震，落雷，火災，停電または天災などの不可抗力により，本サービスの提供が困難となった場合</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>コンピュータまたは通信回線等が事故により停止した場合</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>その他，当サービスが本サービスの提供が困難と判断した場合</span>
+                        </li>
+                    </ul>
                 </section>
 
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第7条（準拠法・裁判管轄）</h2>
-                    <p>本規約の解釈にあたっては，日本法を準拠法とします。</p>
-                    <p>本サービスに関して紛争が生じた場合には，横浜地方裁判所を専属的合意管轄とします。</p>
+                <!-- Section 4 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">4</span>
+                        第4条（免責事項）
+                    </h2>
+                    <div class="space-y-4 text-sm text-gray-600 leading-relaxed">
+                        <p>
+                            当サービスの債務不履行責任は，当サービスの故意または重過失によらない場合には免責されるものとします。
+                        </p>
+                        <p>
+                            当サービスは，本サービスに関して，ユーザーと他のユーザーまたは第三者との間において生じた取引，連絡または紛争等について一切責任を負いません。
+                        </p>
+                        <div class="bg-yellow-50 border border-yellow-100 p-4 rounded-lg">
+                            <p class="font-bold text-yellow-800 mb-1"><i class="fas fa-info-circle mr-1"></i>情報の正確性について
+                            </p>
+                            <p class="text-yellow-900 text-xs">
+                                本サービスで提供される医薬品の出荷状況等の情報は，あくまで参考情報であり，その正確性，完全性，最新性を保証するものではありません。医療上の判断は，必ず医師や薬剤師等の専門家にご相談ください。
+                            </p>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-100 p-4 rounded-lg">
+                            <p class="font-bold text-blue-800 mb-1"><i class="fas fa-copyright mr-1"></i>著作権について</p>
+                            <p class="text-blue-900 text-xs">
+                                本ツールからリンクされるPMDAの医薬品情報（患者向医薬品ガイド、電子化された添付文書など）は，製造販売業者が著作権を有しています。所属する医療機関や薬局内での利用を除き，無断での複製・転載・配布は禁じられています。
+                            </p>
+                        </div>
+                    </div>
                 </section>
+
+                <!-- Section 5 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">5</span>
+                        第5条（サービス内容の変更等）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        当サービスは，ユーザーに通知することなく，本サービスの内容を変更しまたは本サービスの提供を中止することができるものとし，これによってユーザーに生じた損害について一切の責任を負いません。
+                    </p>
+                </section>
+
+                <!-- Section 6 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">6</span>
+                        第6条（利用規約の変更）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        当サービスは，必要と判断した場合には，ユーザーに通知することなくいつでも本規約を変更することができるものとします。
+                    </p>
+                </section>
+
+                <!-- Section 7 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">7</span>
+                        第7条（準拠法・裁判管轄）
+                    </h2>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                            <h3 class="font-bold text-gray-800 mb-2 text-sm"><i
+                                    class="fas fa-gavel text-indigo-500 mr-2"></i>準拠法</h3>
+                            <p class="text-sm text-gray-600">本規約の解釈にあたっては，日本法を準拠法とします。</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                            <h3 class="font-bold text-gray-800 mb-2 text-sm"><i
+                                    class="fas fa-balance-scale text-indigo-500 mr-2"></i>裁判管轄</h3>
+                            <p class="text-sm text-gray-600">本サービスに関して紛争が生じた場合には，横浜地方裁判所を専属的合意管轄とします。</p>
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="mainFooter" class="bg-white border-t border-gray-200 flex-shrink-0 fixed bottom-0 w-full z-20">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-sm text-gray-500">
+                    &copy; 2025 Kusuri Compass. All rights reserved.
+                </div>
+                <div class="flex gap-6">
+                    <a href="./terms.html"
+                        class="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium">利用規約</a>
+                    <a href="./privacy.html"
+                        class="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium">プライバシーポリシー</a>
+                </div>
+            </div>
         </div>
-        </div>
-        </div>
-        </footer>
+    </footer>
 
 </body>
 

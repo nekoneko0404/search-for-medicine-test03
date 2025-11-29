@@ -8,13 +8,15 @@
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com 'unsafe-inline';
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+        font-src 'self' https://cdnjs.cloudflare.com;
         img-src 'self' data:;
         connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com;
     ">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Google tag (gtag.js) -->
@@ -36,94 +38,188 @@
             <nav class="flex items-center gap-2 sm:gap-4">
                 <a href="./index.html"
                     class="text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">
-                    ホームに戻る
+                    <i class="fas fa-home mr-1"></i>ホームに戻る
                 </a>
             </nav>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12">
-            <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">プライバシーポリシー</h1>
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-4xl pb-32">
+        <!-- Title Card -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">プライバシーポリシー</h1>
+            <p class="text-gray-600">Kusuri Compassにおける個人情報の取り扱いについて</p>
+        </div>
 
-            <div class="prose prose-slate max-w-none space-y-6 text-gray-600">
-                <p>Kusuri
-                    Compass（以下，「当サービス」といいます。）は，本ウェブサイト上で提供するサービス（以下，「本サービス」といいます。）における，ユーザーの個人情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。
-                </p>
+        <!-- Content Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="p-8 sm:p-12 space-y-10">
 
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第1条（個人情報）</h2>
-                    <p>「個人情報」とは，個人情報保護法にいう「個人情報」を指すものとし，生存する個人に関する情報であって，当該情報に含まれる氏名，生年月日，住所，電話番号，連絡先その他の記述等により特定の個人を識別できる情報及び容貌，指紋，声紋にかかるデータ，及び健康保険証の保険者番号などの当該情報単体から特定の個人を識別できる情報（個人識別符号）を指します。
+                <div class="prose prose-slate max-w-none text-gray-600 leading-relaxed">
+                    <p>
+                        Kusuri
+                        Compass（以下，「当サービス」といいます。）は，本ウェブサイト上で提供するサービス（以下，「本サービス」といいます。）における，ユーザーの個人情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。
+                    </p>
+                </div>
+
+                <!-- Section 1 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">1</span>
+                        第1条（個人情報）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        「個人情報」とは，個人情報保護法にいう「個人情報」を指すものとし，生存する個人に関する情報であって，当該情報に含まれる氏名，生年月日，住所，電話番号，連絡先その他の記述等により特定の個人を識別できる情報及び容貌，指紋，声紋にかかるデータ，及び健康保険証の保険者番号などの当該情報単体から特定の個人を識別できる情報（個人識別符号）を指します。
                     </p>
                 </section>
 
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第2条（個人情報の収集について）</h2>
-                    <p class="font-semibold text-gray-800">当サービスは，現時点において，ユーザーの個人情報を一切収集しておりません。</p>
-                    <p class="mt-2">
+                <!-- Section 2 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">2</span>
+                        第2条（個人情報の収集について）
+                    </h2>
+                    <div class="bg-indigo-50 rounded-lg p-4 text-indigo-900 text-sm font-medium mb-3">
+                        <i class="fas fa-shield-alt mr-2"></i>当サービスは，現時点において，ユーザーの個人情報を一切収集しておりません。
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
                         当サービスには，ユーザー登録機能，会員制度，お問い合わせフォーム等の個人情報を取得する仕組みは設けられておりません。また，氏名，メールアドレス，電話番号等の個人を特定できる情報の入力を求めることもありません。
                     </p>
                 </section>
 
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第3条（個人情報を収集・利用する目的）</h2>
-                    <p>当サービスは現時点において個人情報を収集しておりませんので，個人情報の収集・利用の目的はございません。</p>
-                    <p class="mt-2">将来的に個人情報を取り扱う機能を追加する場合には，事前に本ポリシーを改定し，その目的を明示いたします。</p>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第4条（利用目的の変更）</h2>
-                    <p>当サービスは，利用目的が変更前と関連性を有すると合理的に認められる場合に限り，個人情報の利用目的を変更するものとします。</p>
-                    <p>利用目的の変更を行った場合には，変更後の目的について，当サービス所定の方法により，ユーザーに通知し，または本ウェブサイト上に公表するものとします。</p>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第5条（個人情報の第三者提供）</h2>
-                    <p>当サービスは，次に掲げる場合を除いて，あらかじめユーザーの同意を得ることなく，第三者に個人情報を提供することはありません。ただし，個人情報保護法その他の法令で認められる場合を除きます。</p>
-                    <ul class="list-disc pl-5 space-y-1 mt-2">
-                        <li>人の生命，身体または財産の保護のために必要がある場合であって，本人の同意を得ることが困難であるとき</li>
-                        <li>公衆衛生の向上または児童の健全な育成の推進のために特に必要がある場合であって，本人の同意を得ることが困難であるとき</li>
-                        <li>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合であって，本人の同意を得ることにより当該事務の遂行に支障を及ぼすおそれがあるとき
-                        </li>
-                    </ul>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第6条（プライバシーポリシーの変更）</h2>
-                    <p>本ポリシーの内容は，法令その他本ポリシーに別段の定めのある事項を除いて，ユーザーに通知することなく，変更することができるものとします。</p>
-                    <p>当サービスが別途定める場合を除いて，変更後のプライバシーポリシーは，本ウェブサイトに掲載したときから効力を生じるものとします。</p>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第7条（Cookie等の利用について）</h2>
-                    <p>当サービスでは，以下の目的でCookie及びローカルストレージを使用しています。</p>
-                    <ul class="list-disc pl-5 space-y-1 mt-2">
-                        <li><strong>アクセス解析（Google Analytics）</strong>:
-                            Googleによるアクセス解析ツール「Googleアナリティクス」を利用しています。このGoogleアナリティクスはトラフィックデータの収集のためにCookieを使用しています。このトラフィックデータは匿名で収集されており，個人を特定するものではありません。この機能はCookieを無効にすることで収集を拒否することが出来ますので，お使いのブラウザの設定をご確認ください。
-                        </li>
-                        <li><strong>データキャッシュ（ローカルストレージ）</strong>:
-                            当サービスは，医薬品出荷状況データを一時的にブラウザのローカルストレージに保存することで，次回アクセス時の表示速度を向上させています。このキャッシュには個人情報は含まれておらず，公開されている医薬品情報のみが保存されます。ブラウザのキャッシュをクリアすることで削除できます。
-                        </li>
-                    </ul>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">第8条（お問い合わせ窓口）</h2>
-                    <p>本ポリシーに関するお問い合わせは，下記の窓口までお願いいたします。</p>
-                    <p class="mt-2">
-                        X (旧Twitter): <a href="https://twitter.com/oshigoto_twitte" target="_blank"
-                            rel="noopener noreferrer"
-                            class="text-indigo-600 hover:text-indigo-800 underline">@oshigoto_twitte</a><br>
-                        （お問い合わせはDM等からご連絡ください）
+                <!-- Section 3 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">3</span>
+                        第3条（個人情報を収集・利用する目的）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-2">
+                        当サービスは現時点において個人情報を収集しておりませんので，個人情報の収集・利用の目的はございません。
+                    </p>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        将来的に個人情報を取り扱う機能を追加する場合には，事前に本ポリシーを改定し，その目的を明示いたします。
                     </p>
                 </section>
+
+                <!-- Section 4 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">4</span>
+                        第4条（利用目的の変更）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-2">
+                        当サービスは，利用目的が変更前と関連性を有すると合理的に認められる場合に限り，個人情報の利用目的を変更するものとします。
+                    </p>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        利用目的の変更を行った場合には，変更後の目的について，当サービス所定の方法により，ユーザーに通知し，または本ウェブサイト上に公表するものとします。
+                    </p>
+                </section>
+
+                <!-- Section 5 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">5</span>
+                        第5条（個人情報の第三者提供）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-3">
+                        当サービスは，次に掲げる場合を除いて，あらかじめユーザーの同意を得ることなく，第三者に個人情報を提供することはありません。ただし，個人情報保護法その他の法令で認められる場合を除きます。
+                    </p>
+                    <ul class="list-none space-y-2 text-sm text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>人の生命，身体または財産の保護のために必要がある場合であって，本人の同意を得ることが困難であるとき</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>公衆衛生の向上または児童の健全な育成の推進のために特に必要がある場合であって，本人の同意を得ることが困難であるとき</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-2 flex-shrink-0"></i>
+                            <span>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合であって，本人の同意を得ることにより当該事務の遂行に支障を及ぼすおそれがあるとき</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- Section 6 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">6</span>
+                        第6条（プライバシーポリシーの変更）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-2">
+                        本ポリシーの内容は，法令その他本ポリシーに別段の定めのある事項を除いて，ユーザーに通知することなく，変更することができるものとします。
+                    </p>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        当サービスが別途定める場合を除いて，変更後のプライバシーポリシーは，本ウェブサイトに掲載したときから効力を生じるものとします。
+                    </p>
+                </section>
+
+                <!-- Section 7 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">7</span>
+                        第7条（Cookie等の利用について）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                        当サービスでは，以下の目的でCookie及びローカルストレージを使用しています。
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                            <h3 class="font-bold text-gray-800 mb-2 text-sm"><i
+                                    class="fas fa-chart-line text-indigo-500 mr-2"></i>アクセス解析 (Google Analytics)</h3>
+                            <p class="text-xs text-gray-600 leading-relaxed">
+                                Googleによるアクセス解析ツール「Googleアナリティクス」を利用しています。このGoogleアナリティクスはトラフィックデータの収集のためにCookieを使用しています。このトラフィックデータは匿名で収集されており，個人を特定するものではありません。
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                            <h3 class="font-bold text-gray-800 mb-2 text-sm"><i
+                                    class="fas fa-database text-indigo-500 mr-2"></i>データキャッシュ (Local Storage)</h3>
+                            <p class="text-xs text-gray-600 leading-relaxed">
+                                当サービスは，医薬品出荷状況データを一時的にブラウザのローカルストレージに保存することで，次回アクセス時の表示速度を向上させています。このキャッシュには個人情報は含まれておらず，公開されている医薬品情報のみが保存されます。
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 8 -->
+                <section class="border-l-4 border-indigo-500 pl-6 py-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span
+                            class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">8</span>
+                        第8条（お問い合わせ窓口）
+                    </h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                        本ポリシーに関するお問い合わせは，下記の窓口までお願いいたします。
+                    </p>
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 flex items-center gap-4 shadow-sm">
+                        <div
+                            class="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center text-lg">
+                            <i class="fab fa-x-twitter"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">X (旧Twitter)</p>
+                            <a href="https://twitter.com/oshigoto_twitte" target="_blank" rel="noopener noreferrer"
+                                class="text-indigo-600 font-bold hover:underline">@oshigoto_twitte</a>
+                            <p class="text-xs text-gray-400 mt-0.5">お問い合わせはDM等からご連絡ください</p>
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto flex-shrink-0">
+    <footer id="mainFooter" class="bg-white border-t border-gray-200 flex-shrink-0 fixed bottom-0 w-full z-20">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="text-sm text-gray-500">
