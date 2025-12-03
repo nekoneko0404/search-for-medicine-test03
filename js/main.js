@@ -34,13 +34,17 @@ const elements = {
     reloadDataBtn: null,
     notificationArea: null,
     pageFooter: null,
-    infoContainer: null
+    infoContainer: null,
+    mainHeader: null,
+    mainFooter: null
 };
 
 /**
  * Initialize DOM elements
  */
 function initElements() {
+    elements.mainHeader = document.getElementById('mainHeader');
+    elements.mainFooter = document.getElementById('mainFooter');
     elements.drugName = document.getElementById('drugName');
     elements.ingredientName = document.getElementById('ingredientName');
     elements.makerName = document.getElementById('makerName');

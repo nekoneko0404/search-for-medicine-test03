@@ -43,7 +43,9 @@ const elements = {
         status: null,
         productName: null,
         ingredientName: null
-    }
+    },
+    mainHeader: null,
+    mainFooter: null
 };
 
 function initElements() {
@@ -71,6 +73,8 @@ function initElements() {
     elements.sortIcons.status = document.getElementById('sort-status-icon');
     elements.sortIcons.productName = document.getElementById('sort-productName-icon');
     elements.sortIcons.ingredientName = document.getElementById('sort-ingredientName-icon');
+    elements.mainHeader = document.getElementById('mainHeader');
+    elements.mainFooter = document.getElementById('mainFooter');
 }
 
 async function initApp() {
@@ -181,7 +185,7 @@ function clearAndResetSearch() {
     if (elements.trendCheckboxes.up) elements.trendCheckboxes.up.checked = false;
     if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = false;
 
-    searchData();
+    searchData(true); // reset=true を渡す
 }
 
 /**
@@ -235,7 +239,13 @@ function sortResults(key) {
     showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, "success");
 }
 
-function searchData() {
+function searchData(reset = false) {
+    if (reset) {
+        document.body.classList.remove('search-mode');
+    } else {
+        document.body.classList.add('search-mode');
+    }
+
     if (excelData.length === 0) return;
 
     const searchKeywords = elements.searchInput.value.split(/\s+/).filter(k => k).map(normalizeString);
@@ -346,9 +356,13 @@ function renderTable(data) {
 
     if (data.length === 0) {
         elements.tableContainer.classList.add('hidden');
+        elements.tableContainer.classList.remove('fade-in');
         return;
     }
     elements.tableContainer.classList.remove('hidden');
+    requestAnimationFrame(() => {
+        elements.tableContainer.classList.add('fade-in');
+    });
 
     const displayData = data.slice(0, 200); // Limit display
 

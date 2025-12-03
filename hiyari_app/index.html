@@ -20,7 +20,13 @@
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VXSZGE4HP7"></script>
-    <script src="../gtag.js"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-VXSZGE4HP7');
+    </script>
 </head>
 
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -30,7 +36,7 @@
             <div class="flex items-center gap-3">
                 <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
-                    <h1 class="text-xl font-bold text-indigo-900 hidden sm:block">Kusuri Compass</h1>
+                    <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
                 </a>
             </div>
             <nav class="flex items-center gap-4">
@@ -54,6 +60,10 @@
                 <label for="filter-input" class="font-semibold text-gray-700 whitespace-nowrap text-sm">絞り込み:</label>
                 <input type="text" id="filter-input"
                     class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2 pl-3 pr-3 text-sm">
+                <button id="search-btn"
+                    class="bg-indigo-600 text-white font-semibold rounded-lg px-4 py-2 hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-sm">
+                    検索
+                </button>
             </div>
         </div>
 
@@ -80,6 +90,18 @@
             <!-- Cards will be inserted here -->
         </div>
     </main>
+
+    <!-- Reload Button -->
+    <button id="reload-button"
+        class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
+        aria-label="検索条件をクリア">
+        <svg class="w-10 h-10 transform transition-transform duration-700 ease-in-out group-hover:rotate-180"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+            </path>
+        </svg>
+    </button>
 
     <footer id="mainFooter" class="bg-white border-t border-gray-200 fixed bottom-0 w-full z-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-gray-500">

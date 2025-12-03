@@ -14,11 +14,15 @@ const batchSize = 30;
 // DOM Elements
 const elements = {
     searchInput: null,
+    searchBtn: null,
     filterInput: null,
     randomBtn: null,
     resultsContainer: null,
     loadingIndicator: null,
     errorMsg: null,
+    mainHeader: null,
+    mainFooter: null,
+    reloadButton: null
 };
 
 let currentData = [];
@@ -29,11 +33,15 @@ let currentlyDisplayedCount = 0;
 ------------------------------------------------- */
 function initElements() {
     elements.searchInput = document.getElementById('search-input');
+    elements.searchBtn = document.getElementById('search-btn');
     elements.filterInput = document.getElementById('filter-input');
     elements.randomBtn = document.getElementById('random-btn');
     elements.resultsContainer = document.getElementById('results-container');
     elements.loadingIndicator = document.getElementById('loading');
     elements.errorMsg = document.getElementById('error-msg');
+    elements.mainHeader = document.getElementById('mainHeader');
+    elements.mainFooter = document.getElementById('mainFooter');
+    elements.reloadButton = document.getElementById('reload-button');
 }
 
 /* -------------------------------------------------
@@ -333,8 +341,23 @@ function init() {
         if (e.key === 'Enter') fetchIncidents();
     });
 
+    // Search button
+    if (elements.searchBtn) elements.searchBtn.addEventListener('click', fetchIncidents);
+
     // Random button
     if (elements.randomBtn) elements.randomBtn.addEventListener('click', shuffleAndDisplay);
+
+    elements.reloadButton.addEventListener('click', () => {
+        elements.searchInput.value = '';
+        elements.filterInput.value = '';
+        elements.resultsContainer.innerHTML = '';
+        hideError();
+        document.body.classList.remove('search-mode');
+        // URLからクエリパラメータを削除
+        const url = new URL(window.location);
+        url.search = '';
+        window.history.pushState({}, '', url);
+    });
 
     // URL パラメータで自動検索
     const params = new URLSearchParams(window.location.search);
@@ -343,6 +366,7 @@ function init() {
         elements.searchInput.value = kw;
         fetchIncidents();
     }
+
 }
 
 document.addEventListener('DOMContentLoaded', init);

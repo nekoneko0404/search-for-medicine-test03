@@ -18,7 +18,13 @@
     <link rel="stylesheet" href="../unify.css">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VXSZGE4HP7"></script>
-    <script src="./gtag_readme.js"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-VXSZGE4HP7');
+    </script>
     <style>
         .section-card {
             background-color: #f9fafb;

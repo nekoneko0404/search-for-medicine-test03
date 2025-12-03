@@ -164,7 +164,7 @@ export function createDropdown(item, index) {
     const dropdownContent = document.createElement('div');
     dropdownContent.id = dropdownContentId;
     // Use opacity/visibility with delay to prevent menu from disappearing when crossing the gap
-    dropdownContent.className = "invisible opacity-0 group-hover/dropdown:visible group-hover/dropdown:opacity-100 transition-all duration-200 delay-200 group-hover/dropdown:delay-0 absolute left-0 z-50 min-w-[160px] py-1 bg-white border border-gray-200 rounded-md shadow-xl";
+    dropdownContent.className = "invisible opacity-0 group-hover/dropdown:visible group-hover/dropdown:opacity-100 transition-all duration-200 delay-200 group-hover/dropdown:delay-0 absolute left-0 z-[60] min-w-[160px] py-1 bg-white border border-gray-200 rounded-md shadow-xl";
 
     // Position check on mouse enter
     dropdownContainer.addEventListener('mouseenter', () => {
@@ -212,7 +212,7 @@ export function createDropdown(item, index) {
                     dropdownContent.classList.remove('bottom-full', 'mb-1');
                     dropdownContent.classList.add('top-full', 'mt-1');
                 }
-                
+
                 dropdownContent.classList.add('!visible', '!opacity-100');
             } else {
                 dropdownContent.classList.remove('!visible', '!opacity-100');
@@ -250,7 +250,7 @@ document.addEventListener('click', (e) => {
     if (window.innerWidth <= 640) {
         // If click is not inside a dropdown container
         if (!e.target.closest('.group\\/dropdown')) {
-             document.querySelectorAll('[id^="dropdown-content-"]').forEach(el => {
+            document.querySelectorAll('[id^="dropdown-content-"]').forEach(el => {
                 el.classList.remove('!visible', '!opacity-100');
             });
         }
