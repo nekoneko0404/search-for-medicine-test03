@@ -7,7 +7,7 @@
     <title>薬局ヒヤリ・ハット事例ビューア</title>
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com 'unsafe-inline';
+        script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
         img-src 'self' data:;
         connect-src 'self' https://hiyari-proxy-708146219355.asia-east1.run.app https://www.google-analytics.com https://analytics.google.com https://cdn.jsdelivr.net ws://127.0.0.1:*;
@@ -20,13 +20,7 @@
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VXSZGE4HP7"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-VXSZGE4HP7');
-    </script>
+    <script async src="../gtag.js"></script>
 </head>
 
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -112,18 +106,7 @@
     <script type="module" src="js/main.js"></script>
 
     <!-- Typing Animation Script -->
-    <script type="module">
-        import { typewriterMultiple } from '../js/typing-animation.js';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputs = [
-                { element: document.getElementById('search-input'), text: '医薬品名または成分名を入力', speed: 100 },
-                { element: document.getElementById('filter-input'), text: '事例内容、背景・要因で検索', speed: 100 }
-            ];
-
-            typewriterMultiple(inputs, 300);
-        });
-    </script>
+    <script type="module" src="js/typing-init.js"></script>
 </body>
 
 </html>
