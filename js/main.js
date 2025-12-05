@@ -375,7 +375,7 @@ function sortResults(key) {
  */
 async function loadNotification() {
     try {
-        const response = await fetch('notification.md');
+        const response = await fetch('./notification.md');
         if (response.ok) {
             const markdownContent = await response.text();
             // Filter out content enclosed in <!-- -->

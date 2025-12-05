@@ -366,7 +366,6 @@ function init() {
         elements.searchInput.value = kw;
         fetchIncidents();
     }
-
 }
 
 document.addEventListener('DOMContentLoaded', init);
