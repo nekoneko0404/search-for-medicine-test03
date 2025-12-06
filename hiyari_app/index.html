@@ -56,6 +56,42 @@
                 </button>
             </div>
         </div>
+        <!-- Info Container (Usage Guide) -->
+        <div id="infoContainer" class="flex flex-col gap-8 md:flex-grow md:min-h-0">
+            <div id="usage-guide" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex-shrink-0">
+                <h3 class="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    ヒヤリ・ハット事例検索の使い方
+                </h3>
+                <div class="grid md:grid-cols-1 gap-6">
+                    <div class="bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h4 class="font-bold text-indigo-900 mb-3">検索のヒント</h4>
+                        <ul class="space-y-2 text-sm text-indigo-800">
+                            <li class="flex items-start gap-2"><span
+                                    class="text-indigo-500">•</span><span>医薬品名や成分名を入力して事例を検索できます。</span></li>
+                            <li class="flex items-start gap-2"><span
+                                    class="text-indigo-500">•</span><span>絞り込みキーワードを追加すると、検索結果をさらに詳細に絞り込めます。</span></li>
+                            <li class="flex items-start gap-2"><span
+                                    class="text-indigo-500">•</span><span>複数のキーワードはスペース区切りで入力してください。</span></li>
+                            <li class="flex items-start gap-2"><span
+                                    class="text-indigo-500">•</span><span>検索結果が多すぎる場合は、より具体的なキーワードを使用してください。</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
+                        <h4 class="font-bold text-gray-900 mb-3">データソースについて</h4>
+                        <p class="text-sm text-gray-700">
+                            このアプリケーションは、公益財団法人日本医療機能評価機構が公開している「薬局ヒヤリ・ハット事例収集等事業」のデータを利用しています。最新の情報は以下の公式サイトでご確認ください。
+                        </p>
+                        <p class="text-sm text-gray-700 mt-2"><a href="https://www.yakkyoku-hiyari.jcqhc.or.jp/"
+                                target="_blank" rel="noopener noreferrer"
+                                class="text-indigo-600 hover:underline">日本医療機能評価機構 薬局ヒヤリハット事例報告</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="flex justify-end items-center mb-4">
             <button id="random-btn"

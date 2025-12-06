@@ -22,7 +22,8 @@ const elements = {
     errorMsg: null,
     mainHeader: null,
     mainFooter: null,
-    reloadButton: null
+    reloadButton: null,
+    usageGuide: null // usageGuide要素を追加
 };
 
 let currentData = [];
@@ -42,6 +43,7 @@ function initElements() {
     elements.mainHeader = document.getElementById('mainHeader');
     elements.mainFooter = document.getElementById('mainFooter');
     elements.reloadButton = document.getElementById('reload-button');
+    elements.usageGuide = document.getElementById('usage-guide'); // usageGuide要素を取得
 }
 
 /* -------------------------------------------------
@@ -108,6 +110,7 @@ async function fetchIncidents() {
         elements.resultsContainer.innerHTML = '';
         hideError();
         document.body.classList.remove('search-mode');
+        if (elements.usageGuide) elements.usageGuide.classList.remove('hidden'); // 検索キーワードがない場合、使い方説明を表示
         return;
     }
 
@@ -115,6 +118,7 @@ async function fetchIncidents() {
     hideError();
     elements.resultsContainer.innerHTML = '';
     currentlyDisplayedCount = 0;
+    if (elements.usageGuide) elements.usageGuide.classList.add('hidden'); // 検索開始時に使い方説明を非表示
 
     try {
         const response = await fetch(buildApiUrl(searchKeyword, filterWord));
@@ -353,6 +357,7 @@ function init() {
         elements.resultsContainer.innerHTML = '';
         hideError();
         document.body.classList.remove('search-mode');
+        if (elements.usageGuide) elements.usageGuide.classList.remove('hidden'); // 検索条件クリア時に使い方説明を表示
         // URLからクエリパラメータを削除
         const url = new URL(window.location);
         url.search = '';
