@@ -30,9 +30,7 @@ const elements = {
     sortProductNameIcon: null,
     sortIngredientNameIcon: null,
     reloadDataBtn: null,
-    notificationArea: null,
-    reloadDataBtn: null,
-    notificationArea: null,
+
     pageFooter: null,
     infoContainer: null,
     mainHeader: null,
@@ -57,7 +55,7 @@ function initElements() {
     elements.sortProductNameIcon = document.getElementById('sort-productName-icon');
     elements.sortIngredientNameIcon = document.getElementById('sort-ingredientName-icon');
     elements.reloadDataBtn = document.getElementById('reload-data');
-    elements.notificationArea = document.getElementById('notificationArea');
+
     elements.infoContainer = document.getElementById('infoContainer');
 }
 
@@ -208,14 +206,14 @@ function renderTable(data) {
     displayResults.forEach((item, index) => {
         const newRow = elements.resultTableBody.insertRow();
         const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
-        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-50 group fade-in-up`;
+        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-50 group fade-in-up relative hover:z-50`;
         // First row appears instantly, others staggered slower
         newRow.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
         // 1. Drug Name Cell
         const drugNameCell = newRow.insertCell(0);
         drugNameCell.setAttribute('data-label', '品名');
-        drugNameCell.className = "px-4 py-3 text-sm text-gray-900 relative align-top";
+        drugNameCell.className = "px-4 py-3 text-sm text-gray-900 relative align-top group-hover:z-50";
         if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
             drugNameCell.classList.add('text-red-600', 'font-bold');
         }
@@ -370,59 +368,14 @@ function sortResults(key) {
     showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, "success");
 }
 
-/**
- * Load notification content
- */
-async function loadNotification() {
-    try {
-        const response = await fetch('./notification.md');
-        if (response.ok) {
-            const markdownContent = await response.text();
-            // Filter out content enclosed in <!-- -->
-            const filteredContent = markdownContent.replace(/<!--[\s\S]*?-->/g, '').trim();
 
-            if (filteredContent === '') {
-                if (elements.notificationArea) {
-                    elements.notificationArea.style.display = 'none';
-                }
-                return;
-            }
-
-            const htmlContent = marked.parse(filteredContent);
-            if (elements.notificationArea) {
-                elements.notificationArea.innerHTML = `
-                    <div class="flex items-start gap-3">
-                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div class="text-amber-900 text-sm space-y-1 leading-relaxed">
-                            ${htmlContent}
-                        </div>
-                    </div>
-                `;
-            }
-        } else {
-            console.error('Failed to load notification:', response.statusText);
-            if (elements.notificationArea) {
-                elements.notificationArea.style.display = 'none';
-            }
-        }
-    } catch (error) {
-        console.error('Error fetching notification:', error);
-        if (elements.notificationArea) {
-            elements.notificationArea.style.display = 'none';
-        }
-    }
-}
 
 /**
  * Initialize application
  */
 async function initApp() {
     initElements();
-    loadNotification();
+
 
     // Attach Event Listeners
     const inputIds = ['drugName', 'ingredientName', 'makerName'];

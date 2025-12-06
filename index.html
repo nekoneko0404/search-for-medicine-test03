@@ -6,14 +6,16 @@
     <script async src="gtag.js"></script>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data:; font-src https://cdnjs.cloudflare.com; connect-src 'self' https://www.google-analytics.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data:; font-src https://cdnjs.cloudflare.com; connect-src 'self' https://www.google-analytics.com https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>機能選択メニュー - 医薬品情報検索システム</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"
-        integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY" <script
-        src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"
-        integrity="sha384-MTDrIlFOzEqpmOxY6UIA/1Zkh0a64UlmJ6R0UrZXqXCPx9UJFyZweD9BUILkdnIs"
+        integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"
+        integrity="sha384-MTDrIlFOzEqpmOxY6UIA/1Zkh0a64UlmJ6R0UrZXqXCPx99siPGi8EmtQjIeCcTH"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.10/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="unify.css">
     <link rel="stylesheet" href="css/style.css">
@@ -64,6 +66,26 @@
                 </a>
             </div>
         </div>
+
+        <!-- Notification Section -->
+        <div class="notification-container mt-12 max-w-3xl mx-auto">
+            <div class="description-accordion">
+                <button class="accordion-header" id="notification-toggle">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-history text-indigo-500"></i>
+                        <span>更新履歴</span>
+                    </div>
+                    <span class="icon">▼</span>
+                </button>
+                <div class="accordion-content" id="notification-content">
+                    <div id="notification-body" class="prose prose-sm max-w-none p-4 text-gray-600">
+                        <!-- Content will be loaded here -->
+                        <p class="text-center text-gray-400">読み込み中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -83,6 +105,7 @@
         </div>
     </footer>
 
+    <script type="module" src="js/index.js"></script>
 </body>
 
 </html>

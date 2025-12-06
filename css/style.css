@@ -334,3 +334,108 @@ input[type="search"]:focus {
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.4) !important;
     outline: none;
 }
+
+/* Accordion Styles */
+.description-accordion {
+    background: white;
+    border-radius: 0.75rem;
+    /* rounded-xl */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    /* shadow-sm */
+    border: 1px solid #e5e7eb;
+    /* border-gray-200 */
+    overflow: hidden;
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: white;
+    border: none;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    /* text-gray-800 */
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.accordion-header:hover {
+    background-color: #f9fafb;
+    /* bg-gray-50 */
+}
+
+.accordion-header .icon {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    color: #6b7280;
+    /* text-gray-500 */
+}
+
+.accordion-header.open .icon {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background-color: #f9fafb;
+    /* bg-gray-50 */
+    border-top: 1px solid transparent;
+}
+
+.accordion-content.open {
+    max-height: 500px;
+    /* Adjust as needed */
+    overflow-y: auto;
+    border-top-color: #e5e7eb;
+    /* border-gray-200 */
+}
+
+/* Markdown Content Styles in Accordion */
+#notification-body h1,
+#notification-body h2,
+#notification-body h3,
+#notification-body h4 {
+    font-weight: bold;
+    color: #374151;
+    /* text-gray-700 */
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+#notification-body h4 {
+    font-size: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.25em;
+}
+
+#notification-body ul {
+    list-style-type: disc;
+    padding-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+#notification-body li {
+    margin-bottom: 0.25em;
+}
+
+#notification-body a {
+    color: #4f46e5;
+    /* text-indigo-600 */
+    text-decoration: underline;
+}
+
+#notification-body a:hover {
+    color: #4338ca;
+    /* text-indigo-700 */
+}
+
+#notification-body p {
+    margin-bottom: 0.5em;
+}

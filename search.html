@@ -6,77 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>医薬品出荷状況検索 | Kusuri Compass</title>
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'self';">
-
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"
-        integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
-        crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="css/style.css">
-
-    <style>
-        #notificationArea li {
-            margin-bottom: 0.25rem;
-        }
-
-        #notificationArea a {
-            color: #4f46e5;
-            /* indigo-600 */
-            text-decoration: underline;
-        }
-
-        #notificationArea a:hover {
-            color: #3730a3;
-            /* indigo-800 */
-        }
-
-        #notificationArea h1,
-        #notificationArea h2,
-        #notificationArea h3,
-        #notificationArea h4,
-        #notificationArea h5,
-        #notificationArea h6 {
-            font-weight: bold;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        #notificationArea h1 {
-            font-size: 1.5rem;
-        }
-
-        #notificationArea h2 {
-            font-size: 1.25rem;
-        }
-
-        #notificationArea h3 {
-            font-size: 1.125rem;
-        }
-
-        #notificationArea p {
-            margin-bottom: 0.5rem;
-        }
-
-        .table-container {
-            overflow: visible;
-        }
-    </style>
-
+        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VXSZGE4HP7"></script>
     <script async src="gtag.js"></script>
-
     <!-- localForage CDN -->
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <!-- Marked.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/marked@4.0.10/marked.min.js"></script>
-
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"
+        integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
+        crossorigin="anonymous"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="unify.css">
+    <link rel="stylesheet" href="css/style.css">
     <meta property="og:url" content="https://nekoneko0404.github.io/search-for-medicine-test03/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="【Kusuri Compass】医薬品出荷状況検索">
 </head>
 
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
-
     <!-- Header -->
     <header id="mainHeader" class="bg-white shadow-sm sticky top-0 z-30 flex-shrink-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -93,23 +45,18 @@
                     <span class="sm:hidden">更新日</span>
                 </a>
                 <a href="./help/index.html" target="_blank" rel="noopener noreferrer"
-                    class="text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">
-                    使い方
-                </a>
+                    class="text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">使い方</a>
             </nav>
         </div>
     </header>
-
     <!-- Main Content -->
     <main
         class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl md:flex md:flex-col pb-32 transition-all duration-500">
-
         <!-- Title Section -->
         <div class="text-center mb-8 flex-shrink-0">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">医薬品出荷状況検索</h2>
             <p class="text-gray-500 text-sm">最新の供給状況をリアルタイムで確認できます</p>
         </div>
-
         <!-- Search Form -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 flex-shrink-0">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -143,36 +90,30 @@
                 <div class="space-y-2">
                     <label for="makerName" class="block text-sm font-semibold text-gray-700">規格・剤形・メーカー</label>
                     <input type="text" id="makerName"
-                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2.5">
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-5">
                 </div>
             </div>
-
             <div
                 class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-semibold text-gray-700 mr-2">出荷状況:</span>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="statusNormal" value="通常出荷" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">通常出荷</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer ml-4">
-                        <input type="checkbox" id="statusLimited" value="限定出荷" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">限定出荷</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer ml-4">
-                        <input type="checkbox" id="statusStopped" value="供給停止" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">供給停止</span>
-                    </label>
+                    <label class="inline-flex items-center cursor-pointer"><input type="checkbox" id="statusNormal"
+                            value="通常出荷" checked
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"><span
+                            class="ml-2 text-sm text-gray-700">通常出荷</span></label>
+                    <label class="inline-flex items-center cursor-pointer ml-4"><input type="checkbox"
+                            id="statusLimited" value="限定出荷" checked
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"><span
+                            class="ml-2 text-sm text-gray-700">限定出荷</span></label>
+                    <label class="inline-flex items-center cursor-pointer ml-4"><input type="checkbox"
+                            id="statusStopped" value="供給停止" checked
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"><span
+                            class="ml-2 text-sm text-gray-700">供給停止</span></label>
                 </div>
             </div>
         </div>
-
-        <!-- Info Container (Usage Guide & Notification) -->
+        <!-- Info Container (Usage Guide) -->
         <div id="infoContainer" class="flex flex-col gap-8 md:flex-grow md:min-h-0">
-            <!-- Usage Guide -->
             <div id="usage-guide" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex-shrink-0">
                 <h3 class="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
                     <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,88 +127,77 @@
                         <h4 class="font-bold text-indigo-900 mb-3">検索のヒント</h4>
                         <ul class="space-y-2 text-sm text-indigo-800">
                             <li class="flex items-start gap-2"><span
-                                    class="text-indigo-500">•</span><span>スペース区切りで複数キーワードを指定するとAND検索になります。</span>
-                            </li>
+                                    class="text-indigo-500">•</span><span>スペース区切りで複数キーワードを指定するとAND検索になります。</span></li>
                             <li class="flex items-start gap-2"><span class="text-indigo-500">•</span><span><code
                                         class="bg-white px-1 py-0.5 rounded text-red-600 font-mono">-（マイナス）</code>を付けて検索すると、そのキーワードを除外します。（例:
                                     <code class="bg-white px-1 py-0.5 rounded font-mono">AG -アメル</code>）</span></li>
                         </ul>
                     </div>
-                    <div class="bg-green-50 p-5 rounded-lg border border-green-100">
-                        <h4 class="font-bold text-green-900 mb-3">便利な機能</h4>
-                        <ul class="space-y-2 text-sm text-green-800">
-                            <li class="flex items-start gap-2"><span class="text-green-500">•</span><span><span
-                                        class="font-bold">医薬品名</span>をクリックすると、代替薬検索やヒヤリハット事例などのメニューが表示されます。</span>
-                            </li>
-                            <li class="flex items-start gap-2"><span class="text-green-500">•</span><span><span
-                                        class="font-bold">成分名</span>をクリックすると、その成分で再検索します。</span></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
-
-            <!-- Notification -->
-            <div id="notificationArea" class="bg-amber-50 border border-amber-200 rounded-xl p-6 flex-shrink-0">
+        </div>
+        <!-- Search Results Table -->
+        <div id="tableContainer" class="bg-white rounded-xl shadow-sm border border-gray-200 hidden">
+            <div>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center gap-1" id="sort-productName-button">品名 <span
+                                        id="sort-productName-icon" class="text-indigo-500">↕</span></div>
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center gap-1" id="sort-ingredientName-button">成分名 <span
+                                        id="sort-ingredientName-icon" class="text-indigo-500">↕</span></div>
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center gap-1" id="sort-status-button">出荷状況 <span
+                                        id="sort-status-icon" class="text-indigo-500">↕</span></div>
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[18%]">
+                                制限理由</th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[11%]">
+                                出荷量状況</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="resultTableBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <!-- Results Table -->
-        <div id="tableContainer" class="table-container bg-white hidden min-h-[280px] md:flex-grow md:min-h-0">
-            <table id="resultTable" class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50 sticky top-0 z-10">
-                    <tr>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
-                            <div class="flex items-center gap-1" id="sort-productName-button">
-                                品名 <span id="sort-productName-icon" class="text-indigo-500">↕</span>
-                            </div>
-                        </th>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
-                            <div class="flex items-center gap-1" id="sort-ingredientName-button">
-                                成分名 <span id="sort-ingredientName-icon" class="text-indigo-500">↕</span>
-                            </div>
-                        </th>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%] group cursor-pointer hover:bg-gray-100 transition-colors">
-                            <div class="flex items-center gap-1" id="sort-status-button">
-                                出荷状況 <span id="sort-status-icon" class="text-indigo-500">↕</span>
-                            </div>
-                        </th>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[18%]">
-                            制限理由</th>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[11%]">
-                            出荷量状況</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="resultTableBody">
-                    <!-- Data will be inserted here -->
-                </tbody>
-            </table>
+        <!-- Reload Button -->
+        <button id="reload-data"
+            class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
+            aria-label="データを更新">
+            <svg class="w-10 h-10 transform transition-transform duration-700 ease-in-out group-hover:rotate-180"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
+            </svg>
+        </button>
+        <!-- Toast Message -->
+        <div id="messageBox"
+            class="hidden fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-opacity duration-300 opacity-0 transform translate-y-[-20px]">
+        </div>
+        <!-- Progress Bar -->
+        <div id="progressBarContainer" class="fixed top-0 left-0 w-full h-1 z-50 hidden">
+            <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300 w-0"></div>
+            <div id="progressMessage"
+                class="absolute top-2 right-2 text-xs text-gray-600 bg-white px-2 py-1 rounded shadow hidden"></div>
         </div>
     </main>
-
-    <!-- Reload Button -->
-    <button id="reload-data"
-        class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
-        aria-label="データを更新">
-        <svg class="w-10 h-10 transform transition-transform duration-700 ease-in-out group-hover:rotate-180"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-            </path>
-        </svg>
-    </button>
-
     <!-- Footer -->
-    <footer id="mainFooter" class="bg-white border-t border-gray-200 flex-shrink-0 fixed bottom-0 w-full z-20">
+    <footer id="mainFooter" class="fixed bottom-0 left-0 w-full z-20 bg-white border-t border-gray-200">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="text-sm text-gray-500">
-                    &copy; 2025 Kusuri Compass. All rights reserved.
-                </div>
+                <div class="text-sm text-gray-500">&copy; 2025 Kusuri Compass. All rights reserved.</div>
                 <div class="flex gap-6">
                     <a href="./terms.html"
                         class="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium">利用規約</a>
@@ -277,24 +207,8 @@
             </div>
         </div>
     </footer>
-
-    <!-- Toast Message -->
-    <div id="messageBox"
-        class="hidden fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-opacity duration-300 opacity-0 transform translate-y-[-20px]">
-    </div>
-
-    <!-- Progress Bar -->
-    <div id="progressBarContainer" class="fixed top-0 left-0 w-full h-1 z-50 hidden">
-        <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300 w-0"></div>
-        <div id="progressMessage"
-            class="absolute top-2 right-2 text-xs text-gray-600 bg-white px-2 py-1 rounded shadow hidden">
-        </div>
-    </div>
-
-
     <!-- Main Script -->
     <script type="module" src="js/main.js"></script>
-
     <!-- Typing Animation Script -->
     <script type="module" src="js/typing-init.js"></script>
 </body>
