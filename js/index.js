@@ -2,14 +2,24 @@
  * Logic for index.html
  */
 
+import { loadAndCacheData } from './data.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     initNotification();
 
     // プリフェッチのスケジュール
+    const startPrefetch = () => {
+        // 優先: 医薬品データ（search.html用）を先に呼び出し
+        // 並行して読み込むため await はせず、両方の処理を同時に走らせる
+        prefetchMedicineData();
+        // 次点: 感染症データ
+        prefetchInfectionData();
+    };
+
     if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => prefetchInfectionData(), { timeout: 5000 });
+        requestIdleCallback(() => startPrefetch(), { timeout: 5000 });
     } else {
-        setTimeout(prefetchInfectionData, 3000);
+        setTimeout(startPrefetch, 3000);
     }
 });
 
@@ -70,8 +80,10 @@ async function prefetchInfectionData() {
         return;
     }
 
-    // LocalForageの設定（DB名を統一してアプリ画面と共有する）
-    localforage.config({
+    // ★重要: グローバルの localforage.config を変更すると、医薬品データ（デフォルト設定を使用）の保存先に影響が出るため、
+    // createInstance を使用して、感染症アプリ専用のインスタンスを作成して操作する。
+    // DB名とStore名をアプリ側と一致させること。
+    const infectionStore = localforage.createInstance({
         name: 'KusuriCompassDB',
         storeName: 'infection_surveillance_store'
     });
@@ -81,17 +93,16 @@ async function prefetchInfectionData() {
 
     // Main Data Prefetch
     try {
-        const cachedMain = await localforage.getItem(CACHE_CONFIG.MAIN_DATA_KEY);
+        const cachedMain = await infectionStore.getItem(CACHE_CONFIG.MAIN_DATA_KEY);
         if (!cachedMain || (now - cachedMain.timestamp >= CACHE_CONFIG.MAIN_EXPIRY)) {
             console.log('Prefetching main data...');
-            // fetchは非同期で投げっぱなしにする
             fetch(`${INF_SURV_API_URL}?type=all`)
                 .then(res => {
                     if (!res.ok) throw new Error(res.statusText);
                     return res.json();
                 })
                 .then(data => {
-                    localforage.setItem(CACHE_CONFIG.MAIN_DATA_KEY, {
+                    infectionStore.setItem(CACHE_CONFIG.MAIN_DATA_KEY, {
                         timestamp: now,
                         data: data
                     });
@@ -107,7 +118,7 @@ async function prefetchInfectionData() {
 
     // History Data Prefetch
     try {
-        const cachedHistory = await localforage.getItem(CACHE_CONFIG.HISTORY_DATA_KEY);
+        const cachedHistory = await infectionStore.getItem(CACHE_CONFIG.HISTORY_DATA_KEY);
         if (!cachedHistory || (now - cachedHistory.timestamp >= CACHE_CONFIG.HISTORY_EXPIRY)) {
             console.log('Prefetching history data...');
             fetch(`${INF_SURV_API_URL}?type=history`)
@@ -116,7 +127,7 @@ async function prefetchInfectionData() {
                     return res.text();
                 })
                 .then(data => {
-                    localforage.setItem(CACHE_CONFIG.HISTORY_DATA_KEY, {
+                    infectionStore.setItem(CACHE_CONFIG.HISTORY_DATA_KEY, {
                         timestamp: now,
                         data: data
                     });
@@ -128,5 +139,18 @@ async function prefetchInfectionData() {
         }
     } catch (e) {
         console.warn('History prefetch check failed:', e);
+    }
+}
+
+async function prefetchMedicineData() {
+    console.log('Starting prefetch for Medicine Search (search.html)...');
+    try {
+        // loadAndCacheData は js/data.js で定義されており、
+        // デフォルトの localforage インスタンスを使用してデータを取得・キャッシュする。
+        // search.html と同じロジックを共有することで、キャッシュの再利用性を高める。
+        await loadAndCacheData();
+        console.log('Medicine data prefetch completed.');
+    } catch (e) {
+        console.warn('Medicine data prefetch failed:', e);
     }
 }
