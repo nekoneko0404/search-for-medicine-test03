@@ -172,15 +172,26 @@ function updateData_() {
     writeCsvToSheet_(ss, 'Tougai', csvData.Tougai);
     writeCsvToSheet_(ss, 'ARI', csvData.ARI);
 
-    // 履歴用CSVファイルをDriveに保存
-    const fileName = `${year}-${weekStr}-teiten-tougai.csv`;
-    const existingFiles = folder.getFilesByName(fileName);
-    // 重複防止のため既存ファイルは削除（またはスキップ）
-    while (existingFiles.hasNext()) {
-      existingFiles.next().setTrashed(true);
+    // 履歴用CSVファイルを「過去週報」フォルダに保存
+    const subFolderName = "過去週報";
+    let historyFolder;
+    const subFolders = folder.getFoldersByName(subFolderName);
+    if (subFolders.hasNext()) {
+      historyFolder = subFolders.next();
+    } else {
+      historyFolder = folder.createFolder(subFolderName);
     }
-    folder.createFile(fileName, csvData.Tougai, MimeType.CSV);
-    Logger.log(`Saved history CSV to Drive: ${fileName}`);
+
+    const fileName = `${year}-${weekStr}-teiten-tougai.csv`;
+    const existingFiles = historyFolder.getFilesByName(fileName);
+    
+    // 重複チェック: すでに存在する場合は保存しない
+    if (existingFiles.hasNext()) {
+      Logger.log(`File ${fileName} already exists in ${subFolderName}. Skipping save.`);
+    } else {
+      historyFolder.createFile(fileName, csvData.Tougai, MimeType.CSV);
+      Logger.log(`Saved history CSV to Drive (${subFolderName}): ${fileName}`);
+    }
 
     Logger.log("データ更新処理が正常に終了しました。");
     cleanUpRetryTriggers_();
