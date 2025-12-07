@@ -250,7 +250,10 @@ window.updateDetailPanel = function (regionId, data, disease) {
     };
     const label = regionLabels[regionId] || regionId;
 
-    showRegionDetails(regionId, label, prefectures, data, disease);
+    // data構造の正規化: main.jsからの呼び出しでは cachedData 全体が渡されるため、currentを取り出す
+    const currentData = data.current ? data.current : data;
+
+    showRegionDetails(regionId, label, prefectures, currentData, disease);
 };
 
 window.getRegionIdByPrefecture = function (prefectureName) {

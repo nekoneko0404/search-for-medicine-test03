@@ -36,6 +36,7 @@
             </div>
             <nav>
                 <span class="last-updated">Last Updated: <span id="update-date">Loading...</span></span>
+                <button id="other-diseases-btn" class="nav-button">その他の感染症</button>
             </nav>
         </div>
     </header>
@@ -66,88 +67,105 @@
             <h3 id="current-disease-title">インフルエンザ 全国状況</h3>
         </div>
         <div class="dashboard-content">
-            <div class="left-panel">
-                <div id="map-view" class="view-container">
-                    <div id="japan-map" class="map-container">
-                        <div class="skeleton skeleton-map"></div>
-                    </div>
-                </div>
-                <div id="pref-chart-container" class="view-container hidden"
-                    style="background:white; padding:20px; border-radius:12px; height:600px; position:relative;">
-                    <button id="back-to-map-btn"
-                        style="position:absolute; top:10px; right:10px; z-index:10; padding: 5px 10px; cursor: pointer;">戻る</button>
-                    <div style="height: 100%; width: 100%;">
-                        <canvas id="prefectureHistoryChart"></canvas>
-                    </div>
-                </div>
-                <div class="description-accordion">
-                    <button class="accordion-header" id="accordion-toggle">
-                        地図の使い方・色の基準
-                        <span class="icon">▼</span>
-                    </button>
-                    <div class="accordion-content" id="accordion-content">
-                        <h3>地図の使い方</h3>
-                        <p>地域をクリックすると、その地域の都道府県ごとの数値が右側のパネルに表示されます。<br>
-                            都道府県名をクリックすると、その都道府県の過去の推移グラフが表示されます。<br>
-                            <small>（※ARIはグラフ表示に対応していません）</small>
-                        </p>
-
-                        <h3>色の基準</h3>
-                        <div class="legend-section">
-                            <h4>インフルエンザ <small>（国立感染症研究所 感染症疫学センター 基準）</small></h4>
-                            <ul>
-                                <li><span class="color-badge red"></span> 30.0以上: 警報レベル</li>
-                                <li><span class="color-badge orange"></span> 10.0以上: 注意報レベル</li>
-                                <li><span class="color-badge yellow"></span> 1.0以上: 流行入り</li>
-                                <li><span class="color-badge green"></span> 1.0未満: 平常</li>
-                            </ul>
-
-                            <h4>COVID-19 <small>（山梨県基準）</small></h4>
-                            <ul>
-                                <li><span class="color-badge red"></span> 15.0以上: 警報レベル相当</li>
-                                <li><span class="color-badge orange"></span> 10.0以上: 注意報レベル相当</li>
-                                <li><span class="color-badge green"></span> 10.0未満: 平常</li>
-                            </ul>
-
-                            <h4>急性呼吸器感染症 (ARI) <small>（公的な基準なし　適当に色分け）</small></h4>
-                            <ul>
-                                <li><span class="color-badge red"></span> 120.0以上: 流行レベル</li>
-                                <li><span class="color-badge orange"></span> 80.0以上: 注意が必要</li>
-                                <li><span class="color-badge green"></span> 80.0未満: 平常</li>
-                            </ul>
+            <div id="main-view">
+                <div class="left-panel">
+                    <div id="map-view" class="view-container">
+                        <div id="japan-map" class="map-container">
+                            <div class="skeleton skeleton-map"></div>
                         </div>
+                    </div>
+                    <div id="pref-chart-container" class="view-container hidden">
+                        <button id="back-to-map-btn">戻る</button>
+                        <div class="pref-chart-wrapper">
+                            <canvas id="prefectureHistoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="description-accordion">
+                        <button class="accordion-header" id="accordion-toggle">
+                            <div class="header-content">
+                                <span class="header-title">地図の使い方・色の基準</span>
+                                <span class="header-preview">地域をクリックすると、その地域の都道府県ごとの数値が右側のパネルに表示されます。</span>
+                            </div>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-content" id="accordion-content">
+                            <h3>地図の使い方</h3>
+                            <p>地域をクリックすると、その地域の都道府県ごとの数値が右側のパネルに表示されます。<br>
+                                都道府県名をクリックすると、その都道府県の過去の推移グラフが表示されます。<br>
+                                <small>（※ARIはグラフ表示に対応していません）</small>
+                            </p>
 
-                        <h3>出典</h3>
-                        <p>出典：「感染症発生動向調査週報（IDWR）」（国立健康危機管理研究機構 感染症情報提供サイト）（<a
-                                href="https://id-info.jihs.go.jp/surveillance/idwr/index.html" target="_blank"
-                                rel="noopener noreferrer"
-                                style="color: inherit; text-decoration: underline;">https://id-info.jihs.go.jp/surveillance/idwr/index.html</a>）を加工して作成
-                        </p>
+                            <h3>色の基準</h3>
+                            <div class="legend-section">
+                                <h4>インフルエンザ <small>（国立感染症研究所 感染症疫学センター 基準）</small></h4>
+                                <ul>
+                                    <li><span class="color-badge red"></span> 30.0以上: 警報レベル</li>
+                                    <li><span class="color-badge orange"></span> 10.0以上: 注意報レベル</li>
+                                    <li><span class="color-badge yellow"></span> 1.0以上: 流行入り</li>
+                                    <li><span class="color-badge green"></span> 1.0未満: 平常</li>
+                                </ul>
+
+                                <h4>COVID-19 <small>（山梨県基準）</small></h4>
+                                <ul>
+                                    <li><span class="color-badge red"></span> 15.0以上: 警報レベル相当</li>
+                                    <li><span class="color-badge orange"></span> 10.0以上: 注意報レベル相当</li>
+                                    <li><span class="color-badge green"></span> 10.0未満: 平常</li>
+                                </ul>
+
+                                <h4>急性呼吸器感染症 (ARI) <small>（公的な基準なし　適当に色分け）</small></h4>
+                                <ul>
+                                    <li><span class="color-badge red"></span> 120.0以上: 流行レベル</li>
+                                    <li><span class="color-badge orange"></span> 80.0以上: 注意が必要</li>
+                                    <li><span class="color-badge green"></span> 80.0未満: 平常</li>
+                                </ul>
+                            </div>
+
+                            <h3>出典</h3>
+                            <p>出典：「感染症発生動向調査週報（IDWR）」（国立健康危機管理研究機構 感染症情報提供サイト）（<a
+                                    href="https://id-info.jihs.go.jp/surveillance/idwr/index.html" target="_blank"
+                                    rel="noopener noreferrer"
+                                    style="color: inherit; text-decoration: underline;">https://id-info.jihs.go.jp/surveillance/idwr/index.html</a>）を加工して作成
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="right-panel">
+                    <div id="chart-view" class="chart-container-wrapper">
+                        <div class="skeleton skeleton-chart"></div>
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                    <div class="detail-panel" id="detail-panel">
+                        <div class="panel-header">
+                            <h4 id="region-title">地域詳細</h4>
+                            <button class="close-btn" onclick="closePanel()">×</button>
+                        </div>
+                        <div class="panel-content" id="region-content">
+                            <div class="skeleton-details">
+                                <div class="skeleton skeleton-text"></div>
+                                <div class="skeleton skeleton-text"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="right-panel">
-                <div id="chart-view" class="chart-container-wrapper">
-                    <div class="skeleton skeleton-chart"></div>
-                    <canvas id="trendChart"></canvas>
+            <!-- その他の感染症一覧ビュー -->
+            <div id="other-diseases-list-view" class="view-container hidden">
+                <div class="other-diseases-control-panel">
+                    <h3 id="other-diseases-title">その他の感染症（全国）</h3>
+                    <div class="select-wrapper">
+                        <select id="prefecture-select">
+                            <option value="全国">全国</option>
+                            <!-- JSで都道府県を追加 -->
+                        </select>
+                    </div>
                 </div>
-                <div class="detail-panel" id="detail-panel">
-                    <div class="panel-header">
-                        <h4 id="region-title">地域詳細</h4>
-                        <button class="close-btn" onclick="closePanel()">×</button>
-                    </div>
-                    <div class="panel-content" id="region-content">
-                        <div class="skeleton-details">
-                            <div class="skeleton skeleton-text"></div>
-                            <div class="skeleton skeleton-text"></div>
-                            <div class="skeleton skeleton-text"></div>
-                        </div>
-                    </div>
+                <div class="other-diseases-grid" id="other-diseases-grid">
+                    <!-- 疾患ごとのグラフカードがJSで動的に挿入される -->
                 </div>
             </div>
         </div>
     </div>
-    </section>
     </main>
 
     <footer>

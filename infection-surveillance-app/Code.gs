@@ -16,7 +16,8 @@ function doGet(e) {
       'teiten': 'Teiten',
       'ari': 'ARI',
       'trend': 'Trend',
-      'tougai': 'Tougai'
+      'tougai': 'Tougai',
+      'history': 'History' // 新しくhistoryタイプを追加
     };
     
     const normalizedKey = sheetNameInput.toLowerCase();
@@ -24,6 +25,12 @@ function doGet(e) {
       throw new Error(`不正なシート名です: ${sheetNameInput}`);
     }
     
+    // historyタイプの場合は、getHistoryData関数を呼び出す
+    if (normalizedKey === 'history') {
+      return ContentService.createTextOutput(getHistoryData())
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     const targetSheetName = allowedSheets[normalizedKey];
     
     const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
@@ -68,6 +75,72 @@ function main() {
   }
 }
 
+/**
+ * Google Driveから過去の感染症データを取得する
+ * @returns {string} 過去データのJSON文字列
+ */
+function getHistoryData() {
+  const result = {
+    data: [],
+    logs: []
+  };
+  result.logs.push("getHistoryData started");
+
+  try {
+    const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+    result.logs.push(`Target Folder: ${FOLDER_NAME} (ID: ${folder.getId()})`);
+    
+    const processFiles = (fileIterator, location) => {
+      while (fileIterator.hasNext()) {
+        const file = fileIterator.next();
+        const fileName = file.getName();
+        
+        if (fileName.toLowerCase().includes('teiten-tougai')) {
+          try {
+            let year = 0;
+            const yearMatch = fileName.match(/(20\d{2})/);
+            if (yearMatch) year = parseInt(yearMatch[1], 10);
+            
+            if (year > 0) {
+              const csvContent = file.getBlob().getDataAsString("Shift_JIS");
+              result.data.push({
+                year: year,
+                fileName: fileName,
+                content: csvContent
+              });
+              result.logs.push(`Matched & Read in ${location}: ${fileName} (Year: ${year})`);
+            } else {
+              result.logs.push(`Skipped in ${location} (No year): ${fileName}`);
+            }
+          } catch (e) {
+            result.logs.push(`Error reading ${fileName} in ${location}: ${e.toString()}`);
+          }
+        }
+      }
+    };
+
+    // 1. 親フォルダ直下のファイルを検索
+    processFiles(folder.getFiles(), "Root");
+
+    // 2. 「過去週報」サブフォルダ内のファイルを検索
+    const subFolders = folder.getFoldersByName("過去週報");
+    if (subFolders.hasNext()) {
+      const subFolder = subFolders.next();
+      result.logs.push(`Subfolder Found: ${subFolder.getName()} (ID: ${subFolder.getId()})`);
+      processFiles(subFolder.getFiles(), "Subfolder");
+    } else {
+      result.logs.push("Subfolder '過去週報' not found.");
+    }
+
+    result.data.sort((a, b) => b.year - a.year);
+    result.logs.push(`Total history files loaded: ${result.data.length}`);
+  } catch (e) {
+    result.logs.push(`Fatal Error: ${e.toString()}`);
+  }
+  
+  return JSON.stringify(result);
+}
+
 function updateData_() {
   try {
     Logger.log("データ更新処理を開始します。");
@@ -98,6 +171,16 @@ function updateData_() {
     writeCsvToSheet_(ss, 'Teiten', csvData.Teiten);
     writeCsvToSheet_(ss, 'Tougai', csvData.Tougai);
     writeCsvToSheet_(ss, 'ARI', csvData.ARI);
+
+    // 履歴用CSVファイルをDriveに保存
+    const fileName = `${year}-${weekStr}-teiten-tougai.csv`;
+    const existingFiles = folder.getFilesByName(fileName);
+    // 重複防止のため既存ファイルは削除（またはスキップ）
+    while (existingFiles.hasNext()) {
+      existingFiles.next().setTrashed(true);
+    }
+    folder.createFile(fileName, csvData.Tougai, MimeType.CSV);
+    Logger.log(`Saved history CSV to Drive: ${fileName}`);
 
     Logger.log("データ更新処理が正常に終了しました。");
     cleanUpRetryTriggers_();

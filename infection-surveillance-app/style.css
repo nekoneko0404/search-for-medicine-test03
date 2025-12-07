@@ -65,6 +65,24 @@ body {
     font-weight: 700;
 }
 
+.nav-button {
+    background-color: #fff;
+    color: var(--primary-color);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    margin-left: 20px;
+}
+
+.nav-button:hover {
+    background-color: #f0f0f0;
+    color: var(--primary-color);
+}
+
 .last-updated {
     font-size: 0.9rem;
     opacity: 0.9;
@@ -198,11 +216,107 @@ body {
 }
 
 .dashboard-content {
+    min-height: 600px;
+}
+
+#main-view {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 20px;
     min-height: 600px;
     align-items: start;
+}
+
+.other-diseases-control-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 20px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.other-diseases-control-panel h3 {
+    font-size: 1.2rem;
+    color: var(--text-main);
+}
+
+.select-wrapper select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.other-diseases-control-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 20px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.other-diseases-control-panel h3 {
+    font-size: 1.2rem;
+    color: var(--text-main);
+}
+
+.select-wrapper select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.other-diseases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* 適切な幅に調整 */
+    gap: 20px;
+    padding: 0 0 20px 0;
+}
+
+.disease-card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    height: 350px;
+    /* グラフを表示するのに十分な高さ */
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.disease-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.disease-card h4 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.disease-card .chart-container {
+    flex-grow: 1;
+    position: relative;
+}
+
+.disease-card canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .left-panel {
@@ -226,6 +340,7 @@ body {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     overflow: hidden;
+    margin-top: 20px;
 }
 
 .accordion-header {
@@ -234,8 +349,6 @@ body {
     background: white;
     border: none;
     text-align: left;
-    font-size: 1rem;
-    font-weight: 600;
     color: var(--text-main);
     cursor: pointer;
     display: flex;
@@ -248,13 +361,36 @@ body {
     background-color: #f8f9fa;
 }
 
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.header-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.header-preview {
+    font-size: 0.9rem;
+    color: var(--text-sub);
+    font-weight: normal;
+}
+
 .accordion-header .icon {
     font-size: 0.8rem;
     transition: transform 0.3s ease;
+    margin-left: 10px;
+    flex-shrink: 0;
 }
 
 .accordion-header.open .icon {
     transform: rotate(180deg);
+}
+
+.accordion-header.open .header-preview {
+    display: none;
 }
 
 .accordion-content {
@@ -265,7 +401,7 @@ body {
 }
 
 .accordion-content.open {
-    max-height: 1000px;
+    max-height: 1200px;
     /* Enough to show content */
     padding: 15px;
     border-top: 1px solid #eee;
@@ -530,4 +666,50 @@ body {
     .skeleton-card-wrapper {
         flex-direction: column;
     }
+}
+
+/* Prefecture Chart Container (Swapped with Map) */
+#pref-chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    height: 100%;
+    /* 親要素(left-panel)の高さを埋める */
+    min-height: 500px;
+    /* 少なくとも500pxは確保 */
+    position: relative;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+}
+
+#back-to-map-btn {
+    align-self: flex-end;
+    /* 右寄せ */
+    margin-bottom: 10px;
+    z-index: 10;
+    padding: 5px 15px;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-sub);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+}
+
+#back-to-map-btn:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-color);
+}
+
+.pref-chart-wrapper {
+    flex-grow: 1;
+    /* 残りの高さを全て使う */
+    width: 100%;
+    min-height: 0;
+    /* Flexアイテムの最小サイズ制約を解除して縮小可能にする */
+    position: relative;
 }
