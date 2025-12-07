@@ -17,7 +17,8 @@ function doGet(e) {
       'ari': 'ARI',
       'trend': 'Trend',
       'tougai': 'Tougai',
-      'history': 'History' // 新しくhistoryタイプを追加
+      'history': 'History', // 新しくhistoryタイプを追加
+      'all': 'All' // 一括取得用
     };
     
     const normalizedKey = sheetNameInput.toLowerCase();
@@ -31,17 +32,22 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    // allタイプの場合は、主要データをまとめてJSONで返す
+    if (normalizedKey === 'all') {
+      return ContentService.createTextOutput(JSON.stringify(getAllData_()))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     const targetSheetName = allowedSheets[normalizedKey];
     
     const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
     const ss = getOrCreateSpreadsheet_(folder, SPREADSHEET_NAME);
-    let targetSheet = ss.getSheetByName(targetSheetName);
-
-    if (!targetSheet) {
-      throw new Error(`シート「${targetSheetName}」が見つかりません。`);
-    }
-
-    return createCsvOutput_(targetSheet);
+    
+    // 単体取得の場合もキャッシュを活用する
+    const csvContent = getCsvDataWithCache_(ss, targetSheetName);
+    
+    return ContentService.createTextOutput(csvContent)
+      .setMimeType(ContentService.MimeType.CSV);
 
   } catch (err) {
     return ContentService.createTextOutput(`Error: ${err.toString()}`)
@@ -49,11 +55,45 @@ function doGet(e) {
   }
 }
 
-function createCsvOutput_(sheet) {
+function getAllData_() {
+  const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+  const ss = getOrCreateSpreadsheet_(folder, SPREADSHEET_NAME);
+  
+  return {
+    Teiten: getCsvDataWithCache_(ss, 'Teiten'),
+    ARI: getCsvDataWithCache_(ss, 'ARI'),
+    Tougai: getCsvDataWithCache_(ss, 'Tougai')
+  };
+}
+
+function getCsvDataWithCache_(ss, sheetName) {
+  // キャッシュキーを作成
+  const cacheKey = "CSV_" + sheetName;
+  const cache = CacheService.getScriptCache();
+  
+  // キャッシュがあればそれを返す
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+  
+  // キャッシュがなければシートから読み込む
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    throw new Error(`シート「${sheetName}」が見つかりません。`);
+  }
+  
   const data = sheet.getDataRange().getValues();
   const csvString = convertToCsv_(data);
-  return ContentService.createTextOutput(csvString)
-    .setMimeType(ContentService.MimeType.CSV);
+  
+  // キャッシュに保存（最大100KBの制限があるため、try-catchで囲む）
+  try {
+    cache.put(cacheKey, csvString, 3600); // 1時間キャッシュ
+  } catch (e) {
+    Logger.log(`Cache put failed for ${sheetName}: ${e.toString()}`);
+  }
+  
+  return csvString;
 }
 
 function convertToCsv_(data) {

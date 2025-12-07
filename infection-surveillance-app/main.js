@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbype0mQoW1TFTwHEkZY2GJ2G5niXoJwSgElUyR9xWMVtmfmxUarhhPhoTIsY3M4a2mKFw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyPukigFWkXjjB9nN8Ve5Xlnn2rgGqiPTCGU8m3F1ETMWYCyxHgd1juOZyGlT_-ljWXNA/exec';
 let cachedData = {
     current: null, // 当年のデータ
     archives: []   // 過去数年分のデータ
@@ -64,13 +64,92 @@ function parseCSV(text) {
     });
 }
 
-async function fetchCSV(type) {
+// キャッシュ設定
+const CACHE_CONFIG = {
+    MAIN_DATA_KEY: 'infection_surveillance_main_data',
+    HISTORY_DATA_KEY: 'infection_surveillance_history_data',
+    MAIN_EXPIRY: 1 * 60 * 60 * 1000, // 1時間
+    HISTORY_EXPIRY: 24 * 60 * 60 * 1000 // 24時間
+};
+
+// LocalForageの設定（DB名を統一して親画面と確実に共有する）
+localforage.config({
+    name: 'KusuriCompassDB',
+    storeName: 'infection_surveillance_store'
+});
+
+async function fetchMainData() {
+    const now = Date.now();
+
+    // 1. キャッシュ確認
     try {
-        const response = await fetch(`${API_URL}?type=${type}`);
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
-        return await response.text();
+        const cached = await localforage.getItem(CACHE_CONFIG.MAIN_DATA_KEY);
+        if (cached && (now - cached.timestamp < CACHE_CONFIG.MAIN_EXPIRY)) {
+            console.log('Using cached main data');
+            return cached.data; // { Teiten: ..., ARI: ..., Tougai: ... }
+        }
     } catch (e) {
-        console.error(`Fetch error for type ${type}:`, e);
+        console.warn('Cache check failed:', e);
+    }
+
+    // 2. API取得 (type=all)
+    console.log('Fetching main data from API...');
+    try {
+        const response = await fetch(`${API_URL}?type=all`);
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        const data = await response.json();
+
+        // 3. キャッシュ保存
+        try {
+            await localforage.setItem(CACHE_CONFIG.MAIN_DATA_KEY, {
+                timestamp: now,
+                data: data
+            });
+        } catch (e) {
+            console.warn('Cache save failed:', e);
+        }
+
+        return data;
+    } catch (e) {
+        console.error('Fetch error for main data:', e);
+        throw e;
+    }
+}
+
+async function fetchHistoryData() {
+    const now = Date.now();
+
+    // 1. キャッシュ確認
+    try {
+        const cached = await localforage.getItem(CACHE_CONFIG.HISTORY_DATA_KEY);
+        if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
+            console.log('Using cached history data');
+            return cached.data;
+        }
+    } catch (e) {
+        console.warn('History cache check failed:', e);
+    }
+
+    // 2. API取得 (type=history)
+    console.log('Fetching history data from API...');
+    try {
+        const response = await fetch(`${API_URL}?type=history`);
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        const text = await response.text();
+
+        // 3. キャッシュ保存
+        try {
+            await localforage.setItem(CACHE_CONFIG.HISTORY_DATA_KEY, {
+                timestamp: now,
+                data: text
+            });
+        } catch (e) {
+            console.warn('History cache save failed:', e);
+        }
+
+        return text;
+    } catch (e) {
+        console.error('Fetch error for history data:', e);
         throw e;
     }
 }
@@ -919,12 +998,15 @@ async function init() {
             });
         }
 
-        const [teitenCsv, ariCsv, tougaiCsv, historyJson] = await Promise.all([
-            fetchCSV('Teiten'),
-            fetchCSV('ARI'),
-            fetchCSV('Tougai'),
-            fetchCSV('history') // 過去データ取得
+        // 並列でデータ取得（キャッシュがあればそれを使用）
+        const [mainData, historyJson] = await Promise.all([
+            fetchMainData(),
+            fetchHistoryData()
         ]);
+
+        const teitenCsv = mainData.Teiten;
+        const ariCsv = mainData.ARI;
+        const tougaiCsv = mainData.Tougai;
 
         const teitenData = parseCSV(teitenCsv);
         const ariData = parseCSV(ariCsv);
