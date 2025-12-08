@@ -127,23 +127,35 @@ function renderJapanMap(containerId, data, disease) {
 }
 
 function getColorForValue(value, disease) {
-    if (disease === 'Influenza') {
-        if (value >= 30.0) return "#e74c3c"; // Alert Red
-        if (value >= 10.0) return "#f39c12"; // Warning Orange
-        if (value >= 1.0) return "#f1c40f";  // Caution Yellow
-        return "#2ecc71";                    // Normal Green
-    } else if (disease === 'COVID-19') {
-        if (value >= 15.0) return "#e74c3c"; // Alert Red
-        if (value >= 10.0) return "#f39c12"; // Warning Orange
-        // 1.0以上での黄色判定を削除（注意報レベル未満は緑）
-        return "#2ecc71";                    // Normal Green
-    } else {
-        // ARI
-        if (value >= 120.0) return "#e74c3c"; // 流行期
-        if (value >= 80.0) return "#f39c12";  // 注意
-        // if (value >= 5.0) return "#f1c40f"; // 黄色判定も一旦削除または調整
+    const thresholds = {
+        'Influenza': { alert: 30.0, warning: 10.0, epidemic: 1.0 },
+        'COVID-19': { alert: 15.0, warning: 10.0 }, // 山梨県基準など
+        'ARI': { alert: 120.0, warning: 80.0 },
+        'PharyngoconjunctivalFever': { alert: 3.0 }, // 咽頭結膜熱
+        'AGS_Pharyngitis': { alert: 8.0 }, // A群溶血性レンサ球菌咽頭炎
+        'InfectiousGastroenteritis': { alert: 20.0 }, // 感染性胃腸炎
+        'Chickenpox': { alert: 2.0, warning: 1.0 }, // 水痘
+        'HandFootMouthDisease': { alert: 5.0 }, // 手足口病
+        'ErythemaInfectiosum': { alert: 2.0 }, // 伝染性紅斑
+        'Herpangina': { alert: 6.0 }, // ヘルパンギーナ
+        'Mumps': { alert: 6.0, warning: 3.0 }, // 流行性耳下腺炎
+        'AcuteHemorrhagicConjunctivitis': { alert: 1.0 }, // 急性出血性結膜炎
+        'EpidemicKeratoconjunctivitis': { alert: 8.0 } // 流行性角結膜炎
+    };
+
+    const t = thresholds[disease];
+
+    if (!t) {
+        // 定義がない疾患はデフォルト（例：すべて緑、あるいは適当な閾値）
+        // ここではとりあえず緑
         return "#2ecc71";
     }
+
+    if (t.alert !== undefined && value >= t.alert) return "#e74c3c"; // Alert Red
+    if (t.warning !== undefined && value >= t.warning) return "#f39c12"; // Warning Orange
+    if (t.epidemic !== undefined && value >= t.epidemic) return "#f1c40f";  // Caution Yellow
+
+    return "#2ecc71"; // Normal Green
 }
 
 function showRegionDetails(regionId, regionLabel, prefectures, data, disease) {
@@ -175,17 +187,10 @@ function showRegionDetails(regionId, regionLabel, prefectures, data, disease) {
 
         // Determine status class
         let statusClass = 'normal';
-        if (disease === 'Influenza') {
-            if (item.value >= 30.0) statusClass = 'alert';
-            else if (item.value >= 10.0) statusClass = 'warning';
-        } else if (disease === 'COVID-19') {
-            if (item.value >= 15.0) statusClass = 'alert';
-            else if (item.value >= 10.0) statusClass = 'warning';
-        } else {
-            // ARI
-            if (item.value >= 120.0) statusClass = 'alert';
-            else if (item.value >= 80.0) statusClass = 'warning';
-        }
+        const color = getColorForValue(item.value, disease);
+        if (color === "#e74c3c") statusClass = 'alert';
+        else if (color === "#f39c12") statusClass = 'warning';
+        else if (color === "#f1c40f") statusClass = 'caution'; // CSSに追加が必要
 
         // 安全なDOM構築 (XSS対策)
         const nameSpan = document.createElement('span');
@@ -230,6 +235,7 @@ function showRegionDetails(regionId, regionLabel, prefectures, data, disease) {
         .pref-bar { height: 100%; transition: width 0.5s ease; }
         .pref-bar.alert { background: #e74c3c; }
         .pref-bar.warning { background: #f39c12; }
+        .pref-bar.caution { background: #f1c40f; }
         .pref-bar.normal { background: #2ecc71; }
         .pref-value { width: 50px; text-align: right; font-family: 'Inter', sans-serif; }
     `;

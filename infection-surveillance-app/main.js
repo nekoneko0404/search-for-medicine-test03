@@ -580,18 +580,18 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         const year = ds.year;
         let borderColor;
         let borderWidth;
-        let pointRadius = 3;
+        let pointRadius = 1;
 
         // 配色ルール
         if (year === new Date().getFullYear()) {
-            // 当年 (2025年): 現在の疾患別カラー（または赤/警告色）
-            // ここでは仮に赤を設定。後でgetColorForDiseaseなどを実装する
-            borderColor = '#e74c3c'; // 赤
+            // 当年 (2025年): 感染レベルに応じて色を変える
+            // 初期値（セグメント機能が効かない場合のフォールバック）
+            borderColor = '#2ecc71';
             borderWidth = 3;
-            pointRadius = 4;
+            pointRadius = 2.5;
         } else if (year === new Date().getFullYear() - 1) {
-            // 昨年 (2024年): 水色
-            borderColor = '#87CEEB'; // 水色
+            // 昨年 (2024年): 少し薄い青（今年より目立たず、過去より目立つ）
+            borderColor = '#A9CCE3';
             borderWidth = 2;
         } else {
             // それ以前 (2023年以前): 薄いグレー
@@ -607,7 +607,7 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         // ラベルに「全国」が含まれるか、prefectureが「全国」の場合のラベル調整
         const dataLabel = prefecture === '全国' ? `${year}年 全国` : `${year}年 ${prefecture}`;
 
-        return {
+        const dataset = {
             label: dataLabel,
             data: labels.map(weekLabel => {
                 const week = parseInt(weekLabel);
@@ -624,6 +624,41 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
             _originalColor: borderColor,
             _originalBorderWidth: borderWidth
         };
+
+        // 当年の場合、セグメントの色を動的に変更
+        if (year === new Date().getFullYear()) {
+            dataset.segment = {
+                borderColor: ctx => {
+                    // p0: start point, p1: end point
+                    // 終了点の値に基づいて区間の色を決定する
+                    // p0やp1がskipされている(null)場合のハンドリングはChart.jsがよしなにやってくれるが、
+                    //念のため確認
+                    if (!ctx.p1 || !ctx.p1.parsed) return borderColor;
+                    const val = ctx.p1.parsed.y;
+                    if (typeof getColorForValue === 'function') {
+                        return getColorForValue(val, diseaseKey);
+                    }
+                    return borderColor;
+                }
+            };
+            // ポイントの色も変更
+            dataset.pointBackgroundColor = (ctx) => {
+                const val = ctx.parsed.y;
+                if (typeof getColorForValue === 'function') {
+                    return getColorForValue(val, diseaseKey);
+                }
+                return borderColor;
+            };
+            dataset.pointBorderColor = (ctx) => {
+                const val = ctx.parsed.y;
+                if (typeof getColorForValue === 'function') {
+                    return getColorForValue(val, diseaseKey);
+                }
+                return borderColor;
+            };
+        }
+
+        return dataset;
     });
 
     canvas.chart = new Chart(ctx, {
