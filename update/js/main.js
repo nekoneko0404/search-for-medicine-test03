@@ -120,7 +120,12 @@ async function initApp() {
     }
 
     // Event Listeners
-    elements.searchBtn.addEventListener('click', searchData);
+    elements.searchBtn.addEventListener('click', () => {
+        if (elements.searchInput.value.trim() !== '') {
+            elements.updatePeriod.value = 'all';
+        }
+        searchData();
+    });
 
     if (elements.reloadDataBtn) {
         elements.reloadDataBtn.addEventListener('click', async () => {
@@ -157,8 +162,19 @@ async function initApp() {
         searchData();
     });
 
-    const debouncedSearch = debounce(searchData, 300);
-    elements.searchInput.addEventListener('input', debouncedSearch);
+    let isComposing = false;
+    elements.searchInput.addEventListener('compositionstart', () => isComposing = true);
+    elements.searchInput.addEventListener('compositionend', () => isComposing = false);
+
+    elements.searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !isComposing) {
+            e.preventDefault();
+            if (elements.searchInput.value.trim() !== '') {
+                elements.updatePeriod.value = 'all';
+            }
+            searchData();
+        }
+    });
     elements.updatePeriod.addEventListener('change', searchData);
 
     Object.values(elements.statusCheckboxes).forEach(cb => {

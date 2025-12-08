@@ -3,7 +3,6 @@ const FOLDER_NAME = "IDWR-Insight-Data";
 const PARENT_FOLDER_ID = "1QNMtQgeHELipJJgU38HJ0gEPQFGZ-gfC"; 
 const SPREADSHEET_NAME = "Infection_Data_Master";
 const ADMIN_EMAIL = "admin@example.com";
-const RETRY_TRIGGER_TAG = "RETRY_";
 const INDEX_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/rapid/";
 const CSV_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/jp/rapid/";
 
@@ -111,7 +110,6 @@ function main() {
     updateData_();
   } catch (e) {
     Logger.log("main実行中にエラーが発生しました: " + e.toString());
-    cleanUpRetryTriggers_();
   }
 }
 
@@ -233,8 +231,10 @@ function updateData_() {
       Logger.log(`Saved history CSV to Drive (${subFolderName}): ${fileName}`);
     }
 
+    // 同年の古い週のファイルを削除
+    cleanUpOldWeeklyFiles_(historyFolder, year, week);
+
     Logger.log("データ更新処理が正常に終了しました。");
-    cleanUpRetryTriggers_();
 
     return { year, week };
 
@@ -297,6 +297,33 @@ function getOrCreateFolder_(parentFolderId, targetFolderName) {
   }
 }
 
+function cleanUpOldWeeklyFiles_(folder, currentYear, currentWeek) {
+  const files = folder.getFiles();
+  // ファイル名パターン: YYYY-WW-teiten-tougai.csv
+  const pattern = /^(\d{4})-(\d{2})-teiten-tougai\.csv$/i;
+  
+  while (files.hasNext()) {
+    const file = files.next();
+    const name = file.getName();
+    const match = name.match(pattern);
+    
+    if (match) {
+      const fileYear = parseInt(match[1], 10);
+      const fileWeek = parseInt(match[2], 10);
+      
+      // 同じ年で、かつ現在の週より古い場合は削除 (ゴミ箱へ移動)
+      if (fileYear === currentYear && fileWeek < currentWeek) {
+        try {
+          file.setTrashed(true);
+          Logger.log(`Deleted old file: ${name}`);
+        } catch (e) {
+          Logger.log(`Failed to delete file ${name}: ${e.toString()}`);
+        }
+      }
+    }
+  }
+}
+
 function getLatestWeeklyPageUrl_(indexPageUrl) {
   const response = UrlFetchApp.fetch(indexPageUrl, { muteHttpExceptions: true });
   if (response.getResponseCode() !== 200) throw new Error("Index fetch failed");
@@ -312,37 +339,4 @@ function getLatestWeeklyPageUrl_(indexPageUrl) {
   }
   if (latestLinkFileName) return indexPageUrl.substring(0, indexPageUrl.lastIndexOf('/') + 1) + latestLinkFileName;
   throw new Error("Latest link not found");
-}
-
-function cleanUpRetryTriggers_() {
-  const triggers = ScriptApp.getProjectTriggers();
-  triggers.forEach(t => {
-    if (t.getHandlerFunction().startsWith(RETRY_TRIGGER_TAG)) ScriptApp.deleteTrigger(t);
-  });
-}
-
-function scheduleRetry_() {
-  const now = new Date();
-  ScriptApp.newTrigger('retryMain').timeBased().after(60 * 60 * 1000).create();
-}
-
-function retryMain() {
-  try { main(); } finally { cleanUpRetryTriggers_(); }
-}
-
-function setWeeklyTrigger() {
-  const triggers = ScriptApp.getProjectTriggers();
-  triggers.forEach(t => {
-    if (t.getHandlerFunction() === 'main') {
-      ScriptApp.deleteTrigger(t);
-    }
-  });
-  
-  ScriptApp.newTrigger('main')
-    .timeBased()
-    .onWeekDay(ScriptApp.WeekDay.THURSDAY)
-    .atHour(18)
-    .create();
-    
-  Logger.log("毎週木曜日 18:00 にトリガーを設定しました。");
 }
