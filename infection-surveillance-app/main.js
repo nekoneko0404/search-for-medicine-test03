@@ -463,10 +463,6 @@ function switchDisease(disease) {
         card.classList.toggle('active', card.dataset.disease === disease);
     });
 
-    const titleElement = document.getElementById('current-disease-title');
-    if (titleElement) {
-        titleElement.textContent = `${getDiseaseName(disease)} 全国状況`;
-    }
 
     // グラフ表示モード（都道府県選択中）の場合は、グラフを更新して維持する
     if (currentPrefecture) {
