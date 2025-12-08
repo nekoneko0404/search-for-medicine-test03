@@ -520,8 +520,38 @@ function getDiseaseName(key) {
 
 let currentChart = null;
 
+// 全都道府県・全期間の最大値を取得する関数
+function getGlobalMaxForDisease(disease) {
+    let max = 0;
+    // Current year
+    if (cachedData.current && cachedData.current.history) {
+        cachedData.current.history.forEach(h => {
+            if (h.disease === disease) {
+                h.history.forEach(item => {
+                    if (item.value > max) max = item.value;
+                });
+            }
+        });
+    }
+    // Archives
+    if (cachedData.archives) {
+        cachedData.archives.forEach(archive => {
+            if (archive.data) {
+                archive.data.forEach(h => {
+                    if (h.disease === disease) {
+                        h.history.forEach(item => {
+                            if (item.value > max) max = item.value;
+                        });
+                    }
+                });
+            }
+        });
+    }
+    return max;
+}
+
 // 比較グラフを描画する汎用関数
-function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets) {
+function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, yAxisMax = null) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) {
         console.warn(`Canvas element with ID '${canvasId}' not found.`);
@@ -684,7 +714,8 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    title: { display: true, text: '定点当たり報告数' }
+                    title: { display: true, text: '定点当たり報告数' },
+                    suggestedMax: yAxisMax
                 }
             },
             interaction: {
@@ -878,7 +909,8 @@ function showPrefectureChart(prefecture, disease) {
         return;
     }
 
-    renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets);
+    const globalMax = getGlobalMaxForDisease(disease);
+    renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax);
 }
 window.showPrefectureChart = showPrefectureChart;
 
@@ -945,7 +977,8 @@ function renderOtherDiseasesList(prefecture = '全国') {
         });
 
         if (yearDataSets.length > 0) {
-            renderComparisonChart(`chart-${disease.key}`, disease.key, prefecture, yearDataSets);
+            const globalMax = getGlobalMaxForDisease(disease.key);
+            renderComparisonChart(`chart-${disease.key}`, disease.key, prefecture, yearDataSets, globalMax);
         } else {
             // console.warn(`No history data for ${disease.name} in ${prefecture}`);
             const chartContainer = card.querySelector('.chart-container');
