@@ -981,157 +981,198 @@ function updateLoadingState(isLoading) {
     }
 }
 
+async function reloadData() {
+    try {
+        updateLoadingState(true);
+
+        // キャッシュをクリア
+        await Promise.all([
+            localforage.removeItem(CACHE_CONFIG.MAIN_DATA_KEY),
+            localforage.removeItem(CACHE_CONFIG.HISTORY_DATA_KEY)
+        ]);
+        console.log('Cache cleared for data reload.');
+
+        // データ取得とレンダリングのコア処理を再実行
+        await loadAndRenderData();
+
+    } catch (error) {
+        console.error('Error reloading data:', error);
+        const summaryCards = document.getElementById('summary-cards');
+        if (summaryCards) {
+            summaryCards.innerHTML = `<p class="error">データの再取得に失敗しました。詳細: ${error.message}</p>`;
+        }
+    } finally {
+        // 少し待ってからローディング表示を消す
+        await new Promise(resolve => setTimeout(resolve, 500));
+        updateLoadingState(false);
+    }
+}
+
+function initEventListeners() {
+    const accordionToggle = document.getElementById('accordion-toggle');
+    const accordionContent = document.getElementById('accordion-content');
+    if (accordionToggle && accordionContent) {
+        accordionToggle.addEventListener('click', () => {
+            accordionContent.classList.toggle('open');
+            accordionToggle.classList.toggle('open');
+        });
+    }
+
+    const reloadBtn = document.getElementById('reload-btn');
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', reloadData);
+    }
+
+    const backBtn = document.getElementById('back-to-map-btn');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            document.getElementById('map-view').classList.remove('hidden');
+            document.getElementById('pref-chart-container').classList.add('hidden');
+            currentPrefecture = null;
+        });
+    }
+
+    const otherDiseasesBtn = document.getElementById('other-diseases-btn');
+    if (otherDiseasesBtn) {
+        otherDiseasesBtn.addEventListener('click', () => {
+            const currentView = document.getElementById('other-diseases-list-view');
+            const isOtherDiseasesView = !currentView.classList.contains('hidden');
+
+            if (isOtherDiseasesView) {
+                // メインビューに戻る処理
+                otherDiseasesBtn.textContent = 'その他の感染症';
+                document.getElementById('summary-cards').classList.remove('hidden');
+                const dashboardHeader = document.querySelector('.dashboard-header');
+                if (dashboardHeader) dashboardHeader.classList.remove('hidden');
+                switchView('main-view');
+            } else {
+                // 「その他の感染症」ビューに切り替える処理
+                otherDiseasesBtn.textContent = 'インフルエンザ・COVID-19';
+                document.getElementById('summary-cards').classList.add('hidden');
+                const dashboardHeader = document.querySelector('.dashboard-header');
+                if (dashboardHeader) dashboardHeader.classList.add('hidden');
+                switchView('other-diseases-list-view');
+
+                // 現在の都道府県を引き継ぐ（未選択時は全国）
+                let initialPref = currentPrefecture || '全国';
+
+                const prefSelect = document.getElementById('prefecture-select');
+                if (prefSelect) {
+                    // 都道府県リストの生成（初回のみ）
+                    if (prefSelect.options.length <= 1) {
+                        const prefectures = [
+                            '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+                            '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+                            '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
+                            '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
+                            '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+                            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
+                            '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
+                        ];
+                        prefectures.forEach(pref => {
+                            const option = document.createElement('option');
+                            option.value = pref;
+                            option.textContent = pref;
+                            prefSelect.appendChild(option);
+                        });
+
+                        // イベントリスナー追加
+                        prefSelect.addEventListener('change', (e) => {
+                            renderOtherDiseasesList(e.target.value);
+                        });
+                    }
+                    // 初期値をセット
+                    prefSelect.value = initialPref;
+                }
+                renderOtherDiseasesList(initialPref);
+            }
+        });
+    }
+}
+
+async function loadAndRenderData() {
+    // 並列でデータ取得（キャッシュがあればそれを使用）
+    const [mainData, historyJson] = await Promise.all([
+        fetchMainData(),
+        fetchHistoryData()
+    ]);
+
+    const teitenCsv = mainData.Teiten;
+    const ariCsv = mainData.ARI;
+    const tougaiCsv = mainData.Tougai;
+
+    const teitenData = parseCSV(teitenCsv);
+    const ariData = parseCSV(ariCsv);
+    const tougaiData = parseCSV(tougaiCsv);
+
+    // 過去データ（JSON形式）をパース
+    let historicalArchives = [];
+    try {
+        const response = JSON.parse(historyJson);
+        let archives = [];
+
+        // デバッグログの出力
+        if (response.logs && Array.isArray(response.data)) {
+            console.group("Backend (GAS) Logs");
+            response.logs.forEach(log => console.log(log));
+            console.groupEnd();
+            archives = response.data;
+        } else if (Array.isArray(response)) {
+            archives = response; // 旧形式互換
+        }
+
+        console.log(`Fetched ${archives.length} history files from backend.`);
+
+        historicalArchives = archives.map(archive => {
+            const rows = parseCSV(archive.content);
+            return {
+                year: archive.year,
+                data: parseTougaiRows(rows) // CSV行データをオブジェクト配列に変換
+            };
+        });
+    } catch (e) {
+        console.warn("Failed to parse history JSON. Backend might be returning error text or old version.", e);
+        console.log("Raw response for history:", historyJson);
+        // 過去データなしで続行
+    }
+
+    cachedData = processData(teitenData, ariData, tougaiData, historicalArchives);
+
+    const dateMatch = teitenCsv.match(/(\d{4})年(\d{1,2})週(?:\((.*?)\))?/);
+    const dateElement = document.getElementById('update-date');
+    if (dateElement) {
+        if (dateMatch) {
+            const year = dateMatch[1];
+            const week = dateMatch[2];
+            let dateRange = dateMatch[3];
+
+            if (dateRange) {
+                // Convert 11月17日〜11月23日 to 11/17～11/23
+                dateRange = dateRange.replace(/月/g, '/').replace(/日/g, '').replace(/[〜~]/g, '～');
+                dateElement.textContent = `${year}年 第${week}週 （${dateRange}）`;
+            } else {
+                dateElement.textContent = `${year}年 第${week}週`;
+            }
+        } else {
+            dateElement.textContent = new Date().toLocaleDateString('ja-JP');
+        }
+    }
+
+    renderSummary(cachedData);
+    renderDashboard(currentDisease, cachedData);
+
+    // 地域詳細パネルの初期表示（「地図上のエリアをクリック...」を表示）
+    closePanel();
+}
+
+
 async function init() {
     try {
         updateLoadingState(true);
 
-        const accordionToggle = document.getElementById('accordion-toggle');
-        const accordionContent = document.getElementById('accordion-content');
-        if (accordionToggle && accordionContent) {
-            accordionToggle.addEventListener('click', () => {
-                accordionContent.classList.toggle('open');
-                accordionToggle.classList.toggle('open');
-            });
-        }
+        initEventListeners();
 
-        // 並列でデータ取得（キャッシュがあればそれを使用）
-        const [mainData, historyJson] = await Promise.all([
-            fetchMainData(),
-            fetchHistoryData()
-        ]);
-
-        const teitenCsv = mainData.Teiten;
-        const ariCsv = mainData.ARI;
-        const tougaiCsv = mainData.Tougai;
-
-        const teitenData = parseCSV(teitenCsv);
-        const ariData = parseCSV(ariCsv);
-        const tougaiData = parseCSV(tougaiCsv);
-
-        // 過去データ（JSON形式）をパース
-        let historicalArchives = [];
-        try {
-            const response = JSON.parse(historyJson);
-            let archives = [];
-
-            // デバッグログの出力
-            if (response.logs && Array.isArray(response.data)) {
-                console.group("Backend (GAS) Logs");
-                response.logs.forEach(log => console.log(log));
-                console.groupEnd();
-                archives = response.data;
-            } else if (Array.isArray(response)) {
-                archives = response; // 旧形式互換
-            }
-
-            console.log(`Fetched ${archives.length} history files from backend.`);
-
-            historicalArchives = archives.map(archive => {
-                const rows = parseCSV(archive.content);
-                return {
-                    year: archive.year,
-                    data: parseTougaiRows(rows) // CSV行データをオブジェクト配列に変換
-                };
-            });
-        } catch (e) {
-            console.warn("Failed to parse history JSON. Backend might be returning error text or old version.", e);
-            console.log("Raw response for history:", historyJson);
-            // 過去データなしで続行
-        }
-
-        cachedData = processData(teitenData, ariData, tougaiData, historicalArchives);
-
-        const dateMatch = teitenCsv.match(/(\d{4})年(\d{1,2})週(?:\((.*?)\))?/);
-        const dateElement = document.getElementById('update-date');
-        if (dateElement) {
-            if (dateMatch) {
-                const year = dateMatch[1];
-                const week = dateMatch[2];
-                let dateRange = dateMatch[3];
-
-                if (dateRange) {
-                    // Convert 11月17日〜11月23日 to 11/17～11/23
-                    dateRange = dateRange.replace(/月/g, '/').replace(/日/g, '').replace(/[〜~]/g, '～');
-                    dateElement.textContent = `${year}年 第${week}週 （${dateRange}）`;
-                } else {
-                    dateElement.textContent = `${year}年 第${week}週`;
-                }
-            } else {
-                dateElement.textContent = new Date().toLocaleDateString('ja-JP');
-            }
-        }
-
-        const backBtn = document.getElementById('back-to-map-btn');
-        if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                document.getElementById('map-view').classList.remove('hidden');
-                document.getElementById('pref-chart-container').classList.add('hidden');
-                currentPrefecture = null;
-            });
-        }
-
-        const otherDiseasesBtn = document.getElementById('other-diseases-btn');
-        if (otherDiseasesBtn) {
-            otherDiseasesBtn.addEventListener('click', () => {
-                const currentView = document.getElementById('other-diseases-list-view');
-                const isOtherDiseasesView = !currentView.classList.contains('hidden');
-
-                if (isOtherDiseasesView) {
-                    // メインビューに戻る処理
-                    otherDiseasesBtn.textContent = 'その他の感染症';
-                    document.getElementById('summary-cards').classList.remove('hidden');
-                    const dashboardHeader = document.querySelector('.dashboard-header');
-                    if (dashboardHeader) dashboardHeader.classList.remove('hidden');
-                    switchView('main-view');
-                } else {
-                    // 「その他の感染症」ビューに切り替える処理
-                    otherDiseasesBtn.textContent = 'インフルエンザ・COVID-19';
-                    document.getElementById('summary-cards').classList.add('hidden');
-                    const dashboardHeader = document.querySelector('.dashboard-header');
-                    if (dashboardHeader) dashboardHeader.classList.add('hidden');
-                    switchView('other-diseases-list-view');
-
-                    // 現在の都道府県を引き継ぐ（未選択時は全国）
-                    let initialPref = currentPrefecture || '全国';
-
-                    const prefSelect = document.getElementById('prefecture-select');
-                    if (prefSelect) {
-                        // 都道府県リストの生成（初回のみ）
-                        if (prefSelect.options.length <= 1) {
-                            const prefectures = [
-                                '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-                                '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-                                '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
-                                '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
-                                '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-                                '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
-                                '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
-                            ];
-                            prefectures.forEach(pref => {
-                                const option = document.createElement('option');
-                                option.value = pref;
-                                option.textContent = pref;
-                                prefSelect.appendChild(option);
-                            });
-
-                            // イベントリスナー追加
-                            prefSelect.addEventListener('change', (e) => {
-                                renderOtherDiseasesList(e.target.value);
-                            });
-                        }
-                        // 初期値をセット
-                        prefSelect.value = initialPref;
-                    }
-                    renderOtherDiseasesList(initialPref);
-                }
-            });
-        }
-
-        renderSummary(cachedData);
-        renderDashboard(currentDisease, cachedData);
-
-        // 地域詳細パネルの初期表示（「地図上のエリアをクリック...」を表示）
-        closePanel();
+        await loadAndRenderData();
 
         // データの取得・処理が終わってから少し待つ（アニメーションを見せるため）
         await new Promise(resolve => setTimeout(resolve, 500));

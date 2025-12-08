@@ -53,6 +53,11 @@ body {
     align-items: center;
 }
 
+.main-header nav {
+    display: flex;
+    align-items: center;
+}
+
 .logo {
     display: flex;
     align-items: center;
@@ -81,6 +86,33 @@ body {
 .nav-button:hover {
     background-color: #f0f0f0;
     color: var(--primary-color);
+}
+
+/* Reload Button Specific Styles */
+#reload-btn {
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: white;
+}
+
+#reload-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.icon-reload {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.7s ease-in-out;
+}
+
+#reload-btn:hover .icon-reload {
+    transform: rotate(180deg);
 }
 
 .last-updated {
