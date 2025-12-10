@@ -324,7 +324,7 @@ body {
     flex-direction: column;
     height: 350px;
     /* グラフを表示するのに十分な高さ */
-    cursor: pointer;
+    cursor: default;
     border: 1px solid rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
@@ -384,11 +384,79 @@ body {
     visibility: visible;
 }
 
-.disease-card h4 {
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
+}
+
+.disease-card h4 {
+    margin-bottom: 0;
     color: var(--primary-color);
     font-size: 1.1rem;
-    text-align: center;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.expand-action-btn {
+    background: none;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 6px;
+    color: var(--text-sub);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+.expand-action-btn:hover {
+    color: var(--primary-color);
+    background-color: #f8f9fa;
+    border-color: #ddd;
+}
+
+.expand-action-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.close-expanded-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    z-index: 1002;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s;
+}
+
+.close-expanded-btn:hover {
+    background-color: #f0f0f0;
+    color: #333;
+    transform: scale(1.05);
+}
+
+.disease-card.expanded .close-expanded-btn {
+    display: flex;
+}
+
+.disease-card.expanded .expand-action-btn {
+    display: none;
 }
 
 .disease-card .chart-container {
@@ -733,7 +801,7 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .dashboard-content {
+    #main-view {
         grid-template-columns: 1fr;
     }
 
@@ -747,6 +815,32 @@ body {
 
     .skeleton-card-wrapper {
         flex-direction: column;
+    }
+
+    .disease-card.expanded {
+        position: fixed;
+        /* fix for mobile layout */
+        width: 100%;
+        /* use 100% instead of 100vw to avoid scrollbar issues */
+        height: 100%;
+        /* use 100% instead of 100vh */
+        top: 0;
+        left: 0;
+        transform: none;
+        border-radius: 0;
+        padding: 40px 10px 10px;
+        overflow: hidden;
+        /* Hide overflow to keep chart contained */
+        z-index: 10000;
+        /* Ensure it's on top */
+    }
+
+    .other-diseases-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .expand-action-btn {
+        display: none;
     }
 }
 

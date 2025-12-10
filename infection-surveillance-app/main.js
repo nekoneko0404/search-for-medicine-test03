@@ -542,6 +542,8 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         canvas.chart.destroy();
     }
 
+    const isMobile = window.innerWidth <= 768; // スマホ判定簡易版
+
     const labels = []; // 週のラベル
     // すべてのデータセットから週のユニオンを取得しソート
     yearDataSets.forEach(ds => {
@@ -554,11 +556,11 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
     labels.sort((a, b) => parseInt(a) - parseInt(b));
 
 
+    let pointRadius = 1;
     const datasets = yearDataSets.map(ds => {
         const year = ds.year;
         let borderColor;
         let borderWidth;
-        let pointRadius = 1;
 
         // 配色ルール
         if (year === new Date().getFullYear()) {
@@ -648,15 +650,57 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: '定点当たり報告数' },
+                    suggestedMax: yAxisMax
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index',
+                axis: 'x'
+            },
+            elements: {
+                point: {
+                    hitRadius: 20, // タッチ判定範囲を広げる
+                    radius: pointRadius,
+                    hoverRadius: pointRadius + 2
+                },
+                line: {
+                    borderCapStyle: 'round',
+                    borderJoinStyle: 'round'
+                }
+            },
             plugins: {
                 title: {
                     display: true,
                     text: `${prefecture} ${getDiseaseName(diseaseKey)} 週次推移`,
                     font: { size: 16, family: "'Noto Sans JP', sans-serif" }
                 },
+                tooltip: {
+                    enabled: !isMobile,
+                    mode: 'index',
+                    intersect: false,
+                    position: 'nearest',
+                    bodyFont: { size: isMobile ? 14 : 13 },
+                    titleFont: { size: isMobile ? 14 : 13 },
+                    padding: 10,
+                    boxPadding: 4,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    footerColor: '#fff'
+                },
                 legend: {
                     display: true,
                     position: 'bottom',
+                    labels: {
+                        boxWidth: isMobile ? 15 : 12,
+                        padding: 15,
+                        font: { size: isMobile ? 11 : 12 }
+                    },
                     onClick: function (e, legendItem, legend) {
                         // 凡例クリック時にカードの拡大縮小が暴発しないように伝播を止める
                         if (e.native) {
@@ -728,18 +772,7 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                         chart.update();
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: '定点当たり報告数' },
-                    suggestedMax: yAxisMax
-                }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index',
-            },
+            }
         }
     });
 }
@@ -814,6 +847,13 @@ function toggleCardExpansion(card) {
 
     if (isExpanded) {
         // 縮小
+        // プレースホルダーから元に戻す
+        const placeholder = document.getElementById(`placeholder-${card.dataset.disease}`);
+        if (placeholder && placeholder.parentNode) {
+            placeholder.parentNode.insertBefore(card, placeholder);
+            placeholder.remove();
+        }
+
         card.classList.remove('expanded');
         if (backdrop) backdrop.classList.remove('active');
     } else {
@@ -821,10 +861,34 @@ function toggleCardExpansion(card) {
         // 他に開いているカードがあれば閉じる
         const expandedCard = document.querySelector('.disease-card.expanded');
         if (expandedCard) {
+            // 既存の拡大カードを縮小処理（プレースホルダー処理含む）
+            const diseaseKey = expandedCard.dataset.disease;
+            const placeholder = document.getElementById(`placeholder-${diseaseKey}`);
+            if (placeholder && placeholder.parentNode) {
+                placeholder.parentNode.insertBefore(expandedCard, placeholder);
+                placeholder.remove();
+            }
             expandedCard.classList.remove('expanded');
         }
 
+        // プレースホルダーを作成して挿入
+        const placeholder = document.createElement('div');
+        placeholder.id = `placeholder-${card.dataset.disease}`;
+        placeholder.className = 'disease-card placeholder';
+        placeholder.style.visibility = 'hidden'; // 見えないようにするがスペースは確保
+        // 元のカードのサイズを維持するようスタイルをコピーできればベストだが、
+        // 単にgrid内に挿入するだけでもレイアウト崩れは防げるはず。
+        // 高さだけ合わせる
+        placeholder.style.height = getComputedStyle(card).height;
+
+        card.parentNode.insertBefore(placeholder, card);
+
         card.classList.add('expanded');
+        // body直下に移動させて、z-indexやpositionの影響を受けないようにする（fixed配置のため）
+        // ただし、fixedなら移動しなくてもいい場合もあるが、親のtransformなどの影響を避けるため移動が安全
+        // 今回はCSSでfixedにしているので、DOM移動は必須ではないかもしれないが、
+        // 拡大時に元の場所に穴が開くのを防ぐためにプレースホルダーは必須。
+
         if (backdrop) backdrop.classList.add('active');
     }
 
@@ -832,10 +896,14 @@ function toggleCardExpansion(card) {
     if (canvas && canvas.chart) {
         // サイズ変更を反映させるために少し遅延させる（transition考慮）
         setTimeout(() => {
-            canvas.chart.resize();
+            if (canvas.chart) {
+                canvas.chart.resize();
+            }
         }, 300);
         // 即時も一応呼ぶ
-        canvas.chart.resize();
+        if (canvas.chart) {
+            canvas.chart.resize();
+        }
     }
 }
 
@@ -998,17 +1066,44 @@ function renderOtherDiseasesList(prefecture = '全国') {
         card.className = 'disease-card';
         card.dataset.disease = disease.key;
 
-        card.onclick = (e) => {
-            toggleCardExpansion(card);
-        };
+        // card.onclick を削除し、ボタンでの拡大に変更
 
         card.innerHTML = `
-            <h4>${disease.name}</h4>
+            <div class="card-header">
+                <h4>${disease.name}</h4>
+                <button class="expand-action-btn" aria-label="拡大表示">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                </button>
+            </div>
             <div class="chart-container">
                 <canvas id="chart-${disease.key}"></canvas>
             </div>
+            <button class="close-expanded-btn" aria-label="閉じる">×</button>
         `;
         gridContainer.appendChild(card);
+
+        // イベントリスナー設定
+        const expandBtn = card.querySelector('.expand-action-btn');
+        if (expandBtn) {
+            expandBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCardExpansion(card);
+            });
+        }
+
+
+        const closeBtn = card.querySelector('.close-expanded-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCardExpansion(card);
+            });
+        }
 
         // 各疾患のデータと過去データを取得
         const yearDataSets = [];
