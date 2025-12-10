@@ -656,6 +656,11 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                     display: true,
                     position: 'bottom',
                     onClick: function (e, legendItem, legend) {
+                        // 凡例クリック時にカードの拡大縮小が暴発しないように伝播を止める
+                        if (e.native) {
+                            e.native.stopPropagation();
+                        }
+
                         const index = legendItem.datasetIndex;
                         const chart = legend.chart;
                         const datasets = chart.data.datasets;
@@ -799,6 +804,37 @@ function renderTrendChart(disease, data) {
             }
         }
     });
+}
+
+function toggleCardExpansion(card) {
+    const backdrop = document.getElementById('card-backdrop');
+    const isExpanded = card.classList.contains('expanded');
+
+    if (isExpanded) {
+        // 縮小
+        card.classList.remove('expanded');
+        if (backdrop) backdrop.classList.remove('active');
+    } else {
+        // 拡大
+        // 他に開いているカードがあれば閉じる
+        const expandedCard = document.querySelector('.disease-card.expanded');
+        if (expandedCard) {
+            expandedCard.classList.remove('expanded');
+        }
+
+        card.classList.add('expanded');
+        if (backdrop) backdrop.classList.add('active');
+    }
+
+    const canvas = card.querySelector('canvas');
+    if (canvas && canvas.chart) {
+        // サイズ変更を反映させるために少し遅延させる（transition考慮）
+        setTimeout(() => {
+            canvas.chart.resize();
+        }, 300);
+        // 即時も一応呼ぶ
+        canvas.chart.resize();
+    }
 }
 
 function showPrefectureChart(prefecture, disease) {
@@ -959,7 +995,10 @@ function renderOtherDiseasesList(prefecture = '全国') {
         const card = document.createElement('div');
         card.className = 'disease-card';
         card.dataset.disease = disease.key;
-        // card.onclick = ... クリックイベントは無効化
+
+        card.onclick = (e) => {
+            toggleCardExpansion(card);
+        };
 
         card.innerHTML = `
             <h4>${disease.name}</h4>
@@ -1062,6 +1101,16 @@ function initEventListeners() {
     const reloadBtn = document.getElementById('reload-btn');
     if (reloadBtn) {
         reloadBtn.addEventListener('click', reloadData);
+    }
+
+    const backdrop = document.getElementById('card-backdrop');
+    if (backdrop) {
+        backdrop.addEventListener('click', () => {
+            const expandedCard = document.querySelector('.disease-card.expanded');
+            if (expandedCard) {
+                toggleCardExpansion(expandedCard);
+            }
+        });
     }
 
     const backBtn = document.getElementById('back-to-map-btn');

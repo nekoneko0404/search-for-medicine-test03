@@ -334,6 +334,56 @@ body {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
+/* Expanded Card Styles */
+.disease-card.expanded {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 900px;
+    /* Approx 3 cards width or comfortably large */
+    height: 80vh;
+    max-height: 800px;
+    /* Approx 2 cards height */
+    z-index: 1001;
+    cursor: zoom-out;
+    /* Indicate click to close */
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    background-color: #fff;
+    /* Ensure opaque background */
+    padding: 30px;
+    /* Increase padding for better view */
+    overflow: hidden;
+    /* Prevent scrollbar on body if content is large */
+}
+
+/* Ensure canvas takes full space in expanded mode */
+.disease-card.expanded .chart-container {
+    height: calc(100% - 40px);
+    /* Subtract header height */
+}
+
+/* Backdrop */
+.card-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.card-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
 .disease-card h4 {
     margin-bottom: 10px;
     color: var(--primary-color);
