@@ -5,6 +5,7 @@ const SPREADSHEET_NAME = "Infection_Data_Master";
 const ADMIN_EMAIL = "admin@example.com";
 const INDEX_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/rapid/";
 const CSV_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/jp/rapid/";
+const CACHE_FILE_NAME = "combined_data_cache.json"; // キャッシュファイル名
 
 function doGet(e) {
   try {
@@ -17,7 +18,8 @@ function doGet(e) {
       'trend': 'Trend',
       'tougai': 'Tougai',
       'history': 'History', // 新しくhistoryタイプを追加
-      'all': 'All' // 一括取得用
+      'all': 'All', // 一括取得用
+      'combined': 'CombinedData' // 新しくcombinedタイプを追加
     };
     
     const normalizedKey = sheetNameInput.toLowerCase();
@@ -37,6 +39,24 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    // combinedタイプの場合は、ファイルキャッシュを利用して高速化
+    if (normalizedKey === 'combined') {
+      // 1. ファイルキャッシュからの読み込みを試みる
+      const cachedContent = getFileCache_();
+      if (cachedContent) {
+        return ContentService.createTextOutput(cachedContent)
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      // 2. キャッシュがない場合は生成して保存し、返す
+      const combinedResult = generateCombinedData_();
+      const jsonString = JSON.stringify(combinedResult);
+      saveFileCache_(jsonString); // 次回のために保存
+
+      return ContentService.createTextOutput(jsonString)
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     const targetSheetName = allowedSheets[normalizedKey];
     
     const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
@@ -49,7 +69,15 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.CSV);
 
   } catch (err) {
-    return ContentService.createTextOutput(`Error: ${err.toString()}`)
+    // エラーの詳細とスタックトレースを含める
+    const errorResponse = {
+      status: 'error',
+      message: err.toString(),
+      stack: err.stack
+    };
+    // JSONとしてエラーを返すとクライアント側で扱いやすいが、
+    // 現状のクライアント実装に合わせてテキストで返す（ただし詳細を含める）
+    return ContentService.createTextOutput(`Error: ${err.toString()}\nStack: ${err.stack}`)
       .setMimeType(ContentService.MimeType.TEXT);
   }
 }
@@ -114,10 +142,18 @@ function main() {
 }
 
 /**
- * Google Driveから過去の感染症データを取得する
+ * Google Driveから過去の感染症データを取得する（外部呼び出し用）
  * @returns {string} 過去データのJSON文字列
  */
 function getHistoryData() {
+  return JSON.stringify(getHistoryDataAsObject_());
+}
+
+/**
+ * Google Driveから過去の感染症データを取得する（内部処理用）
+ * @returns {Object} 過去データのオブジェクト
+ */
+function getHistoryDataAsObject_() {
   const result = {
     data: [],
     logs: []
@@ -176,7 +212,7 @@ function getHistoryData() {
     result.logs.push(`Fatal Error: ${e.toString()}`);
   }
   
-  return JSON.stringify(result);
+  return result;
 }
 
 function updateData_() {
@@ -233,6 +269,9 @@ function updateData_() {
 
     // 同年の古い週のファイルを削除
     cleanUpOldWeeklyFiles_(historyFolder, year, week);
+
+    // キャッシュファイルの更新（combinedデータ）
+    updateCache_();
 
     Logger.log("データ更新処理が正常に終了しました。");
 
@@ -339,4 +378,63 @@ function getLatestWeeklyPageUrl_(indexPageUrl) {
   }
   if (latestLinkFileName) return indexPageUrl.substring(0, indexPageUrl.lastIndexOf('/') + 1) + latestLinkFileName;
   throw new Error("Latest link not found");
+}
+
+/**
+ * Combinedデータを生成する
+ */
+function generateCombinedData_() {
+  const latestData = getAllData_();
+  const historyDataObj = getHistoryDataAsObject_();
+  
+  return {
+    latestData: latestData,
+    historyData: historyDataObj.data
+  };
+}
+
+/**
+ * キャッシュファイルを生成・更新する
+ */
+function updateCache_() {
+  try {
+    const data = generateCombinedData_();
+    const jsonString = JSON.stringify(data);
+    saveFileCache_(jsonString);
+    Logger.log("Combined data cache updated successfully.");
+  } catch (e) {
+    Logger.log("Failed to update cache: " + e.toString());
+  }
+}
+
+/**
+ * ドライブ上のキャッシュファイルに保存する
+ */
+function saveFileCache_(content) {
+  const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+  const files = folder.getFilesByName(CACHE_FILE_NAME);
+  
+  if (files.hasNext()) {
+    const file = files.next();
+    file.setContent(content);
+  } else {
+    folder.createFile(CACHE_FILE_NAME, content, MimeType.PLAIN_TEXT);
+  }
+}
+
+/**
+ * ドライブ上のキャッシュファイルから読み込む
+ */
+function getFileCache_() {
+  try {
+    const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+    const files = folder.getFilesByName(CACHE_FILE_NAME);
+    if (files.hasNext()) {
+      return files.next().getBlob().getDataAsString();
+    }
+    return null;
+  } catch (e) {
+    Logger.log("Error reading file cache: " + e.toString());
+    return null;
+  }
 }

@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbyPukigFWkXjjB9nN8Ve5Xlnn2rgGqiPTCGU8m3F1ETMWYCyxHgd1juOZyGlT_-ljWXNA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby8wh0NMuPtEOgLVHXfc0jzNqlOENuOgCwQmYYzMSZCKTvhSDiJpZkAyJxntGISTGOmbQ/exec';
 let cachedData = {
     current: null, // 当年のデータ
     archives: []   // 過去数年分のデータ
@@ -66,10 +66,9 @@ function parseCSV(text) {
 
 // キャッシュ設定
 const CACHE_CONFIG = {
-    MAIN_DATA_KEY: 'infection_surveillance_main_data',
-    HISTORY_DATA_KEY: 'infection_surveillance_history_data',
+    COMBINED_DATA_KEY: 'infection_surveillance_combined_data', // 新しいキャッシュキー
     MAIN_EXPIRY: 1 * 60 * 60 * 1000, // 1時間
-    HISTORY_EXPIRY: 24 * 60 * 60 * 1000 // 24時間
+    HISTORY_EXPIRY: 24 * 60 * 60 * 1000 // 24時間 (combined data uses this for overall cache time)
 };
 
 // LocalForageの設定（DB名を統一して親画面と確実に共有する）
@@ -78,78 +77,55 @@ localforage.config({
     storeName: 'infection_surveillance_store'
 });
 
-async function fetchMainData() {
+async function fetchCombinedData() {
     const now = Date.now();
 
     // 1. キャッシュ確認
     try {
-        const cached = await localforage.getItem(CACHE_CONFIG.MAIN_DATA_KEY);
-        if (cached && (now - cached.timestamp < CACHE_CONFIG.MAIN_EXPIRY)) {
-            console.log('Using cached main data');
-            return cached.data; // { Teiten: ..., ARI: ..., Tougai: ... }
+        const cached = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
+        // combinedデータは、履歴データのキャッシュ期間に合わせる
+        if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
+            console.log('Using cached combined data');
+            return cached.data;
         }
     } catch (e) {
-        console.warn('Cache check failed:', e);
+        console.warn('Combined data cache check failed:', e);
     }
 
-    // 2. API取得 (type=all)
-    console.log('Fetching main data from API...');
+    // 2. API取得 (type=combined)
+    console.log('Fetching combined data from API...');
     try {
-        const response = await fetch(`${API_URL}?type=all`);
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-        const data = await response.json();
+        const response = await fetch(`${API_URL}?type=combined`, {
+            redirect: 'follow' // リダイレクトを明示的に許可
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            // JSONでない場合はテキストとして取得してエラー詳細を確認
+            const text = await response.text();
+            console.error("Received non-JSON response:", text);
+            throw new Error(`Invalid content-type: ${contentType}. Expected application/json. Response sample: ${text.substring(0, 100)}`);
+        }
+
+        const data = await response.json(); // Code.gsからJSONで返される
 
         // 3. キャッシュ保存
         try {
-            await localforage.setItem(CACHE_CONFIG.MAIN_DATA_KEY, {
+            await localforage.setItem(CACHE_CONFIG.COMBINED_DATA_KEY, {
                 timestamp: now,
                 data: data
             });
         } catch (e) {
-            console.warn('Cache save failed:', e);
+            console.warn('Combined data cache save failed:', e);
         }
 
         return data;
     } catch (e) {
-        console.error('Fetch error for main data:', e);
-        throw e;
-    }
-}
-
-async function fetchHistoryData() {
-    const now = Date.now();
-
-    // 1. キャッシュ確認
-    try {
-        const cached = await localforage.getItem(CACHE_CONFIG.HISTORY_DATA_KEY);
-        if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
-            console.log('Using cached history data');
-            return cached.data;
-        }
-    } catch (e) {
-        console.warn('History cache check failed:', e);
-    }
-
-    // 2. API取得 (type=history)
-    console.log('Fetching history data from API...');
-    try {
-        const response = await fetch(`${API_URL}?type=history`);
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-        const text = await response.text();
-
-        // 3. キャッシュ保存
-        try {
-            await localforage.setItem(CACHE_CONFIG.HISTORY_DATA_KEY, {
-                timestamp: now,
-                data: text
-            });
-        } catch (e) {
-            console.warn('History cache save failed:', e);
-        }
-
-        return text;
-    } catch (e) {
-        console.error('Fetch error for history data:', e);
+        console.error('Fetch error for combined data:', e);
         throw e;
     }
 }
@@ -1054,11 +1030,8 @@ async function reloadData() {
         updateLoadingState(true);
 
         // キャッシュをクリア
-        await Promise.all([
-            localforage.removeItem(CACHE_CONFIG.MAIN_DATA_KEY),
-            localforage.removeItem(CACHE_CONFIG.HISTORY_DATA_KEY)
-        ]);
-        console.log('Cache cleared for data reload.');
+        await localforage.removeItem(CACHE_CONFIG.COMBINED_DATA_KEY);
+        console.log('Cache cleared for combined data reload.');
 
         // データ取得とレンダリングのコア処理を再実行
         await loadAndRenderData();
@@ -1159,35 +1132,22 @@ function initEventListeners() {
 }
 
 async function loadAndRenderData() {
-    // 並列でデータ取得（キャッシュがあればそれを使用）
-    const [mainData, historyJson] = await Promise.all([
-        fetchMainData(),
-        fetchHistoryData()
-    ]);
+    // 統合されたデータを取得
+    const combinedData = await fetchCombinedData();
 
-    const teitenCsv = mainData.Teiten;
-    const ariCsv = mainData.ARI;
-    const tougaiCsv = mainData.Tougai;
+    const teitenCsv = combinedData.latestData.Teiten;
+    const ariCsv = combinedData.latestData.ARI;
+    const tougaiCsv = combinedData.latestData.Tougai;
 
     const teitenData = parseCSV(teitenCsv);
     const ariData = parseCSV(ariCsv);
     const tougaiData = parseCSV(tougaiCsv);
 
-    // 過去データ（JSON形式）をパース
+    // 過去データはすでにJSONオブジェクトとして取得されている
     let historicalArchives = [];
     try {
-        const response = JSON.parse(historyJson);
-        let archives = [];
-
-        // デバッグログの出力
-        if (response.logs && Array.isArray(response.data)) {
-            console.group("Backend (GAS) Logs");
-            response.logs.forEach(log => console.log(log));
-            console.groupEnd();
-            archives = response.data;
-        } else if (Array.isArray(response)) {
-            archives = response; // 旧形式互換
-        }
+        // Code.gsのgetHistoryDataの戻り値が { data: [...], logs: [...] } なので、data部分を取得
+        const archives = combinedData.historyData;
 
         console.log(`Fetched ${archives.length} history files from backend.`);
 
@@ -1199,8 +1159,7 @@ async function loadAndRenderData() {
             };
         });
     } catch (e) {
-        console.warn("Failed to parse history JSON. Backend might be returning error text or old version.", e);
-        console.log("Raw response for history:", historyJson);
+        console.warn("Failed to process historical data from combined response.", e);
         // 過去データなしで続行
     }
 
