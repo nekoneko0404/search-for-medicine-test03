@@ -71,11 +71,13 @@ const CACHE_CONFIG = {
     HISTORY_EXPIRY: 24 * 60 * 60 * 1000 // 24時間 (combined data uses this for overall cache time)
 };
 
-// LocalForageの設定（DB名を統一して親画面と確実に共有する）
-localforage.config({
-    name: 'KusuriCompassDB',
-    storeName: 'infection_surveillance_store'
-});
+// LocalForageの設定（メイン画面と設定を合わせるため、デフォルト設定を使用）
+// メイン画面（../common.js）ではlocalforage.configを呼び出していないため、
+// こちらもデフォルト（name: 'localforage', storeName: 'keyvaluepairs'）に合わせます。
+// localforage.config({
+//     name: 'KusuriCompassDB',
+//     storeName: 'infection_surveillance_store'
+// });
 
 async function fetchCombinedData() {
     const now = Date.now();

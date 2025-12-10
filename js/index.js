@@ -65,11 +65,13 @@ async function initNotification() {
 }
 
 // 感染症サーベイランスアプリのデータプリフェッチ
-const INF_SURV_API_URL = 'https://script.google.com/macros/s/AKfycbyPukigFWkXjjB9nN8Ve5Xlnn2rgGqiPTCGU8m3F1ETMWYCyxHgd1juOZyGlT_-ljWXNA/exec';
+// 注意: 最新の infection-surveillance-app/main.js に合わせてAPI URLとキャッシュキー、localforage設定を更新しました。
+const INF_SURV_API_URL = 'https://script.google.com/macros/s/AKfycby8wh0NMuPtEOgLVHXfc0jzNqlOENuOgCwQmYYzMSZCKTvhSDiJpZkAyJxntGISTGOmbQ/exec';
 const CACHE_CONFIG = {
-    MAIN_DATA_KEY: 'infection_surveillance_main_data',
-    HISTORY_DATA_KEY: 'infection_surveillance_history_data',
-    MAIN_EXPIRY: 1 * 60 * 60 * 1000, // 1時間に短縮
+    // 古いキー: MAIN_DATA_KEY, HISTORY_DATA_KEY
+    // 新しいキー: infection-surveillance-app/main.js に合わせる
+    COMBINED_DATA_KEY: 'infection_surveillance_combined_data',
+    MAIN_EXPIRY: 1 * 60 * 60 * 1000, // 1時間
     HISTORY_EXPIRY: 24 * 60 * 60 * 1000
 };
 
@@ -80,65 +82,47 @@ async function prefetchInfectionData() {
         return;
     }
 
-    // ★重要: グローバルの localforage.config を変更すると、医薬品データ（デフォルト設定を使用）の保存先に影響が出るため、
-    // createInstance を使用して、感染症アプリ専用のインスタンスを作成して操作する。
-    // DB名とStore名をアプリ側と一致させること。
-    const infectionStore = localforage.createInstance({
-        name: 'KusuriCompassDB',
-        storeName: 'infection_surveillance_store'
-    });
+    // 感染症アプリ側(main.js)で localforage.config をコメントアウトし、
+    // デフォルトインスタンス（name: 'localforage', storeName: 'keyvaluepairs'）を使用するように変更したため、
+    // ここでもデフォルトインスタンスを使用します。createInstanceは不要です。
+    // そのまま window.localforage を使えばOK。
 
     console.log('Starting prefetch for Infection Surveillance App...');
     const now = Date.now();
 
-    // Main Data Prefetch
+    // Combined Data Prefetch (API type=combined)
     try {
-        const cachedMain = await infectionStore.getItem(CACHE_CONFIG.MAIN_DATA_KEY);
-        if (!cachedMain || (now - cachedMain.timestamp >= CACHE_CONFIG.MAIN_EXPIRY)) {
-            console.log('Prefetching main data...');
-            fetch(`${INF_SURV_API_URL}?type=all`)
+        const cachedCombined = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
+        // combinedデータは、履歴データのキャッシュ期間（長い方）に合わせるのが基本だが、
+        // 最新データを含むため、更新頻度に合わせてチェックする方が安全。
+        // main.jsでは `if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY))` となっているのでそれに合わせる。
+
+        if (!cachedCombined || (now - cachedCombined.timestamp >= CACHE_CONFIG.HISTORY_EXPIRY)) {
+            console.log('Prefetching combined data...');
+            fetch(`${INF_SURV_API_URL}?type=combined`, { redirect: 'follow' })
                 .then(res => {
                     if (!res.ok) throw new Error(res.statusText);
+                    const contentType = res.headers.get("content-type");
+                    if (!contentType || !contentType.includes("application/json")) {
+                        return res.text().then(text => {
+                            throw new Error(`Invalid content-type: ${contentType}. Response: ${text.substring(0, 100)}`);
+                        });
+                    }
                     return res.json();
                 })
                 .then(data => {
-                    infectionStore.setItem(CACHE_CONFIG.MAIN_DATA_KEY, {
+                    localforage.setItem(CACHE_CONFIG.COMBINED_DATA_KEY, {
                         timestamp: now,
                         data: data
                     });
-                    console.log('Main data prefetched and cached.');
+                    console.log('Combined data prefetched and cached.');
                 })
-                .catch(err => console.error('Prefetch main data failed:', err));
+                .catch(err => console.error('Prefetch combined data failed:', err));
         } else {
-            console.log('Main data cache is fresh. Skipping prefetch.');
+            console.log('Combined data cache is fresh. Skipping prefetch.');
         }
     } catch (e) {
         console.warn('Prefetch check failed:', e);
-    }
-
-    // History Data Prefetch
-    try {
-        const cachedHistory = await infectionStore.getItem(CACHE_CONFIG.HISTORY_DATA_KEY);
-        if (!cachedHistory || (now - cachedHistory.timestamp >= CACHE_CONFIG.HISTORY_EXPIRY)) {
-            console.log('Prefetching history data...');
-            fetch(`${INF_SURV_API_URL}?type=history`)
-                .then(res => {
-                    if (!res.ok) throw new Error(res.statusText);
-                    return res.text();
-                })
-                .then(data => {
-                    infectionStore.setItem(CACHE_CONFIG.HISTORY_DATA_KEY, {
-                        timestamp: now,
-                        data: data
-                    });
-                    console.log('History data prefetched and cached.');
-                })
-                .catch(err => console.error('Prefetch history data failed:', err));
-        } else {
-            console.log('History data cache is fresh. Skipping prefetch.');
-        }
-    } catch (e) {
-        console.warn('History prefetch check failed:', e);
     }
 }
 
