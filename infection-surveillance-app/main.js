@@ -273,6 +273,12 @@ function parseTougaiRows(rows) {
     // 各疾患の履歴データを抽出
     ALL_DISEASES.forEach(disease => {
         if (diseaseSections[disease.key] !== undefined) {
+            if (disease.key === 'COVID-19') {
+                console.log(`DEBUG_COVID_parseTougaiRows: Calling extractHistoryFromSection for ${disease.name}. Rows from startRowIndex ${diseaseSections[disease.key]}:`);
+                rows.slice(diseaseSections[disease.key], diseaseSections[disease.key] + 10).forEach((r, idx) => {
+                    console.log(`DEBUG_COVID_parseTougaiRows: Row ${diseaseSections[disease.key] + idx}: ${r.join(',').substring(0, 200)}...`);
+                });
+            }
             historyData.push(...extractHistoryFromSection(rows, diseaseSections[disease.key], disease.key, disease.name));
         }
     });
@@ -286,16 +292,17 @@ function extractHistoryFromSection(rows, startRowIndex, diseaseKey, displayDisea
     const results = [];
     let weekHeaderRowIndex = -1;
     let typeHeaderRowIndex = -1;
+    console.log(`DEBUG_COVID: Entering extractHistoryFromSection for ${displayDiseaseName}, startRowIndex: ${startRowIndex}`);
+    console.log('DEBUG_COVID: Rows around startRowIndex:', rows.slice(Math.max(0, startRowIndex - 5), startRowIndex + 20).map((r, idx) => `Row ${startRowIndex - 5 + idx}: ${r.join(', ')}`));
 
     // ヘッダー行を探索 (startRowIndexの直下から広めに確認)
-    // 疾患名行の下に説明書きなどが入る場合があるため、探索範囲を広げる
     for (let i = startRowIndex + 1; i < Math.min(rows.length, startRowIndex + 20); i++) {
-        const rowStr = rows[i].join('');
-        // 「週」または「第1週」などが含まれる行を週ヘッダーとみなす
-        // 数字が含まれていなくても、明らかに週の並び（1週, 2週...）がある行を探すのがベストだが、
-        // ここでは簡易的に「週」が含まれる行を候補とする
+        const row = rows[i];
+        const rowStr = row.join(','); // join(', ')だと見づらい可能性があるのでカンマのみ
+        console.log(`DEBUG_COVID: Searching for headers, current row ${i}: ${rowStr.substring(0, 200)}...`); // 長い行は短縮
+
+        // 「週」が含まれる行を週ヘッダーとみなす
         if (rowStr.includes('週')) {
-            // さらにその行のセルを見て、"1週" や "01週" のようなパターンが複数あるか確認
             const weekMatches = rowStr.match(/(\d{1,2})週/g);
             if (weekMatches && weekMatches.length > 5) { // 5つ以上週の表記があれば確度が高い
                 weekHeaderRowIndex = i;
@@ -303,18 +310,23 @@ function extractHistoryFromSection(rows, startRowIndex, diseaseKey, displayDisea
                 if (i + 1 < rows.length) {
                     typeHeaderRowIndex = i + 1;
                 }
+                console.log(`DEBUG_COVID: Week header found at ${weekHeaderRowIndex}, type header assumed at ${typeHeaderRowIndex}`);
                 break;
             }
         }
     }
 
     if (weekHeaderRowIndex === -1 || typeHeaderRowIndex === -1) {
-        console.warn(`Header rows not found for ${displayDiseaseName} (start: ${startRowIndex})`);
+        console.warn(`Header rows not found for ${displayDiseaseName} (start: ${startRowIndex}). Week Header: ${weekHeaderRowIndex}, Type Header: ${typeHeaderRowIndex}`);
         return [];
     }
 
+    // 重複する宣言を削除し、一度定義した変数を使用
     const weekHeaderRow = rows[weekHeaderRowIndex];
     const typeHeaderRow = rows[typeHeaderRowIndex];
+    console.log('DEBUG_COVID: Final weekHeaderRow:', weekHeaderRow.join(','));
+    console.log('DEBUG_COVID: Final typeHeaderRow:', typeHeaderRow.join(','));
+
     const weekColumns = [];
 
     for (let i = 0; i < weekHeaderRow.length; i++) {
@@ -454,16 +466,7 @@ function switchDisease(disease) {
     // ただし、currentRegionId は showPrefectureChart で null にされることがあるため、
     // currentPrefecture がある場合はその ID を特定するか、
     // 既存のロジック（updateDetailPanel）が ID ベースなら ID が必要。
-    // showPrefectureChart では currentRegionId = null にしているが、
-    // updateDetailPanel は regionId を引数にとる。
-    // ここでは、地図モードの時のみ updateDetailPanel を呼ぶか、
-    // あるいは currentPrefecture から regionId を逆引きできればベストだが、
-    // 簡易的に「地図モードで選択中の場合」のみ更新し、グラフモードでは詳細パネルは
-    // そのまま（あるいは閉じる）とするのが安全かもしれない。
-    // しかし、要望は「そのままその都道府県のグラフを表示」なので、右パネルの挙動については
-    // 明示されていないが、整合性を保つなら閉じるか、その県の情報を出すべき。
-    // 現状の switchDisease の実装では、currentRegionId があれば updateDetailPanel を呼んでいる。
-    // showPrefectureChart で currentRegionId = null になるので、
+    // showPrefectureChart では currentRegionId = null にしているので、
     // グラフモードではここはスキップされるはず。
 
     if (!currentPrefecture) {
@@ -891,20 +894,6 @@ function toggleCardExpansion(card) {
 
         if (backdrop) backdrop.classList.add('active');
     }
-
-    const canvas = card.querySelector('canvas');
-    if (canvas && canvas.chart) {
-        // サイズ変更を反映させるために少し遅延させる（transition考慮）
-        setTimeout(() => {
-            if (canvas.chart) {
-                canvas.chart.resize();
-            }
-        }, 300);
-        // 即時も一応呼ぶ
-        if (canvas.chart) {
-            canvas.chart.resize();
-        }
-    }
 }
 
 function showPrefectureChart(prefecture, disease) {
@@ -1277,41 +1266,171 @@ function initEventListeners() {
     }
 }
 
-async function loadAndRenderData() {
-    // 統合されたデータを取得
-    const combinedData = await fetchCombinedData();
-
-    const teitenCsv = combinedData.latestData.Teiten;
-    const ariCsv = combinedData.latestData.ARI;
-    const tougaiCsv = combinedData.latestData.Tougai;
-
-    const teitenData = parseCSV(teitenCsv);
-    const ariData = parseCSV(ariCsv);
-    const tougaiData = parseCSV(tougaiCsv);
-
-    // 過去データはすでにJSONオブジェクトとして取得されている
-    let historicalArchives = [];
+// 過去データを取得する関数
+async function fetchHistoryData() {
     try {
-        // Code.gsのgetHistoryDataの戻り値が { data: [...], logs: [...] } なので、data部分を取得
-        const archives = combinedData.historyData;
-
-        console.log(`Fetched ${archives.length} history files from backend.`);
-
-        historicalArchives = archives.map(archive => {
-            const rows = parseCSV(archive.content);
-            return {
-                year: archive.year,
-                data: parseTougaiRows(rows) // CSV行データをオブジェクト配列に変換
-            };
-        });
+        const response = await fetch(`${API_URL}?type=history`, { redirect: 'follow' });
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        const data = await response.json();
+        return data.data; // { data: [...], logs: [...] } の data を返す
     } catch (e) {
-        console.warn("Failed to process historical data from combined response.", e);
-        // 過去データなしで続行
+        console.warn('Failed to fetch history data:', e);
+        return [];
     }
+}
 
-    cachedData = processData(teitenData, ariData, tougaiData, historicalArchives);
+// 最新データを取得する関数
+async function fetchLatestData() {
+    try {
+        const response = await fetch(`${API_URL}?type=latest`, { redirect: 'follow' });
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        return await response.json();
+    } catch (e) {
+        console.error('Failed to fetch latest data:', e);
+        throw e;
+    }
+}
 
-    const dateMatch = teitenCsv.match(/(\d{4})年(\d{1,2})週(?:\((.*?)\))?/);
+async function loadAndRenderData() {
+    try {
+        const now = Date.now();
+        let useCache = false;
+        let cachedCombined = null;
+
+        // 1. キャッシュの確認
+        try {
+            cachedCombined = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
+            console.log('DEBUG: Cached combined data from main.js:', cachedCombined);
+            console.log('DEBUG: Current time:', now);
+            if (cachedCombined) {
+                console.log('DEBUG: Cached timestamp:', cachedCombined.timestamp);
+                console.log('DEBUG: Cache age:', now - cachedCombined.timestamp);
+                console.log('DEBUG: Cache expiry (HISTORY_EXPIRY):', CACHE_CONFIG.HISTORY_EXPIRY);
+            }
+            if (cachedCombined && (now - cachedCombined.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
+                console.log('DEBUG: Cache is valid and will be used.');
+                useCache = true;
+            } else {
+                console.log('DEBUG: Cache is invalid or too old, will fetch new data.');
+            }
+        } catch (e) {
+            console.warn('Cache check failed in main.js:', e);
+        }
+
+        if (useCache && cachedCombined) {
+            // キャッシュデータを使用
+            const data = cachedCombined.data; // { latestData, historyData }
+            const latestData = data.latestData;
+            const historyData = data.historyData || [];
+
+            const teitenCsv = latestData.Teiten;
+            const ariCsv = latestData.ARI;
+            const tougaiCsv = latestData.Tougai;
+
+            const teitenData = parseCSV(teitenCsv);
+            const ariData = parseCSV(ariCsv);
+            const tougaiData = parseCSV(tougaiCsv);
+
+            const historicalArchives = historyData.map(archive => {
+                const rows = parseCSV(archive.content);
+                return {
+                    year: archive.year,
+                    data: parseTougaiRows(rows)
+                };
+            });
+
+            // 一括で処理
+            cachedData = processData(teitenData, ariData, tougaiData, historicalArchives);
+
+            // 日付表示更新
+            updateDateDisplay(teitenCsv);
+
+            // 描画
+            renderSummary(cachedData);
+            renderDashboard(currentDisease, cachedData);
+            closePanel();
+            updateLoadingState(false);
+
+        } else {
+            // 2. キャッシュがない場合: 最新データを先に取得・表示
+            console.log('Fetching latest data from API...');
+            const latestData = await fetchLatestData();
+
+            const teitenCsv = latestData.Teiten;
+            const ariCsv = latestData.ARI;
+            const tougaiCsv = latestData.Tougai;
+
+            const teitenData = parseCSV(teitenCsv);
+            const ariData = parseCSV(ariCsv);
+            const tougaiData = parseCSV(tougaiCsv);
+
+            // まず最新データのみで初期化
+            cachedData = processData(teitenData, ariData, tougaiData, []);
+
+            // 日付表示更新
+            updateDateDisplay(teitenCsv);
+
+            renderSummary(cachedData);
+            renderDashboard(currentDisease, cachedData);
+            closePanel();
+
+            // ローディング表示をここで一旦解除
+            updateLoadingState(false);
+
+            // 3. 過去データを非同期で取得して追加
+            console.log('Fetching history data in background...');
+            const historyData = await fetchHistoryData();
+
+            if (historyData) { // historyData might be empty array
+                const historicalArchives = historyData.map(archive => {
+                    const rows = parseCSV(archive.content);
+                    return {
+                        year: archive.year,
+                        data: parseTougaiRows(rows)
+                    };
+                });
+
+                // 既存のデータに過去データを統合
+                cachedData.archives = historicalArchives;
+
+                console.log(`Loaded ${historicalArchives.length} history files. Updating charts...`);
+
+                // グラフのみ再描画 (現在の表示状態を維持)
+                if (currentPrefecture) {
+                    showPrefectureChart(currentPrefecture, currentDisease);
+                } else {
+                    // その他感染症リストが表示中なら更新
+                    if (!document.getElementById('other-diseases-list-view').classList.contains('hidden')) {
+                        const prefSelect = document.getElementById('prefecture-select');
+                        renderOtherDiseasesList(prefSelect ? prefSelect.value : '全国');
+                    }
+                }
+
+                // 4. 次回のためにキャッシュに保存 (Combined形式で)
+                try {
+                    const combinedData = {
+                        latestData: latestData,
+                        historyData: historyData
+                    };
+                    await localforage.setItem(CACHE_CONFIG.COMBINED_DATA_KEY, {
+                        timestamp: Date.now(),
+                        data: combinedData
+                    });
+                    console.log('Data cached successfully (constructed from split fetch).');
+                } catch (e) {
+                    console.warn('Failed to save cache:', e);
+                }
+            }
+        }
+
+    } catch (e) {
+        console.error('Error in loadAndRenderData:', e);
+        throw e;
+    }
+}
+
+function updateDateDisplay(csvContent) {
+    const dateMatch = csvContent.match(/(\d{4})年(\d{1,2})週(?:\((.*?)\))?/);
     const dateElement = document.getElementById('update-date');
     if (dateElement) {
         if (dateMatch) {
@@ -1330,14 +1449,7 @@ async function loadAndRenderData() {
             dateElement.textContent = new Date().toLocaleDateString('ja-JP');
         }
     }
-
-    renderSummary(cachedData);
-    renderDashboard(currentDisease, cachedData);
-
-    // 地域詳細パネルの初期表示（「地図上のエリアをクリック...」を表示）
-    closePanel();
 }
-
 
 async function init() {
     try {

@@ -19,7 +19,8 @@ function doGet(e) {
       'tougai': 'Tougai',
       'history': 'History', // 新しくhistoryタイプを追加
       'all': 'All', // 一括取得用
-      'combined': 'CombinedData' // 新しくcombinedタイプを追加
+      'combined': 'CombinedData', // 新しくcombinedタイプを追加
+      'latest': 'LatestData' // 最新データ取得用
     };
     
     const normalizedKey = sheetNameInput.toLowerCase();
@@ -54,6 +55,12 @@ function doGet(e) {
       saveFileCache_(jsonString); // 次回のために保存
 
       return ContentService.createTextOutput(jsonString)
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (normalizedKey === 'latest') {
+      const latestData = getAllData_();
+      return ContentService.createTextOutput(JSON.stringify(latestData))
         .setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -176,7 +183,30 @@ function getHistoryDataAsObject_() {
             if (yearMatch) year = parseInt(yearMatch[1], 10);
             
             if (year > 0) {
-              const csvContent = file.getBlob().getDataAsString("Shift_JIS");
+              let csvContent;
+              try {
+                // まず Shift_JIS で読み込みを試みる
+                csvContent = file.getBlob().getDataAsString("Shift_JIS");
+                
+                // Shift_JIS で正しく読めたか検証 (キーワードチェック)
+                // "週", "報告", "定点" などのキーワードが含まれているか
+                // 含まれていない場合、または replacement character が多い場合は失敗とみなす
+                if (!csvContent.includes("週") && !csvContent.includes("報告")) {
+                   Logger.log(`DEBUG_CODE_GS: ${fileName} read as Shift_JIS but keywords not found. Trying UTF-8.`);
+                   throw new Error("Invalid Shift_JIS content suspected");
+                }
+                Logger.log(`DEBUG_CODE_GS: Successfully read ${fileName} as Shift_JIS.`);
+              } catch (e_sjis) {
+                // Shift_JISで失敗または不正と判断された場合、UTF-8 で読み込みを試みる
+                try {
+                  csvContent = file.getBlob().getDataAsString("UTF-8");
+                  Logger.log(`DEBUG_CODE_GS: Successfully read ${fileName} as UTF-8.`);
+                } catch (e_utf8) {
+                  Logger.log(`DEBUG_CODE_GS: Failed to read ${fileName} as UTF-8 as well: ${e_utf8.toString()}. Falling back to default.`);
+                  csvContent = file.getBlob().getDataAsString(); 
+                }
+              }
+
               result.data.push({
                 year: year,
                 fileName: fileName,
