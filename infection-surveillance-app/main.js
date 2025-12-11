@@ -87,7 +87,7 @@ async function fetchCombinedData() {
         const cached = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
         // combinedデータは、履歴データのキャッシュ期間に合わせる
         if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
-            console.log('Using cached combined data');
+            // console.log('Using cached combined data');
             return cached.data;
         }
     } catch (e) {
@@ -95,7 +95,7 @@ async function fetchCombinedData() {
     }
 
     // 2. API取得 (type=combined)
-    console.log('Fetching combined data from API...');
+    // console.log('Fetching combined data from API...');
     try {
         const response = await fetch(`${API_URL}?type=combined`, {
             redirect: 'follow' // リダイレクトを明示的に許可
@@ -273,12 +273,6 @@ function parseTougaiRows(rows) {
     // 各疾患の履歴データを抽出
     ALL_DISEASES.forEach(disease => {
         if (diseaseSections[disease.key] !== undefined) {
-            if (disease.key === 'COVID-19') {
-                console.log(`DEBUG_COVID_parseTougaiRows: Calling extractHistoryFromSection for ${disease.name}. Rows from startRowIndex ${diseaseSections[disease.key]}:`);
-                rows.slice(diseaseSections[disease.key], diseaseSections[disease.key] + 10).forEach((r, idx) => {
-                    console.log(`DEBUG_COVID_parseTougaiRows: Row ${diseaseSections[disease.key] + idx}: ${r.join(',').substring(0, 200)}...`);
-                });
-            }
             historyData.push(...extractHistoryFromSection(rows, diseaseSections[disease.key], disease.key, disease.name));
         }
     });
@@ -292,14 +286,11 @@ function extractHistoryFromSection(rows, startRowIndex, diseaseKey, displayDisea
     const results = [];
     let weekHeaderRowIndex = -1;
     let typeHeaderRowIndex = -1;
-    console.log(`DEBUG_COVID: Entering extractHistoryFromSection for ${displayDiseaseName}, startRowIndex: ${startRowIndex}`);
-    console.log('DEBUG_COVID: Rows around startRowIndex:', rows.slice(Math.max(0, startRowIndex - 5), startRowIndex + 20).map((r, idx) => `Row ${startRowIndex - 5 + idx}: ${r.join(', ')}`));
 
     // ヘッダー行を探索 (startRowIndexの直下から広めに確認)
     for (let i = startRowIndex + 1; i < Math.min(rows.length, startRowIndex + 20); i++) {
         const row = rows[i];
         const rowStr = row.join(','); // join(', ')だと見づらい可能性があるのでカンマのみ
-        console.log(`DEBUG_COVID: Searching for headers, current row ${i}: ${rowStr.substring(0, 200)}...`); // 長い行は短縮
 
         // 「週」が含まれる行を週ヘッダーとみなす
         if (rowStr.includes('週')) {
@@ -310,22 +301,18 @@ function extractHistoryFromSection(rows, startRowIndex, diseaseKey, displayDisea
                 if (i + 1 < rows.length) {
                     typeHeaderRowIndex = i + 1;
                 }
-                console.log(`DEBUG_COVID: Week header found at ${weekHeaderRowIndex}, type header assumed at ${typeHeaderRowIndex}`);
                 break;
             }
         }
     }
 
     if (weekHeaderRowIndex === -1 || typeHeaderRowIndex === -1) {
-        console.warn(`Header rows not found for ${displayDiseaseName} (start: ${startRowIndex}). Week Header: ${weekHeaderRowIndex}, Type Header: ${typeHeaderRowIndex}`);
         return [];
     }
 
     // 重複する宣言を削除し、一度定義した変数を使用
     const weekHeaderRow = rows[weekHeaderRowIndex];
     const typeHeaderRow = rows[typeHeaderRowIndex];
-    console.log('DEBUG_COVID: Final weekHeaderRow:', weekHeaderRow.join(','));
-    console.log('DEBUG_COVID: Final typeHeaderRow:', typeHeaderRow.join(','));
 
     const weekColumns = [];
 
@@ -791,6 +778,11 @@ function renderDashboard(disease, data) {
 }
 
 function renderTrendChart(disease, data) {
+    const chartView = document.getElementById('chart-view');
+    if (!chartView) return;
+
+    // コンテナをクリアし、canvasを再生成
+    chartView.innerHTML = '<canvas id="trendChart"></canvas>';
     const canvas = document.getElementById('trendChart');
     if (!canvas) return;
 
@@ -1154,12 +1146,58 @@ async function reloadData() {
     try {
         updateLoadingState(true);
 
+        // 1. 既存のチャートインスタンスを破棄
+        if (currentChart) {
+            currentChart.destroy();
+            currentChart = null;
+        }
+        const prefectureHistoryChartCanvas = document.getElementById('prefectureHistoryChart');
+        if (prefectureHistoryChartCanvas && prefectureHistoryChartCanvas.chart) {
+            prefectureHistoryChartCanvas.chart.destroy();
+        }
+
+        // 2. 表示をスケルトンに置き換え
+        document.getElementById('summary-cards').innerHTML = `
+            <div class="skeleton-card-wrapper">
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-value"></div>
+                    <div class="skeleton skeleton-status"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-value"></div>
+                    <div class="skeleton skeleton-status"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-value"></div>
+                    <div class="skeleton skeleton-status"></div>
+                </div>
+            </div>`;
+        document.getElementById('japan-map').innerHTML = '<div class="skeleton skeleton-map"></div>';
+        const chartView = document.getElementById('chart-view');
+        if (chartView) {
+            chartView.innerHTML = '<div class="skeleton skeleton-chart"></div>';
+        }
+        const otherDiseasesGrid = document.getElementById('other-diseases-grid');
+        if (otherDiseasesGrid) {
+            otherDiseasesGrid.innerHTML = '';
+        }
+
         // キャッシュをクリア
         await localforage.removeItem(CACHE_CONFIG.COMBINED_DATA_KEY);
         console.log('Cache cleared for combined data reload.');
 
         // データ取得とレンダリングのコア処理を再実行
         await loadAndRenderData();
+
+        // もし「その他の感染症」ビューが表示中であれば、再描画をトリガーする
+        const otherDiseasesListView = document.getElementById('other-diseases-list-view');
+        if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
+            const prefSelect = document.getElementById('prefecture-select');
+            renderOtherDiseasesList(prefSelect ? prefSelect.value : '全国');
+        }
 
     } catch (error) {
         console.error('Error reloading data:', error);
@@ -1300,18 +1338,18 @@ async function loadAndRenderData() {
         // 1. キャッシュの確認
         try {
             cachedCombined = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
-            console.log('DEBUG: Cached combined data from main.js:', cachedCombined);
-            console.log('DEBUG: Current time:', now);
+            // console.log('DEBUG: Cached combined data from main.js:', cachedCombined);
+            // console.log('DEBUG: Current time:', now);
             if (cachedCombined) {
-                console.log('DEBUG: Cached timestamp:', cachedCombined.timestamp);
-                console.log('DEBUG: Cache age:', now - cachedCombined.timestamp);
-                console.log('DEBUG: Cache expiry (HISTORY_EXPIRY):', CACHE_CONFIG.HISTORY_EXPIRY);
+                // console.log('DEBUG: Cached timestamp:', cachedCombined.timestamp);
+                // console.log('DEBUG: Cache age:', now - cachedCombined.timestamp);
+                // console.log('DEBUG: Cache expiry (HISTORY_EXPIRY):', CACHE_CONFIG.HISTORY_EXPIRY);
             }
             if (cachedCombined && (now - cachedCombined.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
-                console.log('DEBUG: Cache is valid and will be used.');
+                // console.log('DEBUG: Cache is valid and will be used.');
                 useCache = true;
             } else {
-                console.log('DEBUG: Cache is invalid or too old, will fetch new data.');
+                // console.log('DEBUG: Cache is invalid or too old, will fetch new data.');
             }
         } catch (e) {
             console.warn('Cache check failed in main.js:', e);
@@ -1378,7 +1416,7 @@ async function loadAndRenderData() {
             updateLoadingState(false);
 
             // 3. 過去データを非同期で取得して追加
-            console.log('Fetching history data in background...');
+            // console.log('Fetching history data in background...');
             const historyData = await fetchHistoryData();
 
             if (historyData) { // historyData might be empty array
@@ -1393,7 +1431,7 @@ async function loadAndRenderData() {
                 // 既存のデータに過去データを統合
                 cachedData.archives = historicalArchives;
 
-                console.log(`Loaded ${historicalArchives.length} history files. Updating charts...`);
+                // console.log(`Loaded ${historicalArchives.length} history files. Updating charts...`);
 
                 // グラフのみ再描画 (現在の表示状態を維持)
                 if (currentPrefecture) {
@@ -1416,7 +1454,7 @@ async function loadAndRenderData() {
                         timestamp: Date.now(),
                         data: combinedData
                     });
-                    console.log('Data cached successfully (constructed from split fetch).');
+                    // console.log('Data cached successfully (constructed from split fetch).');
                 } catch (e) {
                     console.warn('Failed to save cache:', e);
                 }
