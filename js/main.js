@@ -1,3 +1,4 @@
+console.log("search main.js loaded");
 /**
  * Main application logic for Kusuri Compass
  */

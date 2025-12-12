@@ -51,8 +51,9 @@ async function initNotification() {
                     return;
                 }
 
-                // Parse markdown
-                body.innerHTML = marked.parse(filteredContent);
+                // Parse and sanitize markdown
+                const dirtyHtml = marked.parse(filteredContent);
+                body.innerHTML = DOMPurify.sanitize(dirtyHtml);
             } else {
                 console.error('Failed to load notification:', response.statusText);
                 body.innerHTML = '<p class="text-center text-red-400">更新情報の読み込みに失敗しました。</p>';

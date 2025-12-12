@@ -889,3 +889,57 @@ body {
     /* Flexアイテムの最小サイズ制約を解除して縮小可能にする */
     position: relative;
 }
+
+.link-style {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* Styles for Prefecture Detail List (from map.js) */
+.prefecture-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.pref-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.pref-name {
+    width: 80px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.pref-name:hover {
+    color: var(--primary-color);
+}
+.pref-bar-container {
+    flex-grow: 1;
+    background: #eee;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.pref-bar {
+    height: 100%;
+    transition: width 0.5s ease;
+}
+.pref-bar.alert {
+    background: #e74c3c;
+}
+.pref-bar.warning {
+    background: #f39c12;
+}
+.pref-bar.caution {
+    background: #f1c40f;
+}
+.pref-bar.normal {
+    background: #2ecc71;
+}
+.pref-value {
+    width: 50px;
+    text-align: right;
+    font-family: 'Inter', sans-serif;
+}

@@ -164,7 +164,7 @@ function showRegionDetails(regionId, regionLabel, prefectures, data, disease) {
     const content = document.getElementById('region-content');
 
     title.textContent = `${regionLabel} 詳細 (${getDiseaseName(disease)})`;
-    content.innerHTML = ''; // Clear content
+    content.replaceChildren(); // Clear content safely
 
     const list = document.createElement('div');
     list.className = 'prefecture-list';
@@ -223,23 +223,6 @@ function showRegionDetails(regionId, regionLabel, prefectures, data, disease) {
     });
 
     content.appendChild(list);
-
-    // Add some CSS for the list dynamically or ensure it's in style.css
-    // For now, let's assume basic styles are handled or add inline for safety
-    const style = document.createElement('style');
-    style.textContent = `
-        .prefecture-list { display: flex; flex-direction: column; gap: 10px; }
-        .pref-row { display: flex; align-items: center; gap: 10px; }
-        .pref-name { width: 80px; font-weight: bold; }
-        .pref-bar-container { flex-grow: 1; background: #eee; height: 10px; border-radius: 5px; overflow: hidden; }
-        .pref-bar { height: 100%; transition: width 0.5s ease; }
-        .pref-bar.alert { background: #e74c3c; }
-        .pref-bar.warning { background: #f39c12; }
-        .pref-bar.caution { background: #f1c40f; }
-        .pref-bar.normal { background: #2ecc71; }
-        .pref-value { width: 50px; text-align: right; font-family: 'Inter', sans-serif; }
-    `;
-    content.appendChild(style);
 }
 
 // 外部から詳細パネルを更新するための関数

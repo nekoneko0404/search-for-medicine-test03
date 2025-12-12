@@ -7,8 +7,8 @@
     <title>感染症サーベイランス | Infection Surveillance</title>
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com;
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com;
+        style-src 'self' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' data:;
         connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://cdn.jsdelivr.net https://script.google.com https://script.googleusercontent.com ws://127.0.0.1:*;
@@ -133,7 +133,7 @@
                             <p>出典：「感染症発生動向調査週報（IDWR）」（国立健康危機管理研究機構 感染症情報提供サイト）（<a
                                     href="https://id-info.jihs.go.jp/surveillance/idwr/index.html" target="_blank"
                                     rel="noopener noreferrer"
-                                    style="color: inherit; text-decoration: underline;">https://id-info.jihs.go.jp/surveillance/idwr/index.html</a>）を加工して作成
+                                    class="link-style">https://id-info.jihs.go.jp/surveillance/idwr/index.html</a>）を加工して作成
                             </p>
                         </div>
                     </div>
@@ -146,7 +146,7 @@
                     <div class="detail-panel" id="detail-panel">
                         <div class="panel-header">
                             <h4 id="region-title">地域詳細</h4>
-                            <button class="close-btn" onclick="closePanel()">×</button>
+                            <button class="close-btn" id="detail-panel-close-btn">×</button>
                         </div>
                         <div class="panel-content" id="region-content">
                             <div class="skeleton-details">
@@ -185,7 +185,7 @@
 
     <div id="card-backdrop" class="card-backdrop"></div>
     <script src="map.js"></script>
-    <script src="main.js"></script>
+    <script src="main.js?v=202512120055"></script>
 </body>
 
 </html>

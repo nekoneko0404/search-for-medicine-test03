@@ -1,3 +1,4 @@
+console.log("infection app main.js loaded"); // 追加
 const API_URL = 'https://script.google.com/macros/s/AKfycby8wh0NMuPtEOgLVHXfc0jzNqlOENuOgCwQmYYzMSZCKTvhSDiJpZkAyJxntGISTGOmbQ/exec';
 let cachedData = {
     current: null, // 当年のデータ
@@ -409,7 +410,12 @@ function generateAlerts(data) {
 function renderSummary(data) {
     const container = document.getElementById('summary-cards');
     if (!container) return;
-    container.innerHTML = '';
+    
+    // Clear previous content safely
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+
     // 主要な疾患のみサマリーカードを表示
     const diseasesForSummary = ALL_DISEASES.filter(d => ['Influenza', 'COVID-19', 'ARI'].includes(d.key));
 
@@ -424,11 +430,24 @@ function renderSummary(data) {
         card.dataset.status = alert ? alert.level : 'normal';
         card.onclick = () => switchDisease(diseaseKey);
 
-        card.innerHTML = `
-            <h4>${getDiseaseName(diseaseKey)}</h4>
-            <p class="value">${nationalData ? nationalData.value.toFixed(2) : '-'} <span class="unit">定点当たり</span></p>
-            <p class="status ${alert ? alert.level : 'normal'}">${alert ? alert.message : 'データなし'}</p>
-        `;
+        const h4 = document.createElement('h4');
+        h4.textContent = getDiseaseName(diseaseKey);
+        card.appendChild(h4);
+
+        const pValue = document.createElement('p');
+        pValue.className = 'value';
+        pValue.textContent = `${nationalData ? nationalData.value.toFixed(2) : '-'}`;
+        const spanUnit = document.createElement('span');
+        spanUnit.className = 'unit';
+        spanUnit.textContent = ' 定点当たり';
+        pValue.appendChild(spanUnit);
+        card.appendChild(pValue);
+
+        const pStatus = document.createElement('p');
+        pStatus.className = `status ${alert ? alert.level : 'normal'}`;
+        pStatus.textContent = alert ? alert.message : 'データなし';
+        card.appendChild(pStatus);
+
         container.appendChild(card);
     });
 }
@@ -781,10 +800,13 @@ function renderTrendChart(disease, data) {
     const chartView = document.getElementById('chart-view');
     if (!chartView) return;
 
-    // コンテナをクリアし、canvasを再生成
-    chartView.innerHTML = '<canvas id="trendChart"></canvas>';
-    const canvas = document.getElementById('trendChart');
-    if (!canvas) return;
+    // Clear container and recreate canvas safely
+    while (chartView.firstChild) {
+        chartView.removeChild(chartView.firstChild);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.id = 'trendChart';
+    chartView.appendChild(canvas);
 
     const ctx = canvas.getContext('2d');
 
@@ -1002,8 +1024,17 @@ function showPrefectureChart(prefecture, disease) {
 
     if (yearDataSets.length === 0) {
         console.warn(`No history data for ${prefecture} (${disease}) across all years.`);
-        // データがない場合の表示を考慮することもできる
-        document.getElementById('prefectureHistoryChart').innerHTML = '<p>データがありません。</p>';
+        const chartCanvas = document.getElementById('prefectureHistoryChart');
+        if (chartCanvas && chartCanvas.parentNode) {
+            const wrapper = chartCanvas.parentNode;
+            const p = document.createElement('p');
+            p.textContent = 'データがありません。';
+            // スタイルを適用して中央に表示
+            p.style.textAlign = 'center';
+            p.style.padding = '2rem';
+            p.style.color = '#666';
+            wrapper.replaceChildren(p); // canvasを<p>に置き換える
+        }
         return;
     }
 
@@ -1014,14 +1045,17 @@ window.showPrefectureChart = showPrefectureChart;
 
 // ビューを切り替える汎用関数
 function switchView(viewId) {
+    console.log('DEBUG: switchView called with viewId:', viewId);
     const views = ['main-view', 'other-diseases-list-view']; // すべてのビューのID
     views.forEach(id => {
         const viewElement = document.getElementById(id);
         if (viewElement) {
             if (id === viewId) {
                 viewElement.classList.remove('hidden');
+                console.log(`DEBUG: Removed hidden from ${id}`);
             } else {
                 viewElement.classList.add('hidden');
+                console.log(`DEBUG: Added hidden to ${id}`);
             }
         }
     });
@@ -1031,7 +1065,10 @@ function switchView(viewId) {
 function renderOtherDiseasesList(prefecture = '全国') {
     const gridContainer = document.getElementById('other-diseases-grid');
     if (!gridContainer) return;
-    gridContainer.innerHTML = ''; // 既存のカードをクリア
+    
+    while (gridContainer.firstChild) {
+        gridContainer.removeChild(gridContainer.firstChild);
+    }
 
     // タイトルの更新
     const titleElement = document.getElementById('other-diseases-title');
@@ -1049,23 +1086,41 @@ function renderOtherDiseasesList(prefecture = '全国') {
 
         // card.onclick を削除し、ボタンでの拡大に変更
 
-        card.innerHTML = `
-            <div class="card-header">
-                <h4>${disease.name}</h4>
-                <button class="expand-action-btn" aria-label="拡大表示">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <polyline points="9 21 3 21 3 15"></polyline>
-                        <line x1="21" y1="3" x2="14" y2="10"></line>
-                        <line x1="3" y1="21" x2="10" y2="14"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="chart-container">
-                <canvas id="chart-${disease.key}"></canvas>
-            </div>
-            <button class="close-expanded-btn" aria-label="閉じる">×</button>
-        `;
+        // card-header
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'card-header';
+
+        const h4 = document.createElement('h4');
+        h4.textContent = disease.name; // Use textContent for safety
+
+        const expandButton = document.createElement('button');
+        expandButton.className = 'expand-action-btn';
+        expandButton.setAttribute('aria-label', '拡大表示');
+        expandButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <polyline points="9 21 3 21 3 15"></polyline>
+                                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                                </svg>`; // SVGは構造が固定のためinnerHTMLでOK
+
+        cardHeader.appendChild(h4);
+        cardHeader.appendChild(expandButton);
+        card.appendChild(cardHeader);
+
+        // chart-container
+        const chartContainer = document.createElement('div');
+        chartContainer.className = 'chart-container';
+        const canvas = document.createElement('canvas');
+        canvas.id = `chart-${disease.key}`;
+        chartContainer.appendChild(canvas);
+        card.appendChild(chartContainer);
+
+        // close-expanded-btn
+        const closeButton = document.createElement('button');
+        closeButton.className = 'close-expanded-btn';
+        closeButton.setAttribute('aria-label', '閉じる');
+        closeButton.textContent = '×'; // Use textContent for safety
+        card.appendChild(closeButton);
         gridContainer.appendChild(card);
 
         // イベントリスナー設定
@@ -1111,7 +1166,15 @@ function renderOtherDiseasesList(prefecture = '全国') {
             // console.warn(`No history data for ${disease.name} in ${prefecture}`);
             const chartContainer = card.querySelector('.chart-container');
             if (chartContainer) {
-                chartContainer.innerHTML = '<p class="no-data-message">データがありません</p>';
+                const p = document.createElement('p');
+                p.className = 'no-data-message';
+                p.textContent = 'データがありません';
+                
+                while (chartContainer.firstChild) {
+                    chartContainer.removeChild(chartContainer.firstChild);
+                }
+                chartContainer.appendChild(p);
+
                 chartContainer.style.display = 'flex';
                 chartContainer.style.alignItems = 'center';
                 chartContainer.style.justifyContent = 'center';
@@ -1125,7 +1188,10 @@ function renderOtherDiseasesList(prefecture = '全国') {
 function closePanel() {
     const content = document.getElementById('region-content');
     if (content) {
-        content.innerHTML = '<p class="placeholder-text">地図上のエリアをクリックすると詳細が表示されます。</p>';
+        const p = document.createElement('p');
+        p.className = 'placeholder-text';
+        p.textContent = '地図上のエリアをクリックすると詳細が表示されます。';
+        content.replaceChildren(p);
     }
     const title = document.getElementById('region-title');
     if (title) {
@@ -1203,7 +1269,13 @@ async function reloadData() {
         console.error('Error reloading data:', error);
         const summaryCards = document.getElementById('summary-cards');
         if (summaryCards) {
-            summaryCards.innerHTML = `<p class="error">データの再取得に失敗しました。詳細: ${error.message}</p>`;
+            while (summaryCards.firstChild) {
+                summaryCards.removeChild(summaryCards.firstChild);
+            }
+            const errorPara = document.createElement('p');
+            errorPara.className = 'error';
+            errorPara.textContent = `データの再取得に失敗しました。詳細: ${error.message}`;
+            summaryCards.appendChild(errorPara);
         }
     } finally {
         // 少し待ってからローディング表示を消す
@@ -1225,6 +1297,11 @@ function initEventListeners() {
     const reloadBtn = document.getElementById('reload-btn');
     if (reloadBtn) {
         reloadBtn.addEventListener('click', reloadData);
+    }
+
+    const closeBtn = document.getElementById('detail-panel-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closePanel);
     }
 
     const backdrop = document.getElementById('card-backdrop');
@@ -1250,55 +1327,43 @@ function initEventListeners() {
     if (otherDiseasesBtn) {
         otherDiseasesBtn.addEventListener('click', () => {
             const currentView = document.getElementById('other-diseases-list-view');
-            const isOtherDiseasesView = !currentView.classList.contains('hidden');
+            const isOtherDiseasesView = currentView && !currentView.classList.contains('hidden');
 
             if (isOtherDiseasesView) {
                 // メインビューに戻る処理
                 otherDiseasesBtn.textContent = 'その他の感染症';
                 document.getElementById('summary-cards').classList.remove('hidden');
-                const dashboardHeader = document.querySelector('.dashboard-header');
-                if (dashboardHeader) dashboardHeader.classList.remove('hidden');
                 switchView('main-view');
             } else {
                 // 「その他の感染症」ビューに切り替える処理
                 otherDiseasesBtn.textContent = 'インフルエンザ・COVID-19';
                 document.getElementById('summary-cards').classList.add('hidden');
-                const dashboardHeader = document.querySelector('.dashboard-header');
-                if (dashboardHeader) dashboardHeader.classList.add('hidden');
                 switchView('other-diseases-list-view');
 
-                // 現在の都道府県を引き継ぐ（未選択時は全国）
-                let initialPref = currentPrefecture || '全国';
-
+                // 都道府県リストの生成（初回のみ）
                 const prefSelect = document.getElementById('prefecture-select');
-                if (prefSelect) {
-                    // 都道府県リストの生成（初回のみ）
-                    if (prefSelect.options.length <= 1) {
-                        const prefectures = [
-                            '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-                            '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-                            '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
-                            '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
-                            '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-                            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
-                            '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
-                        ];
-                        prefectures.forEach(pref => {
-                            const option = document.createElement('option');
-                            option.value = pref;
-                            option.textContent = pref;
-                            prefSelect.appendChild(option);
-                        });
+                if (prefSelect && prefSelect.options.length <= 1) {
+                    const prefectures = [
+                        '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+                        '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+                        '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
+                        '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
+                        '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+                        '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
+                        '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
+                    ];
+                    prefectures.forEach(pref => {
+                        const option = document.createElement('option');
+                        option.value = pref;
+                        option.textContent = pref;
+                        prefSelect.appendChild(option);
+                    });
 
-                        // イベントリスナー追加
-                        prefSelect.addEventListener('change', (e) => {
-                            renderOtherDiseasesList(e.target.value);
-                        });
-                    }
-                    // 初期値をセット
-                    prefSelect.value = initialPref;
+                    prefSelect.addEventListener('change', (e) => {
+                        renderOtherDiseasesList(e.target.value);
+                    });
                 }
-                renderOtherDiseasesList(initialPref);
+                renderOtherDiseasesList();
             }
         });
     }
@@ -1494,6 +1559,7 @@ async function init() {
         updateLoadingState(true);
 
         initEventListeners();
+        console.log("DEBUG: initEventListeners called");
 
         await loadAndRenderData();
 
@@ -1505,7 +1571,13 @@ async function init() {
         console.error('Error fetching data:', error);
         const summaryCards = document.getElementById('summary-cards');
         if (summaryCards) {
-            summaryCards.innerHTML = `<p class="error">データの取得に失敗しました。詳細: ${error.message}</p>`;
+            while (summaryCards.firstChild) {
+                summaryCards.removeChild(summaryCards.firstChild);
+            }
+            const errorPara = document.createElement('p');
+            errorPara.className = 'error';
+            errorPara.textContent = `データの取得に失敗しました。詳細: ${error.message}`;
+            summaryCards.appendChild(errorPara);
         }
         updateLoadingState(false);
     }
