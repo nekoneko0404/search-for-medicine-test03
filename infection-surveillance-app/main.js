@@ -1,46 +1,4 @@
-// グラフローディングスケルトン用のCSSを動的に注入する
-function injectChartLoadingStyles() {
-    if (document.getElementById('chart-loading-styles')) {
-        return; // 既にスタイルが注入されている場合は何もしない
-    }
 
-    const style = document.createElement('style');
-    style.id = 'chart-loading-styles';
-    style.innerHTML = `
-        .chart-loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(255, 255, 255, 0.8); /* 白っぽい半透明の背景 */
-            border-radius: 8px;
-            z-index: 10;
-        }
-
-        .chart-loading-skeleton {
-            width: 90%;
-            height: 80%;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading-shimmer 1.5s infinite;
-            border-radius: 4px;
-        }
-
-        @keyframes loading-shimmer {
-            0% {
-                background-position: -200% 0;
-            }
-            100% {
-                background-position: 200% 0;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-}
 
 // グラフコンテナにローディングスケルトンを表示
 function showChartLoading(containerElement) {
@@ -57,7 +15,7 @@ function showChartLoading(containerElement) {
     
     // コンテナのpositionがstatic以外であることを保証
     if (window.getComputedStyle(containerElement).position === 'static') {
-        containerElement.style.position = 'relative';
+        containerElement.classList.add('position-relative');
     }
 
     containerElement.appendChild(overlay);
@@ -640,7 +598,7 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         if (loadingTargetElement) {
             hideChartLoading(loadingTargetElement);
             // チャートが表示されない場合のメッセージ
-            loadingTargetElement.innerHTML = '<p class="no-data-message" style="text-align: center; padding: 2rem; color: #666;">グラフを描画できませんでした。</p>';
+            loadingTargetElement.innerHTML = '<p class="no-data-message">グラフを描画できませんでした。</p>';
         }
         return;
     }
@@ -667,7 +625,7 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
     if (labels.length === 0) {
         if (loadingTargetElement) {
             hideChartLoading(loadingTargetElement);
-            loadingTargetElement.innerHTML = '<p class="no-data-message" style="text-align: center; padding: 2rem; color: #666;">データがありません。</p>';
+            loadingTargetElement.innerHTML = '<p class="no-data-message">データがありません。</p>';
         }
         return;
     }
@@ -949,9 +907,6 @@ function renderTrendChart(disease, data) {
         const p = document.createElement('p');
         p.className = 'no-data-message';
         p.textContent = 'データがありません。';
-        p.style.textAlign = 'center';
-        p.style.padding = '2rem';
-        p.style.color = '#666';
         chartView.appendChild(p);
         return;
     }
@@ -1026,11 +981,6 @@ function toggleCardExpansion(card) {
         const placeholder = document.createElement('div');
         placeholder.id = `placeholder-${card.dataset.disease}`;
         placeholder.className = 'disease-card placeholder';
-        placeholder.style.visibility = 'hidden'; // 見えないようにするがスペースは確保
-        // 元のカードのサイズを維持するようスタイルをコピーできればベストだが、
-        // 単にgrid内に挿入するだけでもレイアウト崩れは防げるはず。
-        // 高さだけ合わせる
-        placeholder.style.height = getComputedStyle(card).height;
 
         card.parentNode.insertBefore(placeholder, card);
 
@@ -1067,33 +1017,16 @@ function showPrefectureChart(prefecture, disease) {
         const backButton = document.createElement('button');
         backButton.id = 'back-to-map-btn';
         backButton.textContent = '戻る';
-        backButton.style.alignSelf = 'flex-end';
-        backButton.style.marginBottom = '10px';
-        backButton.style.zIndex = '10';
-        backButton.style.padding = '5px 15px';
-        backButton.style.cursor = 'pointer';
-        backButton.style.backgroundColor = '#fff';
-        backButton.style.border = '1px solid #ddd';
-        backButton.style.borderRadius = '8px';
-        backButton.style.fontSize = '0.9rem';
-        backButton.style.fontWeight = '500';
-        backButton.style.color = '#666';
-        backButton.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
         prefChartContainer.appendChild(backButton);
 
         // メッセージラッパーの作成
         const messageWrapper = document.createElement('div');
-        messageWrapper.className = 'pref-chart-wrapper';
-        messageWrapper.style.display = 'flex';
-        messageWrapper.style.justifyContent = 'center';
-        messageWrapper.style.alignItems = 'center';
-        messageWrapper.style.height = '100%';
+        messageWrapper.className = 'pref-chart-wrapper pref-chart-message-wrapper';
         prefChartContainer.appendChild(messageWrapper);
 
         // メッセージPタグの作成
         const messageP = document.createElement('p');
-        messageP.style.color = '#666';
-        messageP.style.fontSize = '1rem';
+        messageP.className = 'pref-chart-message';
         messageP.textContent = '急性呼吸器感染症 (ARI) の週次推移データはありません。';
         messageWrapper.appendChild(messageP);
 
@@ -1379,7 +1312,6 @@ expandButton.appendChild(svg);
             // ローディングを非表示にし、メッセージを表示
             hideChartLoading(chartContainer);
             const p = document.createElement('p');
-            p.className = 'no-data-message';
             p.textContent = 'データがありません';
             
             while (chartContainer.firstChild) {
@@ -1387,11 +1319,7 @@ expandButton.appendChild(svg);
             }
             chartContainer.appendChild(p);
 
-            chartContainer.style.display = 'flex';
-            chartContainer.style.alignItems = 'center';
-            chartContainer.style.justifyContent = 'center';
-            chartContainer.style.fontSize = '0.9rem';
-            chartContainer.style.color = '#999';
+            chartContainer.classList.add('chart-container-no-data');
         }
     });
 }
@@ -1849,7 +1777,6 @@ async function init() {
     try {
         updateLoadingState(true);
 
-        injectChartLoadingStyles();
         initEventListeners();
         console.log("DEBUG: initEventListeners called");
 

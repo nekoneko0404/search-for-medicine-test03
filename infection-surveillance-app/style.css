@@ -329,6 +329,10 @@ body {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
+.disease-card.placeholder {
+    visibility: hidden;
+}
+
 .disease-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
@@ -462,6 +466,14 @@ body {
 .disease-card .chart-container {
     flex-grow: 1;
     position: relative;
+}
+
+.chart-container-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: #999;
 }
 
 .disease-card canvas {
@@ -665,9 +677,19 @@ body {
     display: block;
 }
 
+.no-data-message {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
 /* Utilities */
 .hidden {
     display: none !important;
+}
+
+.position-relative {
+    position: relative;
 }
 
 /* --- Skeleton Loading Styles --- */
@@ -711,6 +733,41 @@ body {
     left: auto;
 }
 
+
+/* Chart Loading Specific Skeleton */
+.chart-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    /* 白っぽい半透明の背景 */
+    border-radius: 8px;
+    z-index: 10;
+}
+
+.chart-loading-skeleton {
+    width: 90%;
+    height: 80%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes loading-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
 
 /* Skeleton Loading Animation */
 @keyframes shimmer {
@@ -888,6 +945,18 @@ body {
     min-height: 0;
     /* Flexアイテムの最小サイズ制約を解除して縮小可能にする */
     position: relative;
+}
+
+.pref-chart-message-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.pref-chart-message {
+    color: #666;
+    font-size: 1rem;
 }
 
 .link-style {

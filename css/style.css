@@ -39,7 +39,7 @@ body {
 .card {
     background: #ffffff;
     border-radius: 15px;
-    padding: 30px;
+    padding: 24px;
     text-decoration: none;
     color: #333;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -57,7 +57,7 @@ body {
 
 .card i {
     font-size: 3rem;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: #00796b;
     transition: color 0.3s ease;
 }
@@ -438,4 +438,15 @@ input[type="search"]:focus {
 
 #notification-body p {
     margin-bottom: 0.5em;
+}
+
+/* Update time text style */
+.update-time {
+    display: block;
+    margin-top: 0.75rem; /* 12px */
+    font-size: 0.75rem; /* 12px */
+    color: #6b7280; /* gray-500 */
+    text-align: right;
+    font-weight: 500;
+    width: 100%;
 }
