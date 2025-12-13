@@ -526,7 +526,7 @@ function switchDisease(disease) {
 
     if (!currentPrefecture) {
         if (currentRegionId && typeof window.updateDetailPanel === 'function' && cachedData) {
-            window.updateDetailPanel(currentRegionId, cachedData, disease);
+            window.updateDetailPanel(currentRegionId, cachedData, disease, currentPrefecture);
         } else {
             closePanel();
         }
@@ -535,7 +535,7 @@ function switchDisease(disease) {
         if (typeof window.getRegionIdByPrefecture === 'function' && typeof window.updateDetailPanel === 'function' && cachedData) {
             const regionId = window.getRegionIdByPrefecture(currentPrefecture);
             if (regionId) {
-                window.updateDetailPanel(regionId, cachedData, disease);
+                window.updateDetailPanel(regionId, cachedData, disease, currentPrefecture);
             } else {
                 closePanel();
             }
@@ -610,10 +610,16 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
     }
 
     // Canvasの描画コンテキストを明示的にクリア
-    // これにより、Chart.jsが以前の描画を完全に消去することを保証し、残像問題を解消
     if (ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+    
+    // Canvasのスタイルをリセット（レスポンシブ対応のため）
+    // 特にモーダル表示などでサイズが大きく変動した後に再利用される場合などに重要
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.removeAttribute('width');
+    canvas.removeAttribute('height');
 
     const isMobile = window.innerWidth <= 768; // スマホ判定簡易版
 
@@ -665,7 +671,9 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         }
 
         // ラベルに「全国」が含まれるか、prefectureが「全国」の場合のラベル調整
-        const dataLabel = prefecture === '全国' ? `${year}年 全国` : `${year}年 ${prefecture}`;
+        // ユーザー要望により "YYYY年" 形式に変更し、都道府県名を削除
+        // const dataLabel = prefecture === '全国' ? `${year}年 全国` : `${year}年 ${prefecture}`;
+        const dataLabel = `${year}年`;
 
         const dataset = {
             label: dataLabel,
@@ -682,7 +690,9 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
             spanGaps: true, // データがない箇所の線は途切れる
             // カスタムプロパティとして元の色情報を保持
             _originalColor: borderColor,
-            _originalBorderWidth: borderWidth
+            _originalBorderWidth: borderWidth,
+            disease: diseaseKey, // 凡例の色分けのためにdiseaseKeyを保持
+            year: year // 凡例の色分け（最新年特定）のためにyearを保持
         };
 
         // 当年の場合、セグメントの色を動的に変更
@@ -755,7 +765,7 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
             },
             plugins: {
                 title: {
-                    display: true,
+                    display: false, // ユーザー要望によりタイトル非表示
                     text: `${prefecture} ${getDiseaseName(diseaseKey)} 週次推移`,
                     font: { size: 16, family: "'Noto Sans JP', sans-serif" }
                 },
@@ -777,9 +787,32 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                     display: true,
                     position: 'bottom',
                     labels: {
-                        boxWidth: isMobile ? 15 : 12,
-                        padding: 15,
-                        font: { size: isMobile ? 11 : 12 }
+                        boxWidth: 10, // 4列表示のために少し小さく
+                        padding: 10,  // 間隔も詰める
+                        font: { size: isMobile ? 11 : 12 },
+                        usePointStyle: true,
+                        pointStyle: 'rectRounded'
+                    },
+                    generateLabels: function (chart) {
+                        const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                        const currentYear = new Date().getFullYear();
+                        const currentYearDatasetIndex = chart.data.datasets.findIndex(ds => ds.year === currentYear);
+
+                        if (currentYearDatasetIndex !== -1) {
+                            const dataset = chart.data.datasets[currentYearDatasetIndex];
+                            const validDataPoints = dataset.data.filter(d => d !== null && d !== undefined);
+                            const lastDataPoint = validDataPoints[validDataPoints.length - 1];
+
+                            if (lastDataPoint !== null && lastDataPoint !== undefined) {
+                                // diseaseKeyをdatasetから取得するように修正
+                                const diseaseKey = dataset.disease;
+                                const color = getColorForValue(lastDataPoint, diseaseKey);
+                                originalLabels[currentYearDatasetIndex].fillStyle = color;
+                                originalLabels[currentYearDatasetIndex].strokeStyle = color;
+                            }
+                        }
+
+                        return originalLabels;
                     },
                     onClick: function (e, legendItem, legend) {
                         // 凡例クリック時にカードの拡大縮小が暴発しないように伝播を止める
@@ -1068,139 +1101,113 @@ function showPrefectureChart(prefecture, disease) {
     const prefChartContainer = document.getElementById('pref-chart-container');
     prefChartContainer.classList.remove('hidden');
 
-    // ローディングターゲット要素を取得
-    const prefChartWrapper = prefChartContainer.querySelector('.pref-chart-wrapper');
-    if (prefChartWrapper) {
-        showChartLoading(prefChartWrapper);
+    // コンテナ初期化
+    prefChartContainer.innerHTML = '';
+
+    // ヘッダー作成
+    const headerDiv = document.createElement('div');
+    headerDiv.style.display = 'flex';
+    headerDiv.style.justifyContent = 'space-between';
+    headerDiv.style.alignItems = 'center';
+    headerDiv.style.marginBottom = '10px';
+
+    const titleH3 = document.createElement('h3');
+    titleH3.textContent = `${prefecture} ${getDiseaseName(disease)}`;
+    titleH3.style.margin = '0';
+    titleH3.style.fontSize = '1.2rem';
+    titleH3.style.color = 'var(--text-main)';
+    headerDiv.appendChild(titleH3);
+
+    // 戻るボタン作成
+    const backButton = document.createElement('button');
+    backButton.id = 'back-to-map-btn';
+    backButton.textContent = '戻る';
+    headerDiv.appendChild(backButton);
+
+    prefChartContainer.appendChild(headerDiv);
+
+    // 共通の戻る処理
+    backButton.addEventListener('click', () => {
+        document.getElementById('map-view').classList.remove('hidden');
+        document.getElementById('pref-chart-container').classList.add('hidden');
+        currentPrefecture = null;
+        
+        // 右パネルのハイライトを解除
+        if (currentRegionId && typeof window.updateDetailPanel === 'function' && cachedData) {
+            window.updateDetailPanel(currentRegionId, cachedData, currentDisease, null);
+        }
+    });
+
+    // 右パネルのハイライトを更新
+    if (typeof window.getRegionIdByPrefecture === 'function' && typeof window.updateDetailPanel === 'function' && cachedData) {
+        const regionId = window.getRegionIdByPrefecture(prefecture);
+        if (regionId) {
+            window.updateDetailPanel(regionId, cachedData, disease, prefecture);
+        }
     }
 
     // ARIの場合はグラフを表示せずメッセージを表示
     if (disease === 'ARI') {
-        // prefChartContainer の子要素をクリア
-        prefChartContainer.innerHTML = ''; 
-
-        // 戻るボタンの作成
-        const backButton = document.createElement('button');
-        backButton.id = 'back-to-map-btn';
-        backButton.textContent = '戻る';
-        prefChartContainer.appendChild(backButton);
-
-        // メッセージラッパーの作成
         const messageWrapper = document.createElement('div');
         messageWrapper.className = 'pref-chart-wrapper pref-chart-message-wrapper';
         prefChartContainer.appendChild(messageWrapper);
 
-        // メッセージPタグの作成
         const messageP = document.createElement('p');
         messageP.className = 'pref-chart-message';
         messageP.textContent = '急性呼吸器感染症 (ARI) の週次推移データはありません。';
         messageWrapper.appendChild(messageP);
-
-        // ローディングを非表示
-        if (prefChartWrapper) {
-            hideChartLoading(prefChartWrapper);
-        }
-
-        // 戻るボタンのイベントリスナー再設定
-        const backBtn = prefChartContainer.querySelector('#back-to-map-btn');
-        if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                document.getElementById('map-view').classList.remove('hidden');
-                document.getElementById('pref-chart-container').classList.add('hidden');
-                currentPrefecture = null;
-
-                // コンテナの中身を元に戻す（Canvas再作成）
-                // これをしないと次回別の疾患でグラフが表示できなくなるため、構造を復元する
-                setTimeout(() => {
-                    // prefChartContainer の子要素をクリア
-                    prefChartContainer.innerHTML = '';
-
-                    // 戻るボタンの作成
-                    const backButton = document.createElement('button');
-                    backButton.id = 'back-to-map-btn';
-                    backButton.textContent = '戻る';
-                    prefChartContainer.appendChild(backButton);
-
-                    // グラフラッパーの作成
-                    const chartWrapper = document.createElement('div');
-                    chartWrapper.className = 'pref-chart-wrapper';
-                    prefChartContainer.appendChild(chartWrapper);
-
-                    // Canvasの作成
-                    const canvas = document.createElement('canvas');
-                    canvas.id = 'prefectureHistoryChart';
-                    chartWrapper.appendChild(canvas);
-                    // 再生成されたボタンにもイベントリスナーが必要だが、
-                    // init()内のイベントリスナーは初期化時のみなので、ここでも付与するか、
-                    // あるいは innerHTML を書き換えずに表示/非表示で制御する方が良い。
-                    // ここでは簡易的に、innerHTML書き換え後に再度リスナーを設定する方針でいくが、
-                    // 戻るボタンのIDが重複しないよう注意（生成時は1つなのでOK）
-                    const newBackBtn = document.getElementById('back-to-map-btn');
-                    if (newBackBtn) {
-                        newBackBtn.addEventListener('click', () => {
-                            document.getElementById('map-view').classList.remove('hidden');
-                            document.getElementById('pref-chart-container').classList.add('hidden');
-                            currentPrefecture = null;
-                        });
-                    }
-                }, 100);
-            });
-        }
         return;
-    } else {
-        // ARI以外で、もしコンテナがメッセージ表示状態になっていたら復元する（念のため）
-        if (!document.getElementById('prefectureHistoryChart')) {
-            // prefChartContainer の子要素をクリア
-            prefChartContainer.innerHTML = '';
-
-            // 戻るボタンの作成
-            const backButton = document.createElement('button');
-            backButton.id = 'back-to-map-btn';
-            backButton.textContent = '戻る';
-            prefChartContainer.appendChild(backButton);
-
-            // グラフラッパーの作成
-            const chartWrapper = document.createElement('div');
-            chartWrapper.className = 'pref-chart-wrapper';
-            prefChartContainer.appendChild(chartWrapper);
-
-            // Canvasの作成
-            const canvas = document.createElement('canvas');
-            canvas.id = 'prefectureHistoryChart';
-            chartWrapper.appendChild(canvas);
-            const newBackBtn = document.getElementById('back-to-map-btn');
-            if (newBackBtn) {
-                newBackBtn.addEventListener('click', () => {
-                    document.getElementById('map-view').classList.remove('hidden');
-                    document.getElementById('pref-chart-container').classList.add('hidden');
-                    currentPrefecture = null;
-                });
-            }
-        }
-
-        // 既存の戻るボタンにイベントリスナーがない場合の対策（innerHTML書き換え後など）
-        // ただし、init()で設定されたリスナーは要素が置換されると消える。
-        // 毎回ここで設定しなおすのが安全。
-        const backBtn = document.getElementById('back-to-map-btn');
-        // 既存のリスナーを削除するのは難しいので、クローンして置換することでリセットするか、
-        // 単純に上書きする。
-        // ここでは、要素が存在すれば、新しい要素として再取得しているので、都度設定する。
-        // 重複登録を防ぐため、replaceWithで要素をリフレッシュする手もあるが、
-        // 簡易的に「クリック時の動作」を関数化して割り当てる。
-        if (backBtn) {
-            // クローンしてイベントリスナーを削除
-            const newBackBtn = backBtn.cloneNode(true);
-            backBtn.parentNode.replaceChild(newBackBtn, backBtn);
-            newBackBtn.addEventListener('click', () => {
-                document.getElementById('map-view').classList.remove('hidden');
-                document.getElementById('pref-chart-container').classList.add('hidden');
-                currentPrefecture = null;
-            });
-        }
     }
 
-    const yearDataSets = [];
-    const currentYear = new Date().getFullYear();
+    // グラフ描画エリアの作成
+    const chartWrapper = document.createElement('div');
+    chartWrapper.className = 'pref-chart-wrapper';
+    prefChartContainer.appendChild(chartWrapper);
+
+    showChartLoading(chartWrapper);
+
+    // ARIの場合はここで処理終了
+    if (disease === 'ARI') {
+        hideChartLoading(chartWrapper);
+        const messageP = document.createElement('p');
+        messageP.className = 'pref-chart-message';
+        messageP.textContent = '急性呼吸器感染症 (ARI) の週次推移データはありません。';
+        chartWrapper.appendChild(messageP);
+    } else {
+        const canvas = document.createElement('canvas');
+        canvas.id = 'prefectureHistoryChart';
+        chartWrapper.appendChild(canvas);
+
+        const yearDataSets = [];
+        const currentYear = new Date().getFullYear();
+
+        // 当年のデータ
+        const currentYearHistory = cachedData.current.history.find(h => h.disease === disease && h.prefecture === prefecture);
+        if (currentYearHistory) {
+            yearDataSets.push({ year: currentYear, data: currentYearHistory.history });
+        }
+
+        // 過去のアーカイブデータ
+        cachedData.archives.forEach(archive => {
+            // 当年のデータは、すでに currentYearHistory で追加されているので重複しないようにする
+            if (parseInt(archive.year) === currentYear) return;
+
+            const history = archive.data.find(d => d.disease === disease && d.prefecture === prefecture);
+            if (history) {
+                // Tougai CSVから抽出されたデータはすでにhistoryプロパティを持っている
+                yearDataSets.push({ year: archive.year, data: history.history });
+            }
+        });
+
+        if (yearDataSets.length === 0) {
+            console.warn(`No history data for ${prefecture} (${disease}) across all years.`);
+            hideChartLoading(chartWrapper);
+            chartWrapper.innerHTML = '<p class="no-data-message" style="text-align: center; padding: 2rem; color: #666;">データがありません。</p>';
+        } else {
+            const globalMax = getGlobalMaxForDisease(disease);
+            renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax, chartWrapper);
+        }
+    }
 
     // 当年のデータ
     const currentYearHistory = cachedData.current.history.find(h => h.disease === disease && h.prefecture === prefecture);
@@ -1522,7 +1529,7 @@ async function reloadData() {
 
         // 地域が選択されていた場合は地域詳細パネルを再描画
         if (currentRegionId && typeof window.updateDetailPanel === 'function' && cachedData) {
-            window.updateDetailPanel(currentRegionId, cachedData, currentDisease);
+            window.updateDetailPanel(currentRegionId, cachedData, currentDisease, currentPrefecture);
         }
 
         // 「その他の感染症」リストビューが表示中であれば、リロード後に再度レンダリングしてグラフを表示

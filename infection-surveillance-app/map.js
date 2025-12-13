@@ -158,7 +158,7 @@ function getColorForValue(value, disease) {
     return "#2ecc71"; // Normal Green
 }
 
-function showRegionDetails(regionId, regionLabel, prefectures, data, disease) {
+function showRegionDetails(regionId, regionLabel, prefectures, data, disease, highlightPrefecture = null) {
     const panel = document.getElementById('detail-panel');
     const title = document.getElementById('region-title');
     const content = document.getElementById('region-content');
@@ -184,6 +184,9 @@ function showRegionDetails(regionId, regionLabel, prefectures, data, disease) {
     sortedPrefs.forEach(item => {
         const row = document.createElement('div');
         row.className = 'pref-row';
+        if (highlightPrefecture && item.name === highlightPrefecture) {
+            row.classList.add('selected');
+        }
 
         // Determine status class
         let statusClass = 'normal';
@@ -226,7 +229,7 @@ function showRegionDetails(regionId, regionLabel, prefectures, data, disease) {
 }
 
 // 外部から詳細パネルを更新するための関数
-window.updateDetailPanel = function (regionId, data, disease) {
+window.updateDetailPanel = function (regionId, data, disease, highlightPrefecture = null) {
     // layoutデータなどが必要だが、ここでは簡易的にREGIONSから復元
     const prefectures = REGIONS[regionId];
     if (!prefectures) return;
@@ -242,7 +245,7 @@ window.updateDetailPanel = function (regionId, data, disease) {
     // data構造の正規化: main.jsからの呼び出しでは cachedData 全体が渡されるため、currentを取り出す
     const currentData = data.current ? data.current : data;
 
-    showRegionDetails(regionId, label, prefectures, currentData, disease);
+    showRegionDetails(regionId, label, prefectures, currentData, disease, highlightPrefecture);
 };
 
 window.getRegionIdByPrefecture = function (prefectureName) {
