@@ -951,30 +951,30 @@ function toggleCardExpansion(card) {
     const backdrop = document.getElementById('card-backdrop');
     const isExpanded = card.classList.contains('expanded');
 
+    // グラフインスタンスを事前に取得
+    const chartCanvas = card.querySelector('canvas');
+    const chartInstance = chartCanvas ? chartCanvas.chart : null;
+
     if (isExpanded) {
         // 縮小
-        // プレースホルダーから元に戻す
         const placeholder = document.getElementById(`placeholder-${card.dataset.disease}`);
         if (placeholder && placeholder.parentNode) {
-            placeholder.parentNode.insertBefore(card, placeholder);
-            placeholder.remove();
+            // プレースホルダーをカードで置き換え、DOM内の元の場所に戻す
+            placeholder.replaceWith(card);
+        } else {
+            // プレースホルダーが見つからない場合の安全策として、カードを非表示にする
+            card.style.display = 'none';
         }
 
         card.classList.remove('expanded');
         if (backdrop) backdrop.classList.remove('active');
     } else {
         // 拡大
-        // 他に開いているカードがあれば閉じる
-        const expandedCard = document.querySelector('.disease-card.expanded');
-        if (expandedCard) {
-            // 既存の拡大カードを縮小処理（プレースホルダー処理含む）
-            const diseaseKey = expandedCard.dataset.disease;
-            const placeholder = document.getElementById(`placeholder-${diseaseKey}`);
-            if (placeholder && placeholder.parentNode) {
-                placeholder.parentNode.insertBefore(expandedCard, placeholder);
-                placeholder.remove();
-            }
-            expandedCard.classList.remove('expanded');
+        // 他に開いているカードがあれば、まずそれを閉じる
+        const currentlyExpandedCard = document.querySelector('.disease-card.expanded');
+        if (currentlyExpandedCard) {
+            // 共通の縮小ロジックを呼び出す
+            toggleCardExpansion(currentlyExpandedCard);
         }
 
         // プレースホルダーを作成して挿入
@@ -982,15 +982,20 @@ function toggleCardExpansion(card) {
         placeholder.id = `placeholder-${card.dataset.disease}`;
         placeholder.className = 'disease-card placeholder';
 
-        card.parentNode.insertBefore(placeholder, card);
+        // カードの場所にプレースホルダーを置く
+        if (card.parentNode) {
+            card.parentNode.insertBefore(placeholder, card);
+        }
 
         card.classList.add('expanded');
-        // body直下に移動させて、z-indexやpositionの影響を受けないようにする（fixed配置のため）
-        // ただし、fixedなら移動しなくてもいい場合もあるが、親のtransformなどの影響を避けるため移動が安全
-        // 今回はCSSでfixedにしているので、DOM移動は必須ではないかもしれないが、
-        // 拡大時に元の場所に穴が開くのを防ぐためにプレースホルダーは必須。
-
         if (backdrop) backdrop.classList.add('active');
+    }
+
+    // CSSのトランジションが完了するのを待ってからリサイズを実行
+    if (chartInstance) {
+        setTimeout(() => {
+            chartInstance.resize();
+        }, 150); // トランジション時間に合わせて調整 (CSSになければ50ms程度で良い)
     }
 }
 

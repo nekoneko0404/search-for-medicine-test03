@@ -477,8 +477,8 @@ body {
 }
 
 .disease-card canvas {
-    width: 100% !important;
-    height: 100% !important;
+    width: 100%;
+    height: 100%;
 }
 
 .left-panel {
@@ -896,9 +896,7 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .expand-action-btn {
-        display: none;
-    }
+
 }
 
 /* Prefecture Chart Container (Swapped with Map) */
