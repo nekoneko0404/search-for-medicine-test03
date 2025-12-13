@@ -650,9 +650,10 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
 
         // 配色ルール
         if (year === new Date().getFullYear()) {
-            // 当年 (2025年): 感染レベルに応じて色を変える
-            // 初期値（セグメント機能が効かない場合のフォールバック）
-            borderColor = '#2ecc71';
+            // ds.dataは{week, value}のオブジェクト配列なので、valueでフィルタリング
+            const validDataPoints = ds.data.filter(d => d && d.value !== null && d.value !== undefined);
+            const lastDataPoint = validDataPoints.length > 0 ? validDataPoints[validDataPoints.length - 1] : { value: 0, week: 0 }; // デフォルト値にweekも追加
+            borderColor = getColorForValue(lastDataPoint.value, diseaseKey);
             borderWidth = 3;
             pointRadius = 2.5;
         } else if (year === new Date().getFullYear() - 1) {
@@ -792,27 +793,6 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                         font: { size: isMobile ? 11 : 12 },
                         usePointStyle: true,
                         pointStyle: 'rectRounded'
-                    },
-                    generateLabels: function (chart) {
-                        const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                        const currentYear = new Date().getFullYear();
-                        const currentYearDatasetIndex = chart.data.datasets.findIndex(ds => ds.year === currentYear);
-
-                        if (currentYearDatasetIndex !== -1) {
-                            const dataset = chart.data.datasets[currentYearDatasetIndex];
-                            const validDataPoints = dataset.data.filter(d => d !== null && d !== undefined);
-                            const lastDataPoint = validDataPoints[validDataPoints.length - 1];
-
-                            if (lastDataPoint !== null && lastDataPoint !== undefined) {
-                                // diseaseKeyをdatasetから取得するように修正
-                                const diseaseKey = dataset.disease;
-                                const color = getColorForValue(lastDataPoint, diseaseKey);
-                                originalLabels[currentYearDatasetIndex].fillStyle = color;
-                                originalLabels[currentYearDatasetIndex].strokeStyle = color;
-                            }
-                        }
-
-                        return originalLabels;
                     },
                     onClick: function (e, legendItem, legend) {
                         // 凡例クリック時にカードの拡大縮小が暴発しないように伝播を止める
