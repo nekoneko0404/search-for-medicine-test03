@@ -327,6 +327,7 @@ body {
     cursor: default;
     border: 1px solid rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    overflow: hidden;
 }
 
 .disease-card.placeholder {

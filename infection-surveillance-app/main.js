@@ -609,6 +609,12 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         canvas.chart.destroy();
     }
 
+    // Canvasの描画コンテキストを明示的にクリア
+    // これにより、Chart.jsが以前の描画を完全に消去することを保証し、残像問題を解消
+    if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
     const isMobile = window.innerWidth <= 768; // スマホ判定簡易版
 
     const labels = []; // 週のラベル
@@ -947,55 +953,110 @@ function renderTrendChart(disease, data) {
     hideChartLoading(chartView); // グラフ描画完了後にローディングを非表示
 }
 
-function toggleCardExpansion(card) {
-    const backdrop = document.getElementById('card-backdrop');
-    const isExpanded = card.classList.contains('expanded');
+function getYearDataSets(diseaseKey, prefecture) {
+    const yearDataSets = [];
+    const currentYear = new Date().getFullYear();
 
-    // グラフインスタンスを事前に取得
-    const chartCanvas = card.querySelector('canvas');
-    const chartInstance = chartCanvas ? chartCanvas.chart : null;
-
-    if (isExpanded) {
-        // 縮小
-        const placeholder = document.getElementById(`placeholder-${card.dataset.disease}`);
-        if (placeholder && placeholder.parentNode) {
-            // プレースホルダーをカードで置き換え、DOM内の元の場所に戻す
-            placeholder.replaceWith(card);
-        } else {
-            // プレースホルダーが見つからない場合の安全策として、カードを非表示にする
-            card.style.display = 'none';
+    if (cachedData.current && cachedData.current.history) {
+        const currentHistory = cachedData.current.history.find(h => h.disease === diseaseKey && h.prefecture === prefecture);
+        if (currentHistory) {
+            yearDataSets.push({ year: currentYear, data: currentHistory.history });
         }
-
-        card.classList.remove('expanded');
-        if (backdrop) backdrop.classList.remove('active');
-    } else {
-        // 拡大
-        // 他に開いているカードがあれば、まずそれを閉じる
-        const currentlyExpandedCard = document.querySelector('.disease-card.expanded');
-        if (currentlyExpandedCard) {
-            // 共通の縮小ロジックを呼び出す
-            toggleCardExpansion(currentlyExpandedCard);
-        }
-
-        // プレースホルダーを作成して挿入
-        const placeholder = document.createElement('div');
-        placeholder.id = `placeholder-${card.dataset.disease}`;
-        placeholder.className = 'disease-card placeholder';
-
-        // カードの場所にプレースホルダーを置く
-        if (card.parentNode) {
-            card.parentNode.insertBefore(placeholder, card);
-        }
-
-        card.classList.add('expanded');
-        if (backdrop) backdrop.classList.add('active');
     }
 
-    // CSSのトランジションが完了するのを待ってからリサイズを実行
-    if (chartInstance) {
-        setTimeout(() => {
-            chartInstance.resize();
-        }, 150); // トランジション時間に合わせて調整 (CSSになければ50ms程度で良い)
+    if (cachedData.archives) {
+        cachedData.archives.forEach(archive => {
+            if (parseInt(archive.year) === currentYear) return;
+
+            const archiveHistory = archive.data ? archive.data.find(d => d.disease === diseaseKey && d.prefecture === prefecture) : null;
+            if (archiveHistory) {
+                yearDataSets.push({ year: archive.year, data: archiveHistory.history });
+            }
+        });
+    }
+    return yearDataSets;
+}
+
+function openExpandedChart(diseaseKey, prefecture) {
+    // 既存のモーダルがあれば閉じる
+    closeExpandedChart();
+
+    // モーダル作成
+    const modal = document.createElement('div');
+    modal.className = 'disease-card expanded expanded-modal'; // .disease-card.expanded のスタイルを流用
+    modal.dataset.disease = diseaseKey;
+    
+    // スタイル調整（直接bodyに追加するため）
+    modal.style.position = 'fixed';
+    modal.style.zIndex = '2000';
+
+    // ヘッダー
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    const h4 = document.createElement('h4');
+    h4.textContent = `${prefecture} ${getDiseaseName(diseaseKey)}`;
+    header.appendChild(h4);
+
+    // 閉じるボタン
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-expanded-btn';
+    closeBtn.textContent = '×';
+    closeBtn.setAttribute('aria-label', '閉じる');
+    // CSSで display:none になっている可能性があるため強制表示
+    closeBtn.style.display = 'flex';
+    closeBtn.onclick = closeExpandedChart;
+    // ヘッダー内ではなく、カードの直接の子として配置（CSSの配置に合わせる）
+    modal.appendChild(closeBtn);
+    modal.appendChild(header);
+
+    // チャートコンテナ
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'chart-container';
+    const canvasId = `expanded-chart-${diseaseKey}`;
+    const canvas = document.createElement('canvas');
+    canvas.id = canvasId;
+    chartContainer.appendChild(canvas);
+    modal.appendChild(chartContainer);
+
+    document.body.appendChild(modal);
+
+    // 背景
+    const backdrop = document.getElementById('card-backdrop');
+    if (backdrop) {
+        backdrop.classList.add('active');
+        // 背景クリックで閉じる
+        const cleanupBackdrop = () => {
+            closeExpandedChart();
+            backdrop.removeEventListener('click', cleanupBackdrop);
+        };
+        backdrop.addEventListener('click', cleanupBackdrop);
+    }
+
+    // チャート描画
+    const yearDataSets = getYearDataSets(diseaseKey, prefecture);
+    const globalMax = getGlobalMaxForDisease(diseaseKey);
+    // モーダル表示のアニメーションを待ってから描画したほうが安全だが、Chart.jsはresponsiveなら大丈夫
+    requestAnimationFrame(() => {
+        renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, globalMax, chartContainer);
+    });
+}
+
+function closeExpandedChart() {
+    const modal = document.querySelector('.disease-card.expanded-modal');
+    if (modal) {
+        // チャート破棄
+        const canvas = modal.querySelector('canvas');
+        if (canvas && canvas.chart) {
+            canvas.chart.destroy();
+        }
+        modal.remove();
+    }
+    const backdrop = document.getElementById('card-backdrop');
+    if (backdrop) {
+        backdrop.classList.remove('active');
+        // イベントリスナーの解除は難しい（無名関数のため）が、activeクラス除去で非表示になるので実用上問題ない
+        // 次回open時に再度addされるが、重複しても動作は同じ
+        // 厳密には cloneNode でリセットするのが綺麗だが、ここでは簡易的に済ませる
     }
 }
 
@@ -1278,36 +1339,19 @@ expandButton.appendChild(svg);
         if (expandBtn) {
             expandBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                toggleCardExpansion(card);
+                // 新しいモーダル方式で開く
+                openExpandedChart(disease.key, prefecture);
             });
         }
-
-
+        
+        // 小さいカードには閉じるボタン不要 (モーダル側にのみ存在)
         const closeBtn = card.querySelector('.close-expanded-btn');
         if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleCardExpansion(card);
-            });
+            closeBtn.remove();
         }
 
-        // 各疾患のデータと過去データを取得
-        const yearDataSets = [];
-        const currentYear = new Date().getFullYear();
-
-        const currentHistory = cachedData.current.history.find(h => h.disease === disease.key && h.prefecture === prefecture);
-        if (currentHistory) {
-            yearDataSets.push({ year: currentYear, data: currentHistory.history });
-        }
-
-        cachedData.archives.forEach(archive => {
-            if (parseInt(archive.year) === currentYear) return;
-
-            const archiveHistory = archive.data.find(d => d.disease === disease.key && d.prefecture === prefecture);
-            if (archiveHistory) {
-                yearDataSets.push({ year: archive.year, data: archiveHistory.history });
-            }
-        });
+        // 各疾患のデータと過去データを取得 (ヘルパー関数を使用)
+        const yearDataSets = getYearDataSets(disease.key, prefecture);
 
         if (yearDataSets.length > 0) {
             const globalMax = getGlobalMaxForDisease(disease.key);
@@ -1528,10 +1572,19 @@ function initEventListeners() {
 
     const backdrop = document.getElementById('card-backdrop');
     if (backdrop) {
+        // openExpandedChart内でイベントリスナーを設定するため、初期化時は何もしないか、
+        // もしくは既存の閉じる処理を一貫させるなら以下のようにする
         backdrop.addEventListener('click', () => {
-            const expandedCard = document.querySelector('.disease-card.expanded');
-            if (expandedCard) {
-                toggleCardExpansion(expandedCard);
+            // モーダルが表示されている場合のみ閉じる
+            if (document.querySelector('.disease-card.expanded-modal')) {
+                closeExpandedChart();
+            }
+            // 旧方式のexpandedカードが残っている場合のケア（念のため）
+            const oldExpandedCard = document.querySelector('.disease-card.expanded:not(.expanded-modal)');
+            if (oldExpandedCard) {
+                 // 旧方式のクリーンアップが必要だが、関数削除済みのため、class除去だけ行う
+                 oldExpandedCard.classList.remove('expanded');
+                 backdrop.classList.remove('active');
             }
         });
     }
