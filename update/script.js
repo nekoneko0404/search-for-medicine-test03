@@ -94,22 +94,28 @@ function normalizeString(str) {
 
 function renderStatusButton(status, isUpdated = false) {
     const trimmedStatus = (status || "").trim();
+    const span = document.createElement('span');
     let baseClass = "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block transition-colors duration-150";
 
     if (isUpdated) {
         baseClass += ' border-red-500 border-2';
     }
+    span.className = baseClass;
 
     if (trimmedStatus.includes("通常出荷") || trimmedStatus.includes("通")) {
-        return `<span class="${baseClass} bg-indigo-500 text-white hover:bg-indigo-600">通常出荷</span>`;
+        span.classList.add('bg-indigo-500', 'text-white', 'hover:bg-indigo-600');
+        span.textContent = '通常出荷';
     } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
-        return `<span class="${baseClass} bg-yellow-400 text-gray-800 hover:bg-yellow-500">限定出荷</span>`;
+        span.classList.add('bg-yellow-400', 'text-gray-800', 'hover:bg-yellow-500');
+        span.textContent = '限定出荷';
     } else if (trimmedStatus.includes("供給停止") || trimmedStatus.includes("停止") || trimmedStatus.includes("停")) {
-        return `<span class="${baseClass} bg-gray-700 text-white hover:bg-gray-800">供給停止</span>`;
+        span.classList.add('bg-gray-700', 'text-white', 'hover:bg-gray-800');
+        span.textContent = '供給停止';
     } else {
-        const escapedStatus = (trimmedStatus || "不明").replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-        return `<span class="${baseClass} bg-gray-200 text-gray-800 hover:bg-gray-300">${escapedStatus}</span>`;
+        span.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+        span.textContent = trimmedStatus || "不明";
     }
+    return span;
 }
 
 let isComposing = false;
@@ -325,36 +331,65 @@ function displayResults(results) {
         const productNameCell = newRow.insertCell();
         productNameCell.className = `px-2 py-3 text-sm text-gray-900 align-top ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
         
-        let labelsHTML = '';
+        const labelsContainer = document.createElement('div');
+        labelsContainer.className = 'flex gap-1 mb-1';
         const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
         const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
 
         if (isGeneric) {
-            labelsHTML += `<span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200">後発</span>`;
+            const span = document.createElement('span');
+            span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
+            span.textContent = '後発';
+            labelsContainer.appendChild(span);
         }
         if (isBasic) {
-            labelsHTML += `<span class="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200">基礎</span>`;
+            const span = document.createElement('span');
+            span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
+            span.textContent = '基礎';
+            labelsContainer.appendChild(span);
         }
 
-        productNameCell.innerHTML = `
-            <div class="flex flex-col">
-                ${labelsHTML ? `<div class="flex gap-1 mb-1">${labelsHTML}</div>` : ''}
-                <span class="font-semibold break-words">${escapeHTML(item.productName) || '-'}</span>
-            </div>`;
+        productNameCell.innerHTML = ''; // Clear content
+        const flexContainer = document.createElement('div');
+        flexContainer.className = 'flex flex-col';
+
+        if (labelsContainer.hasChildNodes()) { // labelsContainerが空でなければ追加
+            flexContainer.appendChild(labelsContainer);
+        }
+
+        const spanProductName = document.createElement('span');
+        spanProductName.className = 'font-semibold break-words';
+        spanProductName.textContent = escapeHTML(item.productName) || '-';
+        flexContainer.appendChild(spanProductName);
+
+        productNameCell.appendChild(flexContainer);
 
         // 2. 成分名
         const ingredientNameCell = newRow.insertCell();
         ingredientNameCell.className = `px-2 py-3 text-sm align-top ${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
-        ingredientNameCell.innerHTML = `<span class="ingredient-link cursor-pointer text-indigo-600 font-medium hover:text-indigo-800 hover:underline transition-colors break-words" data-ingredient="${escapeHTML(item.ingredientName || '')}">${escapeHTML(item.ingredientName) || '-'}</span>`;
+        ingredientNameCell.innerHTML = ''; // Clear content
+        const spanIngredient = document.createElement('span');
+        spanIngredient.className = 'ingredient-link cursor-pointer text-indigo-600 font-medium hover:text-indigo-800 hover:underline transition-colors break-words';
+        spanIngredient.dataset.ingredient = escapeHTML(item.ingredientName || '');
+        spanIngredient.textContent = escapeHTML(item.ingredientName) || '-';
+        ingredientNameCell.appendChild(spanIngredient);
 
         // 3. 出荷状況
         const statusCell = newRow.insertCell();
         statusCell.className = 'px-2 py-3 text-sm text-gray-900 text-left align-top';
-        statusCell.innerHTML = `
-            <div class="flex items-center gap-1">
-                ${renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus))}
-                ${item.shippingStatusTrend ? `<span class="text-red-500 font-bold text-lg">${item.shippingStatusTrend}</span>` : ''}
-            </div>`;
+        statusCell.innerHTML = ''; // Clear content
+        const flexContainer = document.createElement('div');
+        flexContainer.className = 'flex items-center gap-1';
+
+        flexContainer.appendChild(renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus)));
+
+        if (item.shippingStatusTrend) {
+            const spanTrend = document.createElement('span');
+            spanTrend.className = 'text-red-500 font-bold text-lg';
+            spanTrend.textContent = item.shippingStatusTrend;
+            flexContainer.appendChild(spanTrend);
+        }
+        statusCell.appendChild(flexContainer);
 
         // 4. 制限理由
         const reasonCell = newRow.insertCell();

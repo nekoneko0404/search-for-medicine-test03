@@ -37,6 +37,18 @@ window.setCurrentRegion = function (regionId) {
     currentPrefecture = null; // グラフモード解除
 };
 
+// sanitization function
+function sanitizeHTML(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
 // CSVパーサー (簡易版)
 function parseCSV(text) {
     const lines = text.split(/\r\n|\n/).map(line => line.trim()).filter(line => line);
@@ -54,13 +66,13 @@ function parseCSV(text) {
                     inQuote = !inQuote;
                 }
             } else if (char === ',' && !inQuote) {
-                result.push(current);
+                result.push(sanitizeHTML(current));
                 current = '';
             } else {
                 current += char;
             }
         }
-        result.push(current);
+        result.push(sanitizeHTML(current));
         return result;
     });
 }
@@ -459,9 +471,14 @@ function switchDisease(disease) {
         card.classList.toggle('active', card.dataset.disease === disease);
     });
 
+    const otherDiseasesListView = document.getElementById('other-diseases-list-view');
+    const isOtherDiseasesViewActive = otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden');
 
-    // グラフ表示モード（都道府県選択中）の場合は、グラフを更新して維持する
-    if (currentPrefecture) {
+    if (isOtherDiseasesViewActive) {
+        // 「その他の感染症」ビューがアクティブな場合、選択中の都道府県でリストを更新
+        renderOtherDiseasesList(currentPrefecture || '全国');
+    } else if (currentPrefecture) {
+        // 都道府県別詳細チャート表示中の場合、疾患を切り替えてチャートを更新
         showPrefectureChart(currentPrefecture, disease);
     } else {
         switchView('main-view'); // メインビューを表示
@@ -920,12 +937,42 @@ function showPrefectureChart(prefecture, disease) {
 
     // ARIの場合はグラフを表示せずメッセージを表示
     if (disease === 'ARI') {
-        prefChartContainer.innerHTML = `
-            <button id="back-to-map-btn" style="align-self: flex-end; margin-bottom: 10px; z-index: 10; padding: 5px 15px; cursor: pointer; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: #666; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">戻る</button>
-            <div class="pref-chart-wrapper" style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                <p style="color: #666; font-size: 1rem;">急性呼吸器感染症 (ARI) の週次推移データはありません。</p>
-            </div>
-        `;
+        // prefChartContainer の子要素をクリア
+        prefChartContainer.innerHTML = ''; 
+
+        // 戻るボタンの作成
+        const backButton = document.createElement('button');
+        backButton.id = 'back-to-map-btn';
+        backButton.textContent = '戻る';
+        backButton.style.alignSelf = 'flex-end';
+        backButton.style.marginBottom = '10px';
+        backButton.style.zIndex = '10';
+        backButton.style.padding = '5px 15px';
+        backButton.style.cursor = 'pointer';
+        backButton.style.backgroundColor = '#fff';
+        backButton.style.border = '1px solid #ddd';
+        backButton.style.borderRadius = '8px';
+        backButton.style.fontSize = '0.9rem';
+        backButton.style.fontWeight = '500';
+        backButton.style.color = '#666';
+        backButton.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+        prefChartContainer.appendChild(backButton);
+
+        // メッセージラッパーの作成
+        const messageWrapper = document.createElement('div');
+        messageWrapper.className = 'pref-chart-wrapper';
+        messageWrapper.style.display = 'flex';
+        messageWrapper.style.justifyContent = 'center';
+        messageWrapper.style.alignItems = 'center';
+        messageWrapper.style.height = '100%';
+        prefChartContainer.appendChild(messageWrapper);
+
+        // メッセージPタグの作成
+        const messageP = document.createElement('p');
+        messageP.style.color = '#666';
+        messageP.style.fontSize = '1rem';
+        messageP.textContent = '急性呼吸器感染症 (ARI) の週次推移データはありません。';
+        messageWrapper.appendChild(messageP);
 
         // 戻るボタンのイベントリスナー再設定
         const backBtn = prefChartContainer.querySelector('#back-to-map-btn');
@@ -938,12 +985,24 @@ function showPrefectureChart(prefecture, disease) {
                 // コンテナの中身を元に戻す（Canvas再作成）
                 // これをしないと次回別の疾患でグラフが表示できなくなるため、構造を復元する
                 setTimeout(() => {
-                    prefChartContainer.innerHTML = `
-                        <button id="back-to-map-btn">戻る</button>
-                        <div class="pref-chart-wrapper">
-                            <canvas id="prefectureHistoryChart"></canvas>
-                        </div>
-                    `;
+                    // prefChartContainer の子要素をクリア
+                    prefChartContainer.innerHTML = '';
+
+                    // 戻るボタンの作成
+                    const backButton = document.createElement('button');
+                    backButton.id = 'back-to-map-btn';
+                    backButton.textContent = '戻る';
+                    prefChartContainer.appendChild(backButton);
+
+                    // グラフラッパーの作成
+                    const chartWrapper = document.createElement('div');
+                    chartWrapper.className = 'pref-chart-wrapper';
+                    prefChartContainer.appendChild(chartWrapper);
+
+                    // Canvasの作成
+                    const canvas = document.createElement('canvas');
+                    canvas.id = 'prefectureHistoryChart';
+                    chartWrapper.appendChild(canvas);
                     // 再生成されたボタンにもイベントリスナーが必要だが、
                     // init()内のイベントリスナーは初期化時のみなので、ここでも付与するか、
                     // あるいは innerHTML を書き換えずに表示/非表示で制御する方が良い。
@@ -964,12 +1023,24 @@ function showPrefectureChart(prefecture, disease) {
     } else {
         // ARI以外で、もしコンテナがメッセージ表示状態になっていたら復元する（念のため）
         if (!document.getElementById('prefectureHistoryChart')) {
-            prefChartContainer.innerHTML = `
-                <button id="back-to-map-btn">戻る</button>
-                <div class="pref-chart-wrapper">
-                    <canvas id="prefectureHistoryChart"></canvas>
-                </div>
-            `;
+            // prefChartContainer の子要素をクリア
+            prefChartContainer.innerHTML = '';
+
+            // 戻るボタンの作成
+            const backButton = document.createElement('button');
+            backButton.id = 'back-to-map-btn';
+            backButton.textContent = '戻る';
+            prefChartContainer.appendChild(backButton);
+
+            // グラフラッパーの作成
+            const chartWrapper = document.createElement('div');
+            chartWrapper.className = 'pref-chart-wrapper';
+            prefChartContainer.appendChild(chartWrapper);
+
+            // Canvasの作成
+            const canvas = document.createElement('canvas');
+            canvas.id = 'prefectureHistoryChart';
+            chartWrapper.appendChild(canvas);
             const newBackBtn = document.getElementById('back-to-map-btn');
             if (newBackBtn) {
                 newBackBtn.addEventListener('click', () => {
@@ -1076,6 +1147,12 @@ function renderOtherDiseasesList(prefecture = '全国') {
         titleElement.textContent = `その他の感染症（${prefecture}）`;
     }
 
+    // ドロップダウンの選択値を更新
+    const prefSelect = document.getElementById('prefecture-select');
+    if (prefSelect) {
+        prefSelect.value = prefecture; // ドロップダウンの値を設定
+    }
+
     // 主要3疾患以外をフィルタリング
     const otherDiseases = ALL_DISEASES.filter(d => !['Influenza', 'COVID-19', 'ARI'].includes(d.key));
 
@@ -1096,12 +1173,25 @@ function renderOtherDiseasesList(prefecture = '全国') {
         const expandButton = document.createElement('button');
         expandButton.className = 'expand-action-btn';
         expandButton.setAttribute('aria-label', '拡大表示');
-        expandButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="15 3 21 3 21 9"></polyline>
-                                    <polyline points="9 21 3 21 3 15"></polyline>
-                                    <line x1="21" y1="3" x2="14" y2="10"></line>
-                                    <line x1="3" y1="21" x2="10" y2="14"></line>
-                                </svg>`; // SVGは構造が固定のためinnerHTMLでOK
+// SVGをクリア
+expandButton.innerHTML = ''; 
+
+const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+svg.setAttribute("width", "20");
+svg.setAttribute("height", "20");
+svg.setAttribute("viewBox", "0 0 24 24");
+svg.setAttribute("fill", "none");
+svg.setAttribute("stroke", "currentColor");
+svg.setAttribute("stroke-width", "2");
+svg.setAttribute("stroke-linecap", "round");
+svg.setAttribute("stroke-linejoin", "round");
+
+const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+path.setAttribute("d", "M12 5v14M5 12h14");
+
+svg.appendChild(path);
+expandButton.appendChild(svg);
 
         cardHeader.appendChild(h4);
         cardHeader.appendChild(expandButton);
@@ -1223,32 +1313,64 @@ async function reloadData() {
         }
 
         // 2. 表示をスケルトンに置き換え
-        document.getElementById('summary-cards').innerHTML = `
-            <div class="skeleton-card-wrapper">
-                <div class="skeleton-card">
-                    <div class="skeleton skeleton-title"></div>
-                    <div class="skeleton skeleton-value"></div>
-                    <div class="skeleton skeleton-status"></div>
-                </div>
-                <div class="skeleton-card">
-                    <div class="skeleton skeleton-title"></div>
-                    <div class="skeleton skeleton-value"></div>
-                    <div class="skeleton skeleton-status"></div>
-                </div>
-                <div class="skeleton-card">
-                    <div class="skeleton skeleton-title"></div>
-                    <div class="skeleton skeleton-value"></div>
-                    <div class="skeleton skeleton-status"></div>
-                </div>
-            </div>`;
-        document.getElementById('japan-map').innerHTML = '<div class="skeleton skeleton-map"></div>';
+        const summaryCardsContainer = document.getElementById('summary-cards');
+        summaryCardsContainer.innerHTML = ''; // Clear existing content
+
+        const skeletonWrapper = document.createElement('div');
+        skeletonWrapper.className = 'skeleton-card-wrapper';
+
+        for (let i = 0; i < 5; i++) {
+            const skeletonCard = document.createElement('div');
+            skeletonCard.className = 'skeleton-card';
+
+            const skeletonTitle = document.createElement('div');
+            skeletonTitle.className = 'skeleton skeleton-title';
+            skeletonCard.appendChild(skeletonTitle);
+
+            const skeletonValue = document.createElement('div');
+            skeletonValue.className = 'skeleton skeleton-value';
+            skeletonCard.appendChild(skeletonValue);
+
+            const skeletonStatus = document.createElement('div');
+            skeletonStatus.className = 'skeleton skeleton-status';
+            skeletonCard.appendChild(skeletonStatus);
+
+            skeletonWrapper.appendChild(skeletonCard);
+        }
+        summaryCardsContainer.appendChild(skeletonWrapper);
+                const japanMapContainer = document.getElementById('japan-map');
+        japanMapContainer.innerHTML = ''; // Clear existing content
+        const skeletonMap = document.createElement('div');
+        skeletonMap.className = 'skeleton skeleton-map';
+        japanMapContainer.appendChild(skeletonMap);
         const chartView = document.getElementById('chart-view');
         if (chartView) {
-            chartView.innerHTML = '<div class="skeleton skeleton-chart"></div>';
+                    chartView.innerHTML = ''; // Clear existing content
+        const skeletonChart = document.createElement('div');
+        skeletonChart.className = 'skeleton skeleton-chart';
+        chartView.appendChild(skeletonChart);
         }
         const otherDiseasesGrid = document.getElementById('other-diseases-grid');
         if (otherDiseasesGrid) {
             otherDiseasesGrid.innerHTML = '';
+        }
+
+        // 都道府県チャートがアクティブな場合はスケルトンを追加
+        const prefChartContainer = document.getElementById('pref-chart-container');
+        if (prefChartContainer && !prefChartContainer.classList.contains('hidden')) {
+            prefChartContainer.innerHTML = ''; // 既存のチャートやメッセージをクリア
+            const skeletonPrefChart = document.createElement('div');
+            skeletonPrefChart.className = 'skeleton skeleton-chart large'; // より大きなスケルトンスタイルを使用（もしあれば）
+            prefChartContainer.appendChild(skeletonPrefChart);
+        }
+
+        // 地域詳細パネルがアクティブな場合はスケルトンを追加
+        const regionContent = document.getElementById('region-content');
+        if (regionContent && currentRegionId) { // currentRegionId が null でない、つまり地域が選択されている場合のみ処理
+            regionContent.innerHTML = ''; // 既存の内容をクリア
+            const skeletonRegionDetail = document.createElement('div');
+            skeletonRegionDetail.className = 'skeleton skeleton-chart large'; // 棒グラフなので 'skeleton-chart' を流用
+            regionContent.appendChild(skeletonRegionDetail);
         }
 
         // キャッシュをクリア
@@ -1258,7 +1380,11 @@ async function reloadData() {
         // データ取得とレンダリングのコア処理を再実行
         await loadAndRenderData();
 
-        // もし「その他の感染症」ビューが表示中であれば、再描画をトリガーする
+        // 地域が選択されていた場合は地域詳細パネルを再描画
+        if (currentRegionId && typeof window.updateDetailPanel === 'function' && cachedData) {
+            window.updateDetailPanel(currentRegionId, cachedData, currentDisease);
+        }
+
         const otherDiseasesListView = document.getElementById('other-diseases-list-view');
         if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
             const prefSelect = document.getElementById('prefecture-select');
@@ -1339,6 +1465,8 @@ function initEventListeners() {
                 otherDiseasesBtn.textContent = 'インフルエンザ・COVID-19';
                 document.getElementById('summary-cards').classList.add('hidden');
                 switchView('other-diseases-list-view');
+                renderOtherDiseasesList(currentPrefecture || '全国'); // 現在の都道府県を渡す
+            }
 
                 // 都道府県リストの生成（初回のみ）
                 const prefSelect = document.getElementById('prefecture-select');
@@ -1359,16 +1487,18 @@ function initEventListeners() {
                         prefSelect.appendChild(option);
                     });
 
+                    // currentPrefecture が設定されていれば、それを初期選択する
+                    if (currentPrefecture) {
+                        prefSelect.value = currentPrefecture;
+                    }
+
                     prefSelect.addEventListener('change', (e) => {
                         renderOtherDiseasesList(e.target.value);
                     });
                 }
-                renderOtherDiseasesList();
-            }
         });
     }
 }
-
 // 過去データを取得する関数
 async function fetchHistoryData() {
     try {
@@ -1451,7 +1581,6 @@ async function loadAndRenderData() {
             // 描画
             renderSummary(cachedData);
             renderDashboard(currentDisease, cachedData);
-            closePanel();
             updateLoadingState(false);
 
         } else {
@@ -1473,12 +1602,11 @@ async function loadAndRenderData() {
             // 日付表示更新
             updateDateDisplay(teitenCsv);
 
-            renderSummary(cachedData);
-            renderDashboard(currentDisease, cachedData);
-            closePanel();
+                        renderSummary(cachedData);
 
-            // ローディング表示をここで一旦解除
-            updateLoadingState(false);
+                        renderDashboard(currentDisease, cachedData);
+
+                        updateLoadingState(false);
 
             // 3. 過去データを非同期で取得して追加
             // console.log('Fetching history data in background...');

@@ -47,7 +47,10 @@ async function initNotification() {
                 const filteredContent = markdownContent.replace(/<!--[\s\S]*?-->/g, '').trim();
 
                 if (filteredContent === '') {
-                    body.innerHTML = '<p class="text-center text-gray-400">更新情報はありません。</p>';
+                            const p = document.createElement('p');
+        p.className = 'text-center text-gray-400';
+        p.textContent = '更新情報はありません。';
+        body.replaceChildren(p);
                     return;
                 }
 
@@ -56,11 +59,17 @@ async function initNotification() {
                 body.innerHTML = DOMPurify.sanitize(dirtyHtml);
             } else {
                 console.error('Failed to load notification:', response.statusText);
-                body.innerHTML = '<p class="text-center text-red-400">更新情報の読み込みに失敗しました。</p>';
+        const p = document.createElement('p');
+        p.className = 'text-center text-red-400';
+        p.textContent = '更新情報の読み込みに失敗しました。';
+        body.replaceChildren(p);
             }
         } catch (error) {
             console.error('Error fetching notification:', error);
-            body.innerHTML = '<p class="text-center text-red-400">更新情報の読み込みに失敗しました。</p>';
+                    const p = document.createElement('p');
+        p.className = 'text-center text-red-400';
+        p.textContent = '更新情報の読み込みに失敗しました。';
+        body.replaceChildren(p);
         }
     }
 }

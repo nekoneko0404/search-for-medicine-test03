@@ -158,7 +158,22 @@ export function createDropdown(item, index) {
 
     // Add chevron icon
     const chevron = document.createElement('span');
-    chevron.innerHTML = '<svg class="w-4 h-4 ml-1 opacity-0 group-hover/dropdown:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>';
+    chevron.innerHTML = ''; // Clear existing content
+
+const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+svg.setAttribute("class", "w-4 h-4 ml-1 opacity-0 group-hover/dropdown:opacity-100 transition-opacity");
+svg.setAttribute("fill", "none");
+svg.setAttribute("stroke", "currentColor");
+svg.setAttribute("viewBox", "0 0 24 24");
+
+const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+path.setAttribute("stroke-linecap", "round");
+path.setAttribute("stroke-linejoin", "round");
+path.setAttribute("stroke-width", "2");
+path.setAttribute("d", "M19 9l-7 7-7-7");
+
+svg.appendChild(path);
+chevron.appendChild(svg);
     button.appendChild(chevron);
 
     const dropdownContent = document.createElement('div');
