@@ -1,3 +1,77 @@
+// グラフローディングスケルトン用のCSSを動的に注入する
+function injectChartLoadingStyles() {
+    if (document.getElementById('chart-loading-styles')) {
+        return; // 既にスタイルが注入されている場合は何もしない
+    }
+
+    const style = document.createElement('style');
+    style.id = 'chart-loading-styles';
+    style.innerHTML = `
+        .chart-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.8); /* 白っぽい半透明の背景 */
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        .chart-loading-skeleton {
+            width: 90%;
+            height: 80%;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading-shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes loading-shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// グラフコンテナにローディングスケルトンを表示
+function showChartLoading(containerElement) {
+    if (!containerElement) return;
+
+    // 既にローディングオーバーレイが存在する場合は何もしない
+    if (containerElement.querySelector('.chart-loading-overlay')) {
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'chart-loading-overlay';
+    overlay.innerHTML = '<div class="chart-loading-skeleton"></div>';
+    
+    // コンテナのpositionがstatic以外であることを保証
+    if (window.getComputedStyle(containerElement).position === 'static') {
+        containerElement.style.position = 'relative';
+    }
+
+    containerElement.appendChild(overlay);
+}
+
+// グラフコンテナのローディングスケルトンを非表示
+function hideChartLoading(containerElement) {
+    if (!containerElement) return;
+    const overlay = containerElement.querySelector('.chart-loading-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
 console.log("infection app main.js loaded"); // 追加
 const API_URL = 'https://script.google.com/macros/s/AKfycby8wh0NMuPtEOgLVHXfc0jzNqlOENuOgCwQmYYzMSZCKTvhSDiJpZkAyJxntGISTGOmbQ/exec';
 let cachedData = {
@@ -555,10 +629,19 @@ function getGlobalMaxForDisease(disease) {
 }
 
 // 比較グラフを描画する汎用関数
-function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, yAxisMax = null) {
+function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, yAxisMax = null, loadingTargetElement) {
+    if (loadingTargetElement) {
+        showChartLoading(loadingTargetElement);
+    }
+    
     const canvas = document.getElementById(canvasId);
     if (!canvas) {
         console.warn(`Canvas element with ID '${canvasId}' not found.`);
+        if (loadingTargetElement) {
+            hideChartLoading(loadingTargetElement);
+            // チャートが表示されない場合のメッセージ
+            loadingTargetElement.innerHTML = '<p class="no-data-message" style="text-align: center; padding: 2rem; color: #666;">グラフを描画できませんでした。</p>';
+        }
         return;
     }
     const ctx = canvas.getContext('2d');
@@ -581,6 +664,13 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
     });
     labels.sort((a, b) => parseInt(a) - parseInt(b));
 
+    if (labels.length === 0) {
+        if (loadingTargetElement) {
+            hideChartLoading(loadingTargetElement);
+            loadingTargetElement.innerHTML = '<p class="no-data-message" style="text-align: center; padding: 2rem; color: #666;">データがありません。</p>';
+        }
+        return;
+    }
 
     let pointRadius = 1;
     const datasets = yearDataSets.map(ds => {
@@ -801,6 +891,10 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
             }
         }
     });
+
+    if (loadingTargetElement) {
+        hideChartLoading(loadingTargetElement);
+    }
 }
 
 function renderDashboard(disease, data) {
@@ -810,12 +904,21 @@ function renderDashboard(disease, data) {
         }
     }
 
+    const chartView = document.getElementById('chart-view');
+    if (chartView) {
+        showChartLoading(chartView);
+    }
     renderTrendChart(disease, data.current); // cachedData.currentを渡す
+    if (chartView) {
+        hideChartLoading(chartView); // renderTrendChart内で非表示にするのでここは不要だが、念のため
+    }
 }
 
 function renderTrendChart(disease, data) {
     const chartView = document.getElementById('chart-view');
     if (!chartView) return;
+
+    showChartLoading(chartView); // グラフ描画前にローディングを表示
 
     // Clear container and recreate canvas safely
     while (chartView.firstChild) {
@@ -839,6 +942,19 @@ function renderTrendChart(disease, data) {
     const labels = diseaseData.map(d => d.prefecture);
     const values = diseaseData.map(d => d.value);
     const backgroundColors = values.map(v => (typeof getColorForValue === 'function' ? getColorForValue(v, disease) : '#3498db'));
+
+    if (labels.length === 0) {
+        // データがない場合はメッセージを表示し、ローディングを非表示
+        hideChartLoading(chartView);
+        const p = document.createElement('p');
+        p.className = 'no-data-message';
+        p.textContent = 'データがありません。';
+        p.style.textAlign = 'center';
+        p.style.padding = '2rem';
+        p.style.color = '#666';
+        chartView.appendChild(p);
+        return;
+    }
 
     currentChart = new Chart(ctx, {
         type: 'bar',
@@ -873,6 +989,7 @@ function renderTrendChart(disease, data) {
             }
         }
     });
+    hideChartLoading(chartView); // グラフ描画完了後にローディングを非表示
 }
 
 function toggleCardExpansion(card) {
@@ -935,6 +1052,12 @@ function showPrefectureChart(prefecture, disease) {
     const prefChartContainer = document.getElementById('pref-chart-container');
     prefChartContainer.classList.remove('hidden');
 
+    // ローディングターゲット要素を取得
+    const prefChartWrapper = prefChartContainer.querySelector('.pref-chart-wrapper');
+    if (prefChartWrapper) {
+        showChartLoading(prefChartWrapper);
+    }
+
     // ARIの場合はグラフを表示せずメッセージを表示
     if (disease === 'ARI') {
         // prefChartContainer の子要素をクリア
@@ -973,6 +1096,11 @@ function showPrefectureChart(prefecture, disease) {
         messageP.style.fontSize = '1rem';
         messageP.textContent = '急性呼吸器感染症 (ARI) の週次推移データはありません。';
         messageWrapper.appendChild(messageP);
+
+        // ローディングを非表示
+        if (prefChartWrapper) {
+            hideChartLoading(prefChartWrapper);
+        }
 
         // 戻るボタンのイベントリスナー再設定
         const backBtn = prefChartContainer.querySelector('#back-to-map-btn');
@@ -1095,22 +1223,16 @@ function showPrefectureChart(prefecture, disease) {
 
     if (yearDataSets.length === 0) {
         console.warn(`No history data for ${prefecture} (${disease}) across all years.`);
-        const chartCanvas = document.getElementById('prefectureHistoryChart');
-        if (chartCanvas && chartCanvas.parentNode) {
-            const wrapper = chartCanvas.parentNode;
-            const p = document.createElement('p');
-            p.textContent = 'データがありません。';
-            // スタイルを適用して中央に表示
-            p.style.textAlign = 'center';
-            p.style.padding = '2rem';
-            p.style.color = '#666';
-            wrapper.replaceChildren(p); // canvasを<p>に置き換える
+        // ローディングを非表示にし、メッセージを表示
+        if (prefChartWrapper) {
+            hideChartLoading(prefChartWrapper);
+            prefChartWrapper.innerHTML = '<p class="no-data-message" style="text-align: center; padding: 2rem; color: #666;">データがありません。</p>';
         }
         return;
     }
 
     const globalMax = getGlobalMaxForDisease(disease);
-    renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax);
+    renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax, prefChartWrapper);
 }
 window.showPrefectureChart = showPrefectureChart;
 
@@ -1251,26 +1373,25 @@ expandButton.appendChild(svg);
 
         if (yearDataSets.length > 0) {
             const globalMax = getGlobalMaxForDisease(disease.key);
-            renderComparisonChart(`chart-${disease.key}`, disease.key, prefecture, yearDataSets, globalMax);
+            renderComparisonChart(`chart-${disease.key}`, disease.key, prefecture, yearDataSets, globalMax, chartContainer);
         } else {
             // console.warn(`No history data for ${disease.name} in ${prefecture}`);
-            const chartContainer = card.querySelector('.chart-container');
-            if (chartContainer) {
-                const p = document.createElement('p');
-                p.className = 'no-data-message';
-                p.textContent = 'データがありません';
-                
-                while (chartContainer.firstChild) {
-                    chartContainer.removeChild(chartContainer.firstChild);
-                }
-                chartContainer.appendChild(p);
-
-                chartContainer.style.display = 'flex';
-                chartContainer.style.alignItems = 'center';
-                chartContainer.style.justifyContent = 'center';
-                chartContainer.style.fontSize = '0.9rem';
-                chartContainer.style.color = '#999';
+            // ローディングを非表示にし、メッセージを表示
+            hideChartLoading(chartContainer);
+            const p = document.createElement('p');
+            p.className = 'no-data-message';
+            p.textContent = 'データがありません';
+            
+            while (chartContainer.firstChild) {
+                chartContainer.removeChild(chartContainer.firstChild);
             }
+            chartContainer.appendChild(p);
+
+            chartContainer.style.display = 'flex';
+            chartContainer.style.alignItems = 'center';
+            chartContainer.style.justifyContent = 'center';
+            chartContainer.style.fontSize = '0.9rem';
+            chartContainer.style.color = '#999';
         }
     });
 }
@@ -1312,56 +1433,82 @@ async function reloadData() {
             prefectureHistoryChartCanvas.chart.destroy();
         }
 
-        // 2. 表示をスケルトンに置き換え
+        // 2. 表示をスケルトンに置き換え (またはローディングオーバーレイ表示)
+        // サマリーカードのスケルトン
         const summaryCardsContainer = document.getElementById('summary-cards');
-        summaryCardsContainer.innerHTML = ''; // Clear existing content
-
-        const skeletonWrapper = document.createElement('div');
-        skeletonWrapper.className = 'skeleton-card-wrapper';
-
-        for (let i = 0; i < 5; i++) {
-            const skeletonCard = document.createElement('div');
-            skeletonCard.className = 'skeleton-card';
-
-            const skeletonTitle = document.createElement('div');
-            skeletonTitle.className = 'skeleton skeleton-title';
-            skeletonCard.appendChild(skeletonTitle);
-
-            const skeletonValue = document.createElement('div');
-            skeletonValue.className = 'skeleton skeleton-value';
-            skeletonCard.appendChild(skeletonValue);
-
-            const skeletonStatus = document.createElement('div');
-            skeletonStatus.className = 'skeleton skeleton-status';
-            skeletonCard.appendChild(skeletonStatus);
-
-            skeletonWrapper.appendChild(skeletonCard);
+        if (summaryCardsContainer) {
+            summaryCardsContainer.innerHTML = '';
+            const skeletonWrapper = document.createElement('div');
+            skeletonWrapper.className = 'skeleton-card-wrapper';
+            for (let i = 0; i < 5; i++) {
+                const skeletonCard = document.createElement('div');
+                skeletonCard.className = 'skeleton-card';
+                skeletonCard.innerHTML = '<div class="skeleton skeleton-title"></div><div class="skeleton skeleton-value"></div><div class="skeleton skeleton-status"></div>';
+                skeletonWrapper.appendChild(skeletonCard);
+            }
+            summaryCardsContainer.appendChild(skeletonWrapper);
         }
-        summaryCardsContainer.appendChild(skeletonWrapper);
-                const japanMapContainer = document.getElementById('japan-map');
-        japanMapContainer.innerHTML = ''; // Clear existing content
-        const skeletonMap = document.createElement('div');
-        skeletonMap.className = 'skeleton skeleton-map';
-        japanMapContainer.appendChild(skeletonMap);
+
+        // 日本地図のスケルトン
+        const japanMapContainer = document.getElementById('japan-map');
+        if (japanMapContainer) {
+            japanMapContainer.innerHTML = '';
+            const skeletonMap = document.createElement('div');
+            skeletonMap.className = 'skeleton skeleton-map';
+            japanMapContainer.appendChild(skeletonMap);
+        }
+
+        // メインチャートビューのローディングオーバーレイ
         const chartView = document.getElementById('chart-view');
         if (chartView) {
-                    chartView.innerHTML = ''; // Clear existing content
-        const skeletonChart = document.createElement('div');
-        skeletonChart.className = 'skeleton skeleton-chart';
-        chartView.appendChild(skeletonChart);
+            chartView.innerHTML = ''; // 既存のチャートをクリア
+            showChartLoading(chartView);
         }
+
+        // その他の感染症グリッドのクリア
         const otherDiseasesGrid = document.getElementById('other-diseases-grid');
         if (otherDiseasesGrid) {
             otherDiseasesGrid.innerHTML = '';
+            // 「その他の感染症」ビューがアクティブな場合、各カードにローディング表示
+            const otherDiseasesListView = document.getElementById('other-diseases-list-view');
+            if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
+                const otherDiseases = ALL_DISEASES.filter(d => !['Influenza', 'COVID-19', 'ARI'].includes(d.key));
+                otherDiseases.forEach(disease => {
+                    const card = document.createElement('div');
+                    card.className = 'disease-card';
+                    card.dataset.disease = disease.key;
+                    card.innerHTML = `<div class="card-header"><h4>${disease.name}</h4></div><div class="chart-container"></div>`;
+                    otherDiseasesGrid.appendChild(card);
+                    const chartContainer = card.querySelector('.chart-container');
+                    if (chartContainer) {
+                        showChartLoading(chartContainer);
+                    }
+                });
+            }
         }
 
-        // 都道府県チャートがアクティブな場合はスケルトンを追加
+        // 都道府県チャートがアクティブな場合はローディングオーバーレイを追加
         const prefChartContainer = document.getElementById('pref-chart-container');
         if (prefChartContainer && !prefChartContainer.classList.contains('hidden')) {
             prefChartContainer.innerHTML = ''; // 既存のチャートやメッセージをクリア
-            const skeletonPrefChart = document.createElement('div');
-            skeletonPrefChart.className = 'skeleton skeleton-chart large'; // より大きなスケルトンスタイルを使用（もしあれば）
-            prefChartContainer.appendChild(skeletonPrefChart);
+            // 戻るボタンを再生成
+            const backButton = document.createElement('button');
+            backButton.id = 'back-to-map-btn';
+            backButton.textContent = '戻る';
+            prefChartContainer.appendChild(backButton);
+            const chartWrapper = document.createElement('div');
+            chartWrapper.className = 'pref-chart-wrapper';
+            prefChartContainer.appendChild(chartWrapper);
+            showChartLoading(chartWrapper);
+            // 戻るボタンのイベントリスナー再設定
+            const newBackBtn = document.getElementById('back-to-map-btn');
+            if (newBackBtn) {
+                newBackBtn.addEventListener('click', () => {
+                    document.getElementById('map-view').classList.remove('hidden');
+                    document.getElementById('pref-chart-container').classList.add('hidden');
+                    currentPrefecture = null;
+                });
+            }
         }
 
         // 地域詳細パネルがアクティブな場合はスケルトンを追加
@@ -1380,12 +1527,28 @@ async function reloadData() {
         // データ取得とレンダリングのコア処理を再実行
         await loadAndRenderData();
 
+        // グラフローディングオーバーレイを全て非表示
+        if (chartView) hideChartLoading(chartView);
+        if (prefChartContainer && !prefChartContainer.classList.contains('hidden')) {
+            const chartWrapper = prefChartContainer.querySelector('.pref-chart-wrapper');
+            if (chartWrapper) hideChartLoading(chartWrapper);
+        }
+        const otherDiseasesListView = document.getElementById('other-diseases-list-view');
+        if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
+            const diseaseCards = otherDiseasesGrid.querySelectorAll('.disease-card');
+            diseaseCards.forEach(card => {
+                const chartContainer = card.querySelector('.chart-container');
+                if (chartContainer) hideChartLoading(chartContainer);
+            });
+        }
+
+
         // 地域が選択されていた場合は地域詳細パネルを再描画
         if (currentRegionId && typeof window.updateDetailPanel === 'function' && cachedData) {
             window.updateDetailPanel(currentRegionId, cachedData, currentDisease);
         }
 
-        const otherDiseasesListView = document.getElementById('other-diseases-list-view');
+        // 「その他の感染症」リストビューが表示中であれば、リロード後に再度レンダリングしてグラフを表示
         if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
             const prefSelect = document.getElementById('prefecture-select');
             renderOtherDiseasesList(prefSelect ? prefSelect.value : '全国');
@@ -1686,6 +1849,7 @@ async function init() {
     try {
         updateLoadingState(true);
 
+        injectChartLoadingStyles();
         initEventListeners();
         console.log("DEBUG: initEventListeners called");
 
