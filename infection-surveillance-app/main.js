@@ -113,7 +113,7 @@ function parseCSV(text) {
 const CACHE_CONFIG = {
     COMBINED_DATA_KEY: 'infection_surveillance_combined_data', // 新しいキャッシュキー
     MAIN_EXPIRY: 1 * 60 * 60 * 1000, // 1時間
-    HISTORY_EXPIRY: 24 * 60 * 60 * 1000 // 24時間 (combined data uses this for overall cache time)
+    HISTORY_EXPIRY: 30 * 60 * 1000 // 30分 (combined data uses this for overall cache time)
 };
 
 // LocalForageの設定（メイン画面と設定を合わせるため、デフォルト設定を使用）
