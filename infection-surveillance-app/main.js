@@ -597,34 +597,23 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         console.warn(`Canvas element with ID '${canvasId}' not found.`);
         if (loadingTargetElement) {
             hideChartLoading(loadingTargetElement);
-            // チャートが表示されない場合のメッセージ
             loadingTargetElement.innerHTML = '<p class="no-data-message">グラフを描画できませんでした。</p>';
         }
         return;
     }
     const ctx = canvas.getContext('2d');
 
-    // 既存のChartインスタンスがあれば破棄
     if (canvas.chart) {
         canvas.chart.destroy();
     }
 
-    // Canvasの描画コンテキストを明示的にクリア
     if (ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    
-    // Canvasのスタイルをリセット（レスポンシブ対応のため）
-    // 特にモーダル表示などでサイズが大きく変動した後に再利用される場合などに重要
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.removeAttribute('width');
-    canvas.removeAttribute('height');
 
-    const isMobile = window.innerWidth <= 768; // スマホ判定簡易版
+    const isMobile = window.innerWidth <= 768;
 
-    const labels = []; // 週のラベル
-    // すべてのデータセットから週のユニオンを取得しソート
+    const labels = [];
     yearDataSets.forEach(ds => {
         ds.data.forEach(item => {
             if (!labels.includes(`${item.week}週`)) {
@@ -648,32 +637,23 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         let borderColor;
         let borderWidth;
 
-        // 配色ルール
         if (year === new Date().getFullYear()) {
-            // ds.dataは{week, value}のオブジェクト配列なので、valueでフィルタリング
             const validDataPoints = ds.data.filter(d => d && d.value !== null && d.value !== undefined);
-            const lastDataPoint = validDataPoints.length > 0 ? validDataPoints[validDataPoints.length - 1] : { value: 0, week: 0 }; // デフォルト値にweekも追加
+            const lastDataPoint = validDataPoints.length > 0 ? validDataPoints[validDataPoints.length - 1] : { value: 0, week: 0 };
             borderColor = getColorForValue(lastDataPoint.value, diseaseKey);
             borderWidth = 3;
             pointRadius = 2.5;
         } else if (year === new Date().getFullYear() - 1) {
-            // 昨年 (2024年): 少し薄い青（今年より目立たず、過去より目立つ）
             borderColor = '#A9CCE3';
             borderWidth = 2;
         } else {
-            // それ以前 (2023年以前): 薄いグレー
-            borderColor = '#E0E0E0'; // 薄いグレー
+            borderColor = '#E0E0E0';
             borderWidth = 1;
         }
 
-        // その他の感染症一覧ビューではポイントを消す
         if (canvasId.startsWith('chart-')) {
             pointRadius = 0;
         }
-
-        // ラベルに「全国」が含まれるか、prefectureが「全国」の場合のラベル調整
-        // ユーザー要望により "YYYY年" 形式に変更し、都道府県名を削除
-        // const dataLabel = prefecture === '全国' ? `${year}年 全国` : `${year}年 ${prefecture}`;
         const dataLabel = `${year}年`;
 
         const dataset = {
@@ -681,29 +661,23 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
             data: labels.map(weekLabel => {
                 const week = parseInt(weekLabel);
                 const item = ds.data.find(d => d.week === week);
-                return item ? item.value : null; // データがない週はnullでプロットしない
+                return item ? item.value : null;
             }),
             borderColor: borderColor,
             borderWidth: borderWidth,
             pointRadius: pointRadius,
             fill: false,
             tension: 0.1,
-            spanGaps: true, // データがない箇所の線は途切れる
-            // カスタムプロパティとして元の色情報を保持
+            spanGaps: true,
             _originalColor: borderColor,
             _originalBorderWidth: borderWidth,
-            disease: diseaseKey, // 凡例の色分けのためにdiseaseKeyを保持
-            year: year // 凡例の色分け（最新年特定）のためにyearを保持
+            disease: diseaseKey,
+            year: year
         };
 
-        // 当年の場合、セグメントの色を動的に変更
         if (year === new Date().getFullYear()) {
             dataset.segment = {
                 borderColor: ctx => {
-                    // p0: start point, p1: end point
-                    // 終了点の値に基づいて区間の色を決定する
-                    // p0やp1がskipされている(null)場合のハンドリングはChart.jsがよしなにやってくれるが、
-                    //念のため確認
                     if (!ctx.p1 || !ctx.p1.parsed) return borderColor;
                     const val = ctx.p1.parsed.y;
                     if (typeof getColorForValue === 'function') {
@@ -712,7 +686,6 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                     return borderColor;
                 }
             };
-            // ポイントの色も変更
             dataset.pointBackgroundColor = (ctx) => {
                 const val = ctx.parsed.y;
                 if (typeof getColorForValue === 'function') {
@@ -728,11 +701,10 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                 return borderColor;
             };
         }
-
         return dataset;
     });
 
-    canvas.chart = new Chart(ctx, {
+    const chartConfig = {
         type: 'line',
         data: {
             labels: labels,
@@ -741,113 +713,38 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: '定点当たり報告数' },
-                    suggestedMax: yAxisMax
-                }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index',
-                axis: 'x'
-            },
-            elements: {
-                point: {
-                    hitRadius: 20, // タッチ判定範囲を広げる
-                    radius: pointRadius,
-                    hoverRadius: pointRadius + 2
-                },
-                line: {
-                    borderCapStyle: 'round',
-                    borderJoinStyle: 'round'
-                }
-            },
+            scales: { y: { beginAtZero: true, title: { display: true, text: '定点当たり報告数' }, suggestedMax: yAxisMax } },
+            interaction: { intersect: false, mode: 'index', axis: 'x' },
+            elements: { point: { hitRadius: 20, radius: pointRadius, hoverRadius: pointRadius + 2 }, line: { borderCapStyle: 'round', borderJoinStyle: 'round' } },
             plugins: {
-                title: {
-                    display: false, // ユーザー要望によりタイトル非表示
-                    text: `${prefecture} ${getDiseaseName(diseaseKey)} 週次推移`,
-                    font: { size: 16, family: "'Noto Sans JP', sans-serif" }
-                },
-                tooltip: {
-                    enabled: !isMobile,
-                    mode: 'index',
-                    intersect: false,
-                    position: 'nearest',
-                    bodyFont: { size: isMobile ? 14 : 13 },
-                    titleFont: { size: isMobile ? 14 : 13 },
-                    padding: 10,
-                    boxPadding: 4,
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
-                    footerColor: '#fff'
-                },
+                title: { display: false, text: `${prefecture} ${getDiseaseName(diseaseKey)} 週次推移`, font: { size: 16, family: "'Noto Sans JP', sans-serif" } },
+                tooltip: { enabled: !isMobile, mode: 'index', intersect: false, position: 'nearest', bodyFont: { size: isMobile ? 14 : 13 }, titleFont: { size: isMobile ? 14 : 13 }, padding: 10, boxPadding: 4, backgroundColor: 'rgba(0, 0, 0, 0.8)', titleColor: '#fff', bodyColor: '#fff', footerColor: '#fff' },
                 legend: {
-                    display: true,
-                    position: 'bottom',
-                    labels: {
-                        boxWidth: 10, // 4列表示のために少し小さく
-                        padding: 10,  // 間隔も詰める
-                        font: { size: isMobile ? 11 : 12 },
-                        usePointStyle: true,
-                        pointStyle: 'rectRounded'
-                    },
+                    display: true, position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: isMobile ? 11 : 12 }, usePointStyle: true, pointStyle: 'rectRounded' },
                     onClick: function (e, legendItem, legend) {
-                        // 凡例クリック時にカードの拡大縮小が暴発しないように伝播を止める
-                        if (e.native) {
-                            e.native.stopPropagation();
-                        }
-
+                        if (e.native) { e.native.stopPropagation(); }
                         const index = legendItem.datasetIndex;
                         const chart = legend.chart;
                         const datasets = chart.data.datasets;
                         const clickedDataset = datasets[index];
-
-                        // すでにハイライトされているか（他のデータセットがグレーになっているか）を確認
-                        // ここでは簡易的に、クリックされたデータセットの色が元の色で、かつ他のどれかがグレーなら「ハイライト中」とみなす
-                        // あるいは、独自のフラグを管理する方が確実
-
-                        // 今回クリックされたデータセット以外のデータセット
                         const otherDatasets = datasets.filter((_, i) => i !== index);
-
-                        // 全てが元の色かどうか（ハイライトされていない状態）
                         const isAllOriginal = otherDatasets.every(ds => ds.borderColor === ds._originalColor);
-
                         if (isAllOriginal) {
-                            // ハイライトされていない -> クリックされたものをハイライトし、他をグレーに
                             datasets.forEach((ds, i) => {
                                 if (i === index) {
-                                    // 元の色がグレーの場合は、強調色（濃い青など）に変更して目立たせる
-                                    if (ds._originalColor === '#E0E0E0') {
-                                        ds.borderColor = '#34495e'; // ネイビー
-                                    } else {
-                                        ds.borderColor = ds._originalColor;
-                                    }
-                                    ds.borderWidth = 3; // 強調時は太くする
+                                    ds.borderColor = ds._originalColor === '#E0E0E0' ? '#34495e' : ds._originalColor;
+                                    ds.borderWidth = 3;
                                 } else {
-                                    ds.borderColor = '#e0e0e0'; // グレー
+                                    ds.borderColor = '#e0e0e0';
                                     ds.borderWidth = 1;
                                 }
                             });
                         } else {
-                            // すでに何かがハイライトされている状態
-                            // もしクリックされたのが「現在ハイライトされているもの」なら、解除（全て元に戻す）
-                            // 別のものがハイライトされているなら、クリックされたものをハイライトに切り替え
-
-                            // クリックされたものが現在グレー（＝非ハイライト）かどうか
                             const isClickedGray = clickedDataset.borderColor === '#e0e0e0';
-
                             if (isClickedGray) {
-                                // 別のものがハイライトされていた -> これをハイライトに切り替え
                                 datasets.forEach((ds, i) => {
                                     if (i === index) {
-                                        if (ds._originalColor === '#E0E0E0') {
-                                            ds.borderColor = '#34495e';
-                                        } else {
-                                            ds.borderColor = ds._originalColor;
-                                        }
+                                        ds.borderColor = ds._originalColor === '#E0E0E0' ? '#34495e' : ds._originalColor;
                                         ds.borderWidth = 3;
                                     } else {
                                         ds.borderColor = '#e0e0e0';
@@ -855,7 +752,6 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                                     }
                                 });
                             } else {
-                                // これがハイライトされていた -> 解除
                                 datasets.forEach(ds => {
                                     ds.borderColor = ds._originalColor;
                                     ds.borderWidth = ds._originalBorderWidth;
@@ -867,10 +763,31 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                 }
             }
         }
-    });
+    };
 
-    if (loadingTargetElement) {
-        hideChartLoading(loadingTargetElement);
+    const initializeChart = () => {
+        if (canvas.chart) {
+            canvas.chart.destroy();
+        }
+        canvas.chart = new Chart(ctx, chartConfig);
+        if (loadingTargetElement) {
+            hideChartLoading(loadingTargetElement);
+        }
+    };
+
+    const container = loadingTargetElement || canvas.parentElement;
+    if (container && typeof ResizeObserver !== 'undefined') {
+        const observer = new ResizeObserver(entries => {
+            const entry = entries[0];
+            if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+                observer.disconnect();
+                initializeChart();
+            }
+        });
+        observer.observe(container);
+    } else {
+        // Fallback for older browsers or if container is not available
+        setTimeout(initializeChart, 50);
     }
 }
 
@@ -996,12 +913,8 @@ function openExpandedChart(diseaseKey, prefecture) {
 
     // モーダル作成
     const modal = document.createElement('div');
-    modal.className = 'disease-card expanded expanded-modal'; // .disease-card.expanded のスタイルを流用
+    modal.className = 'disease-card expanded expanded-modal modal-expanded'; // .disease-card.expanded のスタイルを流用
     modal.dataset.disease = diseaseKey;
-    
-    // スタイル調整（直接bodyに追加するため）
-    modal.style.position = 'fixed';
-    modal.style.zIndex = '2000';
 
     // ヘッダー
     const header = document.createElement('div');
@@ -1012,11 +925,9 @@ function openExpandedChart(diseaseKey, prefecture) {
 
     // 閉じるボタン
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'close-expanded-btn';
+    closeBtn.className = 'close-expanded-btn modal-close-button';
     closeBtn.textContent = '×';
     closeBtn.setAttribute('aria-label', '閉じる');
-    // CSSで display:none になっている可能性があるため強制表示
-    closeBtn.style.display = 'flex';
     closeBtn.onclick = closeExpandedChart;
     // ヘッダー内ではなく、カードの直接の子として配置（CSSの配置に合わせる）
     modal.appendChild(closeBtn);
@@ -1067,9 +978,6 @@ function closeExpandedChart() {
     const backdrop = document.getElementById('card-backdrop');
     if (backdrop) {
         backdrop.classList.remove('active');
-        // イベントリスナーの解除は難しい（無名関数のため）が、activeクラス除去で非表示になるので実用上問題ない
-        // 次回open時に再度addされるが、重複しても動作は同じ
-        // 厳密には cloneNode でリセットするのが綺麗だが、ここでは簡易的に済ませる
     }
 }
 
@@ -1086,16 +994,11 @@ function showPrefectureChart(prefecture, disease) {
 
     // ヘッダー作成
     const headerDiv = document.createElement('div');
-    headerDiv.style.display = 'flex';
-    headerDiv.style.justifyContent = 'space-between';
-    headerDiv.style.alignItems = 'center';
-    headerDiv.style.marginBottom = '10px';
+    headerDiv.classList.add('pref-chart-header');
 
     const titleH3 = document.createElement('h3');
     titleH3.textContent = `${prefecture} ${getDiseaseName(disease)}`;
-    titleH3.style.margin = '0';
-    titleH3.style.fontSize = '1.2rem';
-    titleH3.style.color = 'var(--text-main)';
+    titleH3.classList.add('pref-chart-title');
     headerDiv.appendChild(titleH3);
 
     // 戻るボタン作成
@@ -1182,7 +1085,11 @@ function showPrefectureChart(prefecture, disease) {
         if (yearDataSets.length === 0) {
             console.warn(`No history data for ${prefecture} (${disease}) across all years.`);
             hideChartLoading(chartWrapper);
-            chartWrapper.innerHTML = '<p class="no-data-message" style="text-align: center; padding: 2rem; color: #666;">データがありません。</p>';
+            const p = document.createElement('p');
+            p.classList.add('no-data-message-inline');
+            p.textContent = 'データがありません。';
+            chartWrapper.innerHTML = ''; // Clear previous content
+            chartWrapper.appendChild(p);
         } else {
             const globalMax = getGlobalMaxForDisease(disease);
             renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax, chartWrapper);
