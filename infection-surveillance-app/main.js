@@ -1188,37 +1188,6 @@ function showPrefectureChart(prefecture, disease) {
             renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax, chartWrapper);
         }
     }
-
-    // 当年のデータ
-    const currentYearHistory = cachedData.current.history.find(h => h.disease === disease && h.prefecture === prefecture);
-    if (currentYearHistory) {
-        yearDataSets.push({ year: currentYear, data: currentYearHistory.history });
-    }
-
-    // 過去のアーカイブデータ
-    cachedData.archives.forEach(archive => {
-        // 当年のデータは、すでに currentYearHistory で追加されているので重複しないようにする
-        if (parseInt(archive.year) === currentYear) return;
-
-        const history = archive.data.find(d => d.disease === disease && d.prefecture === prefecture);
-        if (history) {
-            // Tougai CSVから抽出されたデータはすでにhistoryプロパティを持っている
-            yearDataSets.push({ year: archive.year, data: history.history });
-        }
-    });
-
-    if (yearDataSets.length === 0) {
-        console.warn(`No history data for ${prefecture} (${disease}) across all years.`);
-        // ローディングを非表示にし、メッセージを表示
-        if (prefChartWrapper) {
-            hideChartLoading(prefChartWrapper);
-            prefChartWrapper.innerHTML = '<p class="no-data-message" style="text-align: center; padding: 2rem; color: #666;">データがありません。</p>';
-        }
-        return;
-    }
-
-    const globalMax = getGlobalMaxForDisease(disease);
-    renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax, prefChartWrapper);
 }
 window.showPrefectureChart = showPrefectureChart;
 
