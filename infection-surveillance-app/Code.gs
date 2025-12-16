@@ -101,17 +101,7 @@ function getAllData_() {
 }
 
 function getCsvDataWithCache_(ss, sheetName) {
-  // キャッシュキーを作成
-  const cacheKey = "CSV_" + sheetName;
-  const cache = CacheService.getScriptCache();
-  
-  // キャッシュがあればそれを返す
-  const cached = cache.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
-  
-  // キャッシュがなければシートから読み込む
+  // シートから読み込む
   const sheet = ss.getSheetByName(sheetName);
   if (!sheet) {
     throw new Error(`シート「${sheetName}」が見つかりません。`);
@@ -119,14 +109,7 @@ function getCsvDataWithCache_(ss, sheetName) {
   
   const data = sheet.getDataRange().getValues();
   const csvString = convertToCsv_(data);
-  
-  // キャッシュに保存（最大100KBの制限があるため、try-catchで囲む）
-  try {
-    cache.put(cacheKey, csvString, 3600); // 1時間キャッシュ
-  } catch (e) {
-    Logger.log(`Cache put failed for ${sheetName}: ${e.toString()}`);
-  }
-  
+    
   return csvString;
 }
 
@@ -261,20 +244,6 @@ function updateData_() {
     const year = parseInt(match[1], 10); 
     const week = parseInt(match[2], 10); 
     const weekStr = String(week).padStart(2, '0');
-    
-    const weeklyPath = `${CSV_BASE_URL}${year}/${weekStr}/`;
-    const urls = {
-      Teiten: `${weeklyPath}${year}-${weekStr}-teiten.csv`,
-      Tougai: `${weeklyPath}${year}-${weekStr}-teiten-tougai.csv`, // 当該データ（県別週次推移）
-      ARI: `${weeklyPath}${year}-${weekStr}-ari.csv`
-    };
-    
-    const csvData = fetchAllCsv_(urls);
-    Logger.log("全CSVデータの取得に成功しました。");
-
-    writeCsvToSheet_(ss, 'Teiten', csvData.Teiten);
-    writeCsvToSheet_(ss, 'Tougai', csvData.Tougai);
-    writeCsvToSheet_(ss, 'ARI', csvData.ARI);
 
     // 履歴用CSVファイルを「過去週報」フォルダに保存
     const subFolderName = "過去週報";
@@ -289,14 +258,33 @@ function updateData_() {
     const fileName = `${year}-${weekStr}-teiten-tougai.csv`;
     const existingFiles = historyFolder.getFilesByName(fileName);
     
-    // 重複チェック: すでに存在する場合は保存しない
+    // 重複チェック: すでに存在する場合は保存せず、処理を終了
     if (existingFiles.hasNext()) {
-      Logger.log(`File ${fileName} already exists in ${subFolderName}. Skipping save.`);
-    } else {
-      historyFolder.createFile(fileName, csvData.Tougai, MimeType.CSV);
-      Logger.log(`Saved history CSV to Drive (${subFolderName}): ${fileName}`);
+      Logger.log(`File ${fileName} already exists in ${subFolderName}. Skipping update.`);
+      Logger.log("データ更新は不要なため、処理を終了します。");
+      return; // ここで処理を終了
     }
+    
+    // --- 更新が必要な場合のみ、以下の処理を実行 ---
 
+    const weeklyPath = `${CSV_BASE_URL}${year}/${weekStr}/`;
+    const urls = {
+      Teiten: `${weeklyPath}${year}-${weekStr}-teiten.csv`,
+      Tougai: `${weeklyPath}${year}-${weekStr}-teiten-tougai.csv`,
+      ARI: `${weeklyPath}${year}-${weekStr}-ari.csv`
+    };
+    
+    const csvData = fetchAllCsv_(urls);
+    Logger.log("全CSVデータの取得に成功しました。");
+
+    writeCsvToSheet_(ss, 'Teiten', csvData.Teiten);
+    writeCsvToSheet_(ss, 'Tougai', csvData.Tougai);
+    writeCsvToSheet_(ss, 'ARI', csvData.ARI);
+
+    // ファイルが存在しないこと是確認済みのため、そのまま作成
+    historyFolder.createFile(fileName, csvData.Tougai, MimeType.CSV);
+    Logger.log(`Saved history CSV to Drive (${subFolderName}): ${fileName}`);
+    
     // 同年の古い週のファイルを削除
     cleanUpOldWeeklyFiles_(historyFolder, year, week);
 
