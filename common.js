@@ -84,6 +84,16 @@ async function loadAndCacheData() {
         }
     }
 
+    function normalizeString(str) {
+        if (!str) return '';
+        const hiraToKata = str.replace(/[ぁ-ゖ]/g, function(match) {
+            const charCode = match.charCodeAt(0) + 0x60;
+            return String.fromCharCode(charCode);
+        });
+        const normalizedStr = hiraToKata.normalize('NFKC');
+        return normalizedStr.toLowerCase();
+    }
+
     function processCsvData(csvText) {
         updateProgress('データを処理中...', 75);
         const rows = csvText.trim().split('\n');
@@ -135,23 +145,47 @@ async function loadAndCacheData() {
                 // console.warn("Failed to parse metadata or trend:", e);
             }
 
-            return {
-                'productName':          row[5],  // ⑥品名
-                'ingredientName':       row[2],  // ③成分名
-                'manufacturer':         row[6],  // ⑦製造販売業者名
-                'shipmentStatus':       row[11], // ⑫出荷対応
-                'reasonForLimitation':  row[13], // ⑭制限理由
-                'resolutionProspect':   row[14], // ⑮解消見込み
-                'expectedDate':         row[15], // ⑯見込み時期
-                'shipmentVolumeStatus': row[16], // ⑰出荷量状況
-                'yjCode':               row[4],  // ⑤YJコード
-                'productCategory':      row[7],  // ⑧製品区分
-                'isBasicDrug':          row[8],  // ⑨基礎的医薬品
-                'updateDateObj':        parseGvizDate(row[19]), // ⑳更新日
-                'updatedCells':         updatedCells,
-                'shippingStatusTrend':  shippingStatusTrend, // W列
-                'changedPart':          changedPart // X列
-            };
+                                    return {
+
+                                        'productName': row[5], // ⑥品名
+
+                                        'normalizedProductName': normalizeString(row[5]),
+
+                                        'ingredientName': row[2], // ③成分名
+
+                                        'normalizedIngredientName': normalizeString(row[2]),
+
+                                        'manufacturer': row[6], // ⑦製造販売業者名
+
+                                        'standard': row[3], // ③規格
+
+                                        'normalizedMakerName': normalizeString((row[3] || "") + (row[6] || "")), // standardとmanufacturerを結合して正規化
+
+                                        'shipmentStatus': row[11], // ⑫出荷対応
+
+                                        'reasonForLimitation': row[13], // ⑭制限理由
+
+                                        'resolutionProspect': row[14], // ⑮解消見込み
+
+                                        'expectedDate': row[15], // ⑯見込み時期
+
+                                        'shipmentVolumeStatus': row[16], // ⑰出荷量状況
+
+                                        'yjCode': row[4], // ⑤YJコード
+
+                                        'productCategory': row[7], // ⑧製品区分
+
+                                        'isBasicDrug': row[8], // ⑨基礎的医薬品
+
+                                        'updateDateObj': parseGvizDate(row[19]), // ⑳更新日
+
+                                        'updatedCells': updatedCells,
+
+                                        'shippingStatusTrend': shippingStatusTrend, // W列
+
+                                        'changedPart': changedPart // X列
+
+                                    };
         });
     }
 

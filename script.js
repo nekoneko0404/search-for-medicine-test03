@@ -163,11 +163,11 @@
 
         
 
-                        const drugName = normalizeString(item.productName || "");
+                        const drugName = item.normalizedProductName;
 
-                        const ingredientName = normalizeString(item.ingredientName || "");
+                        const ingredientName = item.normalizedIngredientName;
 
-                        const makerName = normalizeString((item.standard || "") + (item.manufacturer || ""));
+                        const makerName = item.normalizedMakerName;
 
         
 
