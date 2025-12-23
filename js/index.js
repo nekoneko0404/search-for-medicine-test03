@@ -128,4 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Call preload function
     preloadInfectionData();
+
+    // --- Drug Navigator Link Handling ---
+    const drugNavigatorLink = document.getElementById('drug-navigator-link');
+    if (drugNavigatorLink) {
+        drugNavigatorLink.addEventListener('click', (e) => {
+            e.preventDefault(); // デフォルトのリンク動作をキャンセル
+            window.open('https://drug-navigator.vercel.app/', '_blank', 'noopener,noreferrer'); // 新しいタブで開く
+        });
+    }
 });

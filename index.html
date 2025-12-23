@@ -44,6 +44,7 @@
         <div class="menu-container">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 text-center leading-tight">Kusuri Compass 機能選択メニュー</h1>
             <p class="text-gray-500 text-sm text-center mb-4 leading-tight">お使いになりたい機能を選択してください</p>
+            <p class="text-gray-400 text-xs text-center mb-4 leading-tight">代替薬ナビゲーターは生成AI（Gemini 2.5 Flash Light）を使用しています。所属組織の生成AI利用規約等に従って利用してください。</p>
 
             <div class="menu-grid">
                 <a href="search.html" class="card" target="_blank" rel="noopener noreferrer">
@@ -57,7 +58,7 @@
                     <p>出荷状況の更新を確認</p>
                     <span class="update-time" id="shipping-update-time"></span>
                 </a>
-                <a href="https://drug-navigator.vercel.app/" class="card" target="_blank" rel="noopener noreferrer">
+                <a href="javascript:void(0);" class="card" id="drug-navigator-link">
                     <i class="fas fa-exchange-alt"></i>
                     <h3>代替薬ナビゲーター</h3>
                     <p>AIが欠品時の代替薬を提案</p>
