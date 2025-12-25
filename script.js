@@ -396,7 +396,7 @@
                     drugNameCell.appendChild(flexContainer);
                 } else {
                     const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${item.yjCode}?user=1`;
-                    const yjCodeLinkUrl = `./yjcode/index.html?yjcode=${item.yjCode}`;
+                    const yjCodeLinkUrl = `https://drug-navigator.pages.dev/`;
                     const hiyariLinkUrl = `./hiyari_app/index.html?drugName=${drugNameForHiyari}`;
                     const dropdownContentId = `dropdown-content-${index}`;
 
