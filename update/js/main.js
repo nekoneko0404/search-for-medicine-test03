@@ -56,6 +56,7 @@ function initElements() {
     elements.clearBtn = document.getElementById('clear-btn');
     elements.resultTableBody = document.getElementById('resultTableBody');
     elements.tableContainer = document.getElementById('tableContainer');
+    elements.cardContainer = document.getElementById('cardContainer');
     elements.loadingIndicator = document.getElementById('loadingIndicator');
     elements.reloadDataBtn = document.getElementById('reload-data');
 
@@ -245,7 +246,7 @@ function sortResults(key) {
         return newDirection === 'asc' ? compare : -compare;
     });
 
-    renderTable(filteredResults);
+    renderResults(filteredResults);
     let sortKeyName = '';
     switch (key) {
         case 'status': sortKeyName = '出荷状況'; break;
@@ -357,7 +358,7 @@ function searchData(reset = false) {
     // A small delay to allow the CSS transition to start before the DOM is heavily manipulated.
     // This prevents a visual glitch where the table content starts moving up before the header has finished animating out.
     setTimeout(() => {
-        renderTable(filteredResults);
+        renderResults(filteredResults);
 
         if (filteredResults.length === 0) {
             showMessage('条件に一致する更新情報はありません。', 'info');
@@ -367,18 +368,21 @@ function searchData(reset = false) {
     }, 100);
 }
 
-function renderTable(data) {
+function renderResults(data) { // Renamed from renderTable
+    const isMobile = window.innerWidth <= 640;
     elements.resultTableBody.innerHTML = '';
+    elements.cardContainer.innerHTML = ''; // Clear card container
 
     if (data.length === 0) {
         elements.tableContainer.classList.add('hidden');
+        elements.cardContainer.classList.add('hidden');
         elements.tableContainer.classList.remove('fade-in');
         return;
     }
-    elements.tableContainer.classList.remove('hidden');
-    requestAnimationFrame(() => {
-        elements.tableContainer.classList.add('fade-in');
-    });
+
+    // Set search mode before displaying results
+    document.body.classList.add('search-mode');
+
 
     const displayData = data.slice(0, 200); // Limit display
 
@@ -394,112 +398,301 @@ function renderTable(data) {
         'updateDate': 24
     };
 
-    displayData.forEach((item, index) => {
-        const row = elements.resultTableBody.insertRow();
-        const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
-        row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group fade-in-up`;
-        // First row appears instantly, others staggered slower
-        row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
+    if (!isMobile) {
+        // Desktop Table View
+        elements.tableContainer.classList.remove('hidden');
+        elements.cardContainer.classList.add('hidden');
+        requestAnimationFrame(() => {
+            elements.tableContainer.classList.add('fade-in');
+        });
 
-        // 0. Product Name
-        const cellName = row.insertCell(0);
-        cellName.className = "px-2 py-3 text-sm text-gray-900 font-medium align-top";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) cellName.classList.add('text-red-600', 'font-bold');
+        displayData.forEach((item, index) => {
+            const row = elements.resultTableBody.insertRow();
+            const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
+            row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group fade-in-up`;
+            row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
-        if (item.yjCode) {
-            cellName.appendChild(createDropdown(item, index));
-        } else {
-            cellName.textContent = item.productName || '';
-        }
+            // 0. Product Name
+            const cellName = row.insertCell(0);
+            cellName.className = "px-2 py-3 text-sm text-gray-900 font-medium align-top";
 
-        // 1. Ingredient Name
-        const cellIngredient = row.insertCell(1);
-        cellIngredient.className = "px-2 py-3 text-sm align-top";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) cellIngredient.classList.add('text-red-600', 'font-bold');
+            const labelsContainer = document.createElement('div');
+            labelsContainer.className = 'flex gap-1 mb-1';
 
-        // Make ingredient name clickable to search within this page
-        if (item.ingredientName) {
-            const span = document.createElement('span');
-            span.className = "text-indigo-600 font-semibold hover:underline cursor-pointer";
-            span.textContent = item.ingredientName;
-            span.addEventListener('click', () => {
-                // Clear filters first (same as clear button)
-                elements.searchInput.value = item.ingredientName;
-                elements.updatePeriod.value = 'all';
+            const isGeneric = item.productCategory && (item.productCategory.includes('後発品') || normalizeString(item.productCategory).includes('後発品'));
+            const isBasic = item.isBasicDrug && (item.isBasicDrug.includes('基礎的医薬品') || normalizeString(item.isBasicDrug).includes('基礎的医薬品'));
 
-                elements.statusCheckboxes.normal.checked = true;
-                elements.statusCheckboxes.limited.checked = true;
-                elements.statusCheckboxes.stopped.checked = true;
+            if (isGeneric) {
+                const span = document.createElement('span');
+                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
+                span.textContent = '後発';
+                labelsContainer.appendChild(span);
+            }
+            if (isBasic) {
+                const span = document.createElement('span');
+                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
+                span.textContent = '基礎';
+                labelsContainer.appendChild(span);
+            }
+            if (labelsContainer.hasChildNodes()) {
+                cellName.appendChild(labelsContainer);
+            }
 
-                if (elements.trendCheckboxes.up) elements.trendCheckboxes.up.checked = false;
-                if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = false;
+            if (item.yjCode) {
+                cellName.appendChild(createDropdown(item, index));
+            } else {
+                const productNameSpan = document.createElement('span'); // Use a span for the text
+                productNameSpan.textContent = item.productName || '';
+                cellName.appendChild(productNameSpan);
+            }
+            if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
+                cellName.classList.add('text-red-600', 'font-bold');
+            }
 
-                // Execute search
-                searchData();
-            });
-            cellIngredient.appendChild(span);
-        } else {
-            cellIngredient.className += " text-gray-600";
-            cellIngredient.textContent = '';
-        }
+            // 1. Ingredient Name
+            const cellIngredient = row.insertCell(1);
+            cellIngredient.className = "px-2 py-3 text-sm align-top";
+            if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) cellIngredient.classList.add('text-red-600', 'font-bold');
 
-        // 2. Shipment Status
-        const cellStatus = row.insertCell(2);
-        cellStatus.className = "px-2 py-3 align-top";
+            if (item.ingredientName) {
+                const span = document.createElement('span');
+                span.className = "text-indigo-600 font-semibold hover:underline cursor-pointer";
+                span.textContent = item.ingredientName;
+                span.addEventListener('click', () => {
+                    elements.searchInput.value = item.ingredientName;
+                    elements.updatePeriod.value = 'all';
 
-        const statusContainer = document.createElement('div');
-        statusContainer.className = 'flex items-center gap-1';
-        statusContainer.appendChild(renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus)));
+                    elements.statusCheckboxes.normal.checked = true;
+                    elements.statusCheckboxes.limited.checked = true;
+                    elements.statusCheckboxes.stopped.checked = true;
 
-        if (item.shippingStatusTrend) {
-            const trendIcon = document.createElement('span');
-            trendIcon.className = 'text-base text-red-500 font-bold';
-            trendIcon.textContent = item.shippingStatusTrend;
-            statusContainer.appendChild(trendIcon);
-        }
-        cellStatus.appendChild(statusContainer);
+                    if (elements.trendCheckboxes.up) elements.trendCheckboxes.up.checked = false;
+                    if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = false;
 
-        // 3. Reason
-        const cellReason = row.insertCell(3);
-        cellReason.className = "px-2 py-3 text-xs text-gray-600 align-top break-words";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) cellReason.classList.add('text-red-600', 'font-bold');
-        cellReason.textContent = item.reasonForLimitation || '-';
+                    searchData();
+                });
+                cellIngredient.appendChild(span);
+            } else {
+                cellIngredient.className += " text-gray-600";
+                cellIngredient.textContent = '';
+            }
 
-        // 4. Resolution Prospect
-        const cellResolution = row.insertCell(4);
-        cellResolution.className = "px-2 py-3 text-xs text-gray-600 align-top";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect)) cellResolution.classList.add('text-red-600', 'font-bold');
-        cellResolution.textContent = item.resolutionProspect || '-';
+            // 2. Shipment Status
+            const cellStatus = row.insertCell(2);
+            cellStatus.className = "px-2 py-3 align-top";
 
-        // 5. Expected Date
-        const cellExpected = row.insertCell(5);
-        cellExpected.className = "px-2 py-3 text-xs text-gray-600 align-top";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.expectedDate)) cellExpected.classList.add('text-red-600', 'font-bold');
+            const statusContainer = document.createElement('div');
+            statusContainer.className = 'flex items-center gap-1';
+            statusContainer.appendChild(renderStatusButton(item.shipmentStatus, item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus)));
 
-        if (item.expectedDateObj) {
-            const dateStr = formatDate(item.expectedDateObj);
-            cellExpected.textContent = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : (item.expectedDate || '-');
-        } else {
-            cellExpected.textContent = item.expectedDate || '-';
-        }
+            if (item.shippingStatusTrend) {
+                const trendIcon = document.createElement('span');
+                trendIcon.className = 'text-base text-red-500 font-bold';
+                trendIcon.textContent = item.shippingStatusTrend;
+                statusContainer.appendChild(trendIcon);
+            }
+            cellStatus.appendChild(statusContainer);
 
-        // 6. Shipment Volume
-        const cellVolume = row.insertCell(6);
-        cellVolume.className = "px-2 py-3 text-xs text-gray-600 align-top";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) cellVolume.classList.add('text-red-600', 'font-bold');
-        cellVolume.textContent = item.shipmentVolumeStatus || '-';
+            // 3. Reason
+            const cellReason = row.insertCell(3);
+            cellReason.className = "px-2 py-3 text-xs text-gray-600 align-top break-words";
+            if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) cellReason.classList.add('text-red-600', 'font-bold');
+            cellReason.textContent = item.reasonForLimitation || '-';
 
-        // 7. Update Date
-        const cellDate = row.insertCell(7);
-        cellDate.className = "px-2 py-3 text-xs text-gray-600 whitespace-nowrap align-top";
-        // Only highlight if the update date column itself was updated
-        if (item.updatedCells && item.updatedCells.includes(columnMap.updateDate)) {
-            cellDate.classList.add('text-red-600', 'font-bold');
-        }
+            // 4. Resolution Prospect
+            const cellResolution = row.insertCell(4);
+            cellResolution.className = "px-2 py-3 text-xs text-gray-600 align-top";
+            if (item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect)) cellResolution.classList.add('text-red-600', 'font-bold');
+            cellResolution.textContent = item.resolutionProspect || '-';
 
-        const dateStr = item.updateDateObj ? formatDate(item.updateDateObj) : '';
-        cellDate.textContent = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : ''; // YY-MM-DD format
-    });
+            // 5. Expected Date
+            const cellExpected = row.insertCell(5);
+            cellExpected.className = "px-2 py-3 text-xs text-gray-600 align-top";
+            if (item.updatedCells && item.updatedCells.includes(columnMap.expectedDate)) cellExpected.classList.add('text-red-600', 'font-bold');
+
+            if (item.expectedDateObj) {
+                const dateStr = formatDate(item.expectedDateObj);
+                cellExpected.textContent = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : (item.expectedDate || '-');
+            } else {
+                cellExpected.textContent = item.expectedDate || '-';
+            }
+
+            // 6. Shipment Volume
+            const cellVolume = row.insertCell(6);
+            cellVolume.className = "px-2 py-3 text-xs text-gray-600 align-top";
+            if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) cellVolume.classList.add('text-red-600', 'font-bold');
+            cellVolume.textContent = item.shipmentVolumeStatus || '-';
+
+            // 7. Update Date
+            const cellDate = row.insertCell(7);
+            cellDate.className = "px-2 py-3 text-xs text-gray-600 whitespace-nowrap align-top";
+            if (item.updatedCells && item.updatedCells.includes(columnMap.updateDate)) {
+                cellDate.classList.add('text-red-600', 'font-bold');
+            }
+
+            const dateStr = item.updateDateObj ? formatDate(item.updateDateObj) : '';
+            cellDate.textContent = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : ''; // YY-MM-DD format
+        });
+    } else {
+        // Mobile Card View
+        elements.tableContainer.classList.add('hidden');
+        elements.cardContainer.classList.remove('hidden');
+
+        // Apply grid class for mobile card container
+        elements.cardContainer.classList.add('search-results-grid');
+
+
+        displayData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = `search-result-card bg-white p-4 rounded-lg shadow-sm border border-gray-200 transition-all duration-150 fade-in-up`;
+            card.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
+
+            // Product Name
+            const productNameDiv = document.createElement('div');
+            productNameDiv.className = 'flex flex-col items-start mb-2'; // Changed to flex-col for label stacking
+
+            const labelsContainer = document.createElement('div');
+            labelsContainer.className = 'flex gap-1 mb-1'; // Add margin-bottom for spacing
+
+            const isGeneric = item.productCategory && (item.productCategory.includes('後発品') || normalizeString(item.productCategory).includes('後発品'));
+            const isBasic = item.isBasicDrug && (item.isBasicDrug.includes('基礎的医薬品') || normalizeString(item.isBasicDrug).includes('基礎的医薬品'));
+
+            if (isGeneric) {
+                const span = document.createElement('span');
+                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
+                span.textContent = '後発';
+                labelsContainer.appendChild(span);
+            }
+            if (isBasic) {
+                const span = document.createElement('span');
+                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
+                span.textContent = '基礎';
+                labelsContainer.appendChild(span);
+            }
+            if (labelsContainer.hasChildNodes()) {
+                productNameDiv.appendChild(labelsContainer);
+            }
+
+            const productNameContentDiv = document.createElement('div'); // New div to hold product name and dropdown
+            productNameContentDiv.className = 'flex items-center'; // Aligns dropdown/text nicely
+
+            if (item.yjCode) {
+                const dropdown = createDropdown(item, index);
+                productNameContentDiv.appendChild(dropdown);
+            } else {
+                const span = document.createElement('span');
+                span.textContent = item.productName || '';
+                span.className = `${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
+                productNameContentDiv.appendChild(span);
+            }
+            productNameDiv.appendChild(productNameContentDiv); // Append this new div to productNameDiv
+            card.appendChild(productNameDiv);
+
+
+            // Ingredient Name
+            const ingredientDiv = document.createElement('div');
+            ingredientDiv.className = 'text-sm text-gray-700 mb-2';
+            const ingredientLabel = document.createElement('span');
+            ingredientLabel.className = 'font-semibold text-gray-500 mr-2';
+            ingredientLabel.textContent = '成分名:';
+            ingredientDiv.appendChild(ingredientLabel);
+            const ingredientSpan = document.createElement('span');
+            ingredientSpan.textContent = item.ingredientName || '';
+            ingredientSpan.className = `${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
+            ingredientDiv.appendChild(ingredientSpan);
+            card.appendChild(ingredientDiv);
+
+            // Shipment Status
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'flex items-center gap-2 mb-2';
+            const statusLabel = document.createElement('span');
+            statusLabel.className = 'font-semibold text-gray-500 mr-2';
+            statusLabel.textContent = '出荷状況:';
+            statusDiv.appendChild(statusLabel);
+            const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
+            statusDiv.appendChild(renderStatusButton(item.shipmentStatus, isStatusUpdated));
+            if (item.shippingStatusTrend) {
+                const trendIcon = document.createElement('span');
+                trendIcon.className = 'text-base text-red-500 font-bold';
+                trendIcon.textContent = item.shippingStatusTrend;
+                statusDiv.appendChild(trendIcon);
+            }
+            card.appendChild(statusDiv);
+
+            // Reason
+            const reasonDiv = document.createElement('div');
+            reasonDiv.className = 'text-sm text-gray-700 mb-2';
+            const reasonLabel = document.createElement('span');
+            reasonLabel.className = 'font-semibold text-gray-500 mr-2';
+            reasonLabel.textContent = '制限理由:';
+            reasonDiv.appendChild(reasonLabel);
+            const reasonSpan = document.createElement('span');
+            reasonSpan.textContent = item.reasonForLimitation || '-';
+            reasonSpan.className = `${item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation) ? 'text-red-600 font-bold' : ''}`;
+            reasonDiv.appendChild(reasonSpan);
+            card.appendChild(reasonDiv);
+
+            // Resolution Prospect
+            const resolutionDiv = document.createElement('div');
+            resolutionDiv.className = 'text-sm text-gray-700 mb-2';
+            const resolutionLabel = document.createElement('span');
+            resolutionLabel.className = 'font-semibold text-gray-500 mr-2';
+            resolutionLabel.textContent = '解消見込み:';
+            resolutionDiv.appendChild(resolutionLabel);
+            const resolutionSpan = document.createElement('span');
+            resolutionSpan.textContent = item.resolutionProspect || '-';
+            resolutionSpan.className = `${item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect) ? 'text-red-600 font-bold' : ''}`;
+            resolutionDiv.appendChild(resolutionSpan);
+            card.appendChild(resolutionDiv);
+
+            // Expected Date
+            const expectedDiv = document.createElement('div');
+            expectedDiv.className = 'text-sm text-gray-700 mb-2';
+            const expectedLabel = document.createElement('span');
+            expectedLabel.className = 'font-semibold text-gray-500 mr-2';
+            expectedLabel.textContent = '見込み時期:';
+            expectedDiv.appendChild(expectedLabel);
+            const expectedSpan = document.createElement('span');
+            if (item.expectedDateObj) {
+                const dateStr = formatDate(item.expectedDateObj);
+                expectedSpan.textContent = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : (item.expectedDate || '-');
+            } else {
+                expectedSpan.textContent = item.expectedDate || '-';
+            }
+            expectedSpan.className = `${item.updatedCells && item.updatedCells.includes(columnMap.expectedDate) ? 'text-red-600 font-bold' : ''}`;
+            expectedDiv.appendChild(expectedSpan);
+            card.appendChild(expectedDiv);
+
+            // Shipment Volume
+            const volumeDiv = document.createElement('div');
+            volumeDiv.className = 'text-sm text-gray-700 mb-2';
+            const volumeLabel = document.createElement('span');
+            volumeLabel.className = 'font-semibold text-gray-500 mr-2';
+            volumeLabel.textContent = '出荷量:';
+            volumeDiv.appendChild(volumeLabel);
+            const volumeSpan = document.createElement('span');
+            volumeSpan.textContent = item.shipmentVolumeStatus || '-';
+            volumeSpan.className = `${item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus) ? 'text-red-600 font-bold' : ''}`;
+            volumeDiv.appendChild(volumeSpan);
+            card.appendChild(volumeDiv);
+
+            // Update Date
+            const updateDateDiv = document.createElement('div');
+            updateDateDiv.className = 'text-sm text-gray-700';
+            const updateDateLabel = document.createElement('span');
+            updateDateLabel.className = 'font-semibold text-gray-500 mr-2';
+            updateDateLabel.textContent = '更新日:';
+            updateDateDiv.appendChild(updateDateLabel);
+            const updateDateSpan = document.createElement('span');
+            const dateStr = item.updateDateObj ? formatDate(item.updateDateObj) : '';
+            updateDateSpan.textContent = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : '';
+            updateDateSpan.className = `${item.updatedCells && item.updatedCells.includes(columnMap.updateDate) ? 'text-red-600 font-bold' : ''}`;
+            updateDateDiv.appendChild(updateDateSpan);
+            card.appendChild(updateDateDiv);
+
+            elements.cardContainer.appendChild(card);
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

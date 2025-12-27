@@ -352,18 +352,17 @@ function searchYjCode() {
 }
 
 function renderResults(data) {
-    // Desktop Table
+    const isMobile = window.innerWidth <= 640;
     elements.resultTableBody.innerHTML = '';
-    // Mobile Cards
-    // elements.resultCardContainer.innerHTML = ''; // If we use cards later
+    elements.cardContainer.innerHTML = ''; // Clear card container
 
     if (data.length === 0) {
         elements.tableContainer.classList.add('hidden');
+        elements.cardContainer.classList.add('hidden');
         document.body.classList.remove('search-mode');
         return;
     }
 
-    elements.tableContainer.classList.remove('hidden');
     document.body.classList.add('search-mode');
 
     // Limit results for performance
@@ -377,98 +376,252 @@ function renderResults(data) {
         'shipmentStatus': 11
     };
 
-    displayData.forEach((item, index) => {
-        const row = elements.resultTableBody.insertRow();
-        const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
-        row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group fade-in-up`;
-        // First row appears instantly, others staggered slower
-        row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
+    if (!isMobile) {
+        // Desktop Table View
+        elements.tableContainer.classList.remove('hidden');
+        elements.cardContainer.classList.add('hidden');
 
-        // YJ Code
-        const cellYj = row.insertCell(0);
-        cellYj.className = "px-4 py-3 text-sm font-mono align-top";
-        cellYj.setAttribute('data-label', 'YJコード');
+        displayData.forEach((item, index) => {
+            const row = elements.resultTableBody.insertRow();
+            const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
+            row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group fade-in-up`;
+            row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
-        if (item.yjCode) {
-            const link = document.createElement('a');
-            // Add mode parameter to distinguish from top page navigation
-            link.href = `index.html?yjcode=${item.yjCode}&mode=alternative`;
-            link.className = "text-indigo-600 font-semibold hover:underline";
-            link.textContent = item.yjCode;
-            cellYj.appendChild(link);
-        } else {
-            cellYj.textContent = '';
-        }
+            // YJ Code
+            const cellYj = row.insertCell(0);
+            cellYj.className = "px-4 py-3 text-sm font-mono align-top";
+            cellYj.setAttribute('data-label', 'YJコード');
 
-        // Name
-        const cellName = row.insertCell(1);
-        cellName.className = "px-4 py-3 text-sm text-gray-900 font-medium align-top";
-        cellName.setAttribute('data-label', '品名');
-        if (item.yjCode) {
-            cellName.appendChild(createDropdown(item, data.indexOf(item)));
-        } else {
-            cellName.textContent = item.productName || '';
-        }
-        // Highlight if product name was recently updated
-        if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
-            cellName.classList.add('text-red-600', 'font-bold');
-        }
+            if (item.yjCode) {
+                const link = document.createElement('a');
+                link.href = `index.html?yjcode=${item.yjCode}&mode=alternative`;
+                link.className = "text-indigo-600 font-semibold hover:underline";
+                link.textContent = item.yjCode;
+                cellYj.appendChild(link);
+            } else {
+                cellYj.textContent = '';
+            }
 
-        // Ingredient Name (New Column)
-        const cellIngredient = row.insertCell(2);
-        cellIngredient.className = "px-4 py-3 text-sm text-gray-600 align-top";
-        cellIngredient.setAttribute('data-label', '成分名');
-        cellIngredient.textContent = item.ingredientName || '';
-        // Highlight if ingredient name was recently updated
-        if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
-            cellIngredient.classList.add('text-red-600', 'font-bold');
-        }
+            // Name
+            const cellName = row.insertCell(1);
+            cellName.className = "px-4 py-3 text-sm text-gray-900 font-medium align-top";
+            cellName.setAttribute('data-label', '品名');
 
-        // Manufacturer
-        const cellMaker = row.insertCell(3);
-        cellMaker.className = "px-4 py-3 text-sm text-gray-600 align-top";
-        cellMaker.setAttribute('data-label', 'メーカー');
+            const labelsContainer = document.createElement('div');
+            labelsContainer.className = 'flex gap-1 mb-1'; // Add margin-bottom for spacing
 
-        const makerName = item.manufacturer || '';
-        if (manufacturerLinks[makerName]) {
-            const link = document.createElement('a');
-            link.href = manufacturerLinks[makerName];
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.className = "text-indigo-600 hover:underline";
-            link.textContent = makerName;
-            cellMaker.appendChild(link);
-        } else {
-            cellMaker.textContent = makerName;
-        }
-        // Highlight if manufacturer was recently updated
-        if (item.updatedCells && item.updatedCells.includes(columnMap.manufacturer)) {
-            cellMaker.classList.add('text-red-600', 'font-bold');
-        }
+            const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
+            const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
 
-        // Status
-        const cellStatus = row.insertCell(4);
-        cellStatus.className = "px-4 py-3 align-top";
-        cellStatus.setAttribute('data-label', '出荷状況');
-        const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
+            if (isGeneric) {
+                const span = document.createElement('span');
+                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
+                span.textContent = '後発';
+                labelsContainer.appendChild(span);
+            }
+            if (isBasic) {
+                const span = document.createElement('span');
+                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
+                span.textContent = '基礎';
+                labelsContainer.appendChild(span);
+            }
+            if (labelsContainer.hasChildNodes()) {
+                cellName.appendChild(labelsContainer);
+            }
 
-        const statusContainer = document.createElement('div');
-        statusContainer.className = 'flex items-center gap-1';
-        statusContainer.appendChild(renderStatusButton(item.shipmentStatus, isStatusUpdated));
+            if (item.yjCode) {
+                cellName.appendChild(createDropdown(item, data.indexOf(item)));
+            } else {
+                const productNameSpan = document.createElement('span'); // Use a span for the text
+                productNameSpan.textContent = item.productName || '';
+                cellName.appendChild(productNameSpan);
+            }
+            if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
+                cellName.classList.add('text-red-600', 'font-bold');
+            }
 
-        if (item.shippingStatusTrend) {
-            const trendIcon = document.createElement('span');
-            trendIcon.className = 'text-base text-red-500 font-bold';
-            trendIcon.textContent = item.shippingStatusTrend;
-            statusContainer.appendChild(trendIcon);
-        }
-        cellStatus.appendChild(statusContainer);
+            // Ingredient Name
+            const cellIngredient = row.insertCell(2);
+            cellIngredient.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellIngredient.setAttribute('data-label', '成分名');
+            cellIngredient.textContent = item.ingredientName || '';
+            if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
+                cellIngredient.classList.add('text-red-600', 'font-bold');
+            }
 
-        // Highlight if shipment status was recently updated
-        if (isStatusUpdated) {
-            cellStatus.classList.add('text-red-600', 'font-bold');
-        }
-    });
+            // Manufacturer
+            const cellMaker = row.insertCell(3);
+            cellMaker.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellMaker.setAttribute('data-label', 'メーカー');
+
+            const makerName = item.manufacturer || '';
+            if (manufacturerLinks[makerName]) {
+                const link = document.createElement('a');
+                link.href = manufacturerLinks[makerName];
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.className = "text-indigo-600 hover:underline";
+                link.textContent = makerName;
+                cellMaker.appendChild(link);
+            } else {
+                cellMaker.textContent = makerName;
+            }
+            if (item.updatedCells && item.updatedCells.includes(columnMap.manufacturer)) {
+                cellMaker.classList.add('text-red-600', 'font-bold');
+            }
+
+            // Status
+            const cellStatus = row.insertCell(4);
+            cellStatus.className = "px-4 py-3 align-top";
+            cellStatus.setAttribute('data-label', '出荷状況');
+            const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
+
+            const statusContainer = document.createElement('div');
+            statusContainer.className = 'flex items-center gap-1';
+            statusContainer.appendChild(renderStatusButton(item.shipmentStatus, isStatusUpdated));
+
+            if (item.shippingStatusTrend) {
+                const trendIcon = document.createElement('span');
+                trendIcon.className = 'text-base text-red-500 font-bold';
+                trendIcon.textContent = item.shippingStatusTrend;
+                statusContainer.appendChild(trendIcon);
+            }
+            cellStatus.appendChild(statusContainer);
+
+            if (isStatusUpdated) {
+                cellStatus.classList.add('text-red-600', 'font-bold');
+            }
+        });
+    } else {
+        // Mobile Card View
+        elements.tableContainer.classList.add('hidden');
+        elements.cardContainer.classList.remove('hidden');
+        elements.cardContainer.classList.add('search-results-grid'); // Add grid class
+
+        displayData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = `search-result-card bg-white p-4 rounded-lg shadow-sm border border-gray-200 transition-all duration-150 fade-in-up`;
+            card.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
+
+            // YJ Code
+            const yjCodeDiv = document.createElement('div');
+            yjCodeDiv.className = 'text-sm font-mono text-gray-800 mb-1';
+            const yjCodeLabel = document.createElement('span');
+            yjCodeLabel.className = 'font-semibold text-gray-500 mr-2';
+            yjCodeLabel.textContent = 'YJコード:';
+            yjCodeDiv.appendChild(yjCodeLabel);
+            if (item.yjCode) {
+                const link = document.createElement('a');
+                link.href = `index.html?yjcode=${item.yjCode}&mode=alternative`;
+                link.className = "text-indigo-600 font-semibold hover:underline";
+                link.textContent = item.yjCode;
+                yjCodeDiv.appendChild(link);
+            } else {
+                yjCodeDiv.textContent += '';
+            }
+            card.appendChild(yjCodeDiv);
+
+            // Product Name
+            const productNameDiv = document.createElement('div');
+            productNameDiv.className = 'flex flex-col items-start mb-2'; // Changed to flex-col for label stacking
+
+            const labelsContainer = document.createElement('div');
+            labelsContainer.className = 'flex gap-1 mb-1'; // Add margin-bottom for spacing
+
+            const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
+            const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
+
+            if (isGeneric) {
+                const span = document.createElement('span');
+                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
+                span.textContent = '後発';
+                labelsContainer.appendChild(span);
+            }
+            if (isBasic) {
+                const span = document.createElement('span');
+                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
+                span.textContent = '基礎';
+                labelsContainer.appendChild(span);
+            }
+            if (labelsContainer.hasChildNodes()) {
+                productNameDiv.appendChild(labelsContainer);
+            }
+
+            const productNameContentDiv = document.createElement('div'); // New div to hold product name and dropdown
+            productNameContentDiv.className = 'flex items-center'; // Aligns dropdown/text nicely
+
+            if (item.yjCode) {
+                const dropdown = createDropdown(item, data.indexOf(item));
+                productNameContentDiv.appendChild(dropdown);
+            } else {
+                const span = document.createElement('span');
+                span.textContent = item.productName || '';
+                span.className = `${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
+                productNameContentDiv.appendChild(span);
+            }
+            productNameDiv.appendChild(productNameContentDiv); // Append this new div to productNameDiv
+            card.appendChild(productNameDiv);
+
+
+            // Ingredient Name
+            const ingredientDiv = document.createElement('div');
+            ingredientDiv.className = 'text-sm text-gray-700 mb-2';
+            const ingredientLabel = document.createElement('span');
+            ingredientLabel.className = 'font-semibold text-gray-500 mr-2';
+            ingredientLabel.textContent = '成分名:';
+            ingredientDiv.appendChild(ingredientLabel);
+            const ingredientSpan = document.createElement('span');
+            ingredientSpan.textContent = item.ingredientName || '';
+            ingredientSpan.className = `${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
+            ingredientDiv.appendChild(ingredientSpan);
+            card.appendChild(ingredientDiv);
+
+            // Manufacturer
+            const manufacturerDiv = document.createElement('div');
+            manufacturerDiv.className = 'text-sm text-gray-700 mb-2';
+            const manufacturerLabel = document.createElement('span');
+            manufacturerLabel.className = 'font-semibold text-gray-500 mr-2';
+            manufacturerLabel.textContent = 'メーカー:';
+            manufacturerDiv.appendChild(manufacturerLabel);
+            const manufacturerSpan = document.createElement('span');
+            const makerName = item.manufacturer || '';
+            if (manufacturerLinks[makerName]) {
+                const link = document.createElement('a');
+                link.href = manufacturerLinks[makerName];
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.className = "text-indigo-600 hover:underline";
+                link.textContent = makerName;
+                manufacturerSpan.appendChild(link);
+            } else {
+                manufacturerSpan.textContent = makerName;
+            }
+            manufacturerSpan.className = `${manufacturerSpan.className} ${item.updatedCells && item.updatedCells.includes(columnMap.manufacturer) ? 'text-red-600 font-bold' : ''}`;
+            manufacturerDiv.appendChild(manufacturerSpan);
+            card.appendChild(manufacturerDiv);
+
+
+            // Status
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'flex items-center gap-2';
+            const statusLabel = document.createElement('span');
+            statusLabel.className = 'font-semibold text-gray-500 mr-2';
+            statusLabel.textContent = '出荷状況:';
+            statusDiv.appendChild(statusLabel);
+            const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
+            statusDiv.appendChild(renderStatusButton(item.shipmentStatus, isStatusUpdated));
+            if (item.shippingStatusTrend) {
+                const trendIcon = document.createElement('span');
+                trendIcon.className = 'text-base text-red-500 font-bold';
+                trendIcon.textContent = item.shippingStatusTrend;
+                statusDiv.appendChild(trendIcon);
+            }
+            card.appendChild(statusDiv);
+
+            elements.cardContainer.appendChild(card);
+        });
+    }
 }
+
 
 document.addEventListener('DOMContentLoaded', initApp);

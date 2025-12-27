@@ -8,7 +8,7 @@
 import { normalizeString, debounce } from '../../js/utils.js';
 import { showMessage } from '../../js/ui.js';
 
-const PROXY_URL = 'https://hiyari-proxy-708146219355.asia-east1.run.app/proxy';
+const PROXY_URL = 'https://www.yakkyoku-hiyari.jcqhc.or.jp/phsearch/SearchNewReportApi.action'; // Changed from proxy to direct URL. Might fail due to CORS.
 const batchSize = 30;
 
 // DOM Elements

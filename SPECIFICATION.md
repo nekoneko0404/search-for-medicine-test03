@@ -92,7 +92,7 @@ Google Sheetsをデータソースとして、医薬品の出荷状況を検索�
 
 #### 3.2.2. データソース
 
--   **API:** `https://hiyari-proxy-708146219355.asia-east1.run.app/proxy`
+-   **API:** `https://www.yakkyoku-hiyari.jcqhc.or.jp/phsearch/SearchNewReportApi.action` (直接アクセス)
     -   CORSポリシーを回避するためのプロキシサーバー。
     -   バックエンドで日本医療機能評価機構のAPIを呼び出し、結果をXML形式で返す。
 

@@ -7,7 +7,7 @@
     <title>情報更新日検索 | Kusuri Compass</title>
 
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"
         integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
@@ -23,21 +23,35 @@
 
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <header id="mainHeader" class="bg-white shadow-sm sticky top-0 z-30 flex-shrink-0">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                    <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
-                    <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
-                </a>
-            </div>
-            <nav class="flex items-center gap-4">
-                <span class="text-sm font-bold text-gray-500">情報更新日検索</span>
-            </nav>
-        </div>
-    </header>
+        <header id="mainHeader" class="bg-white shadow-sm sticky top-0 z-30 flex-shrink-0">
 
-    <main
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+
+                <div class="flex items-center gap-3">
+
+                    <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+
+                        <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
+
+                        <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
+
+                    </a>
+
+                </div>
+
+                <nav class="flex items-center gap-4">
+
+                    <span class="text-sm font-bold text-gray-500">情報更新日検索</span>
+
+                </nav>
+
+            </div>
+
+        </header>
+
+
+
+        <main
         class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl md:flex md:flex-col pb-32 transition-all duration-500">
         <div class="text-center mb-8 flex-shrink-0">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">情報更新日検索</h2>
@@ -168,10 +182,12 @@
             </table>
         </div>
 
+        <div id="cardContainer" class="search-results-grid hidden"></div>
+
     </main>
 
     <!-- Footer -->
-    <footer id="mainFooter" class="bg-white border-t border-gray-200 flex-shrink-0 fixed bottom-0 w-full z-20">
+    <footer id="mainFooter" class="bg-white border-t border-gray-200 flex-shrink-0 sticky bottom-0 w-full z-20">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="text-sm text-gray-500">

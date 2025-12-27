@@ -1,4 +1,4 @@
-console.log("search main.js loaded");
+    console.log("search main.js loaded");
 /**
  * Main application logic for Kusuri Compass
  */
@@ -25,7 +25,7 @@ const elements = {
     statusLimited: null,
     statusStopped: null,
     tableContainer: null,
-    resultTableBody: null,
+    searchResultTableBody: null, // Renamed from resultTableBody
     usageGuide: null,
     sortStatusIcon: null,
     sortProductNameIcon: null,
@@ -35,7 +35,8 @@ const elements = {
     pageFooter: null,
     infoContainer: null,
     mainHeader: null,
-    mainFooter: null
+    mainFooter: null,
+    cardContainer: null // Renamed from searchResultsGrid
 };
 
 /**
@@ -51,7 +52,8 @@ function initElements() {
     elements.statusLimited = document.getElementById('statusLimited');
     elements.statusStopped = document.getElementById('statusStopped');
     elements.tableContainer = document.getElementById('tableContainer');
-    elements.resultTableBody = document.getElementById('resultTableBody');
+    elements.searchResultTableBody = document.getElementById('searchResultTableBody'); // New table body
+    elements.cardContainer = document.getElementById('cardContainer'); // New card container
     elements.sortStatusIcon = document.getElementById('sort-status-icon');
     elements.sortProductNameIcon = document.getElementById('sort-productName-icon');
     elements.sortIngredientNameIcon = document.getElementById('sort-ingredientName-icon');
@@ -73,8 +75,16 @@ function getSearchKeywords(input) {
  * Search and filter data
  */
 function searchData() {
+    console.log('--- searchData called ---');
+    console.log('drugName.value:', elements.drugName.value);
+    console.log('ingredientName.value:', elements.ingredientName.value);
+    console.log('makerName.value:', elements.makerName.value);
+
     // Footer visibility is handled by CSS animation via body class
-    if (excelData.length === 0) return;
+    if (excelData.length === 0) {
+        console.log('excelData is empty, returning.');
+        return;
+    }
 
     const drugKeywords = getSearchKeywords(elements.drugName.value);
     const ingredientKeywords = getSearchKeywords(elements.ingredientName.value);
@@ -89,25 +99,35 @@ function searchData() {
         .map(keyword => normalizeString(keyword.substring(1)).trim())
         .filter(Boolean);
 
+    console.log('drugKeywords:', drugKeywords);
+    console.log('ingredientKeywords:', ingredientKeywords);
+    console.log('inclusionMakerKeywords:', inclusionMakerKeywords);
+    console.log('exclusionMakerKeywords:', exclusionMakerKeywords);
+
+
     const allCheckboxesChecked = elements.statusNormal.checked && elements.statusLimited.checked && elements.statusStopped.checked;
     const allSearchFieldsEmpty = drugKeywords.length === 0 && ingredientKeywords.length === 0 && allMakerKeywords.length === 0;
+
+    const statusFilters = [];
+    if (elements.statusNormal.checked) statusFilters.push("通常出荷");
+    if (elements.statusLimited.checked) statusFilters.push("限定出荷");
+    if (elements.statusStopped.checked) statusFilters.push("供給停止");
+    console.log('statusFilters:', statusFilters);
+
 
     if (allSearchFieldsEmpty && allCheckboxesChecked) {
         renderTable([]);
         elements.tableContainer.classList.add('hidden');
         if (elements.infoContainer) elements.infoContainer.classList.remove('hidden');
         document.body.classList.remove('search-mode');
+        console.log('All search fields empty and all checkboxes checked. Hiding table.');
         return;
     } else {
         if (elements.infoContainer) elements.infoContainer.classList.add('hidden');
         elements.tableContainer.classList.remove('hidden');
         document.body.classList.add('search-mode');
+        console.log('Search criteria present. Showing table.');
     }
-
-    const statusFilters = [];
-    if (elements.statusNormal.checked) statusFilters.push("通常出荷");
-    if (elements.statusLimited.checked) statusFilters.push("限定出荷");
-    if (elements.statusStopped.checked) statusFilters.push("供給停止");
 
     filteredResults = excelData.filter(item => {
         if (!item) return false;
@@ -119,8 +139,20 @@ function searchData() {
         const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
         const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
 
-        const matchMaker = inclusionMakerKeywords.every(keyword => drugName.includes(keyword) || makerName.includes(keyword) || ingredientName.includes(keyword));
-        const mismatchMaker = exclusionMakerKeywords.length > 0 && exclusionMakerKeywords.some(keyword => drugName.includes(keyword) || makerName.includes(keyword) || ingredientName.includes(keyword));
+        // Maker search: Check if any inclusion keyword matches productName, makerName, or ingredientName
+        const matchMaker = inclusionMakerKeywords.every(keyword =>
+            (item.productName && normalizeString(item.productName).includes(keyword)) ||
+            makerName.includes(keyword) ||
+            ingredientName.includes(keyword)
+        );
+
+        // Maker exclusion: Check if any exclusion keyword matches productName, makerName, or ingredientName
+        const mismatchMaker = exclusionMakerKeywords.some(keyword =>
+            (item.productName && normalizeString(item.productName).includes(keyword)) ||
+            makerName.includes(keyword) ||
+            ingredientName.includes(keyword)
+        );
+        
 
         if (statusFilters.length === 0) return false;
 
@@ -140,7 +172,8 @@ function searchData() {
         return matchDrug && matchIngredient && matchMaker && !mismatchMaker && matchStatus;
     });
 
-    renderTable(filteredResults);
+    console.log('filteredResults.length:', filteredResults.length);
+    renderResults(filteredResults);
 
     if (filteredResults.length === 0) {
         showMessage("検索結果が見つかりませんでした。", "info");
@@ -159,33 +192,22 @@ function searchData() {
 }
 
 /**
- * Handle ingredient click
- * @param {string} ingredient - Ingredient name
- */
-function handleIngredientClick(ingredient) {
-    elements.drugName.value = '';
-    elements.makerName.value = '';
-    const searchIngredient = ingredient;
-    elements.ingredientName.value = searchIngredient;
-    searchData();
-    showMessage(`「${searchIngredient}」で再検索を実行しました。`, 'info');
-}
-
-/**
- * Render table with data
+ * Render results (cards for mobile, table for desktop)
  * @param {Array} data - Data to render
  */
-function renderTable(data) {
-    elements.resultTableBody.innerHTML = "";
+function renderResults(data) {
+    const isMobile = window.innerWidth <= 640;
+    elements.searchResultTableBody.innerHTML = ""; // Clear table body
+    elements.cardContainer.innerHTML = ""; // Clear card container
 
     if (data.length === 0) {
-        const row = elements.resultTableBody.insertRow();
-        const cell = row.insertCell(0);
-        cell.colSpan = 5;
-        cell.textContent = "該当データがありません";
-        cell.className = "px-4 py-8 text-sm text-gray-500 text-center italic";
+        elements.tableContainer.classList.add('hidden');
+        elements.cardContainer.classList.add('hidden');
+        document.body.classList.remove('search-mode');
         return;
     }
+
+    document.body.classList.add('search-mode');
 
     const displayResults = data.slice(0, 500);
     const columnMap = {
@@ -204,125 +226,220 @@ function renderTable(data) {
         'updateDateSerial': 12
     };
 
-    displayResults.forEach((item, index) => {
-        const newRow = elements.resultTableBody.insertRow();
-        const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
-        newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-50 group fade-in-up relative hover:z-50`;
-        // First row appears instantly, others staggered slower
-        newRow.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
+    if (!isMobile) {
+        // Desktop Table View
+        elements.tableContainer.classList.remove('hidden');
+        elements.cardContainer.classList.add('hidden');
 
-        // 1. Drug Name Cell
-        const drugNameCell = newRow.insertCell(0);
-        drugNameCell.setAttribute('data-label', '品名');
-        drugNameCell.className = "px-4 py-3 text-sm text-gray-900 relative align-top group-hover:z-50";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
-            drugNameCell.classList.add('text-red-600', 'font-bold');
-        }
+        displayResults.forEach((item, index) => {
+            const row = elements.searchResultTableBody.insertRow();
+            const rowBgClass = index % 2 === 1 ? 'bg-gray-50' : 'bg-white';
+            row.className = `${rowBgClass} hover:bg-indigo-50 transition-colors group fade-in-up`;
+            row.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
-        const labelsContainer = document.createElement('div');
-        labelsContainer.className = 'flex gap-1 mb-1';
+            // Product Name
+            const cellName = row.insertCell(0);
+            cellName.className = "px-4 py-3 text-sm text-gray-900 font-medium align-top";
 
-        const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
-        const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
+            const labelsContainer = document.createElement('div');
+            labelsContainer.className = 'flex gap-1 mb-1'; // Add margin-bottom for spacing
 
-        if (isGeneric) {
-            const span = document.createElement('span');
-            span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
-            span.textContent = '後発';
-            labelsContainer.appendChild(span);
-        }
-        if (isBasic) {
-            const span = document.createElement('span');
-            span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
-            span.textContent = '基礎';
-            labelsContainer.appendChild(span);
-        }
+            const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
+            const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
 
-        const drugName = item.productName || "";
-        const flexContainer = document.createElement('div');
-        flexContainer.className = 'flex flex-col items-start';
-        if (labelsContainer.hasChildNodes()) {
-            flexContainer.appendChild(labelsContainer);
-        }
+            if (isGeneric) {
+                const span = document.createElement('span');
+                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
+                span.textContent = '後発';
+                labelsContainer.appendChild(span);
+            }
+            if (isBasic) {
+                const span = document.createElement('span');
+                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
+                span.textContent = '基礎';
+                labelsContainer.appendChild(span);
+            }
+            if (labelsContainer.hasChildNodes()) {
+                cellName.appendChild(labelsContainer);
+            }
 
-        if (!item.yjCode) {
-            const span = document.createElement('span');
-            span.className = "font-semibold break-words";
-            span.textContent = drugName;
-            flexContainer.appendChild(span);
-            drugNameCell.appendChild(flexContainer);
-        } else {
-            const dropdown = createDropdown(item, index);
-            flexContainer.appendChild(dropdown);
-            drugNameCell.appendChild(flexContainer);
-        }
+            if (item.yjCode) {
+                cellName.appendChild(createDropdown(item, data.indexOf(item)));
+            } else {
+                const productNameSpan = document.createElement('span'); // Use a span for the text
+                productNameSpan.textContent = item.productName || '';
+                cellName.appendChild(productNameSpan);
+            }
+            if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
+                cellName.classList.add('text-red-600', 'font-bold');
+            }
 
-        // 2. Ingredient Name Cell
-        const ingredientNameCell = newRow.insertCell(1);
-        ingredientNameCell.setAttribute('data-label', '成分名');
-        ingredientNameCell.className = "px-4 py-3 text-sm text-gray-900 break-words align-top";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
-            ingredientNameCell.classList.add('text-red-600', 'font-bold');
-        }
-        const ingredientName = item.ingredientName || "";
+            // Ingredient Name
+            const cellIngredient = row.insertCell(1);
+            cellIngredient.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellIngredient.textContent = item.ingredientName || '';
+            if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
+                cellIngredient.classList.add('text-red-600', 'font-bold');
+            }
 
-        if (ingredientName) {
-            const link = document.createElement('a');
-            link.href = '#';
-            link.className = 'text-indigo-600 font-medium hover:underline hover:text-indigo-800 transition-colors';
-            link.textContent = ingredientName;
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                handleIngredientClick(ingredientName);
-            });
-            ingredientNameCell.appendChild(link);
-        } else {
-            ingredientNameCell.textContent = ingredientName;
-        }
+            // Status
+            const cellStatus = row.insertCell(2);
+            cellStatus.className = "px-4 py-3 align-top";
+            const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
+            const statusContainer = document.createElement('div');
+            statusContainer.className = 'flex items-center gap-1';
+            statusContainer.appendChild(renderStatusButton(item.shipmentStatus, isStatusUpdated));
+            if (item.shippingStatusTrend) {
+                const trendIcon = document.createElement('span');
+                trendIcon.className = 'text-base text-red-500 font-bold';
+                trendIcon.textContent = item.shippingStatusTrend;
+                statusContainer.appendChild(trendIcon);
+            }
+            cellStatus.appendChild(statusContainer);
 
-        // 3. Status Cell
-        const statusCell = newRow.insertCell(2);
-        statusCell.setAttribute('data-label', '出荷状況');
-        statusCell.className = "px-4 py-3 text-gray-900 text-left align-top whitespace-nowrap";
+            // Reason for Limitation
+            const cellReason = row.insertCell(3);
+            cellReason.className = "px-4 py-3 text-sm text-gray-600 align-top break-words";
+            cellReason.textContent = item.reasonForLimitation || '-';
 
-        const statusContainer = document.createElement('div');
-        statusContainer.className = 'flex items-center gap-2';
+            // Shipment Volume Status
+            const cellVolume = row.insertCell(4);
+            cellVolume.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellVolume.textContent = item.shipmentVolumeStatus || '-';
 
-        const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
-        if (isStatusUpdated) {
-            statusCell.classList.add('text-red-600', 'font-bold');
-        }
+            // Manufacturer (using manufacturer column as a placeholder for now, adjust if needed)
+            const cellMaker = row.insertCell(5);
+            cellMaker.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellMaker.textContent = item.manufacturer || '-'; // Assuming manufacturer exists in item
+        });
+    } else {
+        // Mobile Card View
+        elements.tableContainer.classList.add('hidden');
+        elements.cardContainer.classList.remove('hidden');
 
-        const statusValue = (item.shipmentStatus || '').trim();
-        statusContainer.appendChild(renderStatusButton(statusValue, isStatusUpdated));
+        displayResults.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = `search-result-card bg-white p-4 rounded-lg shadow-sm border border-gray-200 transition-all duration-150 fade-in-up relative`;
+            card.style.animationDelay = index === 0 ? '0s' : `${index * 0.05}s`;
 
-        if (item.shippingStatusTrend) {
-            const trendIcon = document.createElement('span');
-            trendIcon.className = 'text-lg text-red-500 font-bold';
-            trendIcon.textContent = item.shippingStatusTrend;
-            statusContainer.appendChild(trendIcon);
-        }
-        statusCell.appendChild(statusContainer);
+            // Product Name
+            const productNameDiv = document.createElement('div');
+            productNameDiv.className = 'flex flex-col items-start mb-2';
 
-        // 4. Reason Cell
-        const reasonCell = newRow.insertCell(3);
-        reasonCell.textContent = item.reasonForLimitation || "";
-        reasonCell.setAttribute('data-label', '制限理由');
-        reasonCell.className = "px-4 py-3 text-xs text-gray-600 break-words align-top";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) {
-            reasonCell.classList.add('text-red-600', 'font-bold');
-        }
+            const labelsContainer = document.createElement('div');
+            labelsContainer.className = 'flex gap-1 mb-1';
 
-        // 5. Volume Cell
-        const volumeCell = newRow.insertCell(4);
-        volumeCell.textContent = item.shipmentVolumeStatus || "";
-        volumeCell.setAttribute('data-label', '出荷量状況');
-        volumeCell.className = "px-4 py-3 text-xs text-gray-600 align-top";
-        if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) {
-            volumeCell.classList.add('text-red-600', 'font-bold');
-        }
-    });
+            const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
+            const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
+
+            if (isGeneric) {
+                const span = document.createElement('span');
+                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
+                span.textContent = '後発';
+                labelsContainer.appendChild(span);
+            }
+            if (isBasic) {
+                const span = document.createElement('span');
+                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
+                span.textContent = '基礎';
+                labelsContainer.appendChild(span);
+            }
+
+            if (labelsContainer.hasChildNodes()) {
+                productNameDiv.appendChild(labelsContainer);
+            }
+
+            const drugNameText = document.createElement('div');
+            drugNameText.className = `font-semibold break-words text-base text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
+
+            if (!item.yjCode) {
+                drugNameText.textContent = item.productName || "";
+                productNameDiv.appendChild(drugNameText);
+            } else {
+                const dropdown = createDropdown(item, index);
+                productNameDiv.appendChild(dropdown);
+            }
+            card.appendChild(productNameDiv);
+
+
+            // Ingredient Name
+            const ingredientDiv = document.createElement('div');
+            ingredientDiv.className = 'text-sm text-gray-700 mb-2';
+            const ingredientNameLabel = document.createElement('span');
+            ingredientNameLabel.className = 'font-medium mr-1 text-gray-500';
+            ingredientNameLabel.textContent = '成分名: ';
+            ingredientDiv.appendChild(ingredientNameLabel);
+
+            const ingredientNameValue = item.ingredientName || "";
+            if (ingredientNameValue) {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.className = `text-indigo-600 font-medium hover:underline hover:text-indigo-800 transition-colors ${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
+                link.textContent = ingredientNameValue;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleIngredientClick(ingredientNameValue);
+                });
+                ingredientDiv.appendChild(link);
+            } else {
+                const span = document.createElement('span');
+                span.className = `${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
+                span.textContent = ingredientNameValue;
+                ingredientDiv.appendChild(span);
+            }
+            card.appendChild(ingredientDiv);
+
+            // Status
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'flex items-center gap-2 mb-2';
+            const statusLabel = document.createElement('span');
+            statusLabel.className = 'font-medium mr-1 text-gray-500';
+            statusLabel.textContent = '状況: ';
+            statusDiv.appendChild(statusLabel);
+
+            const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
+            statusDiv.appendChild(renderStatusButton((item.shipmentStatus || '').trim(), isStatusUpdated));
+
+            if (item.shippingStatusTrend) {
+                const trendIcon = document.createElement('span');
+                trendIcon.className = 'text-lg text-red-500 font-bold';
+                trendIcon.textContent = item.shippingStatusTrend;
+                statusDiv.appendChild(trendIcon);
+            }
+            card.appendChild(statusDiv);
+
+            // Reason for Limitation
+            const reasonDiv = document.createElement('div');
+            reasonDiv.className = 'text-sm text-gray-700 mb-2';
+            const reasonLabel = document.createElement('span');
+            reasonLabel.className = 'font-medium mr-1 text-gray-500';
+            reasonLabel.textContent = '制限理由: ';
+            reasonDiv.appendChild(reasonLabel);
+            const reasonValue = document.createElement('span');
+            reasonValue.className = `${item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation) ? 'text-red-600 font-bold' : ''}`;
+            reasonValue.textContent = item.reasonForLimitation || "N/A";
+            reasonDiv.appendChild(reasonValue);
+            card.appendChild(reasonDiv);
+
+            // Shipment Volume Status
+            const volumeDiv = document.createElement('div');
+            volumeDiv.className = 'text-sm text-gray-700';
+            const volumeLabel = document.createElement('span');
+            volumeLabel.className = 'font-medium mr-1 text-gray-500';
+            volumeLabel.textContent = '出荷量: ';
+            volumeDiv.appendChild(volumeLabel);
+            const volumeValue = document.createElement('span');
+            volumeValue.className = `${item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus) ? 'text-red-600 font-bold' : ''}`;
+            volumeValue.textContent = item.shipmentVolumeStatus || "N/A";
+            volumeDiv.appendChild(volumeValue);
+            card.appendChild(volumeDiv);
+
+            elements.cardContainer.appendChild(card);
+        });
+    }
 }
+
+
 
 /**
  * Sort results
@@ -364,7 +481,7 @@ function sortResults(key) {
         return newDirection === 'asc' ? compare : -compare;
     });
 
-    renderTable(filteredResults);
+    renderResults(filteredResults);
     const sortKeyName = key === 'status' ? '出荷状況' : (key === 'productName' ? '品名' : '成分名');
     showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, "success");
 }
@@ -424,7 +541,7 @@ async function initApp() {
         const result = await loadAndCacheData(updateProgress);
         if (result && result.data) {
             excelData = result.data;
-            renderTable([]);
+            renderResults([]);
             elements.tableContainer.classList.add('hidden');
             showMessage(`データ(${result.date}) ${excelData.length} 件を読み込みました。`, "success");
         } else {

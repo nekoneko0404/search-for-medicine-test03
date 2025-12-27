@@ -153,7 +153,7 @@ export function createDropdown(item, index) {
     dropdownContainer.className = 'relative inline-block group/dropdown';
 
     const button = document.createElement('button');
-    button.className = "text-indigo-600 font-semibold hover:text-indigo-800 text-left flex items-center focus:outline-none";
+    button.className = "text-indigo-600 font-semibold hover:text-indigo-800 text-left flex items-center focus:outline-none name-clickable text-lg";
     button.textContent = drugName;
 
     // Add chevron icon
@@ -178,28 +178,18 @@ chevron.appendChild(svg);
 
     const dropdownContent = document.createElement('div');
     dropdownContent.id = dropdownContentId;
-    // Use opacity/visibility with delay to prevent menu from disappearing when crossing the gap
-    dropdownContent.className = "invisible opacity-0 group-hover/dropdown:visible group-hover/dropdown:opacity-100 transition-all duration-200 delay-200 group-hover/dropdown:delay-0 absolute left-0 z-[60] min-w-[160px] py-1 bg-white border border-gray-200 rounded-md shadow-xl";
+    dropdownContent.className = "invisible opacity-0 group-hover/dropdown:visible group-hover/dropdown:opacity-100 transition-all duration-200 delay-200 group-hover/dropdown:delay-0 absolute left-0 bottom-full mb-1 z-[99] min-w-[160px] py-1 bg-white border border-gray-200 rounded-md shadow-xl";
 
-    // Position check on mouse enter
+    // Desktop hover behavior - always position above
     dropdownContainer.addEventListener('mouseenter', () => {
-        // Desktop hover behavior
         if (window.innerWidth > 640) {
-            const rect = dropdownContainer.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.bottom;
-            const dropdownHeight = 200; // Approximate height
-
-            if (spaceBelow < dropdownHeight) {
-                dropdownContent.classList.remove('top-full', 'mt-1');
-                dropdownContent.classList.add('bottom-full', 'mb-1');
-            } else {
-                dropdownContent.classList.remove('bottom-full', 'mb-1');
-                dropdownContent.classList.add('top-full', 'mt-1');
-            }
+            // Force positioning above
+            dropdownContent.classList.add('bottom-full', 'mb-1');
+            dropdownContent.classList.remove('top-full', 'mt-1');
         }
     });
 
-    // Mobile click behavior
+    // Mobile click behavior - always position above
     button.addEventListener('click', (e) => {
         if (window.innerWidth <= 640) {
             e.preventDefault();
@@ -215,19 +205,9 @@ chevron.appendChild(svg);
             // Toggle current dropdown
             const isVisible = dropdownContent.classList.contains('!visible');
             if (!isVisible) {
-                // Position check for mobile (similar to desktop but on click)
-                const rect = dropdownContainer.getBoundingClientRect();
-                const spaceBelow = window.innerHeight - rect.bottom;
-                const dropdownHeight = 200;
-
-                if (spaceBelow < dropdownHeight) {
-                    dropdownContent.classList.remove('top-full', 'mt-1');
-                    dropdownContent.classList.add('bottom-full', 'mb-1');
-                } else {
-                    dropdownContent.classList.remove('bottom-full', 'mb-1');
-                    dropdownContent.classList.add('top-full', 'mt-1');
-                }
-
+                // Force positioning above for mobile
+                dropdownContent.classList.add('bottom-full', 'mb-1');
+                dropdownContent.classList.remove('top-full', 'mt-1');
                 dropdownContent.classList.add('!visible', '!opacity-100');
             } else {
                 dropdownContent.classList.remove('!visible', '!opacity-100');

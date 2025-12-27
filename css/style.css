@@ -35,6 +35,12 @@ body {
     gap: 30px;
 }
 
+@media (max-width: 768px) {
+    .menu-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
 /* カードスタイル */
 .card {
     background: #ffffff;
@@ -93,48 +99,54 @@ body {
     display: none;
 }
 
-/* Header/Footer Animation */
-#mainHeader,
+/* Header sticky behavior and hiding */
+/* Header sticky behavior */
+#mainHeader {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    height: 4rem; /* Explicit height for h-16 */
+    overflow: hidden; /* Ensure content doesn't overflow during transition */
+    transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Footer behavior */
 #mainFooter {
-    /* Ensure initial state allows for animation */
-    max-height: 200px;
-    /* Arbitrary large value */
-    opacity: 1;
+    transition: height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    height: auto; /* Default height */
     overflow: hidden;
-    transition:
-        max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-        padding 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-        margin 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-        transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body.search-mode #mainHeader {
-    transform: translateY(-20px);
-    /* Slight movement up */
-    max-height: 0;
-    opacity: 0;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    pointer-events: none;
-    border: none;
-    /* Remove border to prevent line remaining */
-}
-
+/* Header and Footer Hiding */
+body.search-mode #mainHeader,
 body.search-mode #mainFooter {
-    transform: translateY(20px);
-    /* Slight movement down */
-    max-height: 0;
-    opacity: 0;
+    height: 0 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    margin-top: 0 !important; /* Ensure no residual margin */
+    margin-bottom: 0 !important; /* Ensure no residual margin */
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    pointer-events: none;
-    border: none;
 }
+
+/* Main content offset */
+main {
+    transition: margin-top 0.3s ease-in-out;
+}
+
+body:not(.search-mode) main {
+    margin-top: 4rem; /* Default offset for header height when visible */
+}
+
+body.search-mode main {
+    margin-top: 0; /* No offset when header is hidden */
+}
+
+
+
+
+
 
 @keyframes fade-in-up {
     from {
@@ -202,56 +214,44 @@ body.search-mode #mainFooter {
     /* For tooltip positioning */
 }
 
-/* Mobile Table View */
+/* Card-style search results */
+.search-results-grid {
+    display: grid;
+    gap: 1rem; /* Gap between cards */
+    padding: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid for cards */
+}
+
+.search-result-card {
+    background-color: #ffffff;
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    border: 1px solid #e5e7eb; /* border-gray-200 */
+    padding: 1rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.search-result-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.search-result-card > div {
+    margin-bottom: 0.5rem; /* Spacing between sections within a card */
+}
+
+.search-result-card > div:last-child {
+    margin-bottom: 0;
+}
+
 @media (max-width: 640px) {
-    .table-container table {
-        display: block;
-    }
-
-    .table-container thead {
-        display: none;
-    }
-
-    .table-container tbody {
-        display: block;
-    }
-
-    .table-container tr {
-        display: block;
-        margin-bottom: 1rem;
-        background-color: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        padding: 0.75rem;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    }
-
-    .table-container td {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .table-container td:last-child {
-        border-bottom: none;
-    }
-
-    .table-container td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: #64748b;
-        /* slate-500 */
-        font-size: 0.75rem;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .search-results-grid {
+        grid-template-columns: 1fr; /* Single column on mobile */
     }
 }
+
+/* Remove obsolete mobile table view styles */
+/* Mobile Table View */
 
 @keyframes fadeIn {
     from {
