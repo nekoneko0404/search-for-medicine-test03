@@ -11,6 +11,8 @@
 const FILE_ID_MAIN = '1ZyjtfiRjGoV9xHSA5Go4rJZr281gqfMFW883Y7s9mQU';
 const FILE_ID_MANUFACTURER = '1lTHHbUj6ySAgtum8zJrHjWAxYnbOO9r8H8Cnu-Y0TnA';
 
+const PROXY_BASE_URL = 'https://hiyari-proxy-708146219355.asia-east1.run.app';
+
 /**
  * Load script dynamically
  * @param {string} src - Script source URL
@@ -258,7 +260,7 @@ async function fetchExcelData(onProgress) {
     console.log('Fetching CSV data from Google Drive...');
     if (onProgress) onProgress('Google Driveからデータを読み込み中...', 0);
 
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${FILE_ID_MAIN}/gviz/tq?tqx=out:csv&cb=${new Date().getTime()}`;
+    const csvUrl = `${PROXY_BASE_URL}/yjcode-data?cb=${new Date().getTime()}`;
 
     try {
         if (onProgress) onProgress('データをダウンロード中...', 50);
