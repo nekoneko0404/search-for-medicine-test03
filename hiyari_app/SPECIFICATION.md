@@ -56,7 +56,7 @@
 *   **API連携:** `fetch` API, `DOMParser`
 
 ## 7. API連携仕様
-*   **APIエンドポイント:** `https://www.yakkyoku-hiyari.jcqhc.or.jp/phsearch/SearchNewReportApi.action` (直接アクセス。※CORS制限により動作しない可能性があります)
+*   **APIエンドポイント:** `https://hiyari-proxy-708146219355.asia-east1.run.app/proxy` (Cloud Run上にデプロイされたプロキシ経由)
 *   **参照API仕様書:** [薬局ヒヤリ・ハット事例収集・分析事業 テキストデータ提供 API仕様書 Ver.2](https://www.yakkyoku-hiyari.jcqhc.or.jp/pdf/text_api_specification_v2.pdf)
 *   **リクエストパラメータ詳細:**
     *   `count=100`: 取得件数を100件に固定。

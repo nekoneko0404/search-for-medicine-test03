@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loading-indicator');
     const loadMoreButton = document.getElementById('load-more');
 
-    const PROXY_BASE_URL = 'https://www.yakkyoku-hiyari.jcqhc.or.jp/phsearch/SearchNewReportApi.action'; // Changed from proxy to direct URL. Might fail due to CORS.
+    const PROXY_BASE_URL = 'https://hiyari-proxy-708146219355.asia-east1.run.app/proxy';
     const batchSize = 30;
     let allIncidents = [];
     let currentlyDisplayedCount = 0;
