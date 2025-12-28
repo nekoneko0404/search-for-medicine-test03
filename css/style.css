@@ -10,11 +10,11 @@ body {
 /* メニューコンテナ */
 .menu-container {
     background-color: rgba(255, 255, 255, 0.9);
-    padding: 40px;
+    padding: 20px 40px 40px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     text-align: center;
-    max-width: 800px;
+    max-width: 1200px;
     width: 90%;
     margin-left: auto;
     margin-right: auto;
@@ -136,7 +136,7 @@ main {
 }
 
 body:not(.search-mode) main {
-    margin-top: 4rem; /* Default offset for header height when visible */
+    margin-top: 1.75rem; /* Default offset for header height when visible */
 }
 
 body.search-mode main {
