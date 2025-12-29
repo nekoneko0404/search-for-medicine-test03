@@ -1,3 +1,6 @@
+import { loadAndCacheData } from './data.js';
+import { updateProgress } from './ui.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- Notification script from original index.html logic ---
     const notificationToggle = document.getElementById('notification-toggle');
@@ -126,7 +129,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Shipping Data Preload Logic ---
+    async function preloadShippingData() {
+        console.log('Preloading shipping data...');
+        try {
+            // updateProgress は引数として渡す
+            const result = await loadAndCacheData(updateProgress);
+            if (result && result.data) {
+                console.log(`Shipping data preloaded and cached successfully: ${result.data.length} items. (Date: ${result.date})`);
+            } else {
+                console.warn('Shipping data preload failed or returned no data.');
+            }
+        } catch (e) {
+            console.error('Error preloading shipping data:', e);
+        }
+        // Shipping data preloading is done, now proceed with infection data
+        preloadInfectionData();
+    }
+
     // Call preload function
-    preloadInfectionData();
+    preloadShippingData();
 
 });

@@ -192,6 +192,19 @@ function searchData() {
 }
 
 /**
+ * Handle ingredient click
+ * @param {string} ingredient - Ingredient name
+ */
+function handleIngredientClick(ingredient) {
+    elements.drugName.value = '';
+    elements.makerName.value = '';
+    const searchIngredient = ingredient;
+    elements.ingredientName.value = searchIngredient;
+    searchData();
+    showMessage(`「${searchIngredient}」で再検索を実行しました。`, 'info');
+}
+
+/**
  * Render results (cards for mobile, table for desktop)
  * @param {Array} data - Data to render
  */
@@ -267,6 +280,7 @@ function renderResults(data) {
                 cellName.appendChild(createDropdown(item, data.indexOf(item)));
             } else {
                 const productNameSpan = document.createElement('span'); // Use a span for the text
+                productNameSpan.className = "text-sm"; // Add text-sm class
                 productNameSpan.textContent = item.productName || '';
                 cellName.appendChild(productNameSpan);
             }
@@ -277,9 +291,22 @@ function renderResults(data) {
             // Ingredient Name
             const cellIngredient = row.insertCell(1);
             cellIngredient.className = "px-4 py-3 text-sm text-gray-600 align-top";
-            cellIngredient.textContent = item.ingredientName || '';
-            if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
-                cellIngredient.classList.add('text-red-600', 'font-bold');
+            const ingredientNameValue = item.ingredientName || '';
+            if (ingredientNameValue) {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.className = `text-indigo-600 font-medium hover:underline hover:text-indigo-800 transition-colors ${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
+                link.textContent = ingredientNameValue;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleIngredientClick(ingredientNameValue);
+                });
+                cellIngredient.appendChild(link);
+            } else {
+                const span = document.createElement('span');
+                span.className = `${item.updatedCells && item.updatedCells.includes(columnMap.ingredientName) ? 'text-red-600 font-bold' : ''}`;
+                span.textContent = ingredientNameValue;
+                cellIngredient.appendChild(span);
             }
 
             // Status
@@ -307,10 +334,7 @@ function renderResults(data) {
             cellVolume.className = "px-4 py-3 text-sm text-gray-600 align-top";
             cellVolume.textContent = item.shipmentVolumeStatus || '-';
 
-            // Manufacturer (using manufacturer column as a placeholder for now, adjust if needed)
-            const cellMaker = row.insertCell(5);
-            cellMaker.className = "px-4 py-3 text-sm text-gray-600 align-top";
-            cellMaker.textContent = item.manufacturer || '-'; // Assuming manufacturer exists in item
+
         });
     } else {
         // Mobile Card View
@@ -350,7 +374,7 @@ function renderResults(data) {
             }
 
             const drugNameText = document.createElement('div');
-            drugNameText.className = `font-semibold break-words text-base text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
+            drugNameText.className = `font-semibold break-words text-gray-900 ${item.updatedCells && item.updatedCells.includes(columnMap.productName) ? 'text-red-600 font-bold' : ''}`;
 
             if (!item.yjCode) {
                 drugNameText.textContent = item.productName || "";

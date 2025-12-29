@@ -153,7 +153,7 @@ export function createDropdown(item, index) {
     dropdownContainer.className = 'relative inline-block group/dropdown';
 
     const button = document.createElement('button');
-    button.className = "text-indigo-600 font-semibold hover:text-indigo-800 text-left flex items-center focus:outline-none name-clickable text-lg";
+    button.className = "text-indigo-600 font-semibold hover:text-indigo-800 text-left flex items-center focus:outline-none name-clickable text-sm";
     button.textContent = drugName;
 
     // Add chevron icon
