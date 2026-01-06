@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>お薬飲めたね！ご褒美スタンプ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Settings View -->
+        <div id="settings-view" class="view hidden">
+            <div class="settings-container">
+                <h1>⚙️ 設定</h1>
+                <p>お子様の服用スケジュールを設定してください</p>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label for="doses-per-day">1日の服用回数</label>
+                        <input type="number" id="doses-per-day" min="1" max="5" value="3" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration-days">服用期間（日）</label>
+                        <input type="number" id="duration-days" min="1" max="30" value="7" required>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label for="test-mode">
+                            <input type="checkbox" id="test-mode" style="width: auto;">
+                            テストモード（時間制限なし）
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary">スタート！</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main View (Stamp Card) -->
+        <div id="main-view" class="view hidden">
+            <header>
+                <h1>お薬飲めたね！</h1>
+                <div class="progress-info">
+                    あと <span id="remaining-count">0</span> 回
+                </div>
+            </header>
+
+            <div id="status-message" class="status-ok">
+                お薬の時間だよ！
+            </div>
+
+            <div class="content-wrapper">
+                <div class="stamp-grid" id="stamp-grid">
+                    <!-- Slots -->
+                </div>
+
+                <div id="character-area">
+                    <!-- Character Image will be here -->
+                </div>
+            </div>
+
+            <button id="reset-btn" class="btn-small">設定をリセット</button>
+        </div>
+
+        <!-- Surprise Overlay -->
+        <div id="surprise-overlay" class="hidden">
+            <div class="surprise-content">
+                <div id="surprise-element"></div>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>
