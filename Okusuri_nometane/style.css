@@ -561,3 +561,14 @@ header h1 {
 .mb-2 {
     margin-bottom: 10px;
 }
+
+/* Medicine Input Grid Layout */
+#medicine-inputs-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+#medicine-inputs-container .medicine-input-wrapper {
+    margin-bottom: 0 !important;
+}
