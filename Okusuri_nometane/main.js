@@ -1,13 +1,15 @@
 const APP_KEY = 'medicine_reward_app_v2';
 
 const state = {
-    config: null, // { dosesPerDay, durationDays, totalSlots, testMode }
-    progress: {
-        stamps: 0,
-        timestamps: [],
-        lastStampTime: null
-    }
+    currentTab: 0,
+    tabs: [
+        { config: null, progress: { stamps: 0, timestamps: [], lastStampTime: null } },
+        { config: null, progress: { stamps: 0, timestamps: [], lastStampTime: null } },
+        { config: null, progress: { stamps: 0, timestamps: [], lastStampTime: null } }
+    ]
 };
+
+let medsMaster = [];
 
 // DOM Elements
 const views = {
@@ -29,21 +31,44 @@ const elements = {
     surpriseOverlay: document.getElementById('surprise-overlay'),
     surpriseElement: document.getElementById('surprise-element'),
     characterArea: document.getElementById('character-area'),
-    statusMessage: document.getElementById('status-message')
+    statusMessage: document.getElementById('status-message'),
+    tabBtns: document.querySelectorAll('.tab-btn'),
+    medicineInputs: document.querySelectorAll('.medicine-name-input'), // NodeList of 6 inputs
+    medicineInfoPreview: document.getElementById('medicine-info-preview'),
+    currentMedicineDisplay: document.getElementById('current-medicine-display')
 };
 
 // Initialization
-function init() {
+async function init() {
+    await loadMedsData();
     loadState();
+    setupTabs();
+    setupMedicineSearch();
+    setupMedicineDisplayClick();
     render();
+}
+
+async function loadMedsData() {
+    try {
+        const response = await fetch('data/meds_master.json');
+        medsMaster = await response.json();
+    } catch (e) {
+        console.error('Failed to load medicine data', e);
+    }
 }
 
 function loadState() {
     const saved = localStorage.getItem(APP_KEY);
     if (saved) {
         const parsed = JSON.parse(saved);
-        state.config = parsed.config;
-        state.progress = parsed.progress;
+        // Migration check: if old format (no tabs array), migrate to tab 0
+        if (!parsed.tabs) {
+            state.tabs[0].config = parsed.config;
+            state.tabs[0].progress = parsed.progress;
+        } else {
+            state.currentTab = parsed.currentTab || 0;
+            state.tabs = parsed.tabs;
+        }
     }
 }
 
@@ -51,22 +76,201 @@ function saveState() {
     localStorage.setItem(APP_KEY, JSON.stringify(state));
 }
 
+function getCurrentTabState() {
+    return state.tabs[state.currentTab];
+}
+
+function setupTabs() {
+    elements.tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabIndex = parseInt(btn.dataset.tab);
+            switchTab(tabIndex);
+        });
+    });
+}
+
+function switchTab(index) {
+    state.currentTab = index;
+    currentWeekIndex = 0; // Reset view for the new tab
+    saveState();
+    render();
+}
+
 function render() {
+    // Update Tab UI
+    elements.tabBtns.forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.tab) === state.currentTab);
+    });
+
+    const currentTabState = getCurrentTabState();
+
     // Switch View
-    if (!state.config) {
+    if (!currentTabState.config) {
         showView('settings');
+        // Reset inputs
+        elements.dosesInput.value = 3;
+        elements.durationInput.value = 7;
+        elements.testModeInput.checked = false;
+        elements.medicineInputs.forEach(input => input.value = '');
+        elements.medicineInfoPreview.classList.add('hidden');
+        selectedMedicinesBuffer = [null, null, null, null, null, null];
     } else {
         showView('main');
         renderGrid();
         updateProgressInfo();
         updateCharacter();
         checkTimeLimit();
+
+        // Display Medicine Names
+        if (currentTabState.config.medicines && currentTabState.config.medicines.length > 0) {
+            const names = currentTabState.config.medicines.map(m => m.brand_name).join('、');
+            elements.currentMedicineDisplay.textContent = names;
+        } else if (currentTabState.config.medicineInfo) {
+            // Legacy support
+            elements.currentMedicineDisplay.textContent = currentTabState.config.medicineInfo.brand_name;
+        } else {
+            elements.currentMedicineDisplay.textContent = `病院 ${state.currentTab + 1} (お薬情報なし)`;
+        }
     }
 }
 
 function showView(viewName) {
     Object.values(views).forEach(el => el.classList.add('hidden'));
     views[viewName].classList.remove('hidden');
+}
+
+// Medicine Search Logic
+let selectedMedicinesBuffer = [null, null, null, null, null, null];
+
+function hiraganaToKatakana(str) {
+    return str.replace(/[\u3041-\u3096]/g, function (match) {
+        var chr = match.charCodeAt(0) + 0x60;
+        return String.fromCharCode(chr);
+    });
+}
+
+function setupMedicineSearch() {
+    elements.medicineInputs.forEach((input, index) => {
+        const list = document.getElementById(`suggestions-${index}`);
+
+        const getMatches = (query) => {
+            const queryKata = hiraganaToKatakana(query);
+            return medsMaster.filter(m =>
+                m.brand_name.includes(query) ||
+                m.brand_name.includes(queryKata) ||
+                (m.yj_code && m.yj_code.includes(query))
+            );
+        };
+
+        input.addEventListener('input', () => {
+            const query = input.value.trim();
+            if (query.length < 2) {
+                list.classList.add('hidden');
+                return;
+            }
+
+            const matches = getMatches(query).slice(0, 10);
+
+            if (matches.length > 0) {
+                list.innerHTML = '';
+                matches.forEach(m => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.textContent = m.brand_name;
+                    item.addEventListener('click', () => selectMedicine(index, m));
+                    list.appendChild(item);
+                });
+                list.classList.remove('hidden');
+            } else {
+                list.classList.add('hidden');
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = input.value.trim();
+                if (query.length < 2) return;
+
+                const matches = getMatches(query);
+                if (matches.length === 1) {
+                    selectMedicine(index, matches[0]);
+                }
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !list.contains(e.target)) {
+                list.classList.add('hidden');
+            }
+        });
+    });
+}
+
+function selectMedicine(index, medicine) {
+    const input = elements.medicineInputs[index];
+    const list = document.getElementById(`suggestions-${index}`);
+
+    input.value = medicine.brand_name;
+    list.classList.add('hidden');
+    selectedMedicinesBuffer[index] = medicine;
+
+    renderMedicineInfoPreview();
+
+    // Move focus to next input if available
+    if (index < elements.medicineInputs.length - 1) {
+        elements.medicineInputs[index + 1].focus();
+    }
+}
+
+function renderMedicineInfoPreview() {
+    const infoDiv = elements.medicineInfoPreview;
+    infoDiv.innerHTML = '';
+
+    const activeMedicines = selectedMedicinesBuffer.filter(m => m !== null);
+
+    if (activeMedicines.length === 0) {
+        infoDiv.classList.add('hidden');
+        return;
+    }
+
+    activeMedicines.forEach(medicine => {
+        const container = document.createElement('div');
+        container.style.marginBottom = '15px';
+        container.style.borderBottom = '1px solid #eee';
+        container.style.paddingBottom = '10px';
+
+        const title = document.createElement('div');
+        title.style.fontWeight = 'bold';
+        title.textContent = `【${medicine.brand_name}】`;
+        container.appendChild(title);
+
+        if (medicine.good_compatibility && medicine.good_compatibility.length > 0) {
+            const good = document.createElement('div');
+            good.className = 'compatibility-good';
+            good.textContent = '⭕ 飲み合わせが良い: ' + medicine.good_compatibility.join('、');
+            container.appendChild(good);
+        }
+
+        if (medicine.bad_compatibility && medicine.bad_compatibility.length > 0) {
+            const bad = document.createElement('div');
+            bad.className = 'compatibility-bad';
+            bad.textContent = '❌ 飲み合わせが悪い: ' + medicine.bad_compatibility.join('、');
+            container.appendChild(bad);
+        }
+
+        if (medicine.taste_smell) {
+            const taste = document.createElement('div');
+            taste.style.marginTop = '5px';
+            taste.textContent = '👅 味・におい: ' + medicine.taste_smell;
+            container.appendChild(taste);
+        }
+
+        infoDiv.appendChild(container);
+    });
+
+    infoDiv.classList.remove('hidden');
 }
 
 // Settings Logic
@@ -76,15 +280,22 @@ forms.settings.addEventListener('submit', (e) => {
     const days = parseInt(elements.durationInput.value);
     const testMode = elements.testModeInput.checked;
 
-    state.config = {
+    const currentTabState = getCurrentTabState();
+
+    // Filter out nulls from buffer
+    const medicines = selectedMedicinesBuffer.filter(m => m !== null);
+
+    currentTabState.config = {
         dosesPerDay: doses,
         durationDays: days,
         totalSlots: doses * days,
-        testMode: testMode
+        testMode: testMode,
+        startOffset: 0,
+        medicines: medicines // Store array of medicines
     };
 
     // Reset progress on new config
-    state.progress = {
+    currentTabState.progress = {
         stamps: 0,
         timestamps: [],
         lastStampTime: null
@@ -97,6 +308,63 @@ forms.settings.addEventListener('submit', (e) => {
     render();
 });
 
+// Main View Medicine Click Logic
+function setupMedicineDisplayClick() {
+    elements.currentMedicineDisplay.addEventListener('click', () => {
+        const currentTabState = getCurrentTabState();
+        if (!currentTabState.config) return;
+
+        let medicines = [];
+        if (currentTabState.config.medicines) {
+            medicines = currentTabState.config.medicines;
+        } else if (currentTabState.config.medicineInfo) {
+            medicines = [currentTabState.config.medicineInfo];
+        }
+
+        if (medicines.length === 0) return;
+
+        showMedicineDetailsModal(medicines);
+    });
+}
+
+function showMedicineDetailsModal(medicines) {
+    const overlay = elements.surpriseOverlay;
+    const content = elements.surpriseElement;
+
+    let html = '<div class="completion-modal" style="text-align: left; max-height: 80vh; overflow-y: auto;">';
+    html += '<h2 style="text-align: center; margin-bottom: 20px;">お薬情報</h2>';
+
+    medicines.forEach(medicine => {
+        html += `<div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">`;
+        html += `<h3 style="color: var(--primary-color); margin-bottom: 10px;">${medicine.brand_name}</h3>`;
+
+        if (medicine.good_compatibility && medicine.good_compatibility.length > 0) {
+            html += `<div class="compatibility-good">⭕ 飲み合わせが良い: ${medicine.good_compatibility.join('、')}</div>`;
+        }
+
+        if (medicine.bad_compatibility && medicine.bad_compatibility.length > 0) {
+            html += `<div class="compatibility-bad">❌ 飲み合わせが悪い: ${medicine.bad_compatibility.join('、')}</div>`;
+        }
+
+        if (medicine.taste_smell) {
+            html += `<div style="margin-top: 5px;">👅 味・におい: ${medicine.taste_smell}</div>`;
+        }
+        html += `</div>`;
+    });
+
+    html += '<div style="text-align: center;"><button class="btn-primary" id="close-modal-btn">閉じる</button></div>';
+    html += '</div>';
+
+    content.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('active');
+
+    document.getElementById('close-modal-btn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('active');
+    });
+}
+
 // Logic: Time Intervals
 function getMinIntervalHours(doses) {
     if (doses === 1) return 12;
@@ -105,20 +373,22 @@ function getMinIntervalHours(doses) {
 }
 
 function canStamp() {
-    if (state.config.testMode) return true;
-    if (!state.progress.lastStampTime) return true;
+    const currentTabState = getCurrentTabState();
+    if (currentTabState.config.testMode) return true;
+    if (!currentTabState.progress.lastStampTime) return true;
 
-    const last = new Date(state.progress.lastStampTime).getTime();
+    const last = new Date(currentTabState.progress.lastStampTime).getTime();
     const now = new Date().getTime();
-    const minHours = getMinIntervalHours(state.config.dosesPerDay);
+    const minHours = getMinIntervalHours(currentTabState.config.dosesPerDay);
 
     return (now - last) >= (minHours * 60 * 60 * 1000);
 }
 
 function checkTimeLimit() {
+    const currentTabState = getCurrentTabState();
     const messageEl = elements.statusMessage;
 
-    if (state.progress.stamps >= state.config.totalSlots) {
+    if (currentTabState.progress.stamps >= currentTabState.config.totalSlots) {
         messageEl.textContent = "コンプリートおめでとう！";
         messageEl.className = "status-ok";
         return;
@@ -133,9 +403,10 @@ function checkTimeLimit() {
 let currentWeekIndex = 0;
 
 function calculateCurrentWeek() {
-    const totalDays = state.config.durationDays;
-    const dosesPerDay = state.config.dosesPerDay;
-    const currentStamps = state.progress.stamps;
+    const currentTabState = getCurrentTabState();
+    const totalDays = currentTabState.config.durationDays;
+    const dosesPerDay = currentTabState.config.dosesPerDay;
+    const currentStamps = currentTabState.progress.stamps;
 
     // Day index (0-based) of the next stamp
     let currentDayIndex = Math.floor(currentStamps / dosesPerDay);
@@ -153,8 +424,11 @@ function renderGrid() {
 
     elements.grid.innerHTML = '';
 
+    const currentTabState = getCurrentTabState();
+    if (!currentTabState.config) return;
+
     // Pagination Controls
-    const totalDays = state.config.durationDays;
+    const totalDays = currentTabState.config.durationDays;
     const totalWeeks = Math.ceil(totalDays / 7);
 
     // Simple Navigation above grid
@@ -178,9 +452,9 @@ function renderGrid() {
     elements.grid.appendChild(controls);
 
     // Render Days
-    const dosesPerDay = state.config.dosesPerDay;
-    const currentStamps = state.progress.stamps;
-    const startOffset = state.config.startOffset || 0;
+    const dosesPerDay = currentTabState.config.dosesPerDay;
+    const currentStamps = currentTabState.progress.stamps;
+    const startOffset = currentTabState.config.startOffset || 0;
 
     const startDay = currentWeekIndex * 7 + 1; // 1-based day
     const endDay = Math.min(startDay + 6, totalDays);
@@ -193,14 +467,22 @@ function renderGrid() {
 
         const label = document.createElement('div');
         label.className = 'day-label';
-        label.textContent = `${day}日目`;
+        label.textContent = `${day} 日目`;
         dayCard.appendChild(label);
 
         const slotsContainer = document.createElement('div');
         slotsContainer.className = 'day-slots';
 
+        let hasVisibleSlots = false;
+
         for (let dose = 0; dose < dosesPerDay; dose++) {
             const slotIndex = slotCounter;
+
+            // Stop rendering if we exceed total slots
+            if (slotIndex >= currentTabState.config.totalSlots) {
+                break;
+            }
+
             const slot = document.createElement('div');
             slot.className = 'stamp-slot';
 
@@ -209,44 +491,10 @@ function renderGrid() {
                 // Hide skipped slots
                 slot.style.visibility = 'hidden';
             } else {
-                // Adjust index for display/logic relative to effective stamps
-                // But wait, currentStamps counts actual stamps.
-                // If we skipped 2, startOffset is 2.
-                // The first clickable slot is index 2.
-                // If currentStamps is 0 (no actual stamps yet, but we are about to start),
-                // we need to handle the click.
-
-                // Actually, if we have skipped slots, we treat them as "done" for the sake of indexing?
-                // No, the requirement is "erase" them.
-                // And "add to end".
-                // So `totalSlots` increased.
-                // `currentStamps` tracks how many *actual* stamps we have.
-                // But the grid position `slotIndex` is absolute (0 to totalSlots-1).
-
-                // If I start at slot 2 (0-indexed), I want slot 0 and 1 to be hidden.
-                // Slot 2 is the first one I stamp.
-                // When I stamp slot 2, `stamps` becomes 1? Or do we count the skipped ones?
-                // If we count skipped ones as "done", then `stamps` would be 3.
-                // But the user said "erase".
-                // If I "erase" them, they don't count towards the goal?
-                // "1回目、2回目は消して、最後に2枠足してください" -> Erase 1st/2nd, add 2 slots at end.
-                // This implies the *total number of stamps to collect* remains the same.
-                // So `stamps` should start at 0.
-                // And the slot at `startOffset` corresponds to `stamps === 0`.
-
-                // So:
-                // Slot Index: 0 (Hidden), 1 (Hidden), 2 (Visible, corresponds to Stamp 0)
-                // Slot Index 3 (Visible, corresponds to Stamp 1)
-                // ...
-
-                // Logic:
-                // Effective Slot Index = slotIndex - startOffset
-
+                hasVisibleSlots = true;
                 const effectiveIndex = slotIndex - startOffset;
 
                 if (effectiveIndex < 0) {
-                    // Should be covered by `slotIndex < startOffset` check above, 
-                    // but just in case logic drifts.
                     slot.style.visibility = 'hidden';
                 } else {
                     if (effectiveIndex < currentStamps) {
@@ -258,8 +506,6 @@ function renderGrid() {
                         if (effectiveIndex === currentStamps) {
                             slot.classList.add('next-slot');
                         }
-                        // We pass the absolute slotIndex to handleSlotClick
-                        // But handleSlotClick needs to know it's a valid click.
                         slot.addEventListener('click', () => handleSlotClick(slotIndex));
                     }
                 }
@@ -269,23 +515,20 @@ function renderGrid() {
             slotCounter++;
         }
 
-        dayCard.appendChild(slotsContainer);
-        elements.grid.appendChild(dayCard);
+        // Only append day card if it has slots (or if it's a day with hidden skipped slots)
+        if (slotsContainer.children.length > 0) {
+            dayCard.appendChild(slotsContainer);
+            elements.grid.appendChild(dayCard);
+        }
     }
 }
 
 function updateProgressInfo() {
-    // Total slots is adjusted total. Stamps is actual stamps.
-    // Remaining = Total (adjusted) - Stamps - StartOffset?
-    // No, if I skipped 2, Total increased by 2.
-    // Say original 21. Skip 2. New Total 23.
-    // I need to stamp 21 times.
-    // Stamps starts at 0.
-    // Remaining = 21.
-    // Formula: Remaining = (TotalSlots - StartOffset) - Stamps
+    const currentTabState = getCurrentTabState();
+    if (!currentTabState.config) return;
 
-    const startOffset = state.config.startOffset || 0;
-    const remaining = (state.config.totalSlots - startOffset) - state.progress.stamps;
+    const startOffset = currentTabState.config.startOffset || 0;
+    const remaining = (currentTabState.config.totalSlots - startOffset) - currentTabState.progress.stamps;
     elements.remainingCount.textContent = remaining;
 }
 
@@ -298,25 +541,26 @@ function updateCharacter() {
 }
 
 function handleSlotClick(clickedIndex) {
-    const currentStamps = state.progress.stamps;
-    const startOffset = state.config.startOffset || 0;
+    const currentTabState = getCurrentTabState();
+    const currentStamps = currentTabState.progress.stamps;
+    const startOffset = currentTabState.config.startOffset || 0;
 
     // If this is the VERY FIRST interaction (stamps === 0 and startOffset === 0)
     // We allow clicking ANY slot on Day 1.
     if (currentStamps === 0 && startOffset === 0) {
-        const dosesPerDay = state.config.dosesPerDay;
+        const dosesPerDay = currentTabState.config.dosesPerDay;
         // Check if clicked slot is on Day 1
         if (clickedIndex < dosesPerDay) {
             // If clickedIndex > 0, we are skipping.
             if (clickedIndex > 0) {
-                if (confirm(`${clickedIndex + 1}回目からスタートしますか？\n前の${clickedIndex}回分はスキップされ、期間が延長されます。`)) {
+                if (confirm(`${clickedIndex + 1} 回目からスタートしますか？\n前の${clickedIndex} 回分はスキップされ、期間が延長されます。`)) {
                     // Apply Skip
-                    state.config.startOffset = clickedIndex;
-                    state.config.totalSlots += clickedIndex;
+                    currentTabState.config.startOffset = clickedIndex;
+                    currentTabState.config.totalSlots += clickedIndex;
 
                     // Recalculate duration days if needed (to render enough days)
                     // New total slots / doses per day -> ceil
-                    state.config.durationDays = Math.ceil(state.config.totalSlots / dosesPerDay);
+                    currentTabState.config.durationDays = Math.ceil(currentTabState.config.totalSlots / dosesPerDay);
 
                     saveState();
                     // Now proceed to stamp this slot (which is now effectively index 0)
@@ -351,20 +595,21 @@ function handleSlotClick(clickedIndex) {
 }
 
 function handleStamp() {
-    state.progress.stamps++;
-    state.progress.timestamps.push(new Date().toISOString());
-    state.progress.lastStampTime = new Date().toISOString();
+    const currentTabState = getCurrentTabState();
+    currentTabState.progress.stamps++;
+    currentTabState.progress.timestamps.push(new Date().toISOString());
+    currentTabState.progress.lastStampTime = new Date().toISOString();
     saveState();
 
     // Trigger Surprise
     triggerSurprise();
 
     // Recalculate which week to show (if we just finished a week)
-    const dosesPerDay = state.config.dosesPerDay;
-    const startOffset = state.config.startOffset || 0;
+    const dosesPerDay = currentTabState.config.dosesPerDay;
+    const startOffset = currentTabState.config.startOffset || 0;
 
     // Current visual slot index is (startOffset + stamps - 1)
-    const currentVisualIndex = startOffset + state.progress.stamps - 1;
+    const currentVisualIndex = startOffset + currentTabState.progress.stamps - 1;
     const currentDay0Indexed = Math.floor(currentVisualIndex / dosesPerDay);
     const newWeekIndex = Math.floor(currentDay0Indexed / 7);
 
@@ -381,12 +626,7 @@ function handleStamp() {
     render();
 
     // Check completion
-    // We need to collect (Total - Offset) stamps?
-    // Or just check if we reached the last slot?
-    // The last slot index is TotalSlots - 1.
-    // We just stamped. `stamps` incremented.
-    // If (stamps + startOffset) >= TotalSlots
-    if ((state.progress.stamps + startOffset) >= state.config.totalSlots) {
+    if ((currentTabState.progress.stamps + startOffset) >= currentTabState.config.totalSlots) {
         setTimeout(triggerCompletion, 1000);
     }
 }
@@ -394,8 +634,9 @@ function handleStamp() {
 // Reset Logic
 elements.resetBtn.addEventListener('click', () => {
     if (confirm('本当にリセットしますか？これまでの記録は消えてしまいます。')) {
-        state.config = null;
-        state.progress = { stamps: 0, timestamps: [], lastStampTime: null };
+        const currentTabState = getCurrentTabState();
+        currentTabState.config = null;
+        currentTabState.progress = { stamps: 0, timestamps: [], lastStampTime: null };
         currentWeekIndex = 0;
         saveState();
         render();
@@ -496,6 +737,16 @@ function triggerCompletion() {
     const overlay = document.getElementById('surprise-overlay');
     const content = document.getElementById('surprise-element');
 
+    // Expose reset function for the modal
+    window.resetCurrentTabApp = () => {
+        const currentTabState = getCurrentTabState();
+        currentTabState.config = null;
+        currentTabState.progress = { stamps: 0, timestamps: [], lastStampTime: null };
+        currentWeekIndex = 0;
+        saveState();
+        location.reload();
+    };
+
     content.innerHTML = `
         <div class="completion-modal">
             <img src="images/party_cat.png" style="width: 150px; margin-bottom: 20px;">
@@ -503,7 +754,7 @@ function triggerCompletion() {
             <h2>おめでとう！</h2>
             <p>ぜんぶのスタンプがあつまったよ！</p>
             <p>すごいね！がんばったね！</p>
-            <button onclick="localStorage.removeItem(APP_KEY); location.reload()" class="btn-primary" style="margin-top: 20px;">もういっかい！</button>
+            <button onclick="resetCurrentTabApp()" class="btn-primary" style="margin-top: 20px;">もういっかい！</button>
         </div>
     `;
 
@@ -535,7 +786,8 @@ function playFanfare() {
 // Ensure correct week on initial load
 window.addEventListener('load', () => {
     // If state is loaded, calculate where we are
-    if (state.config && state.progress.stamps > 0) {
+    const currentTabState = getCurrentTabState();
+    if (currentTabState && currentTabState.config && currentTabState.progress.stamps > 0) {
         calculateCurrentWeek();
     }
 });

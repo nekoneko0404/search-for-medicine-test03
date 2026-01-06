@@ -4,20 +4,13 @@
     --secondary-color: #FFB7B2;
     /* Pastel Salmon */
     --accent-color: #FFDAC1;
-    /* Pastel Peach */
-    --bg-color: #E2F0CB;
-    /* Pastel Green */
-    --text-color: #5D5D5D;
-    --white: #ffffff;
-    --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    --font-main: 'M PLUS Rounded 1c', sans-serif;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    --font-main: 'Zen Maru Gothic', sans-serif;
 }
 
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -126,20 +119,41 @@ input:focus {
 /* Main View Styles */
 header {
     width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    position: relative;
+    margin-bottom: 20px;
+    text-align: left;
+    padding-right: 80px;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    line-height: 1.2;
 }
 
 .progress-info {
-    font-size: 1.1rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 1rem;
     font-weight: 700;
     background: var(--accent-color);
-    padding: 5px 12px;
+    padding: 5px 10px;
     border-radius: 20px;
     color: var(--text-color);
     white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.medicine-display {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    padding-left: 0;
+    margin-top: 5px;
+    display: block;
+    width: 100%;
+    word-break: break-all;
 }
 
 #status-message {
@@ -209,7 +223,7 @@ header {
     gap: 10px;
     flex-wrap: wrap;
     /* Wrap if too many slots */
-    justify-content: flex-end;
+    justify-content: flex-start;
     flex: 1;
 }
 
@@ -299,7 +313,7 @@ header {
     background-color: var(--secondary-color);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 12px;
     border-radius: 20px;
     font-weight: bold;
     cursor: pointer;
@@ -400,7 +414,6 @@ header {
     }
 
     20% {
-        opacity: 1;
         transform: translateY(-20px) scale(1.2);
     }
 
@@ -450,4 +463,101 @@ header {
         transform: scale(1);
         opacity: 1;
     }
+}
+
+/* Tab Navigation */
+.tab-bar {
+    display: flex;
+    justify-content: space-around;
+    background-color: var(--accent-color);
+    padding: 10px;
+    border-radius: 20px 20px 0 0;
+    margin-bottom: 0;
+    z-index: 10;
+    position: relative;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    padding: 10px 20px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.tab-btn.active {
+    opacity: 1;
+    background-color: var(--white);
+    border-radius: 15px 15px 0 0;
+    color: var(--primary-color);
+    transform: translateY(2px);
+    /* Connect to body */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+    z-index: 11;
+}
+
+/* Medicine Input & Suggestions */
+.medicine-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid var(--accent-color);
+    border-radius: 0 0 12px 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background-color: var(--bg-color);
+}
+
+/* Medicine Info Display */
+.medicine-info {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+.compatibility-good {
+    color: #4a7c59;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.compatibility-bad {
+    color: #d9534f;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.mb-2 {
+    margin-bottom: 10px;
 }
