@@ -28,45 +28,6 @@
                 <p>お子様の服用スケジュールを設定してください</p>
                 <form id="settings-form">
                     <div class="form-group">
-                        <label>おくすりのなまえ（入力しなくても使えます）</label>
-                        <div id="medicine-inputs-container">
-                            <!-- 6 Input Fields -->
-                            <div class="medicine-input-wrapper mb-2">
-                                <input type="text" class="medicine-name-input" data-index="0" placeholder="お薬 1"
-                                    autocomplete="off">
-                                <div class="suggestions-list hidden" id="suggestions-0"></div>
-                            </div>
-                            <div class="medicine-input-wrapper mb-2">
-                                <input type="text" class="medicine-name-input" data-index="1" placeholder="お薬 2"
-                                    autocomplete="off">
-                                <div class="suggestions-list hidden" id="suggestions-1"></div>
-                            </div>
-                            <div class="medicine-input-wrapper mb-2">
-                                <input type="text" class="medicine-name-input" data-index="2" placeholder="お薬 3"
-                                    autocomplete="off">
-                                <div class="suggestions-list hidden" id="suggestions-2"></div>
-                            </div>
-                            <div class="medicine-input-wrapper mb-2">
-                                <input type="text" class="medicine-name-input" data-index="3" placeholder="お薬 4"
-                                    autocomplete="off">
-                                <div class="suggestions-list hidden" id="suggestions-3"></div>
-                            </div>
-                            <div class="medicine-input-wrapper mb-2">
-                                <input type="text" class="medicine-name-input" data-index="4" placeholder="お薬 5"
-                                    autocomplete="off">
-                                <div class="suggestions-list hidden" id="suggestions-4"></div>
-                            </div>
-                            <div class="medicine-input-wrapper mb-2">
-                                <input type="text" class="medicine-name-input" data-index="5" placeholder="お薬 6"
-                                    autocomplete="off">
-                                <div class="suggestions-list hidden" id="suggestions-5"></div>
-                            </div>
-                        </div>
-                        <div id="medicine-info-preview" class="medicine-info hidden">
-                            <!-- Preview of selected medicine info -->
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label for="doses-per-day">1日の服用回数</label>
                         <input type="number" id="doses-per-day" min="1" max="5" value="3" required>
                     </div>
@@ -89,8 +50,7 @@
         <div id="main-view" class="view hidden">
             <header>
                 <h1>おくすりのめたね！</h1>
-                <div id="current-medicine-display" class="medicine-display"
-                    style="cursor: pointer; text-decoration: underline;"></div>
+
                 <div class="progress-info">
                     あと <span id="remaining-count">0</span> 回
                 </div>

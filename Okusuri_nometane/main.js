@@ -9,7 +9,7 @@ const state = {
     ]
 };
 
-let medsMaster = [];
+
 
 // DOM Elements
 const views = {
@@ -33,29 +33,20 @@ const elements = {
     characterArea: document.getElementById('character-area'),
     statusMessage: document.getElementById('status-message'),
     tabBtns: document.querySelectorAll('.tab-btn'),
-    medicineInputs: document.querySelectorAll('.medicine-name-input'), // NodeList of 6 inputs
-    medicineInfoPreview: document.getElementById('medicine-info-preview'),
-    currentMedicineDisplay: document.getElementById('current-medicine-display')
+
+
 };
 
 // Initialization
 async function init() {
-    await loadMedsData();
+
     loadState();
     setupTabs();
-    setupMedicineSearch();
-    setupMedicineDisplayClick();
+
     render();
 }
 
-async function loadMedsData() {
-    try {
-        const response = await fetch('data/meds_master.json');
-        medsMaster = await response.json();
-    } catch (e) {
-        console.error('Failed to load medicine data', e);
-    }
-}
+
 
 function loadState() {
     const saved = localStorage.getItem(APP_KEY);
@@ -121,16 +112,7 @@ function render() {
         updateCharacter();
         checkTimeLimit();
 
-        // Display Medicine Names
-        if (currentTabState.config.medicines && currentTabState.config.medicines.length > 0) {
-            const names = currentTabState.config.medicines.map(m => m.brand_name).join('、');
-            elements.currentMedicineDisplay.textContent = names;
-        } else if (currentTabState.config.medicineInfo) {
-            // Legacy support
-            elements.currentMedicineDisplay.textContent = currentTabState.config.medicineInfo.brand_name;
-        } else {
-            elements.currentMedicineDisplay.textContent = `病院 ${state.currentTab + 1} (お薬情報なし)`;
-        }
+
     }
 }
 
@@ -140,138 +122,14 @@ function showView(viewName) {
 }
 
 // Medicine Search Logic
-let selectedMedicinesBuffer = [null, null, null, null, null, null];
 
-function hiraganaToKatakana(str) {
-    return str.replace(/[\u3041-\u3096]/g, function (match) {
-        var chr = match.charCodeAt(0) + 0x60;
-        return String.fromCharCode(chr);
-    });
-}
 
-function setupMedicineSearch() {
-    elements.medicineInputs.forEach((input, index) => {
-        const list = document.getElementById(`suggestions-${index}`);
+// Hide suggestions when clicking outside
 
-        const getMatches = (query) => {
-            const queryKata = hiraganaToKatakana(query);
-            return medsMaster.filter(m =>
-                m.brand_name.includes(query) ||
-                m.brand_name.includes(queryKata) ||
-                (m.yj_code && m.yj_code.includes(query))
-            );
-        };
 
-        input.addEventListener('input', () => {
-            const query = input.value.trim();
-            if (query.length < 2) {
-                list.classList.add('hidden');
-                return;
-            }
 
-            const matches = getMatches(query).slice(0, 10);
 
-            if (matches.length > 0) {
-                list.innerHTML = '';
-                matches.forEach(m => {
-                    const item = document.createElement('div');
-                    item.className = 'suggestion-item';
-                    item.textContent = m.brand_name;
-                    item.addEventListener('click', () => selectMedicine(index, m));
-                    list.appendChild(item);
-                });
-                list.classList.remove('hidden');
-            } else {
-                list.classList.add('hidden');
-            }
-        });
 
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const query = input.value.trim();
-                if (query.length < 2) return;
-
-                const matches = getMatches(query);
-                if (matches.length === 1) {
-                    selectMedicine(index, matches[0]);
-                }
-            }
-        });
-
-        // Hide suggestions when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!input.contains(e.target) && !list.contains(e.target)) {
-                list.classList.add('hidden');
-            }
-        });
-    });
-}
-
-function selectMedicine(index, medicine) {
-    const input = elements.medicineInputs[index];
-    const list = document.getElementById(`suggestions-${index}`);
-
-    input.value = medicine.brand_name;
-    list.classList.add('hidden');
-    selectedMedicinesBuffer[index] = medicine;
-
-    renderMedicineInfoPreview();
-
-    // Move focus to next input if available
-    if (index < elements.medicineInputs.length - 1) {
-        elements.medicineInputs[index + 1].focus();
-    }
-}
-
-function renderMedicineInfoPreview() {
-    const infoDiv = elements.medicineInfoPreview;
-    infoDiv.innerHTML = '';
-
-    const activeMedicines = selectedMedicinesBuffer.filter(m => m !== null);
-
-    if (activeMedicines.length === 0) {
-        infoDiv.classList.add('hidden');
-        return;
-    }
-
-    activeMedicines.forEach(medicine => {
-        const container = document.createElement('div');
-        container.style.marginBottom = '15px';
-        container.style.borderBottom = '1px solid #eee';
-        container.style.paddingBottom = '10px';
-
-        const title = document.createElement('div');
-        title.style.fontWeight = 'bold';
-        title.textContent = `【${medicine.brand_name}】`;
-        container.appendChild(title);
-
-        if (medicine.good_compatibility && medicine.good_compatibility.length > 0) {
-            const good = document.createElement('div');
-            good.className = 'compatibility-good';
-            good.textContent = '⭕ 飲み合わせが良い: ' + medicine.good_compatibility.join('、');
-            container.appendChild(good);
-        }
-
-        if (medicine.bad_compatibility && medicine.bad_compatibility.length > 0) {
-            const bad = document.createElement('div');
-            bad.className = 'compatibility-bad';
-            bad.textContent = '❌ 飲み合わせが悪い: ' + medicine.bad_compatibility.join('、');
-            container.appendChild(bad);
-        }
-
-        if (medicine.taste_smell) {
-            const taste = document.createElement('div');
-            taste.style.marginTop = '5px';
-            taste.textContent = '👅 味・におい: ' + medicine.taste_smell;
-            container.appendChild(taste);
-        }
-
-        infoDiv.appendChild(container);
-    });
-
-    infoDiv.classList.remove('hidden');
-}
 
 // Settings Logic
 forms.settings.addEventListener('submit', (e) => {
@@ -282,16 +140,12 @@ forms.settings.addEventListener('submit', (e) => {
 
     const currentTabState = getCurrentTabState();
 
-    // Filter out nulls from buffer
-    const medicines = selectedMedicinesBuffer.filter(m => m !== null);
-
     currentTabState.config = {
         dosesPerDay: doses,
         durationDays: days,
         totalSlots: doses * days,
         testMode: testMode,
-        startOffset: 0,
-        medicines: medicines // Store array of medicines
+        startOffset: 0
     };
 
     // Reset progress on new config
@@ -309,61 +163,7 @@ forms.settings.addEventListener('submit', (e) => {
 });
 
 // Main View Medicine Click Logic
-function setupMedicineDisplayClick() {
-    elements.currentMedicineDisplay.addEventListener('click', () => {
-        const currentTabState = getCurrentTabState();
-        if (!currentTabState.config) return;
 
-        let medicines = [];
-        if (currentTabState.config.medicines) {
-            medicines = currentTabState.config.medicines;
-        } else if (currentTabState.config.medicineInfo) {
-            medicines = [currentTabState.config.medicineInfo];
-        }
-
-        if (medicines.length === 0) return;
-
-        showMedicineDetailsModal(medicines);
-    });
-}
-
-function showMedicineDetailsModal(medicines) {
-    const overlay = elements.surpriseOverlay;
-    const content = elements.surpriseElement;
-
-    let html = '<div class="completion-modal" style="text-align: left; max-height: 80vh; overflow-y: auto;">';
-    html += '<h2 style="text-align: center; margin-bottom: 20px;">お薬情報</h2>';
-
-    medicines.forEach(medicine => {
-        html += `<div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">`;
-        html += `<h3 style="color: var(--primary-color); margin-bottom: 10px;">${medicine.brand_name}</h3>`;
-
-        if (medicine.good_compatibility && medicine.good_compatibility.length > 0) {
-            html += `<div class="compatibility-good">⭕ 飲み合わせが良い: ${medicine.good_compatibility.join('、')}</div>`;
-        }
-
-        if (medicine.bad_compatibility && medicine.bad_compatibility.length > 0) {
-            html += `<div class="compatibility-bad">❌ 飲み合わせが悪い: ${medicine.bad_compatibility.join('、')}</div>`;
-        }
-
-        if (medicine.taste_smell) {
-            html += `<div style="margin-top: 5px;">👅 味・におい: ${medicine.taste_smell}</div>`;
-        }
-        html += `</div>`;
-    });
-
-    html += '<div style="text-align: center;"><button class="btn-primary" id="close-modal-btn">閉じる</button></div>';
-    html += '</div>';
-
-    content.innerHTML = html;
-    overlay.classList.remove('hidden');
-    overlay.classList.add('active');
-
-    document.getElementById('close-modal-btn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-        overlay.classList.remove('active');
-    });
-}
 
 // Logic: Time Intervals
 function getMinIntervalHours(doses) {
@@ -454,6 +254,7 @@ function renderGrid() {
     // Render Days
     const dosesPerDay = currentTabState.config.dosesPerDay;
     const currentStamps = currentTabState.progress.stamps;
+    const timestamps = currentTabState.progress.timestamps || [];
     const startOffset = currentTabState.config.startOffset || 0;
 
     const startDay = currentWeekIndex * 7 + 1; // 1-based day
@@ -497,15 +298,25 @@ function renderGrid() {
                 if (effectiveIndex < 0) {
                     slot.style.visibility = 'hidden';
                 } else {
-                    if (effectiveIndex < currentStamps) {
-                        slot.classList.add('stamped');
-                        const mark = document.createElement('div');
-                        mark.className = 'stamp-mark';
-                        slot.appendChild(mark);
+                    // Check status based on timestamps array
+                    if (effectiveIndex < timestamps.length) {
+                        const status = timestamps[effectiveIndex];
+                        if (status === 'SKIPPED') {
+                            slot.classList.add('skipped');
+                            slot.textContent = 'Skip';
+                        } else {
+                            slot.classList.add('stamped');
+                            const mark = document.createElement('div');
+                            mark.className = 'stamp-mark';
+                            slot.appendChild(mark);
+                        }
                     } else {
-                        if (effectiveIndex === currentStamps) {
+                        // Not yet stamped
+                        // Check if it's the next expected slot
+                        if (effectiveIndex === timestamps.length) {
                             slot.classList.add('next-slot');
                         }
+                        // Allow clicking future slots too (for skip)
                         slot.addEventListener('click', () => handleSlotClick(slotIndex));
                     }
                 }
@@ -581,7 +392,23 @@ function handleSlotClick(clickedIndex) {
     // The expected clickedIndex should be (startOffset + currentStamps)
     const expectedIndex = startOffset + currentStamps;
 
-    if (clickedIndex !== expectedIndex) {
+    if (clickedIndex < expectedIndex) {
+        // Already stamped/skipped
+        return;
+    }
+
+    if (clickedIndex > expectedIndex) {
+        // Skipping intermediate slots
+        const skippedCount = clickedIndex - expectedIndex;
+        if (confirm(`間の ${skippedCount} 回分をスキップして、ここを記録しますか？`)) {
+            // Mark intermediate as SKIPPED
+            for (let i = 0; i < skippedCount; i++) {
+                currentTabState.progress.stamps++;
+                currentTabState.progress.timestamps.push('SKIPPED');
+            }
+            // Proceed to stamp the clicked one
+            handleStamp();
+        }
         return;
     }
 
@@ -647,14 +474,145 @@ elements.resetBtn.addEventListener('click', () => {
 const surprises = [
     spawnConfetti,
     showFloatingEmojis,
-    flashScreen
+    flashScreen,
+    showBigStamp,
+    showBigStamp // Increase probability
+];
+
+// Praise Messages (Parental Nudges)
+const praiseMessages = [
+    "ハイタッチして『ゴックン、かっこよかったよ！』",
+    "ぎゅーっと抱きしめて『最後までがんばったね！』",
+    "目をしっかり見て『お口を大きく開けられたね！』",
+    "頭をなでながら『苦いのに挑戦してえらかったね』",
+    "一緒に万歳して『お薬パワー、注入完了だね！』",
+    "笑顔で『自分から準備してくれて、パパ/ママ助かっちゃった』",
+    "鼻をちょんと触って『勇気の音が聞こえたよ！』",
+    "肩をトントンして『座って飲めて、お兄さん/お姉さんみたい』",
+    "『すごい！』と驚いた顔をして、お子様と目を合わせる",
+    "手を握って『一緒にがんばれて嬉しいな』",
+    "『バイバイキン！』と言いながら、空に向かって手を振る",
+    "お子様のほっぺに優しく触れて『ピカピカのお口だね』",
+    "親指を立てて（Good!）『今の飲み方、100点満点！』",
+    "『お薬さんとお友達になれたね』と優しくささやく",
+    "カレンダーを一緒に指さして『また一歩、元気に近づいたね』",
+    "『お薬パワーで体が喜んでるよ』とお腹を優しくさする",
+    "『魔法のゴックンだね！』と拍手する",
+    "お子様の目線に合わせてしゃがみ『勇気を見せてくれてありがとう』",
+    "『バイキンマンが逃げていったよ！』と窓の外を指さす",
+    "『お薬のチャンピオンだ！』と王冠を乗せるジェスチャーをする",
+    "『喉を通る音が聞こえたよ、上手！』と喉を優しく指さす",
+    "『パパ/ママも元気が出てきた！』とお子様に抱きつく",
+    "『お薬の時間を覚えててくれて、びっくりしたよ』と褒める",
+    "『お水も上手に使えたね』とコップを持つ手を褒める",
+    "『お薬の妖精さんが拍手してるよ』と耳をすます真似をする",
+    "『今のゴックン、もう一回見たいくらい上手だった！』",
+    "『お顔がキラキラしてきたね』と鏡を一緒に見る",
+    "『強い心が見えたよ』と胸に手を当てる",
+    "『お薬の階段、また一つ登ったね』と指で階段を作る",
+    "『明日は何して遊ぼうか？』と未来の楽しい話を添える",
+    "『お薬を飲む姿、動画に撮っておきたいくらいだよ』",
+    "『お口の準備が早くて助かるな』と準備の早さを褒める",
+    "『苦いのも、勇気でペロリだったね』",
+    "『お薬のスペシャリストだね！』と敬礼する",
+    "『体がどんどん強くなってるよ』と力こぶのポーズをする",
+    "『お薬の冒険、今日の分はクリアだね！』",
+    "『ニコニコで飲んでくれて、ママ/パパもニコニコになっちゃう』",
+    "『お薬の神様が、がんばりカードを見てるよ』",
+    "『自分でお薬を持てたね、すごい！』と手の動きを褒める",
+    "『お薬の匂いも平気なんだね、かっこいい！』",
+    "『お薬の魔法使いみたいだね』とステッキを振る真似をする",
+    "『がんばった証のスタンプ、自分で押してみる？』",
+    "『お薬の味がしても、最後まで飲めたね』と粘り強さを褒める",
+    "『お口の中が綺麗になったね』とライトで照らす真似をして遊ぶ",
+    "『お薬の達人だ！』と大げさに驚いて見せる",
+    "『お薬の山、ひょいっと越えちゃったね』",
+    "『勇気のしずく、全部届いたよ』",
+    "『お薬のゴールまであと少し、一緒に走ろう！』",
+    "『世界一のがんばり屋さんだね』とほっぺにチューする",
+    "『お薬飲めたね！』と全力で喜びを表現する"
 ];
 
 function triggerSurprise() {
     playHappySound();
+
+    // Always show the nurse rabbit first
     elements.characterArea.innerHTML = '<img src="images/nurse_rabbit.png" class="character-img" />';
-    const effect = surprises[Math.floor(Math.random() * surprises.length)];
-    effect();
+
+    // Pick a random praise message
+    const praise = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
+    showPraiseMessage(praise);
+
+    // Rare Effect Check (10% chance)
+    if (Math.random() < 0.1) {
+        showRareEffect();
+    } else {
+        // Normal random effect
+        const effect = surprises[Math.floor(Math.random() * surprises.length)];
+        effect();
+    }
+}
+
+function showPraiseMessage(message) {
+    const overlay = elements.surpriseOverlay;
+    const content = elements.surpriseElement;
+
+    // Clear previous content but keep structure if needed
+    // We want to show the message in a nice way, maybe overlaying the screen briefly
+    // or using the existing overlay system but customized.
+
+    // Let's use a toast-like notification or the overlay itself if it's not intrusive.
+    // Since the overlay was used for "Medicine Details" and "Completion", let's use a separate container or reuse it.
+    // For the "Surprise" context, usually it's visual effects on the main screen.
+    // Let's add a "Praise Bubble" to the character area or floating.
+
+    const bubble = document.createElement('div');
+    bubble.className = 'praise-bubble';
+    bubble.textContent = message;
+
+    // Position near character or center
+    document.body.appendChild(bubble);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        bubble.classList.add('show');
+    });
+
+    // Remove after a few seconds
+    setTimeout(() => {
+        bubble.classList.remove('show');
+        setTimeout(() => bubble.remove(), 500);
+    }, 6000);
+}
+
+function showRareEffect() {
+    // Golden Stamp Shower
+    const stampText = '👑';
+    for (let i = 0; i < 20; i++) {
+        const el = document.createElement('div');
+        el.className = 'rare-stamp-effect';
+        el.textContent = stampText;
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.top = -50 + 'px';
+        el.style.animationDuration = (2 + Math.random() * 2) + 's';
+        el.style.animationDelay = Math.random() + 's';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+    }
+
+    // Play special sound
+    playRareSound();
+}
+
+function showBigStamp() {
+    const stamps = ['💮', '💯', '👍', '👑', '🌈', '💊', '✨', '🐰', '🐻'];
+    const stampText = stamps[Math.floor(Math.random() * stamps.length)];
+
+    const stamp = document.createElement('div');
+    stamp.textContent = stampText;
+    stamp.className = 'big-stamp-effect';
+    document.body.appendChild(stamp);
+    setTimeout(() => stamp.remove(), 1500);
 }
 
 function playHappySound() {
@@ -677,6 +635,27 @@ function playHappySound() {
     osc.stop(ctx.currentTime + 0.5);
 }
 
+function playRareSound() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Arpeggio
+    [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.value = freq;
+        osc.type = 'triangle';
+
+        const start = ctx.currentTime + i * 0.1;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.1, start + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.4);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.4);
+    });
+}
+
 function playErrorSound() {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -697,38 +676,69 @@ function playErrorSound() {
 }
 
 function spawnConfetti() {
-    const colors = ['#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA'];
-    for (let i = 0; i < 50; i++) {
+    const icons = ['💊', '💖', '⭐', '🔷', '🌸', '✨', '🍬', '🎈', '🧸', '💊'];
+    const shapes = ['■', '▲', '●', '★', '♦', '❤'];
+    const colors = ['#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA', '#FFD700', '#FF69B4'];
+
+    const container = document.body;
+
+    for (let i = 0; i < 30; i++) {
         const el = document.createElement('div');
-        el.className = 'confetti';
+        const isIcon = Math.random() > 0.6; // 40% chance of icon, 60% shape
+
+        if (isIcon) {
+            el.className = 'confetti confetti-icon';
+            el.textContent = icons[Math.floor(Math.random() * icons.length)];
+            el.style.fontSize = (1.5 + Math.random()) + 'rem';
+        } else {
+            el.className = 'confetti confetti-shape';
+            el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+            el.style.color = colors[Math.floor(Math.random() * colors.length)];
+            el.style.fontSize = (0.8 + Math.random() * 0.8) + 'rem';
+        }
+
         el.style.left = Math.random() * 100 + 'vw';
-        el.style.top = -10 + 'px';
-        el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        el.style.animationDuration = (Math.random() * 2 + 2) + 's';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 4000);
+        el.style.top = -50 + 'px';
+
+        // Random fall duration between 3s and 6s
+        el.style.animationDuration = (3 + Math.random() * 3) + 's';
+        // Random sway delay
+        el.style.animationDelay = Math.random() + 's';
+
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 6000);
     }
 }
 
 function showFloatingEmojis() {
-    const emojis = ['🌟', '💊', '✨', '👍', '🐻', '🐰', '💖', '🎉'];
-    const container = document.getElementById('app');
-    for (let i = 0; i < 10; i++) {
+    const emojis = ['🧸', '💊', '✨', '👍', '🐻', '🐰', '💖', '🎉'];
+    const container = document.getElementById('app') || document.body;
+
+    for (let i = 0; i < 20; i++) {
         const el = document.createElement('div');
         el.className = 'floating-emoji';
         el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        el.style.left = (20 + Math.random() * 60) + '%';
-        el.style.top = (50 + Math.random() * 20) + '%';
+
+        // Random position
+        el.style.left = (10 + Math.random() * 80) + '%';
+        el.style.top = (50 + Math.random() * 30) + '%';
+
+        // Random speed (duration) between 2s and 3s (Slower)
+        const duration = 2 + Math.random() * 1;
+        el.style.animationDuration = `${duration}s`;
+
+        // Random delay
         el.style.animationDelay = Math.random() * 0.5 + 's';
+
         container.appendChild(el);
-        setTimeout(() => el.remove(), 2000);
+        setTimeout(() => el.remove(), duration * 1000 + 500);
     }
 }
 
 function flashScreen() {
-    const app = document.getElementById('app');
-    app.classList.add('flash-effect');
-    setTimeout(() => app.classList.remove('flash-effect'), 500);
+    const app = document.getElementById('app') || document.body;
+    app.classList.add('gradient-flash-effect');
+    setTimeout(() => app.classList.remove('gradient-flash-effect'), 3000);
 }
 
 function triggerCompletion() {
@@ -747,22 +757,55 @@ function triggerCompletion() {
         location.reload();
     };
 
+    // Get today's date for the certificate
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}年 ${today.getMonth() + 1}月 ${today.getDate()}日`;
+
     content.innerHTML = `
-        <div class="completion-modal">
-            <img src="images/party_cat.png" style="width: 150px; margin-bottom: 20px;">
-            <h1 style="font-size: 3rem; margin-bottom: 10px;">🎉</h1>
-            <h2>おめでとう！</h2>
-            <p>ぜんぶのスタンプがあつまったよ！</p>
-            <p>すごいね！がんばったね！</p>
-            <button onclick="resetCurrentTabApp()" class="btn-primary" style="margin-top: 20px;">もういっかい！</button>
+        <div class="completion-modal certificate-modal">
+            <div class="certificate-border">
+                <div class="certificate-header">
+                    <span class="certificate-icon">🏆</span>
+                    <h2>がんばったで賞</h2>
+                    <span class="certificate-icon">🏆</span>
+                </div>
+                
+                <div class="certificate-body">
+                    <p class="certificate-text">あなたは、お薬を最後までしっかり飲んで<br>病気と戦いました。</p>
+                    <p class="certificate-text">その勇気とがんばりを称えます。</p>
+                    
+                    <div class="certificate-name-area">
+                        <label>お名前:</label>
+                        <input type="text" class="certificate-name-input" placeholder="ここになまえをかいてね" />
+                    </div>
+                    
+                    <div class="certificate-date">
+                        ${dateStr}
+                    </div>
+                    
+                    <div class="certificate-signature">
+                        <div>くま先生 🐻</div>
+                        <div>うさぎ看護師 🐰</div>
+                    </div>
+                </div>
+
+                <div class="no-print">
+                    <button onclick="window.print()" class="btn-secondary" style="margin-right: 10px;">🖨️ 賞状を印刷する</button>
+                    <button onclick="resetCurrentTabApp()" class="btn-primary">もういっかい！</button>
+                </div>
+            </div>
         </div>
     `;
 
     overlay.classList.remove('hidden');
     overlay.classList.add('active');
 
-    for (let i = 0; i < 5; i++) {
-        setTimeout(spawnConfetti, i * 500);
+    // Trigger effects
+    flashScreen();
+    showFloatingEmojis();
+
+    for (let i = 0; i < 8; i++) {
+        setTimeout(spawnConfetti, i * 300);
     }
 }
 
