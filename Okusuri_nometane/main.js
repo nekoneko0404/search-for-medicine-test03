@@ -631,7 +631,7 @@ function showBigStamp() {
     stamp.textContent = stampText;
     stamp.className = 'big-stamp-effect';
     document.body.appendChild(stamp);
-    setTimeout(() => stamp.remove(), 1500);
+    setTimeout(() => stamp.remove(), 3000);
 }
 
 function playHappySound() {
@@ -742,8 +742,8 @@ function showFloatingEmojis() {
         el.style.left = (10 + Math.random() * 80) + '%';
         el.style.top = (50 + Math.random() * 30) + '%';
 
-        // Random speed (duration) between 2s and 3s (Slower)
-        const duration = 2 + Math.random() * 1;
+        // Random speed (duration) between 4s and 7s (Much Slower)
+        const duration = 4 + Math.random() * 3;
         el.style.animationDuration = `${duration}s`;
 
         // Random delay

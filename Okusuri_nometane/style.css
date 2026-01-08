@@ -120,6 +120,53 @@ input:focus {
     box-shadow: none;
 }
 
+/* Precautions Styles */
+.precautions-container {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #fff9e6;
+    /* Light warm yellow */
+    border-radius: 15px;
+    border: 2px solid #ffe082;
+    text-align: left;
+}
+
+.precautions-title {
+    font-size: 1.1rem;
+    color: #d84315;
+    /* Warm deep orange/red */
+    margin-bottom: 1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.precautions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.precautions-list li {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--text-color);
+}
+
+.precautions-list li:last-child {
+    margin-bottom: 0;
+}
+
+.precautions-list li span {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
 /* Main View Styles */
 header {
     width: 100%;
@@ -426,23 +473,37 @@ header h1 {
 .floating-emoji {
     position: absolute;
     font-size: 3rem;
-    animation: floatUp 2s ease-out forwards;
+    animation: floatSway ease-out forwards;
     pointer-events: none;
     z-index: 1000;
 }
 
-@keyframes floatUp {
+@keyframes floatSway {
     0% {
-        transform: translateY(0) scale(0.5);
+        transform: translateY(0) translateX(0) scale(0.5) rotate(0deg);
         opacity: 0;
     }
 
-    20% {
-        transform: translateY(-20px) scale(1.2);
+    10% {
+        opacity: 1;
+        transform: translateY(-20px) translateX(-10px) scale(1.2) rotate(-10deg);
+    }
+
+    25% {
+        transform: translateY(-50px) translateX(10px) scale(1.1) rotate(10deg);
+    }
+
+    50% {
+        transform: translateY(-100px) translateX(-10px) scale(1) rotate(-10deg);
+    }
+
+    75% {
+        transform: translateY(-150px) translateX(10px) scale(1) rotate(10deg);
+        opacity: 1;
     }
 
     100% {
-        transform: translateY(-200px) scale(1);
+        transform: translateY(-250px) translateX(0) scale(1) rotate(0deg);
         opacity: 0;
     }
 }
@@ -648,7 +709,7 @@ header h1 {
     opacity: 0;
     pointer-events: none;
     z-index: 2000;
-    animation: bigStampPop 1.5s ease-out forwards;
+    animation: bigStampPop 3s ease-out forwards;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
 }
 
