@@ -31,13 +31,14 @@ body {
 /* カードグリッド */
 .menu-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
+    justify-content: center;
 }
 
 @media (max-width: 768px) {
     .menu-grid {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
 }
 
@@ -105,15 +106,18 @@ body {
     position: sticky;
     top: 0;
     z-index: 30;
-    height: 4rem; /* Explicit height for h-16 */
-    overflow: hidden; /* Ensure content doesn't overflow during transition */
+    height: 4rem;
+    /* Explicit height for h-16 */
+    overflow: hidden;
+    /* Ensure content doesn't overflow during transition */
     transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
 }
 
 /* Footer behavior */
 #mainFooter {
     transition: height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
-    height: auto; /* Default height */
+    height: auto;
+    /* Default height */
     overflow: hidden;
 }
 
@@ -124,8 +128,10 @@ body.search-mode #mainFooter {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
-    margin-top: 0 !important; /* Ensure no residual margin */
-    margin-bottom: 0 !important; /* Ensure no residual margin */
+    margin-top: 0 !important;
+    /* Ensure no residual margin */
+    margin-bottom: 0 !important;
+    /* Ensure no residual margin */
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
@@ -136,11 +142,13 @@ main {
 }
 
 body:not(.search-mode) main {
-    margin-top: 1.75rem; /* Default offset for header height when visible */
+    margin-top: 1.75rem;
+    /* Default offset for header height when visible */
 }
 
 body.search-mode main {
-    margin-top: 0; /* No offset when header is hidden */
+    margin-top: 0;
+    /* No offset when header is hidden */
 }
 
 
@@ -217,16 +225,21 @@ body.search-mode main {
 /* Card-style search results */
 .search-results-grid {
     display: grid;
-    gap: 1rem; /* Gap between cards */
+    gap: 1rem;
+    /* Gap between cards */
     padding: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid for cards */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    /* Responsive grid for cards */
 }
 
 .search-result-card {
     background-color: #ffffff;
-    border-radius: 0.75rem; /* rounded-xl */
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
-    border: 1px solid #e5e7eb; /* border-gray-200 */
+    border-radius: 0.75rem;
+    /* rounded-xl */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    /* shadow-sm */
+    border: 1px solid #e5e7eb;
+    /* border-gray-200 */
     padding: 1rem;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
@@ -236,17 +249,19 @@ body.search-mode main {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.search-result-card > div {
-    margin-bottom: 0.5rem; /* Spacing between sections within a card */
+.search-result-card>div {
+    margin-bottom: 0.5rem;
+    /* Spacing between sections within a card */
 }
 
-.search-result-card > div:last-child {
+.search-result-card>div:last-child {
     margin-bottom: 0;
 }
 
 @media (max-width: 640px) {
     .search-results-grid {
-        grid-template-columns: 1fr; /* Single column on mobile */
+        grid-template-columns: 1fr;
+        /* Single column on mobile */
     }
 }
 
@@ -443,9 +458,12 @@ input[type="search"]:focus {
 /* Update time text style */
 .update-time {
     display: block;
-    margin-top: 0.75rem; /* 12px */
-    font-size: 0.75rem; /* 12px */
-    color: #6b7280; /* gray-500 */
+    margin-top: 0.75rem;
+    /* 12px */
+    font-size: 0.75rem;
+    /* 12px */
+    color: #6b7280;
+    /* gray-500 */
     text-align: right;
     font-weight: 500;
     width: 100%;
