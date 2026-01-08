@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="certificate_fix.css">
 </head>
 
 <body>
@@ -24,7 +25,10 @@
         <!-- Settings View -->
         <div id="settings-view" class="view hidden">
             <div class="settings-container">
-                <h1>⚙️ 設定</h1>
+                <div class="settings-header">
+                    <h1>⚙️ 設定</h1>
+                    <button id="open-manual-btn" class="btn-icon">📖 使い方</button>
+                </div>
                 <p>お子様の服用スケジュールを設定してください</p>
                 <form id="settings-form">
                     <div class="form-group">
@@ -43,6 +47,62 @@
                     </div>
                     <button type="submit" class="btn-primary">スタート！</button>
                 </form>
+            </div>
+        </div>
+
+        <!-- Manual Modal -->
+        <div id="manual-modal" class="modal hidden">
+            <div class="modal-content manual-content">
+                <button id="close-manual-btn" class="close-btn">&times;</button>
+                <div class="manual-inner">
+                    <div class="manual-header">
+                        <img src="images/doctor_bear.png" alt="くま先生" class="manual-char">
+                        <h2>お薬飲めたね！<br>使い方ガイド</h2>
+                        <img src="images/nurse_rabbit.png" alt="うさぎ看護師" class="manual-char">
+                    </div>
+
+                    <section class="manual-section">
+                        <h3>🌸 はじめに</h3>
+                        <p>このアプリは、お子様の服薬をサポートする保護者の方のために作られました。単なる記録ツールではなく、お子様を褒め、励まし、一緒に達成感を味わうためのコミュニケーションツールです。</p>
+                    </section>
+
+                    <section class="manual-section">
+                        <h3>📝 つかいかた</h3>
+                        <div class="step-card">
+                            <h4>ステップ1：設定をする</h4>
+                            <p>服用回数と期間を入力して「スタート！」を押しましょう。病院や兄弟ごとに使い分けたいときは、上のタブで切り替えられます。</p>
+                        </div>
+                        <div class="step-card">
+                            <h4>ステップ2：お薬を飲んだらスタンプ！</h4>
+                            <p>お薬を飲んだら、光っている枠をタップ！楽しい演出と一緒に「褒め言葉」が表示されます。ぜひお子様を思いっきり褒めてあげてください。</p>
+                        </div>
+                        <div class="step-card">
+                            <h4>ステップ3：表彰状をもらおう</h4>
+                            <p>全部たまると「がんばったで賞」が表示されます。お名前を書いて、A4サイズで印刷して残すこともできます。</p>
+                        </div>
+                    </section>
+
+                    <section class="manual-section">
+                        <h3>💡 便利な機能</h3>
+                        <ul>
+                            <li><strong>服用間隔の守り:</strong> 飲みすぎ防止のため、次の時間までスタンプが押せないようになっています。</li>
+                            <li><strong>スキップ機能:</strong> 飲み忘れた時などは、先の枠をタップしてスキップ記録ができます。</li>
+                            <li><strong>テストモード:</strong> 時間制限なしでスタンプを押せます。動きを確認したい時にどうぞ。</li>
+                        </ul>
+                    </section>
+
+                    <section class="manual-section advice-section">
+                        <h3>✨ 保護者の方へ</h3>
+                        <div class="advice-card">
+                            <p><strong>小さな成功を祝う:</strong> 苦いお薬を一口飲めただけでも、それは大きな一歩です。</p>
+                            <p><strong>親の笑顔が最大のご褒美:</strong> お父さん・お母さんの笑顔が、お子様の「次も頑張ろう」という意欲を育てます。</p>
+                        </div>
+                        <div class="manual-footer-char">
+                            <img src="images/pharmacist_cat.png" alt="ねこ薬剤師">
+                            <p>いっしょにがんばりましょう！</p>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
 

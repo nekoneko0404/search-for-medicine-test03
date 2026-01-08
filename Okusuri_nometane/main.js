@@ -33,8 +33,9 @@ const elements = {
     characterArea: document.getElementById('character-area'),
     statusMessage: document.getElementById('status-message'),
     tabBtns: document.querySelectorAll('.tab-btn'),
-
-
+    manualModal: document.getElementById('manual-modal'),
+    openManualBtn: document.getElementById('open-manual-btn'),
+    closeManualBtn: document.getElementById('close-manual-btn'),
 };
 
 // Initialization
@@ -42,8 +43,26 @@ async function init() {
 
     loadState();
     setupTabs();
+    setupManual();
 
     render();
+}
+
+function setupManual() {
+    elements.openManualBtn.addEventListener('click', () => {
+        elements.manualModal.classList.remove('hidden');
+    });
+
+    elements.closeManualBtn.addEventListener('click', () => {
+        elements.manualModal.classList.add('hidden');
+    });
+
+    // Close on outside click
+    elements.manualModal.addEventListener('click', (e) => {
+        if (e.target === elements.manualModal) {
+            elements.manualModal.classList.add('hidden');
+        }
+    });
 }
 
 
@@ -771,8 +790,15 @@ function triggerCompletion() {
                 </div>
                 
                 <div class="certificate-body">
-                    <p class="certificate-text">あなたは、お薬を最後までしっかり飲んで<br>病気と戦いました。</p>
-                    <p class="certificate-text">その勇気とがんばりを称えます。</p>
+                    <p class="certificate-text">
+                        あなたは、おくすりを<br>
+                        さいごまでしっかりのんで<br>
+                        びょうきとたたかいました。
+                    </p>
+                    <p class="certificate-text">
+                        そのゆうきと<br>
+                        がんばりをたたえます。
+                    </p>
                     
                     <div class="certificate-name-area">
                         <label>お名前:</label>
@@ -783,9 +809,19 @@ function triggerCompletion() {
                         ${dateStr}
                     </div>
                     
-                    <div class="certificate-signature">
-                        <div>くま先生 🐻</div>
-                        <div>うさぎ看護師 🐰</div>
+                    <div class="certificate-characters">
+                        <div class="character-signature">
+                            <img src="images/doctor_bear.png" alt="くま先生">
+                            <span>くま先生</span>
+                        </div>
+                        <div class="character-signature">
+                            <img src="images/nurse_rabbit.png" alt="うさぎ看護師">
+                            <span>うさぎ看護師</span>
+                        </div>
+                        <div class="character-signature">
+                            <img src="images/pharmacist_cat.png" alt="ねこ薬剤師">
+                            <span>ねこ薬剤師</span>
+                        </div>
                     </div>
                 </div>
 
@@ -799,6 +835,7 @@ function triggerCompletion() {
 
     overlay.classList.remove('hidden');
     overlay.classList.add('active');
+    overlay.classList.add('show');
 
     // Trigger effects
     flashScreen();
