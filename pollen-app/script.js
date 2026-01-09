@@ -472,9 +472,32 @@ document.addEventListener('DOMContentLoaded', () => {
             position: 'bottomright'
         }).addTo(map);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        const baseLayers = {
+            std: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
+            }),
+            relief: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
+            })
+        };
+
+        // Default: Standard map
+        baseLayers.std.addTo(map);
+
+        // Map Type Toggle Logic
+        document.querySelectorAll('.btn-map-type').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.dataset.type;
+
+                // Update buttons
+                document.querySelectorAll('.btn-map-type').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Switch layers
+                Object.values(baseLayers).forEach(layer => map.removeLayer(layer));
+                baseLayers[type].addTo(map);
+            });
+        });
 
         map.on('zoomend', updateVis);
         map.on('moveend', () => {

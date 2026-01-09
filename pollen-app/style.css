@@ -244,6 +244,36 @@ canvas {
     border-color: var(--secondary-color);
 }
 
+/* Map Type Controls */
+.map-type-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-map-type {
+    flex: 1;
+    padding: 8px 4px;
+    font-size: 12px;
+    background: #f1f2f6;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-sub);
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.btn-map-type:hover {
+    background: #e1e2e6;
+    color: var(--text-main);
+}
+
+.btn-map-type.active {
+    background: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
 /* Legend */
 .legend-list {
     display: flex;
