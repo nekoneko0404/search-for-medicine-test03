@@ -1,15 +1,20 @@
 /* Certificate Fix Styles - Loaded Last */
 
-/* Ensure Modal Visibility */
+/* Ensure Modal Visibility and Scrolling */
 #surprise-overlay {
     z-index: 10000 !important;
+    background: rgba(255, 255, 255, 0.98) !important;
 }
 
 #surprise-overlay.active,
 #surprise-overlay.show {
     opacity: 1 !important;
     pointer-events: auto !important;
-    display: flex !important;
+    display: block !important;
+    /* Changed from flex to block to ensure scrolling works correctly */
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 0 !important;
 }
 
 .completion-modal {
@@ -18,13 +23,14 @@
     visibility: visible !important;
     background: white !important;
     width: 95% !important;
-    max-width: 800px !important;
-    margin: 20px auto !important;
-    padding: 20px !important;
+    max-width: 600px !important;
+    margin: 0 auto 40px auto !important;
+    padding: 15px !important;
     border-radius: 20px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
     position: relative !important;
     transform: none !important;
+    box-sizing: border-box !important;
 }
 
 /* Certificate Border & Layout */
@@ -151,6 +157,39 @@
     font-weight: bold !important;
     color: #FF9AA2 !important;
     display: block !important;
+}
+
+/* Mobile Adjustments */
+@media screen and (max-width: 600px) {
+    .certificate-header h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .certificate-icon {
+        font-size: 2rem !important;
+    }
+
+    .certificate-text {
+        font-size: 1rem !important;
+    }
+
+    .certificate-name-input {
+        font-size: 1.2rem !important;
+    }
+
+    .character-signature img {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .certificate-characters {
+        gap: 10px !important;
+    }
+
+    .certificate-border {
+        padding: 10px !important;
+        border-width: 5px !important;
+    }
 }
 
 /* Print Specific Overrides */
