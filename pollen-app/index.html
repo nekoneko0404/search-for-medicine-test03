@@ -32,61 +32,68 @@
     </div>
 
     <!-- Sidebar/Controls -->
-    <div class="side-panel">
-        <div class="panel-section">
-            <h2 class="section-title"><i class="fas fa-calendar-alt"></i> 表示日付</h2>
-            <div class="date-controls">
-                <div class="date-nav">
-                    <button id="prev-day" class="btn-date-nav" title="前日"><i class="fas fa-chevron-left"></i></button>
-                    <div class="date-picker-wrapper">
-                        <input type="date" id="date-picker" class="styled-date-input">
+    <div class="side-panel" id="side-panel">
+        <button id="panel-toggle" class="panel-toggle" title="パネルを閉じる">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="side-panel-content">
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-calendar-alt"></i> 表示日付</h2>
+                <div class="date-controls">
+                    <div class="date-nav">
+                        <button id="prev-day" class="btn-date-nav" title="前日"><i
+                                class="fas fa-chevron-left"></i></button>
+                        <div class="date-picker-wrapper">
+                            <input type="date" id="date-picker" class="styled-date-input">
+                        </div>
+                        <button id="next-day" class="btn-date-nav" title="翌日"><i
+                                class="fas fa-chevron-right"></i></button>
                     </div>
-                    <button id="next-day" class="btn-date-nav" title="翌日"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                <div class="quick-dates">
-                    <button class="btn-quick-date" data-days="0">今日</button>
-                    <button class="btn-quick-date" data-days="1">昨日</button>
-                    <button class="btn-quick-date" data-days="7">1週間前</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel-section">
-            <h2 class="section-title"><i class="fas fa-info-circle"></i> 凡例</h2>
-            <div class="legend-list">
-                <div class="legend-item">
-                    <span class="dot" style="background-color: #f44336;"></span>
-                    <span class="label">多い (5個以上)</span>
-                </div>
-                <div class="legend-item">
-                    <span class="dot" style="background-color: #ff9800;"></span>
-                    <span class="label">やや多い (2〜4個)</span>
-                </div>
-                <div class="legend-item">
-                    <span class="dot" style="background-color: #2196F3;"></span>
-                    <span class="label">少ない (1個以下)</span>
-                </div>
-                <div class="legend-item">
-                    <span class="dot" style="background-color: #ccc;"></span>
-                    <span class="label">データ取得中/なし</span>
+                    <div class="quick-dates">
+                        <button class="btn-quick-date" data-days="0">今日</button>
+                        <button class="btn-quick-date" data-days="1">昨日</button>
+                        <button class="btn-quick-date" data-days="7">1週間前</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="panel-section">
-            <h2 class="section-title"><i class="fas fa-robot"></i> ポールンロボについて</h2>
-            <p class="info-text">
-                ウェザーニューズが全国の家庭や病院に設置している花粉観測機です。
-                人の呼吸と同じ量の空気を吸い込み、実際に飛散している花粉を24時間リアルタイムでカウントしています。
-            </p>
-        </div>
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-info-circle"></i> 凡例</h2>
+                <div class="legend-list">
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #f44336;"></span>
+                        <span class="label">多い (5個以上)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #ff9800;"></span>
+                        <span class="label">やや多い (2〜4個)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #2196F3;"></span>
+                        <span class="label">少ない (1個以下)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #ccc;"></span>
+                        <span class="label">データ取得中/なし</span>
+                    </div>
+                </div>
+            </div>
 
-        <div class="panel-section">
-            <h2 class="section-title"><i class="fas fa-external-link-alt"></i> 参照サイト</h2>
-            <div class="link-list">
-                <a href="https://weathernews.jp/pollen/" target="_blank" class="ref-link">
-                    <i class="fas fa-chevron-right"></i> ウェザーニュース 花粉Ch.
-                </a>
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-robot"></i> ポールンロボについて</h2>
+                <p class="info-text">
+                    ウェザーニューズが全国の家庭や病院に設置している花粉観測機です。
+                    人の呼吸と同じ量の空気を吸い込み、実際に飛散している花粉を24時間リアルタイムでカウントしています。
+                </p>
+            </div>
+
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-external-link-alt"></i> 参照サイト</h2>
+                <div class="link-list">
+                    <a href="https://weathernews.jp/pollen/" target="_blank" class="ref-link">
+                        <i class="fas fa-chevron-right"></i> ウェザーニュース 花粉Ch.
+                    </a>
+                </div>
             </div>
         </div>
     </div>

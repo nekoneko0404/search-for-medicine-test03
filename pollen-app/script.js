@@ -486,4 +486,22 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
         console.error('Initialization error:', e);
     }
+
+    // Panel Toggle Logic
+    const panel = document.getElementById('side-panel');
+    const toggleBtn = document.getElementById('panel-toggle');
+
+    if (panel && toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            panel.classList.toggle('collapsed');
+            const isCollapsed = panel.classList.contains('collapsed');
+            toggleBtn.title = isCollapsed ? 'パネルを開く' : 'パネルを閉じる';
+        });
+
+        // Auto-collapse on small screens initially
+        if (window.innerWidth <= 600) {
+            panel.classList.add('collapsed');
+            toggleBtn.title = 'パネルを開く';
+        }
+    }
 });
