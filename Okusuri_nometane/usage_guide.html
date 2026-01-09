@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お薬飲めたね！使い方ガイド</title>
     <script src="qrcode.min.js"></script>
     <style>
         :root {
@@ -307,14 +309,62 @@
         }
 
         @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                border-radius: 20px;
+                margin-top: 5px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .title-char {
+                height: 40px;
+            }
+
+            .intro-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .char-img-medium {
+                height: 70px;
+                order: -1;
+                /* Image on top */
+            }
 
             .step-grid,
             .bottom-grid {
                 grid-template-columns: 1fr;
+                gap: 10px;
             }
 
             .qr-flex {
                 flex-direction: column;
+                gap: 10px;
+            }
+
+            .qr-char {
+                height: 60px;
+            }
+
+            .btn-start {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+                font-size: 1.1rem;
+                padding: 12px 20px;
+            }
+
+            .print-btn-container {
+                text-align: center;
+                padding: 10px;
+            }
+
+            .btn-print {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
