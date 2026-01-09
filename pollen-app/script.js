@@ -1,13 +1,13 @@
 const CONFIG = {
-    CURRENT_DATE: '2025-02-15',
     API_ENDPOINT: 'https://wxtech.weathernews.com/opendata/v1/pollen',
-    ZOOM_THRESHOLD: 11
+    ZOOM_THRESHOLD: 11,
+    CACHE_DURATION: 10 * 60 * 1000 // 10 minutes in milliseconds
 };
 
 // State to store fetched data
 const state = {
-    dailyData: {},
-    weeklyData: {}
+    cache: {}, // { key: { data: [...], timestamp: Date } }
+    currentDate: '' // YYYY-MM-DD
 };
 
 // Map variable (initialized later)
@@ -25,10 +25,18 @@ function getPollenColor(count) {
     return '#2196F3'; // Low (Blue)
 }
 
-// Helper: Fetch Data
+// Helper: Fetch Data with Cache
 async function fetchData(cityCode, start, end) {
     const cacheKey = `${cityCode}-${start}-${end}`;
-    if (state[cacheKey]) return state[cacheKey];
+    const now = Date.now();
+
+    // Check cache
+    if (state.cache[cacheKey]) {
+        const cached = state.cache[cacheKey];
+        if (now - cached.timestamp < CONFIG.CACHE_DURATION) {
+            return cached.data;
+        }
+    }
 
     try {
         const response = await fetch(`${CONFIG.API_ENDPOINT}?citycode=${cityCode}&start=${start}&end=${end}`);
@@ -45,7 +53,12 @@ async function fetchData(cityCode, start, end) {
             };
         });
 
-        state[cacheKey] = data;
+        // Store in cache
+        state.cache[cacheKey] = {
+            data: data,
+            timestamp: now
+        };
+
         return data;
     } catch (error) {
         console.error('Fetch error:', error);
@@ -55,7 +68,6 @@ async function fetchData(cityCode, start, end) {
 
 // Initialize Markers
 function initMarkers() {
-    // Initial render
     updateVisibleMarkers().catch(err => console.error('Error in updateVisibleMarkers:', err));
 }
 
@@ -66,15 +78,10 @@ async function updateVisibleMarkers() {
         const zoom = map.getZoom();
         const bounds = map.getBounds();
 
-        // 1. Filter by Zoom Level (More restrictive for better performance)
-        // Zoom < 8: Level 1 (Major Cities)
-        // Zoom 8-9: Level 1 + 2 (Cities/Wards)
-        // Zoom >= 10: All (Towns/Villages)
         let targetLevels = new Set([1]);
         if (zoom >= 8) targetLevels.add(2);
         if (zoom >= 10) targetLevels.add(3);
 
-        // 2. Get Spatially Visible Cities matching Level
         let visibleCandidates = [];
         for (const city of CITIES) {
             if (targetLevels.has(city.level)) {
@@ -85,21 +92,18 @@ async function updateVisibleMarkers() {
             }
         }
 
-        // 3. Apply Max Limit (Dynamic based on zoom)
         let maxMarkers = 40;
         if (zoom >= 8) maxMarkers = 80;
         if (zoom >= 10) maxMarkers = 150;
         if (zoom >= 12) maxMarkers = 400;
 
         if (visibleCandidates.length > maxMarkers) {
-            // Prioritize Level 1, then distribute Level 2 and 3
             const level1 = visibleCandidates.filter(c => c.level === 1);
             const level2 = visibleCandidates.filter(c => c.level === 2);
             const level3 = visibleCandidates.filter(c => c.level === 3);
 
             let result = [...level1];
 
-            // Fill remaining slots with Level 2 (distributed)
             if (result.length < maxMarkers && level2.length > 0) {
                 const remaining = maxMarkers - result.length;
                 const step = Math.max(1, Math.floor(level2.length / remaining));
@@ -108,7 +112,6 @@ async function updateVisibleMarkers() {
                 }
             }
 
-            // Fill remaining slots with Level 3 (distributed)
             if (result.length < maxMarkers && level3.length > 0) {
                 const remaining = maxMarkers - result.length;
                 const step = Math.max(1, Math.floor(level3.length / remaining));
@@ -120,16 +123,14 @@ async function updateVisibleMarkers() {
         }
 
         const visibleCityCodes = new Set(visibleCandidates.map(c => c.code));
-        currentVisibleCityCodes = visibleCityCodes; // Update global visibility state
+        currentVisibleCityCodes = visibleCityCodes;
 
         const fetchQueue = [];
 
-        // 4. Update Markers on Map
-        // Add new ones
         for (const city of visibleCandidates) {
             if (!markers[city.code]) {
                 const marker = L.circleMarker([city.lat, city.lng], {
-                    radius: 8, // Slightly smaller markers
+                    radius: 8,
                     fillColor: '#ccc',
                     color: '#fff',
                     weight: 1.5,
@@ -142,7 +143,7 @@ async function updateVisibleMarkers() {
                 marker.maxPollen = 0;
 
                 marker.bindPopup(`<div id="popup-${city.code}">読み込み中...</div>`, {
-                    maxWidth: 300
+                    maxWidth: 350 // Slightly wider
                 });
                 marker.on('popupopen', () => handlePopupOpen(city, marker));
 
@@ -159,7 +160,6 @@ async function updateVisibleMarkers() {
             }
         }
 
-        // Remove hidden ones
         Object.keys(markers).forEach(code => {
             if (!visibleCityCodes.has(code)) {
                 if (map.hasLayer(markers[code])) {
@@ -168,17 +168,14 @@ async function updateVisibleMarkers() {
             }
         });
 
-        // 5. Fetch Data in Batches (Reduced delay for better speed)
-        const BATCH_SIZE = 8;
+        // 5. Fetch Data in Batches (Optimized for speed)
+        const BATCH_SIZE = 20;
         for (let i = 0; i < fetchQueue.length; i += BATCH_SIZE) {
-            // Check if markers are still visible before fetching
             const batch = fetchQueue.slice(i, i + BATCH_SIZE)
-                .filter(code => currentVisibleCityCodes.has(code));
+                .filter(code => currentVisibleCityCodes.has(code) && !fetchedCities.has(code));
 
             if (batch.length > 0) {
                 await Promise.all(batch.map(code => fetchCityDailyData(code)));
-                // Reduced delay from 500ms to 200ms
-                await new Promise(resolve => setTimeout(resolve, 200));
             }
         }
     } catch (err) {
@@ -189,8 +186,8 @@ async function updateVisibleMarkers() {
 async function fetchCityDailyData(cityCode) {
     if (fetchedCities.has(cityCode)) return;
 
-    const start = CONFIG.CURRENT_DATE.replace(/-/g, '');
-    const end = new Date(CONFIG.CURRENT_DATE);
+    const start = state.currentDate.replace(/-/g, '');
+    const end = new Date(state.currentDate);
     end.setDate(end.getDate() + 1);
     const endStr = end.toISOString().split('T')[0].replace(/-/g, '');
 
@@ -204,41 +201,52 @@ async function fetchCityDailyData(cityCode) {
             marker.maxPollen = maxPollen;
             fetchedCities.add(cityCode);
 
-            // Update tooltip if needed
             if (map.getZoom() >= CONFIG.ZOOM_THRESHOLD) {
-                const height = Math.min(marker.maxPollen * 10, 50);
-                const color = getPollenColor(marker.maxPollen);
-                const content = `
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <div style="width: 10px; height: ${height}px; background-color: ${color};"></div>
-                        <span style="font-size: 10px;">${marker.maxPollen}</span>
-                    </div>
-                `;
-                if (marker.getTooltip()) {
-                    marker.setTooltipContent(content);
-                }
+                updateMarkerTooltip(marker);
             }
         }
     }
 }
 
-// Handle Popup Open (Show Daily Graph)
+function updateMarkerTooltip(marker) {
+    const height = Math.min(marker.maxPollen * 10, 50);
+    const color = getPollenColor(marker.maxPollen);
+    const content = `
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 10px; height: ${height}px; background-color: ${color};"></div>
+            <span style="font-size: 10px;">${marker.maxPollen}</span>
+        </div>
+    `;
+    if (marker.getTooltip()) {
+        marker.setTooltipContent(content);
+    } else {
+        marker.bindTooltip(content, {
+            permanent: true,
+            direction: 'top',
+            className: 'graph-tooltip',
+            offset: [0, -10]
+        });
+    }
+}
+
 async function handlePopupOpen(city, marker) {
     const containerId = `popup-${city.code}`;
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const start = CONFIG.CURRENT_DATE.replace(/-/g, '');
-    const end = new Date(CONFIG.CURRENT_DATE);
+    const start = state.currentDate.replace(/-/g, '');
+    const end = new Date(state.currentDate);
     end.setDate(end.getDate() + 1);
     const endStr = end.toISOString().split('T')[0].replace(/-/g, '');
 
     const data = await fetchData(city.code, start, endStr);
-    const dayData = data.filter(d => d.date.toISOString().startsWith(CONFIG.CURRENT_DATE));
+    const dayData = data.filter(d => d.date.toISOString().startsWith(state.currentDate));
+
+    const displayDate = state.currentDate.split('-').slice(1).join('/');
 
     container.innerHTML = `
         <div class="popup-header">
-            <span>${city.name} (2/15)</span>
+            <span>${city.name} (${displayDate})</span>
             <button class="btn-trend" onclick="showWeeklyTrend('${city.code}', '${city.name}')">週間推移</button>
         </div>
         <div class="popup-chart-container">
@@ -255,34 +263,63 @@ async function handlePopupOpen(city, marker) {
                 label: '花粉数',
                 data: dayData.map(d => d.pollen),
                 backgroundColor: dayData.map(d => getPollenColor(d.pollen)),
-                borderWidth: 0
+                borderWidth: 0,
+                barPercentage: 0.9, // Fuller bars
+                categoryPercentage: 1.0
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `花粉数: ${context.raw}個`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        font: { size: 10 }
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: { size: 10 },
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 8
+                    }
+                }
+            }
         }
     });
 }
 
-// Show Weekly Trend Modal
 window.showWeeklyTrend = async function (cityCode, cityName) {
     const modal = document.getElementById('trend-modal');
     const modalTitle = document.getElementById('modal-city-name');
     const canvas = document.getElementById('trendChart');
+    const loading = document.getElementById('trend-loading');
 
-    modalTitle.textContent = `${cityName}の週間推移`;
+    modalTitle.textContent = `${cityName}の21日間推移`;
     modal.classList.add('show');
 
-    const endDate = new Date(CONFIG.CURRENT_DATE);
-    endDate.setDate(endDate.getDate() - 1);
+    // Show loading, hide canvas
+    loading.classList.remove('hidden');
+    canvas.style.opacity = '0';
+
+    const endDate = new Date(state.currentDate);
+    // endDate is today, we want 21 days including today
     const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - 6);
+    startDate.setDate(startDate.getDate() - 20); // 21 days total
 
     const startStr = startDate.toISOString().split('T')[0].replace(/-/g, '');
-    const endStr = CONFIG.CURRENT_DATE.replace(/-/g, '');
+    const endStr = state.currentDate.replace(/-/g, '');
 
     const data = await fetchData(cityCode, startStr, endStr);
 
@@ -297,7 +334,7 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
     const labels = Object.keys(dailyMap).sort();
     const values = labels.map(date => {
         const average = dailyMap[date].sum / dailyMap[date].count;
-        return Math.max(0, average); // Treat negative values as zero
+        return Math.max(0, average);
     });
 
     if (window.trendChartInstance) {
@@ -318,12 +355,16 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: { y: { beginAtZero: true } }
         }
     });
+
+    // Hide loading, show canvas
+    loading.classList.add('hidden');
+    canvas.style.opacity = '1';
 };
 
-// Close Modal
 document.querySelector('.close-btn').addEventListener('click', () => {
     document.getElementById('trend-modal').classList.remove('show');
 });
@@ -342,22 +383,7 @@ function updateVis() {
 
     Object.values(markers).forEach(marker => {
         if (showGraph) {
-            if (!marker.getTooltip()) {
-                const height = Math.min(marker.maxPollen * 10, 50);
-                const color = getPollenColor(marker.maxPollen);
-                const content = `
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <div style="width: 10px; height: ${height}px; background-color: ${color};"></div>
-                        <span style="font-size: 10px;">${marker.maxPollen}</span>
-                    </div>
-                `;
-                marker.bindTooltip(content, {
-                    permanent: true,
-                    direction: 'top',
-                    className: 'graph-tooltip',
-                    offset: [0, -10]
-                });
-            }
+            updateMarkerTooltip(marker);
             marker.openTooltip();
         } else {
             marker.closeTooltip();
@@ -366,35 +392,98 @@ function updateVis() {
     });
 }
 
-// Start
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof L === 'undefined') {
-        alert('Leaflet (地図ライブラリ) が読み込まれていません。インターネット接続を確認してください。');
-        return;
-    }
-    if (typeof CITIES === 'undefined') {
-        alert('都市データ (cities.js) が読み込まれていません。');
+    if (typeof L === 'undefined' || typeof CITIES === 'undefined') {
         return;
     }
 
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    state.currentDate = todayStr;
+
+    const datePicker = document.getElementById('date-picker');
+    datePicker.value = todayStr;
+    datePicker.max = todayStr; // Restrict future dates
+
+    function updateDate(newDateStr) {
+        if (newDateStr > todayStr) return; // Prevent future dates
+        state.currentDate = newDateStr;
+        datePicker.value = newDateStr;
+
+        // Update active state of quick buttons
+        document.querySelectorAll('.btn-quick-date').forEach(btn => {
+            const days = parseInt(btn.dataset.days);
+            const d = new Date();
+            d.setDate(d.getDate() - days);
+            const dStr = d.toISOString().split('T')[0];
+            btn.classList.toggle('active', dStr === newDateStr);
+        });
+
+        fetchedCities.clear();
+        Object.values(markers).forEach(marker => {
+            marker.setStyle({ fillColor: '#ccc' });
+            marker.maxPollen = 0;
+            if (marker.getTooltip()) {
+                marker.unbindTooltip();
+            }
+        });
+        updateVisibleMarkers().catch(err => console.error(err));
+    }
+
+    datePicker.addEventListener('change', (e) => {
+        updateDate(e.target.value);
+    });
+
+    // Prev/Next Day Buttons
+    document.getElementById('prev-day').addEventListener('click', () => {
+        const d = new Date(state.currentDate);
+        d.setDate(d.getDate() - 1);
+        updateDate(d.toISOString().split('T')[0]);
+    });
+
+    document.getElementById('next-day').addEventListener('click', () => {
+        const d = new Date(state.currentDate);
+        d.setDate(d.getDate() + 1);
+        const nextStr = d.toISOString().split('T')[0];
+        if (nextStr <= todayStr) {
+            updateDate(nextStr);
+        }
+    });
+
+    // Quick Select Buttons
+    document.querySelectorAll('.btn-quick-date').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const days = parseInt(btn.dataset.days);
+            const d = new Date();
+            d.setDate(d.getDate() - days);
+            updateDate(d.toISOString().split('T')[0]);
+        });
+    });
+
+    // Initial active state
+    document.querySelector('.btn-quick-date[data-days="0"]').classList.add('active');
+
     try {
-        // Initialize Map
-        map = L.map('map').setView([36.2048, 138.2529], 5); // Center on Japan
+        map = L.map('map', {
+            zoomControl: false
+        }).setView([36.2048, 138.2529], 5);
+
+        L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Zoom/Move Event Listener
         map.on('zoomend', updateVis);
         map.on('moveend', () => {
-            updateVisibleMarkers().catch(err => console.error('Error in moveend handler:', err));
+            updateVisibleMarkers().catch(err => console.error(err));
             updateVis();
         });
 
         initMarkers();
     } catch (e) {
         console.error('Initialization error:', e);
-        alert('アプリの初期化中にエラーが発生しました: ' + e.message);
     }
 });

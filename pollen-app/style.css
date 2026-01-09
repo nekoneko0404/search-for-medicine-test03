@@ -3,8 +3,12 @@
     --secondary-color: #2196F3;
     --danger-color: #f44336;
     --warning-color: #ff9800;
-    --bg-color: #f5f5f5;
-    --text-color: #333;
+    --bg-color: #f8f9fa;
+    --panel-bg: rgba(255, 255, 255, 0.95);
+    --text-main: #2c3e50;
+    --text-sub: #576574;
+    --border-color: #dcdde1;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 body,
@@ -13,7 +17,9 @@ html {
     padding: 0;
     height: 100%;
     width: 100%;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    color: var(--text-main);
+    overflow: hidden;
 }
 
 #map {
@@ -22,19 +28,237 @@ html {
     z-index: 1;
 }
 
+canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* App Header */
+.app-header {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: var(--panel-bg);
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(5px);
+    border-left: 5px solid var(--primary-color);
+}
+
+.title-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.icon-main {
+    font-size: 24px;
+    color: var(--primary-color);
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.subtitle {
+    margin: 2px 0 0 0;
+    font-size: 12px;
+    color: var(--text-sub);
+}
+
+/* Side Panel */
+.side-panel {
+    position: absolute;
+    top: 100px;
+    left: 20px;
+    z-index: 1000;
+    width: 280px;
+    max-height: calc(100% - 140px);
+    background: var(--panel-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+}
+
+.panel-section {
+    margin-bottom: 25px;
+}
+
+.panel-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+.section-title i {
+    color: var(--secondary-color);
+}
+
+/* Date Picker & Controls */
+.date-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.date-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-picker-wrapper {
+    flex: 1;
+}
+
+.btn-date-nav {
+    background: #f1f2f6;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: all 0.2s;
+}
+
+.btn-date-nav:hover {
+    background: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+.styled-date-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.styled-date-input:focus {
+    border-color: var(--secondary-color);
+}
+
+.quick-dates {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-quick-date {
+    flex: 1;
+    min-width: 60px;
+    padding: 6px 4px;
+    font-size: 11px;
+    background: #f1f2f6;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-sub);
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.btn-quick-date:hover {
+    background: #e1e2e6;
+    color: var(--text-main);
+}
+
+.btn-quick-date.active {
+    background: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+/* Legend */
+.legend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Info Text */
+.info-text {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-sub);
+    margin: 0;
+}
+
+/* Links */
+.link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ref-link {
+    font-size: 13px;
+    color: var(--secondary-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.2s;
+}
+
+.ref-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
 /* Modal Styles */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.5);
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(3px);
 }
 
 .modal.show {
@@ -42,71 +266,116 @@ html {
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 600px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-body {
+    flex: 1;
+    min-height: 300px;
+    height: 400px;
+    margin-top: 20px;
     position: relative;
 }
 
-.close-btn {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
+/* Loading Spinner */
+.loading-overlay {
     position: absolute;
-    right: 20px;
-    top: 10px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 8px;
 }
 
-.close-btn:hover,
-.close-btn:focus {
-    color: black;
-    text-decoration: none;
+.loading-overlay.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--secondary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-overlay p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-sub);
+    font-weight: 600;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
     cursor: pointer;
+    color: var(--text-sub);
 }
 
 /* Popup Styles */
 .leaflet-popup-content-wrapper {
-    border-radius: 8px;
-    padding: 0;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
 }
 
 .leaflet-popup-content {
-    margin: 10px;
-    width: 260px !important;
+    margin: 15px;
+    width: 320px !important;
 }
 
 .popup-chart-container {
     width: 100%;
-    height: 150px;
+    height: 250px;
 }
 
 .popup-header {
-    font-weight: bold;
-    margin-bottom: 5px;
+    font-weight: 700;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 14px;
 }
 
 .btn-trend {
     background-color: var(--secondary-color);
     color: white;
     border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-trend:hover {
-    background-color: #1976D2;
+    font-size: 11px;
+    font-weight: 600;
 }
 
 /* Graph Tooltip */
@@ -118,5 +387,19 @@ html {
 
 .graph-tooltip::before {
     display: none;
-    /* Hide arrow */
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .side-panel {
+        width: calc(100% - 40px);
+        top: auto;
+        bottom: 20px;
+        max-height: 40%;
+    }
+
+    .app-header {
+        width: calc(100% - 40px);
+        padding: 10px 15px;
+    }
 }
