@@ -4,36 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>プライバシーポリシー | Kusuri Compass</title>
-    <meta name="description" content="Kusuri Compassのプライバシーポリシーです。個人情報の取り扱いについて説明します。">
-    <meta name="keywords" content="プライバシーポリシー, 個人情報, Kusuri Compass">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://www.googletagmanager.com; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://cdn.jsdelivr.net https://script.google.com https://script.googleusercontent.com https://www.google-analytics.com https://analytics.google.com ws://127.0.0.1:* http://127.0.0.1:*;">
+    <title>プライバシーポリシー - Kusuri Compass</title>
+    <meta name="description" content="Kusuri Compassのプライバシーポリシーです。">
+    <meta name="keywords" content="プライバシーポリシー, Kusuri Compass">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://search-for-medicine.pages.dev/privacy.html">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <link rel="icon" href="favicon.ico">
-    <script src="https://cdn.jsdelivr.net/@tailwindcss/browser@4.1.16"
-        integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
-        crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.1/tailwindcss.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css?v=20251213-01">
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
     <script async src="gtag.js"></script>
 </head>
 
-<body class="bg-slate-50 min-h-screen flex flex-col">
-    <header class="bg-white shadow-sm sticky top-0 z-30 flex-shrink-0">
+<body class="bg-slate-50 min-h-screen flex flex-col font-[Inter]">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <a href="./index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <img src="images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
-                    <h1 class="text-xl font-bold text-indigo-900 hidden sm:block">Kusuri Compass</h1>
+                    <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
                 </a>
             </div>
-            <nav class="flex items-center gap-2 sm:gap-4">
+            <nav class="flex items-center gap-4">
                 <a href="./index.html"
-                    class="text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">
-                    <i class="fas fa-home mr-1"></i>ホームに戻る
+                    class="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors flex items-center gap-1">
+                    <i class="fas fa-home"></i>
+                    <span>ホーム</span>
                 </a>
             </nav>
         </div>
@@ -44,7 +51,7 @@
         <!-- Title Card -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
             <h2 class="text-3xl font-bold text-gray-900 mb-4">プライバシーポリシー</h2>
-            <p class="text-gray-500">最終更新日: 2025年12月1日</p>
+            <p class="text-gray-500">最終更新日: 2026年1月9日</p>
         </div>
 
         <!-- Content Cards -->
@@ -55,7 +62,8 @@
                     1. はじめに
                 </h3>
                 <p class="text-gray-600 leading-relaxed">
-                    Kusuri Compass（以下、「本サービス」といいます）は、利用者のプライバシーを尊重し、個人情報の保護に努めます。本ポリシーは、本サービスにおける情報の取り扱いについて説明するものです。
+                    Kusuri
+                    Compass（以下、「本サービス」といいます）は、利用者のプライバシーを尊重し、個人情報の保護に努めます。本ポリシーは、本サービスおよび統合された各種ツール（出荷状況検索、AIナビゲーター等）における情報の取り扱いについて説明するものです。
                 </p>
             </section>
 
@@ -71,6 +79,7 @@
                     <ul class="list-disc list-inside text-gray-600 space-y-2 ml-4">
                         <li>アクセスログ（IPアドレス、ブラウザの種類、参照元URLなど）</li>
                         <li>Cookie（クッキー）を利用した利用状況の分析データ</li>
+                        <li>AIツールへの入力内容（個人情報は入力しないでください）</li>
                         <li>お問い合わせ時に提供いただく情報（メールアドレスなど）</li>
                     </ul>
                 </div>
@@ -82,7 +91,7 @@
                     3. 情報の利用目的
                 </h3>
                 <p class="text-gray-600 leading-relaxed">
-                    収集した情報は、本サービスの提供、維持、改善、および新機能の開発のために利用されます。具体的には、利用状況の分析によるUI/UXの改善や、不具合の調査などに役立てられます。
+                    収集した情報は、本サービスの提供、維持、改善、および新機能の開発のために利用されます。具体的には、利用状況の分析によるUI/UXの改善や、AIの応答精度の向上（匿名化されたデータとして）、不具合の調査などに役立てられます。
                 </p>
             </section>
 
@@ -95,18 +104,24 @@
                     本サービスでは、Googleによるアクセス解析ツール「Googleアナリティクス」を使用しています。このGoogleアナリティクスはデータの収集のためにCookieを使用しています。このデータは匿名で収集されており、個人を特定するものではありません。
                 </p>
                 <p class="text-gray-600 leading-relaxed mt-4">
-                    この機能はCookieを無効にすることで収集を拒否することが出来ますので、お使いのブラウザの設定をご確認ください。この規約に関しての詳細は<a
-                        href="https://marketingplatform.google.com/about/analytics/terms/jp/" target="_blank"
-                        class="text-indigo-600 hover:underline">Googleアナリティクスサービス利用規約</a>や<a
-                        href="https://policies.google.com/technologies/ads?hl=ja" target="_blank"
-                        class="text-indigo-600 hover:underline">Googleポリシーと規約</a>をご覧ください。
+                    この機能はCookieを無効にすることで収集を拒否することが出来ますので、お使いのブラウザの設定をご確認ください。
+                </p>
+            </section>
+
+            <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-robot text-indigo-500"></i>
+                    5. 生成AIサービスにおける情報の取り扱い
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                    代替薬ナビゲーター等のAI機能を利用する際、入力されたテキストはGoogleのAIサービス（Gemini）に送信されます。本サービス側で入力内容を特定の個人と結びつけて保存することはありませんが、AIの学習や改善のために利用される可能性があるため、**氏名、住所、患者情報などの個人情報は絶対に入力しないでください。**
                 </p>
             </section>
 
             <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <i class="fas fa-shield-alt text-indigo-500"></i>
-                    5. 情報の第三者提供
+                    6. 情報の第三者提供
                 </h3>
                 <p class="text-gray-600 leading-relaxed">
                     本サービスは、法令に基づく場合を除き、利用者の同意なく個人情報を第三者に提供することはありません。
@@ -116,7 +131,7 @@
             <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <i class="fas fa-envelope text-indigo-500"></i>
-                    6. お問い合わせ
+                    7. お問い合わせ
                 </h3>
                 <p class="text-gray-600 leading-relaxed">
                     プライバシーポリシーに関するお問い合わせは、本サービスの管理者までご連絡ください。
@@ -126,9 +141,18 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-500 text-sm">&copy; 2025 Kusuri Compass. All rights reserved.</p>
+    <footer id="mainFooter" class="bg-white border-t border-gray-200 flex-shrink-0 sticky bottom-0 z-30">
+        <div class="w-full mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-sm text-gray-500">
+                    &copy; 2025-2026 Kusuri Compass. All rights reserved.
+                </div>
+                <div class="flex gap-6">
+                    <a href="./terms.html"
+                        class="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium">利用規約</a>
+                    <a href="./privacy.html" class="text-sm text-indigo-600 font-bold transition-colors">プライバシーポリシー</a>
+                </div>
+            </div>
         </div>
     </footer>
 </body>

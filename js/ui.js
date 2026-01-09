@@ -4,6 +4,9 @@
 
 import { normalizeString, extractSearchTerm } from './utils.js';
 
+let messageTimeout = null;
+let messageHideTimeout = null;
+
 /**
  * Show toast message
  * @param {string} text - Message text
@@ -13,8 +16,12 @@ export function showMessage(text, type = 'info') {
     const messageBox = document.getElementById('messageBox');
     if (!messageBox) return;
 
+    // Clear existing timeouts
+    if (messageTimeout) clearTimeout(messageTimeout);
+    if (messageHideTimeout) clearTimeout(messageHideTimeout);
+
     // Reset classes
-    messageBox.className = 'fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-opacity duration-300 opacity-0 transform translate-y-[-20px]';
+    messageBox.className = 'fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-all duration-300 opacity-0 transform translate-y-[-20px]';
 
     // Add type-specific classes
     if (type === 'error') {
@@ -33,14 +40,15 @@ export function showMessage(text, type = 'info') {
         messageBox.classList.remove('opacity-0', 'translate-y-[-20px]');
     });
 
-    // Auto hide
-    setTimeout(() => {
+    // Auto hide after 4 seconds
+    messageTimeout = setTimeout(() => {
         messageBox.classList.add('opacity-0', 'translate-y-[-20px]');
-        setTimeout(() => {
+        messageHideTimeout = setTimeout(() => {
             messageBox.classList.add('hidden');
         }, 300);
-    }, 3000);
+    }, 4000);
 }
+
 
 /**
  * Update progress bar
@@ -160,20 +168,20 @@ export function createDropdown(item, index) {
     const chevron = document.createElement('span');
     chevron.innerHTML = ''; // Clear existing content
 
-const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-svg.setAttribute("class", "w-4 h-4 ml-1 opacity-0 group-hover/dropdown:opacity-100 transition-opacity");
-svg.setAttribute("fill", "none");
-svg.setAttribute("stroke", "currentColor");
-svg.setAttribute("viewBox", "0 0 24 24");
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "w-4 h-4 ml-1 opacity-0 group-hover/dropdown:opacity-100 transition-opacity");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("viewBox", "0 0 24 24");
 
-const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-path.setAttribute("stroke-linecap", "round");
-path.setAttribute("stroke-linejoin", "round");
-path.setAttribute("stroke-width", "2");
-path.setAttribute("d", "M19 9l-7 7-7-7");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("d", "M19 9l-7 7-7-7");
 
-svg.appendChild(path);
-chevron.appendChild(svg);
+    svg.appendChild(path);
+    chevron.appendChild(svg);
     button.appendChild(chevron);
 
     const dropdownContent = document.createElement('div');

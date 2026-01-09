@@ -1,4 +1,4 @@
-    console.log("search main.js loaded");
+console.log("search main.js loaded");
 /**
  * Main application logic for Kusuri Compass
  */
@@ -116,7 +116,7 @@ function searchData() {
 
 
     if (allSearchFieldsEmpty && allCheckboxesChecked) {
-        renderTable([]);
+        renderResults([]);
         elements.tableContainer.classList.add('hidden');
         if (elements.infoContainer) elements.infoContainer.classList.remove('hidden');
         document.body.classList.remove('search-mode');
@@ -152,7 +152,7 @@ function searchData() {
             makerName.includes(keyword) ||
             ingredientName.includes(keyword)
         );
-        
+
 
         if (statusFilters.length === 0) return false;
 
@@ -545,20 +545,31 @@ async function initApp() {
     document.getElementById('sort-ingredientName-button').addEventListener('click', () => sortResults('ingredientName'));
     document.getElementById('sort-status-button').addEventListener('click', () => sortResults('status'));
 
-    elements.reloadDataBtn.addEventListener('click', async () => {
-        showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
-        try {
-            const result = await clearCacheAndReload(updateProgress);
-            if (result && result.data) {
-                excelData = result.data;
-                showMessage(`データを再読み込みしました: ${excelData.length}件`, 'success');
-                // Re-run search if there are inputs
-                searchData();
+    if (elements.reloadDataBtn) {
+        elements.reloadDataBtn.addEventListener('click', async () => {
+            if (elements.reloadDataBtn.disabled) return;
+
+            elements.reloadDataBtn.disabled = true;
+            elements.reloadDataBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            showMessage('最新データを取得しています...', 'info');
+            try {
+                const result = await clearCacheAndReload(updateProgress);
+                if (result && result.data) {
+                    excelData = result.data;
+                    showMessage(`データを更新しました: ${excelData.length}件`, 'success');
+                    searchData();
+                }
+            } catch (err) {
+                console.error('Reload failed:', err);
+                showMessage(`データの更新に失敗しました: ${err.message || '不明なエラー'}`, 'error');
+            } finally {
+                elements.reloadDataBtn.disabled = false;
+                elements.reloadDataBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-        } catch (err) {
-            showMessage('キャッシュのクリアに失敗しました。', 'error');
-        }
-    });
+        });
+    }
+
 
     // Initial Data Load
     try {

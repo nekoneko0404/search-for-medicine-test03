@@ -294,22 +294,29 @@ async function fetchExcelData(onProgress) {
 export async function loadAndCacheData(onProgress) {
     console.log('共通データローダーを開始します。');
 
+    if (!window.localforage) {
+        console.warn('localforage is not available. Fetching from network directly.');
+        return await fetchExcelData(onProgress);
+    }
+
     try {
         const cachedData = await window.localforage.getItem('excelCache');
         const oneHour = 1 * 60 * 60 * 1000;
         if (cachedData && (new Date().getTime() - cachedData.timestamp < oneHour)) {
             console.log("キャッシュからデータを読み込みました。");
             // Restore Date objects from strings (JSON serialization converts dates to strings)
-            cachedData.data.forEach(item => {
-                if (item.updateDateObj && typeof item.updateDateObj === 'string') {
-                    item.updateDateObj = new Date(item.updateDateObj);
-                }
-                if (item.expectedDateObj && typeof item.expectedDateObj === 'string') {
-                    item.expectedDateObj = new Date(item.expectedDateObj);
-                }
-            });
+            if (Array.isArray(cachedData.data)) {
+                cachedData.data.forEach(item => {
+                    if (item.updateDateObj && typeof item.updateDateObj === 'string') {
+                        item.updateDateObj = new Date(item.updateDateObj);
+                    }
+                    if (item.expectedDateObj && typeof item.expectedDateObj === 'string') {
+                        item.expectedDateObj = new Date(item.expectedDateObj);
+                    }
+                });
+            }
             if (onProgress) onProgress('キャッシュから読み込み完了', 100);
-            return { data: cachedData.data, date: 'キャッシュ' };
+            return { data: cachedData.data || [], date: 'キャッシュ' };
         } else {
             console.log(cachedData ? "キャッシュが古いため、ネットワークから取得します。" : "キャッシュが見つからないため、ネットワークから取得します。");
             return await fetchExcelData(onProgress);
@@ -322,10 +329,14 @@ export async function loadAndCacheData(onProgress) {
 
 export async function clearCacheAndReload(onProgress) {
     try {
-        await window.localforage.removeItem('excelCache');
+        if (window.localforage) {
+            await window.localforage.removeItem('excelCache');
+            console.log("キャッシュを削除しました。");
+        }
         return await loadAndCacheData(onProgress);
     } catch (err) {
         console.error("Failed to clear cache", err);
-        throw err;
+        throw new Error(`キャッシュのクリアに失敗しました: ${err.message}`);
     }
 }
+

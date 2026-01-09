@@ -60,6 +60,7 @@ function initElements() {
     elements.loadingIndicator = document.getElementById('loadingIndicator');
     elements.tableContainer = document.getElementById('tableContainer');
     elements.cardContainer = document.getElementById('cardContainer');
+    elements.resultCardContainer = elements.cardContainer; // Fix: use cardContainer
     elements.reloadDataBtn = document.getElementById('reload-data');
 
     elements.checkboxes.class3 = document.getElementById('filter-class3');
@@ -96,7 +97,10 @@ async function initApp() {
 
         if (dataResult && dataResult.data) {
             excelData = dataResult.data;
+            console.log(`Loaded ${excelData.length} items for YJ search.`);
             showMessage(`データ(${dataResult.date}) ${excelData.length} 件を読み込みました。`, "success");
+        } else {
+            console.error('No data received from loadAndCacheData');
         }
         manufacturerLinks = links || {};
 
@@ -152,19 +156,29 @@ async function initApp() {
 
     if (elements.reloadDataBtn) {
         elements.reloadDataBtn.addEventListener('click', async () => {
-            showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
+            if (elements.reloadDataBtn.disabled) return;
+
+            elements.reloadDataBtn.disabled = true;
+            elements.reloadDataBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            showMessage('最新データを取得しています...', 'info');
             try {
                 const result = await clearCacheAndReload(updateProgress);
                 if (result && result.data) {
                     excelData = result.data;
-                    showMessage(`データを再読み込みしました: ${excelData.length}件`, 'success');
+                    showMessage(`データを更新しました: ${excelData.length}件`, 'success');
                     searchYjCode();
                 }
             } catch (err) {
-                showMessage('キャッシュのクリアに失敗しました。', 'error');
+                console.error('Reload failed:', err);
+                showMessage(`データの更新に失敗しました: ${err.message || '不明なエラー'}`, 'error');
+            } finally {
+                elements.reloadDataBtn.disabled = false;
+                elements.reloadDataBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         });
     }
+
     elements.yjCodeInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') searchYjCode();
     });
@@ -243,32 +257,39 @@ function sortResults(key) {
 
 function searchYjCode() {
     const code = elements.yjCodeInput.value;
-    const normalizedCode = normalizeString(code);
+    let normalizedCode = normalizeString(code);
 
     const checks = {
-        class3: elements.checkboxes.class3.checked,
-        class4: elements.checkboxes.class4.checked,
-        ingredient: elements.checkboxes.ingredient.checked,
-        form: elements.checkboxes.form.checked,
-        standard: elements.checkboxes.standard.checked,
-        brand: elements.checkboxes.brand.checked
+        class3: elements.checkboxes.class3?.checked || false,
+        class4: elements.checkboxes.class4?.checked || false,
+        ingredient: elements.checkboxes.ingredient?.checked || false,
+        form: elements.checkboxes.form?.checked || false,
+        standard: elements.checkboxes.standard?.checked || false,
+        brand: elements.checkboxes.brand?.checked || false
     };
 
     const statusChecks = {
-        normal: elements.statusCheckboxes.normal.checked,
-        limited: elements.statusCheckboxes.limited.checked,
-        stopped: elements.statusCheckboxes.stopped.checked
+        normal: elements.statusCheckboxes.normal?.checked || false,
+        limited: elements.statusCheckboxes.limited?.checked || false,
+        stopped: elements.statusCheckboxes.stopped?.checked || false
     };
 
     const isAnyFilterChecked = Object.values(checks).some(c => c);
     const isAnyStatusChecked = Object.values(statusChecks).some(c => c);
 
     if (isAnyFilterChecked) {
-        if (!normalizedCode || normalizedCode.length !== 12 || !/^[0-9a-zA-Z]+$/.test(normalizedCode)) {
-            showMessage('検索条件をチェックした際は、正しい12桁のYJコードを入力してください。', 'error');
+        if (!normalizedCode || !/^[0-9a-zA-Z]+$/.test(normalizedCode)) {
+            showMessage('検索条件をチェックした際は、正しいYJコードを入力してください。', 'error');
             renderResults([]);
             return;
         }
+        // If code is less than 12 digits, pad with leading zeros if it's purely numeric
+        let searchCode = normalizedCode;
+        if (searchCode.length < 12 && /^\d+$/.test(searchCode)) {
+            searchCode = searchCode.padStart(12, '0');
+            console.log(`Padded YJ code to: ${searchCode}`);
+        }
+        normalizedCode = searchCode; // Update normalizedCode with padded version
     }
 
     if (!isAnyFilterChecked && !isAnyStatusChecked) {

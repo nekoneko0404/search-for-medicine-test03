@@ -833,17 +833,21 @@ function triggerCompletion() {
         </div>
     `;
 
-    overlay.classList.remove('hidden');
-    overlay.classList.add('active');
-    overlay.classList.add('show');
-
-    // Trigger effects
+    // Trigger effects first
     flashScreen();
     showFloatingEmojis();
 
     for (let i = 0; i < 8; i++) {
         setTimeout(spawnConfetti, i * 300);
     }
+
+    // Delay showing the certificate overlay to allow effects to be seen
+    // and to stabilize performance on mobile devices.
+    setTimeout(() => {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('active');
+        overlay.classList.add('show');
+    }, 3500); // 3.5 seconds delay
 }
 
 function playFanfare() {

@@ -130,19 +130,29 @@ async function initApp() {
 
     if (elements.reloadDataBtn) {
         elements.reloadDataBtn.addEventListener('click', async () => {
-            showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
+            if (elements.reloadDataBtn.disabled) return;
+
+            elements.reloadDataBtn.disabled = true;
+            elements.reloadDataBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            showMessage('最新データを取得しています...', 'info');
             try {
                 const result = await clearCacheAndReload(updateProgress);
                 if (result && result.data) {
                     excelData = result.data;
-                    showMessage(`データを再読み込みしました: ${excelData.length}件`, 'success');
+                    showMessage(`データを更新しました: ${excelData.length}件`, 'success');
                     searchData();
                 }
             } catch (err) {
-                showMessage('キャッシュのクリアに失敗しました。', 'error');
+                console.error('Reload failed:', err);
+                showMessage(`データの更新に失敗しました: ${err.message || '不明なエラー'}`, 'error');
+            } finally {
+                elements.reloadDataBtn.disabled = false;
+                elements.reloadDataBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         });
     }
+
 
     elements.clearBtn.addEventListener('click', clearAndResetSearch);
 
@@ -269,9 +279,9 @@ function searchData(reset = false) {
     const period = elements.updatePeriod.value;
 
     const statusChecks = {
-        normal: elements.statusCheckboxes.normal.checked,
-        limited: elements.statusCheckboxes.limited.checked,
-        stopped: elements.statusCheckboxes.stopped.checked
+        normal: elements.statusCheckboxes.normal?.checked || false,
+        limited: elements.statusCheckboxes.limited?.checked || false,
+        stopped: elements.statusCheckboxes.stopped?.checked || false
     };
 
     const trendChecks = {
