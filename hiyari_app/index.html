@@ -4,27 +4,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>薬局ヒヤリ・ハット事例ビューア</title>
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <title>ヒヤリ・ハット事例検索 | Kusuri Compass</title>
+    <meta name="description" content="薬局でのヒヤリ・ハット事例を検索・閲覧できるツールです。安全な調剤業務の参考に。">
+    <meta name="keywords" content="医薬品, ヒヤリハット, 事例, 検索, Kusuri Compass">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://search-for-medicine.pages.dev/hiyari_app/index.html">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
+        font-src 'self' https://cdnjs.cloudflare.com;
+        img-src 'self' data:;
+        connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://hiyari-proxy-708146219355.asia-east1.run.app;
+    ">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"
+        integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../favicon.ico">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script async src="../gtag.js"></script>
+</head>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
-                <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
-            </a>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
+                    <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
+                </a>
+            </div>
+            <nav class="flex items-center gap-4">
+                <span class="text-sm font-bold text-gray-500">ヒヤリ・ハット検索</span>
+            </nav>
         </div>
-        <nav class="flex items-center gap-4">
-            <span class="text-sm font-bold text-gray-500">ヒヤリ・ハット事例</span>
-        </nav>
-    </div>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl pb-32 transition-all duration-500">
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">薬局ヒヤリ・ハット事例検索</h2>
-            <p class="text-gray-500 text-sm">公益財団法人日本医療機能評価機構のデータを検索します</p>
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+        <div class="text-center mb-8 flex-shrink-0">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ヒヤリ・ハット事例検索</h2>
+            <p class="text-gray-500 text-sm">薬局でのインシデント事例を検索して安全管理に役立てましょう</p>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
@@ -42,6 +65,7 @@
                 </button>
             </div>
         </div>
+
         <!-- Info Container (Usage Guide) -->
         <div id="infoContainer" class="flex flex-col gap-8 md:flex-grow md:min-h-0">
             <div id="usage-guide" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex-shrink-0">
@@ -62,27 +86,13 @@
                                     class="text-indigo-500">•</span><span>絞り込みキーワードを追加すると、検索結果をさらに詳細に絞り込めます。</span></li>
                             <li class="flex items-start gap-2"><span
                                     class="text-indigo-500">•</span><span>複数のキーワードはスペース区切りで入力してください。</span></li>
-                            <li class="flex items-start gap-2"><span
-                                    class="text-indigo-500">•</span><span>検索結果が多すぎる場合は、より具体的なキーワードを使用してください。</span></li>
-                            <li class="flex items-start gap-2"><span
-                                    class="text-indigo-500">•</span><span>「データ取得に失敗しました」と表示された場合、医薬品名を短くしてください。(例：トルバプタンＯＤ錠３．７５ｍｇ「ニプロ」　→　トルバプタン)</span>
-                            </li>
                         </ul>
-                    </div>
-                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
-                        <h4 class="font-bold text-gray-900 mb-3">データソースについて</h4>
-                        <p class="text-sm text-gray-700">
-                            このアプリケーションは、公益財団法人日本医療機能評価機構が公開している「薬局ヒヤリ・ハット事例収集等事業」のデータを利用しています。最新の情報は以下の公式サイトでご確認ください。
-                        </p>
-                        <p class="text-sm text-gray-700 mt-2"><a href="https://www.yakkyoku-hiyari.jcqhc.or.jp/"
-                                target="_blank" rel="noopener noreferrer"
-                                class="text-indigo-600 hover:underline">日本医療機能評価機構 薬局ヒヤリハット事例報告</a></p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex justify-end items-center mb-4">
+        <div class="flex justify-end items-center mb-4 mt-6">
             <button id="random-btn"
                 class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,28 +116,14 @@
         </div>
     </main>
 
-    <!-- Reload Button -->
-    <button id="reload-button"
-        class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
-        aria-label="検索条件をクリア">
-        <svg class="w-10 h-10 transform transition-transform duration-700 ease-in-out group-hover:rotate-180"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-            </path>
-        </svg>
-    </button>
-
-    <footer id="mainFooter" class="bg-white border-t border-gray-200 fixed bottom-0 w-full z-20">
+    <footer id="mainFooter" class="bg-white border-t border-gray-200 sticky bottom-0 w-full z-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-gray-500">
             <p>© 2025 【Kusuri Compass】</p>
         </div>
     </footer>
 
     <script type="module" src="js/main.js"></script>
-
-    <!-- Typing Animation Script -->
     <script type="module" src="js/typing-init.js"></script>
-    </body>
+</body>
 
 </html>

@@ -1,38 +1,49 @@
-<!-- 適切なOGP画像パスを指定してください -->
-<link rel="icon" href="favicon.ico">
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"
-    integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"
-    integrity="sha384-MTDrIlFOzEqpmOxY6UIA/1Zkh0a64UlmJ6R0UrZXqXCPx99siPGi8EmtQjIeCcTH"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked@4.0.10/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"
-    integrity="sha512-H+rglffZ6f5gF7UJgvH4Naa+fGCgjrHKMgoFOGmcPTRwR6oILo5R+gtzNrpDp7iMV3udbymBVjkeZGNz1Em4rQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-<link rel="stylesheet" href="unify.css">
-<link rel="stylesheet" href="css/style.css">
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kusuri Compass - 医薬品情報検索システム</title>
+    <meta name="description"
+        content="Kusuri Compassは、医薬品の出荷状況検索、代替薬ナビゲーター、ヒヤリハット検索、全国感染状況など、薬剤師・医療従事者向けの各種情報提供サービスを統合したプラットフォームです。">
+    <meta name="keywords" content="医薬品, 出荷状況, 検索, 代替薬, 薬剤師, Kusuri Compass">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://search-for-medicine.pages.dev/index.html">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
+        font-src 'self' https://cdnjs.cloudflare.com;
+        img-src 'self' data:;
+        connect-src 'self' https://www.google-analytics.com https://analytics.google.com;
+    ">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"
+        integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script async src="gtag.js"></script>
 </head>
 
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
-
-    <!-- Header -->
-    <header id="mainHeader" class="bg-white shadow-sm sticky top-0 z-30 flex-shrink-0">
-        <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto h-16 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <a href="./index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                        <img src="images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
-                        <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
-                    </a>
-                </div>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-3">
+                <a href="./index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <img src="images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
+                    <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
+                </a>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-0 max-w-7xl">
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         <div class="menu-container">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 text-center leading-tight">Kusuri Compass
                 機能選択メニュー</h1>

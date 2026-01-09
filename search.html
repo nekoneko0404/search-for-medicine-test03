@@ -2,27 +2,36 @@
 <html lang="ja">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医薬品出荷状況検索 | Kusuri Compass</title>
+    <meta name="description" content="医薬品の出荷状況をリアルタイムで検索できるツールです。通常出荷、限定出荷、供給停止などのステータスを確認できます。">
+    <meta name="keywords" content="医薬品, 出荷状況, 検索, 供給状況, Kusuri Compass">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://search-for-medicine.pages.dev/search.html">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
+        font-src 'self' https://cdnjs.cloudflare.com;
+        img-src 'self' data:;
+        connect-src 'self' https://www.google-analytics.com https://analytics.google.com;
+    ">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.16"
         integrity="sha384-hexzD4m33RNzdvbV2ZW2FJcYlGemNPAdBKQsEcc389OUSwlT9xpg4BeEtiCeylHY"
         crossorigin="anonymous"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="unify.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <meta property="og:url" content="https://search-for-medicine.pages.dev/search.html">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="【Kusuri Compass】医薬品出荷状況検索">
-    <meta property="og:description" content="Kusuri Compassの医薬品出荷状況検索ページです。最新の供給状況をリアルタイムで確認できます。">
-    <meta property="og:image" content="https://search-for-medicine.pages.dev/images/KusuriCompass.png">
-    <!-- 適切なOGP画像パスを指定してください -->
     <link rel="icon" href="favicon.ico">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script async src="gtag.js"></script>
 </head>
 
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
-    <!-- Header -->
-    <header id="mainHeader" class="bg-white shadow-sm sticky top-0 z-30 flex-shrink-0">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3">
                 <a href="./index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <img src="images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
@@ -82,7 +91,7 @@
                 <div class="space-y-2">
                     <label for="makerName" class="block text-sm font-semibold text-gray-700">規格・剤形・メーカー</label>
                     <input type="text" id="makerName"
-                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-5">
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2.5 px-4">
                 </div>
             </div>
             <div
