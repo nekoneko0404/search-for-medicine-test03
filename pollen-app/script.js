@@ -71,6 +71,17 @@ function initMarkers() {
     updateVisibleMarkers().catch(err => console.error('Error in updateVisibleMarkers:', err));
 }
 
+// Helper: Debounce function
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+const pendingPollenRequests = new Set();
+
 // Fetch data for visible markers and handle LOD
 async function updateVisibleMarkers() {
     if (!map) return;
@@ -155,7 +166,7 @@ async function updateVisibleMarkers() {
                 }
             }
 
-            if (!fetchedCities.has(city.code)) {
+            if (!fetchedCities.has(city.code) && !pendingPollenRequests.has(city.code)) {
                 fetchQueue.push(city.code);
             }
         }
@@ -172,10 +183,15 @@ async function updateVisibleMarkers() {
         const BATCH_SIZE = 20;
         for (let i = 0; i < fetchQueue.length; i += BATCH_SIZE) {
             const batch = fetchQueue.slice(i, i + BATCH_SIZE)
-                .filter(code => currentVisibleCityCodes.has(code) && !fetchedCities.has(code));
+                .filter(code => currentVisibleCityCodes.has(code) && !fetchedCities.has(code) && !pendingPollenRequests.has(code));
 
             if (batch.length > 0) {
-                await Promise.all(batch.map(code => fetchCityDailyData(code)));
+                batch.forEach(code => pendingPollenRequests.add(code));
+                try {
+                    await Promise.all(batch.map(code => fetchCityDailyData(code)));
+                } finally {
+                    batch.forEach(code => pendingPollenRequests.delete(code));
+                }
             }
         }
     } catch (err) {
@@ -662,11 +678,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        map.on('zoomend', updateVis);
-        map.on('moveend', () => {
+        const debouncedUpdate = debounce(() => {
             updateVisibleMarkers().catch(err => console.error(err));
             updateVis();
-        });
+        }, 500);
+
+        map.on('zoomend', debouncedUpdate);
+        map.on('moveend', debouncedUpdate);
 
         initMarkers();
     } catch (e) {
