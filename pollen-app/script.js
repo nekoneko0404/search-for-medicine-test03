@@ -18,6 +18,13 @@ const markers = {};
 const fetchedCities = new Set();
 let currentVisibleCityCodes = new Set();
 
+// Helper: Sanitize HTML to prevent XSS
+function sanitizeHTML(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
 // Helper: Get Color based on Pollen Count
 function getPollenColor(count) {
     if (count >= 5) return '#f44336'; // High (Red)
@@ -153,7 +160,8 @@ async function updateVisibleMarkers() {
                 marker.cityName = city.name;
                 marker.maxPollen = 0;
 
-                marker.bindPopup(`<div id="popup-${city.code}">読み込み中...</div>`, {
+                const sanitizedCode = sanitizeHTML(city.code);
+                marker.bindPopup(`<div id="popup-${sanitizedCode}">読み込み中...</div>`, {
                     maxWidth: 350 // Slightly wider
                 });
                 marker.on('popupopen', () => handlePopupOpen(city, marker));
@@ -260,13 +268,17 @@ async function handlePopupOpen(city, marker) {
 
     const displayDate = state.currentDate.split('-').slice(1).join('/');
 
+    const sanitizedName = sanitizeHTML(city.name);
+    const sanitizedDate = sanitizeHTML(displayDate);
+    const sanitizedCode = sanitizeHTML(city.code);
+
     container.innerHTML = `
         <div class="popup-header">
-            <span>${city.name} (${displayDate})</span>
-            <button class="btn-trend" onclick="showWeeklyTrend('${city.code}', '${city.name}')">週間推移</button>
+            <span>${sanitizedName} (${sanitizedDate})</span>
+            <button class="btn-trend" onclick="showWeeklyTrend('${sanitizedCode}', '${sanitizedName}')">週間推移</button>
         </div>
         <div class="popup-chart-container">
-            <canvas id="chart-${city.code}"></canvas>
+            <canvas id="chart-${sanitizedCode}"></canvas>
         </div>
     `;
 
@@ -369,7 +381,8 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
     const canvas = document.getElementById('trendChart');
     const loading = document.getElementById('trend-loading');
 
-    modalTitle.textContent = `${cityName}の28日間推移 (花粉・気温・降水量)`;
+    const sanitizedCityName = sanitizeHTML(cityName);
+    modalTitle.textContent = `${sanitizedCityName}の28日間推移 (花粉・気温・降水量)`;
     modal.classList.add('show');
 
     loading.classList.remove('hidden');

@@ -16,6 +16,13 @@ function getWeatherIcon(code) {
     return '<i class="fas fa-question"></i>';
 }
 
+// Helper: Sanitize HTML to prevent XSS
+function sanitizeHTML(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
 // Wind Animation Logic
 class WindAnimation {
     constructor(map) {
@@ -186,7 +193,8 @@ function debounce(func, wait) {
 function showToast(message, duration = 3000) {
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+    const sanitizedMessage = sanitizeHTML(message);
+    toast.innerHTML = `<i class="fas fa-info-circle"></i> ${sanitizedMessage}`;
     document.body.appendChild(toast);
 
     setTimeout(() => {
