@@ -524,3 +524,90 @@ canvas {
         height: 200px;
     }
 }
+
+/* Weather Toggle Button */
+.btn-toggle-weather {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-toggle-weather:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-toggle-weather.active {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+}
+
+.btn-toggle-weather i {
+    margin-right: 6px;
+}
+
+/* Weather Info in Popup */
+.weather-info {
+    display: flex;
+    gap: 15px;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.weather-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-main);
+}
+
+.weather-item i {
+    font-size: 16px;
+    color: var(--secondary-color);
+}
+
+/* Weather Markers */
+.weather-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 6px 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.weather-icon {
+    font-size: 20px;
+    margin-bottom: 2px;
+}
+
+.weather-temp {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.weather-precip {
+    font-size: 10px;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.custom-weather-icon {
+    background: transparent !important;
+    border: none !important;
+}

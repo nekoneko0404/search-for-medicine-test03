@@ -264,7 +264,7 @@ async function handlePopupOpen(city, marker) {
                 data: dayData.map(d => d.pollen),
                 backgroundColor: dayData.map(d => getPollenColor(d.pollen)),
                 borderWidth: 0,
-                barPercentage: 0.9, // Fuller bars
+                barPercentage: 0.9,
                 categoryPercentage: 1.0
             }]
         },
@@ -298,6 +298,53 @@ async function handlePopupOpen(city, marker) {
             }
         }
     });
+
+    // Fetch and display weather data
+    try {
+        const weather = await fetchWeatherData(city.lat, city.lng);
+        if (weather) {
+            const weatherDiv = document.createElement('div');
+            weatherDiv.className = 'weather-info';
+            weatherDiv.innerHTML = `
+                <div class="weather-item">
+                    <i class="fas fa-thermometer-half"></i>
+                    <span>${weather.temperature}°C</span>
+                </div>
+                <div class="weather-item">
+                    <i class="fas fa-tint"></i>
+                    <span>${weather.precipitation}mm</span>
+                </div>
+                <div class="weather-item">
+                    <i class="fas fa-wind"></i>
+                    <span style="display: inline-block; transform: rotate(${weather.windDirection}deg)">↓</span>
+                    <span>${weather.windSpeed}m/s</span>
+                </div>
+            `;
+            container.insertBefore(weatherDiv, container.children[1]);
+        }
+    } catch (e) {
+        console.error('Weather fetch error:', e);
+    }
+}
+
+// Fetch Weather Data from Open-Meteo
+async function fetchWeatherData(lat, lng) {
+    try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,precipitation,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Weather API error');
+        const data = await response.json();
+        const current = data.current;
+        return {
+            temperature: current.temperature_2m,
+            precipitation: current.precipitation,
+            windSpeed: current.wind_speed_10m,
+            windDirection: current.wind_direction_10m
+        };
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
 }
 
 window.showWeeklyTrend = async function (cityCode, cityName) {
@@ -306,61 +353,175 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
     const canvas = document.getElementById('trendChart');
     const loading = document.getElementById('trend-loading');
 
-    modalTitle.textContent = `${cityName}の21日間推移`;
+    modalTitle.textContent = `${cityName}の28日間推移 (花粉・気温・降水量)`;
     modal.classList.add('show');
 
-    // Show loading, hide canvas
     loading.classList.remove('hidden');
     canvas.style.opacity = '0';
 
     const endDate = new Date(state.currentDate);
-    // endDate is today, we want 21 days including today
     const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - 20); // 21 days total
+    startDate.setDate(startDate.getDate() - 27); // 28 days total
 
     const startStr = startDate.toISOString().split('T')[0].replace(/-/g, '');
     const endStr = state.currentDate.replace(/-/g, '');
 
-    const data = await fetchData(cityCode, startStr, endStr);
+    const startDateISO = startDate.toISOString().split('T')[0];
+    const endDateISO = state.currentDate;
+
+    const city = CITIES.find(c => c.code === cityCode);
+
+    const pollenPromise = fetchData(cityCode, startStr, endStr);
+
+    let weatherPromise = Promise.resolve(null);
+    if (city) {
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+        const isRecent = endDate > ninetyDaysAgo;
+
+        let weatherUrl;
+        if (isRecent) {
+            weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lng}&daily=temperature_2m_max,precipitation_sum&timezone=Asia%2FTokyo&past_days=92&forecast_days=14`;
+        } else {
+            weatherUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${city.lat}&longitude=${city.lng}&daily=temperature_2m_max,precipitation_sum&timezone=Asia%2FTokyo&start_date=${startDateISO}&end_date=${endDateISO}`;
+        }
+
+        weatherPromise = fetch(weatherUrl)
+            .then(r => {
+                if (!r.ok) throw new Error('Weather fetch failed');
+                return r.json();
+            })
+            .catch(e => {
+                console.error('Weather data fetch error:', e);
+                return null;
+            });
+    }
+
+    const [pollenData, weatherData] = await Promise.all([pollenPromise, weatherPromise]);
 
     const dailyMap = {};
-    data.forEach(item => {
-        const dateKey = item.date.toISOString().split('T')[0];
+    pollenData.forEach(item => {
+        const year = item.date.getFullYear();
+        const month = String(item.date.getMonth() + 1).padStart(2, '0');
+        const day = String(item.date.getDate()).padStart(2, '0');
+        const dateKey = `${year}-${month}-${day}`;
+
         if (!dailyMap[dateKey]) dailyMap[dateKey] = { sum: 0, count: 0 };
         dailyMap[dateKey].sum += item.pollen;
         dailyMap[dateKey].count++;
     });
 
     const labels = Object.keys(dailyMap).sort();
-    const values = labels.map(date => {
+    const pollenValues = labels.map(date => {
         const average = dailyMap[date].sum / dailyMap[date].count;
         return Math.max(0, average);
     });
+
+    let tempValues = [];
+    let precipValues = [];
+
+    if (weatherData && weatherData.daily) {
+        const wDates = weatherData.daily.time;
+        const wTemps = weatherData.daily.temperature_2m_max;
+        const wPrecips = weatherData.daily.precipitation_sum;
+
+        const wMap = {};
+        wDates.forEach((d, i) => {
+            wMap[d] = { temp: wTemps[i], precip: wPrecips[i] };
+        });
+
+        labels.forEach(date => {
+            if (wMap[date]) {
+                tempValues.push(wMap[date].temp);
+                precipValues.push(wMap[date].precip);
+            } else {
+                tempValues.push(null);
+                precipValues.push(null);
+            }
+        });
+    }
 
     if (window.trendChartInstance) {
         window.trendChartInstance.destroy();
     }
 
     window.trendChartInstance = new Chart(canvas, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: labels.map(d => d.slice(5)),
-            datasets: [{
-                label: '平均花粉数',
-                data: values,
-                borderColor: '#2196F3',
-                tension: 0.1,
-                fill: false
-            }]
+            datasets: [
+                {
+                    label: '平均花粉数',
+                    data: pollenValues,
+                    type: 'line',
+                    borderColor: '#2196F3',
+                    backgroundColor: '#2196F3',
+                    yAxisID: 'y',
+                    tension: 0.1,
+                    fill: false,
+                    order: 1
+                },
+                {
+                    label: '最高気温 (°C)',
+                    data: tempValues,
+                    type: 'line',
+                    borderColor: '#ff9800',
+                    backgroundColor: '#ff9800',
+                    yAxisID: 'y1',
+                    tension: 0.3,
+                    borderDash: [5, 5],
+                    pointStyle: 'circle',
+                    pointRadius: 3,
+                    fill: false,
+                    order: 0
+                },
+                {
+                    label: '降水量 (mm)',
+                    data: precipValues,
+                    type: 'bar',
+                    backgroundColor: 'rgba(52, 152, 219, 0.3)',
+                    borderColor: 'rgba(52, 152, 219, 0.8)',
+                    borderWidth: 1,
+                    yAxisID: 'y2',
+                    order: 2
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true } }
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: '花粉数' },
+                    beginAtZero: true
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: '気温 (°C)' },
+                    grid: { drawOnChartArea: false }
+                },
+                y2: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: '降水量 (mm)' },
+                    grid: { drawOnChartArea: false },
+                    beginAtZero: true
+                }
+            }
         }
     });
 
-    // Hide loading, show canvas
     loading.classList.add('hidden');
     canvas.style.opacity = '1';
 };
@@ -465,7 +626,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         map = L.map('map', {
-            zoomControl: false
+            zoomControl: false,
+            minZoom: 2,
+            maxZoom: 12
         }).setView([36.2048, 138.2529], 5);
 
         L.control.zoom({
@@ -473,10 +636,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(map);
 
         const baseLayers = {
-            std: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+            std: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
             }),
-            relief: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png', {
+            relief: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
             })
         };
