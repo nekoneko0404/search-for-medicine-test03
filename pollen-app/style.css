@@ -325,6 +325,37 @@ html {
     margin: 0;
 }
 
+/* Credits */
+.credit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.credit-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.credit-label {
+    font-weight: 600;
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 2px;
+}
+
+.credit-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.credit-item a:hover {
+    text-decoration: underline;
+}
+
 /* Links */
 .link-list {
     display: flex;
