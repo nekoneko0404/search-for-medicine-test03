@@ -279,6 +279,15 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin-bottom: 12px;
+}
+
+.legend-note {
+    font-size: 11px;
+    color: var(--text-sub);
+    line-height: 1.4;
+    margin: 0;
+    font-style: italic;
 }
 
 .legend-item {
@@ -286,6 +295,17 @@ canvas {
     align-items: center;
     gap: 10px;
     font-size: 13px;
+}
+
+.label-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.label-sub {
+    font-size: 10px;
+    color: var(--text-sub);
 }
 
 .dot {

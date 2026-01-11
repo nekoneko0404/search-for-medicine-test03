@@ -26,10 +26,22 @@ function sanitizeHTML(str) {
 }
 
 // Helper: Get Color based on Pollen Count
-function getPollenColor(count) {
-    if (count >= 5) return '#f44336'; // High (Red)
-    if (count >= 2) return '#ff9800'; // Medium (Orange)
-    return '#2196F3'; // Low (Blue)
+function getPollenColor(count, isPast = false) {
+    if (isPast) {
+        // Daily Total Thresholds (based on Pollen Robo)
+        if (count >= 300) return '#9C27B0'; // Very High (Purple)
+        if (count >= 150) return '#f44336'; // High (Red)
+        if (count >= 90) return '#FFEB3B'; // Medium (Yellow)
+        if (count >= 30) return '#2196F3'; // Low (Blue)
+        return '#FFFFFF'; // None (White)
+    } else {
+        // Latest Hourly Thresholds
+        if (count >= 12) return '#9C27B0'; // Very High (Purple)
+        if (count >= 7) return '#f44336'; // High (Red)
+        if (count >= 4) return '#FFEB3B'; // Medium (Yellow)
+        if (count >= 1) return '#2196F3'; // Low (Blue)
+        return '#FFFFFF'; // None (White)
+    }
 }
 
 // Helper: Fetch Data with Cache
@@ -54,9 +66,11 @@ async function fetchData(cityCode, start, end) {
         const rows = text.trim().split('\n').slice(1); // Skip header
         const data = rows.map(row => {
             const [code, dateStr, pollenStr] = row.split(',');
+            let pollen = parseInt(pollenStr, 10);
+            if (isNaN(pollen) || pollen < 0) pollen = 0; // Treat negative or NaN as 0
             return {
                 date: new Date(dateStr),
-                pollen: parseInt(pollenStr, 10)
+                pollen: pollen
             };
         });
 
@@ -110,35 +124,110 @@ async function updateVisibleMarkers() {
             }
         }
 
-        let maxMarkers = 40;
-        if (zoom >= 8) maxMarkers = 80;
-        if (zoom >= 10) maxMarkers = 150;
-        if (zoom >= 12) maxMarkers = 400;
+        let maxMarkers = 30;
+        if (zoom >= 7) maxMarkers = 60;
+        if (zoom >= 9) maxMarkers = 120;
+        if (zoom >= 11) maxMarkers = 300;
+        if (zoom >= 12) maxMarkers = 1000; // Show almost all at max zoom
 
-        if (visibleCandidates.length > maxMarkers) {
-            const level1 = visibleCandidates.filter(c => c.level === 1);
-            const level2 = visibleCandidates.filter(c => c.level === 2);
-            const level3 = visibleCandidates.filter(c => c.level === 3);
+        // 1. Filter by level and bounds
+        let candidates = CITIES.filter(city => {
+            if (!targetLevels.has(city.level)) return false;
+            return bounds.contains(L.latLng(city.lat, city.lng));
+        });
+
+        // 2. Priority Selection
+        if (candidates.length > maxMarkers) {
+            // Calculate visual center based on side panel state
+            const panel = document.getElementById('side-panel');
+            const isCollapsed = panel ? panel.classList.contains('collapsed') : true;
+
+            let referencePoint = map.getCenter();
+
+            if (!isCollapsed && window.innerWidth > 600) {
+                // Offset center to the right by half of the panel width (approx 300px / 2 = 150px)
+                // Actually, the user said "offset to the right by the amount of the sub-window"
+                // So if panel is 280px + 20px margin = 300px, the visual center of the remaining map
+                // is (mapWidth - 300) / 2 + 300.
+                // The current map.getCenter() is mapWidth / 2.
+                // So we need to shift it right by 300 / 2 = 150 pixels.
+                const offsetPx = 150;
+                const centerPoint = map.latLngToContainerPoint(referencePoint);
+                const offsetPoint = L.point(centerPoint.x + offsetPx, centerPoint.y);
+                referencePoint = map.containerPointToLatLng(offsetPoint);
+            }
+
+            // Calculate distance from reference point for each city
+            candidates.forEach(c => {
+                c._dist = Math.pow(c.lat - referencePoint.lat, 2) + Math.pow(c.lng - referencePoint.lng, 2);
+            });
+
+            // Sort by level (priority 1) and distance from center (priority 2)
+            candidates.sort((a, b) => {
+                if (a.level !== b.level) return a.level - b.level;
+                return a._dist - b._dist;
+            });
+
+            // Adaptive grid-based sampling for all zoom levels to prevent concentration
+            const level1 = candidates.filter(c => c.level === 1);
+            const others = candidates.filter(c => c.level !== 1);
 
             let result = [...level1];
+            const selectedCodes = new Set(result.map(c => c.code));
 
-            if (result.length < maxMarkers && level2.length > 0) {
-                const remaining = maxMarkers - result.length;
-                const step = Math.max(1, Math.floor(level2.length / remaining));
-                for (let i = 0; i < level2.length && result.length < maxMarkers; i += step) {
-                    result.push(level2[i]);
+            if (result.length < maxMarkers) {
+                // Adjust grid size based on zoom level
+                let gridCount = 6;
+                if (zoom >= 7) gridCount = 8;
+                if (zoom >= 10) gridCount = 10;
+
+                const latMin = bounds.getSouth();
+                const latMax = bounds.getNorth();
+                const lngMin = bounds.getWest();
+                const lngMax = bounds.getEast();
+
+                const latStep = (latMax - latMin) / gridCount;
+                const lngStep = (lngMax - lngMin) / gridCount;
+
+                const grid = Array.from({ length: gridCount }, () => Array.from({ length: gridCount }, () => []));
+
+                others.forEach(c => {
+                    const latIdx = Math.min(gridCount - 1, Math.floor((c.lat - latMin) / latStep));
+                    const lngIdx = Math.min(gridCount - 1, Math.floor((c.lng - lngMin) / lngStep));
+                    if (latIdx >= 0 && lngIdx >= 0 && latIdx < gridCount && lngIdx < gridCount) {
+                        grid[latIdx][lngIdx].push(c);
+                    }
+                });
+
+                // Pick from each grid cell until maxMarkers is reached
+                // First pass: pick one from each cell
+                for (let i = 0; i < gridCount && result.length < maxMarkers; i++) {
+                    for (let j = 0; j < gridCount && result.length < maxMarkers; j++) {
+                        const cellCities = grid[i][j];
+                        if (cellCities.length > 0) {
+                            const pick = cellCities.find(c => !selectedCodes.has(c.code));
+                            if (pick) {
+                                result.push(pick);
+                                selectedCodes.add(pick.code);
+                            }
+                        }
+                    }
+                }
+
+                // Second pass: if still have space, fill with remaining sorted candidates
+                // This ensures we don't leave empty slots if some cells are empty
+                if (result.length < maxMarkers) {
+                    for (let i = 0; i < candidates.length && result.length < maxMarkers; i++) {
+                        if (!selectedCodes.has(candidates[i].code)) {
+                            result.push(candidates[i]);
+                            selectedCodes.add(candidates[i].code);
+                        }
+                    }
                 }
             }
-
-            if (result.length < maxMarkers && level3.length > 0) {
-                const remaining = maxMarkers - result.length;
-                const step = Math.max(1, Math.floor(level3.length / remaining));
-                for (let i = 0; i < level3.length && result.length < maxMarkers; i += step) {
-                    result.push(level3[i]);
-                }
-            }
-            visibleCandidates = result;
+            candidates = result.slice(0, maxMarkers);
         }
+        visibleCandidates = candidates;
 
         const visibleCityCodes = new Set(visibleCandidates.map(c => c.code));
         currentVisibleCityCodes = visibleCityCodes;
@@ -218,11 +307,30 @@ async function fetchCityDailyData(cityCode) {
     const data = await fetchData(cityCode, start, endStr);
 
     if (data.length > 0) {
-        const maxPollen = data.reduce((max, item) => Math.max(max, item.pollen), 0);
+        const today = new Date().toISOString().split('T')[0];
+        const isToday = state.currentDate === today;
+
+        let displayValue = 0;
+        if (isToday) {
+            // For today, use the latest non-null hourly value
+            const latest = [...data].reverse().find(v => v.pollen !== null);
+            displayValue = latest ? latest.pollen : 0;
+        } else {
+            // For past data, use the daily total (sum) for the selected date only
+            const [year, month, day] = state.currentDate.split('-').map(Number);
+            displayValue = data
+                .filter(item => {
+                    const d = item.date;
+                    return d.getFullYear() === year && (d.getMonth() + 1) === month && d.getDate() === day;
+                })
+                .reduce((sum, item) => sum + (item.pollen || 0), 0);
+        }
+
         const marker = markers[cityCode];
         if (marker) {
-            marker.setStyle({ fillColor: getPollenColor(maxPollen) });
-            marker.maxPollen = maxPollen;
+            marker.isPast = !isToday;
+            marker.maxPollen = displayValue;
+            marker.setStyle({ fillColor: getPollenColor(displayValue, !isToday) });
             fetchedCities.add(cityCode);
 
             if (map.getZoom() >= CONFIG.ZOOM_THRESHOLD) {
@@ -233,11 +341,11 @@ async function fetchCityDailyData(cityCode) {
 }
 
 function updateMarkerTooltip(marker) {
-    const height = Math.min(marker.maxPollen * 10, 50);
-    const color = getPollenColor(marker.maxPollen);
+    const height = marker.isPast ? marker.maxPollen * 0.4 : marker.maxPollen * 8; // Adjust height for past totals
+    const color = getPollenColor(marker.maxPollen, marker.isPast);
     const content = `
         <div style="display: flex; flex-direction: column; align-items: center;">
-            <div style="width: 10px; height: ${height}px; background-color: ${color};"></div>
+            <div style="width: 10px; height: ${Math.min(height, 150)}px; background-color: ${color}; border: 1px solid #fff;"></div>
             <span style="font-size: 10px;">${marker.maxPollen}</span>
         </div>
     `;
@@ -264,7 +372,11 @@ async function handlePopupOpen(city, marker) {
     const endStr = end.toISOString().split('T')[0].replace(/-/g, '');
 
     const data = await fetchData(city.code, start, endStr);
-    const dayData = data.filter(d => d.date.toISOString().startsWith(state.currentDate));
+    const [year, month, day] = state.currentDate.split('-').map(Number);
+    const dayData = data.filter(d => {
+        const dt = d.date;
+        return dt.getFullYear() === year && (dt.getMonth() + 1) === month && dt.getDate() === day;
+    });
 
     const displayDate = state.currentDate.split('-').slice(1).join('/');
 
@@ -393,7 +505,11 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
     startDate.setDate(startDate.getDate() - 27); // 28 days total
 
     const startStr = startDate.toISOString().split('T')[0].replace(/-/g, '');
-    const endStr = state.currentDate.replace(/-/g, '');
+
+    // Set endStr to the day after the selected date to include the selected date's data
+    const apiEndDate = new Date(endDate);
+    apiEndDate.setDate(apiEndDate.getDate() + 1);
+    const endStr = apiEndDate.toISOString().split('T')[0].replace(/-/g, '');
 
     const startDateISO = startDate.toISOString().split('T')[0];
     const endDateISO = state.currentDate;
@@ -441,10 +557,12 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
         dailyMap[dateKey].count++;
     });
 
-    const labels = Object.keys(dailyMap).sort();
+    const labels = Object.keys(dailyMap)
+        .filter(date => date <= state.currentDate)
+        .sort();
     const pollenValues = labels.map(date => {
-        const average = dailyMap[date].sum / dailyMap[date].count;
-        return Math.max(0, average);
+        const total = dailyMap[date].sum;
+        return Math.max(0, total);
     });
 
     let tempValues = [];
@@ -481,7 +599,7 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
             labels: labels.map(d => d.slice(5)),
             datasets: [
                 {
-                    label: '平均花粉数',
+                    label: '1日積算花粉数',
                     data: pollenValues,
                     type: 'line',
                     borderColor: '#2196F3',
@@ -529,7 +647,7 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
                     type: 'linear',
                     display: true,
                     position: 'left',
-                    title: { display: true, text: '花粉数' },
+                    title: { display: true, text: '積算花粉数' },
                     beginAtZero: true
                 },
                 y1: {
@@ -602,9 +720,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update active state of quick buttons
         document.querySelectorAll('.btn-quick-date').forEach(btn => {
-            const days = parseInt(btn.dataset.days);
-            const d = new Date();
-            d.setDate(d.getDate() - days);
+            const days = btn.dataset.days;
+            const years = btn.dataset.years;
+            let d = new Date();
+            if (days !== undefined) {
+                d.setDate(d.getDate() - parseInt(days));
+            } else if (years !== undefined) {
+                d.setFullYear(d.getFullYear() - parseInt(years));
+            }
             const dStr = d.toISOString().split('T')[0];
             btn.classList.toggle('active', dStr === newDateStr);
         });
@@ -643,9 +766,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Quick Select Buttons
     document.querySelectorAll('.btn-quick-date').forEach(btn => {
         btn.addEventListener('click', () => {
-            const days = parseInt(btn.dataset.days);
-            const d = new Date();
-            d.setDate(d.getDate() - days);
+            const days = btn.dataset.days;
+            const years = btn.dataset.years;
+            let d = new Date();
+            if (days !== undefined) {
+                d.setDate(d.getDate() - parseInt(days));
+            } else if (years !== undefined) {
+                d.setFullYear(d.getFullYear() - parseInt(years));
+            }
             updateDate(d.toISOString().split('T')[0]);
         });
     });
@@ -713,6 +841,11 @@ document.addEventListener('DOMContentLoaded', () => {
             panel.classList.toggle('collapsed');
             const isCollapsed = panel.classList.contains('collapsed');
             toggleBtn.title = isCollapsed ? 'パネルを開く' : 'パネルを閉じる';
+
+            // Update markers when panel state changes to adjust visual center
+            setTimeout(() => {
+                updateVisibleMarkers().catch(err => console.error(err));
+            }, 300); // Wait for transition
         });
 
         // Auto-collapse on small screens initially
