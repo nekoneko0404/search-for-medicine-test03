@@ -141,7 +141,7 @@ class WindAnimation {
         // This maintains lower contrast when zoomed out and increases it when zoomed in
         const dynamicOpacity = Math.min(0.95, 0.6 + Math.max(0, zoom - 5) * 0.06);
 
-        this.ctx.strokeStyle = `rgba(60, 120, 255, ${dynamicOpacity})`; // Darker blue with dynamic opacity
+        this.ctx.strokeStyle = `rgba(0, 240, 255, ${dynamicOpacity})`; // Electric Cyan with dynamic opacity
         this.ctx.lineWidth = 1.2;
         this.ctx.shadowBlur = 0; // No glow for subtle look
         this.ctx.beginPath();
