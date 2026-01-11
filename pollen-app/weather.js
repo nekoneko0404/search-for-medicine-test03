@@ -37,10 +37,11 @@ class WindAnimation {
         this.animationFrameId = null;
 
         // Particle settings
-        this.particleCount = 1500;
+        this.particleCount = 500;
         this.maxAge = 60;
-        this.velocityScale = 0.01;
-        this.opacity = 0.7;
+        this.velocityScale = 0.02;
+        this.opacity = 0.85;
+        this.trailAlpha = 0.96; // Balanced trail persistence
 
         this.initCanvas();
         this.map.on('move', () => this.resetCanvas());
@@ -70,8 +71,12 @@ class WindAnimation {
     }
 
     setWindData(data) {
+        // Filter wind data to only include points within the current viewport
+        const bounds = this.map.getBounds();
+        const visibleData = data.filter(d => bounds.contains(L.latLng(d.lat, d.lng)));
+
         // Convert wind speed/direction to u/v components
-        this.windData = data.map(d => {
+        this.windData = visibleData.map(d => {
             const speed = d.wind_speed_10m;
             const dir = (d.wind_direction_10m * Math.PI) / 180;
             return {
@@ -126,18 +131,26 @@ class WindAnimation {
     animate() {
         if (!this.isActive) return;
 
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'; // Trail effect
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${this.trailAlpha})`; // Extremely long trails
         this.ctx.globalCompositeOperation = 'destination-in';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.globalCompositeOperation = 'source-over';
 
-        this.ctx.strokeStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        const zoom = this.map.getZoom();
+        // Dynamic opacity: 0.6 at low zoom (National), increasing to 0.95 at high zoom (City)
+        // This maintains lower contrast when zoomed out and increases it when zoomed in
+        const dynamicOpacity = Math.min(0.95, 0.6 + Math.max(0, zoom - 5) * 0.06);
+
+        this.ctx.strokeStyle = `rgba(60, 120, 255, ${dynamicOpacity})`; // Darker blue with dynamic opacity
         this.ctx.lineWidth = 1.2;
+        this.ctx.shadowBlur = 0; // No glow for subtle look
         this.ctx.beginPath();
 
         const size = this.map.getSize();
-        const zoom = this.map.getZoom();
-        const scale = this.velocityScale * Math.pow(2, zoom - 5);
+        // Zoom is already retrieved above
+        // Adjust scale to be longer at low zoom (national) and shorter at high zoom (local)
+        // Increased base value (5.0) to make trails much longer at high zoom as requested
+        const scale = this.velocityScale * (5.0 + Math.pow(1.3, 10 - zoom));
 
         for (const p of this.particles) {
             if (p.age > this.maxAge) {
@@ -382,7 +395,7 @@ async function updateWeatherMarkers() {
             className: 'custom-weather-icon',
             html: iconHtml,
             iconSize: [60, 30],
-            iconAnchor: [30, 15]
+            iconAnchor: [30, -20] // Shift down to avoid overlapping with pollen markers
         });
 
         if (weatherMarkers[city.code]) {
@@ -421,8 +434,14 @@ async function updateWeatherMarkers() {
     }
 
     if (windAnim) {
-        const allWeatherData = Object.values(weatherCache).map(c => c.data).filter(d => d && d.wind_speed_10m !== undefined);
-        if (allWeatherData.length > 0) windAnim.setWindData(allWeatherData);
+        const bounds = map.getBounds();
+        const allWeatherData = Object.keys(weatherCache)
+            .filter(key => key.endsWith(`-${currentDate}`)) // Filter by current date
+            .map(key => weatherCache[key].data)
+            .filter(d => d && d.wind_speed_10m !== undefined && bounds.contains(L.latLng(d.lat, d.lng)));
+
+        // Always update wind data, even if empty, to clear old data if necessary
+        windAnim.setWindData(allWeatherData);
     }
 
     if (fetchQueue.length > 0) {
@@ -439,9 +458,9 @@ async function updateWeatherMarkers() {
             try {
                 let url;
                 if (isToday) {
-                    url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,weathercode,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo`;
+                    url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,weathercode,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo&windspeed_unit=ms`;
                 } else {
-                    url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lats}&longitude=${lngs}&daily=temperature_2m_max,weathercode&timezone=Asia%2FTokyo&start_date=${currentDate}&end_date=${currentDate}`;
+                    url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lats}&longitude=${lngs}&daily=temperature_2m_max,weathercode,wind_speed_10m_max,wind_direction_10m_dominant&timezone=Asia%2FTokyo&start_date=${currentDate}&end_date=${currentDate}&windspeed_unit=ms`;
                 }
                 const response = await fetch(url);
 
@@ -453,7 +472,9 @@ async function updateWeatherMarkers() {
                         const city = batch[index];
                         const weather = isToday ? result.current : {
                             temperature_2m_max: result.daily.temperature_2m_max[0],
-                            weathercode: result.daily.weathercode[0]
+                            weathercode: result.daily.weathercode[0],
+                            wind_speed_10m: result.daily.wind_speed_10m_max[0],
+                            wind_direction_10m: result.daily.wind_direction_10m_dominant[0]
                         };
                         weather.lat = city.lat;
                         weather.lng = city.lng;
@@ -465,7 +486,11 @@ async function updateWeatherMarkers() {
                     });
 
                     if (windAnim) {
-                        const allWeatherData = Object.values(weatherCache).map(c => c.data).filter(d => d && d.wind_speed_10m !== undefined);
+                        const bounds = map.getBounds();
+                        const allWeatherData = Object.keys(weatherCache)
+                            .filter(key => key.endsWith(`-${currentDate}`)) // Filter by current date
+                            .map(key => weatherCache[key].data)
+                            .filter(d => d && d.wind_speed_10m !== undefined && bounds.contains(L.latLng(d.lat, d.lng)));
                         windAnim.setWindData(allWeatherData);
                     }
                 } else if (response.status === 429) {
@@ -493,6 +518,9 @@ function initWeatherFeature() {
     const weatherBtn = document.getElementById('toggle-weather');
     if (weatherBtn) {
         weatherBtn.addEventListener('click', toggleWeather);
+        if (isWeatherVisible) {
+            weatherBtn.classList.add('active');
+        }
     }
 
     const debouncedUpdate = debounce(() => {
@@ -503,6 +531,11 @@ function initWeatherFeature() {
         if (typeof map !== 'undefined' && map) {
             clearInterval(checkMap);
             windAnim = new WindAnimation(map);
+
+            if (isWeatherVisible) {
+                windAnim.start();
+                updateWeatherMarkers();
+            }
 
             map.on('zoomend', debouncedUpdate);
             map.on('moveend', debouncedUpdate);

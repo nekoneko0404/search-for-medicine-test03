@@ -450,7 +450,7 @@ async function handlePopupOpen(city, marker) {
 
     // Fetch and display weather data
     try {
-        const weather = await fetchWeatherData(city.lat, city.lng);
+        const weather = await fetchWeatherData(city.lat, city.lng, state.currentDate);
         if (weather) {
             const weatherDiv = document.createElement('div');
             weatherDiv.className = 'weather-info';
@@ -477,19 +477,40 @@ async function handlePopupOpen(city, marker) {
 }
 
 // Fetch Weather Data from Open-Meteo
-async function fetchWeatherData(lat, lng) {
+// Fetch Weather Data from Open-Meteo
+async function fetchWeatherData(lat, lng, dateStr) {
+    const today = new Date().toISOString().split('T')[0];
+    const isToday = dateStr === today;
+
     try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,precipitation,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo`;
+        let url;
+        if (isToday) {
+            url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,precipitation,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo&windspeed_unit=ms`;
+        } else {
+            url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant&timezone=Asia%2FTokyo&start_date=${dateStr}&end_date=${dateStr}&windspeed_unit=ms`;
+        }
+
         const response = await fetch(url);
         if (!response.ok) throw new Error('Weather API error');
         const data = await response.json();
-        const current = data.current;
-        return {
-            temperature: current.temperature_2m,
-            precipitation: current.precipitation,
-            windSpeed: current.wind_speed_10m,
-            windDirection: current.wind_direction_10m
-        };
+
+        if (isToday) {
+            const current = data.current;
+            return {
+                temperature: current.temperature_2m,
+                precipitation: current.precipitation,
+                windSpeed: current.wind_speed_10m,
+                windDirection: current.wind_direction_10m
+            };
+        } else {
+            const daily = data.daily;
+            return {
+                temperature: daily.temperature_2m_max[0],
+                precipitation: daily.precipitation_sum[0],
+                windSpeed: daily.wind_speed_10m_max[0],
+                windDirection: daily.wind_direction_10m_dominant[0]
+            };
+        }
     } catch (e) {
         console.error(e);
         return null;
@@ -566,12 +587,17 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
         dailyMap[dateKey].count++;
     });
 
-    const labels = Object.keys(dailyMap)
-        .filter(date => date <= state.currentDate)
-        .sort();
+    // Generate labels for all 28 days regardless of data existence
+    const labels = [];
+    const loopDate = new Date(startDate);
+    while (loopDate <= endDate) {
+        labels.push(loopDate.toISOString().split('T')[0]);
+        loopDate.setDate(loopDate.getDate() + 1);
+    }
+
     const pollenValues = labels.map(date => {
-        const total = dailyMap[date].sum;
-        return Math.max(0, total);
+        // If no data for this date, return null so it doesn't plot 0
+        return dailyMap[date] ? dailyMap[date].sum : null;
     });
 
     let tempValues = [];
@@ -814,10 +840,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const baseLayers = {
             std: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
+                attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+                opacity: 0.6
             }),
             relief: L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
+                attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+                opacity: 0.5
             })
         };
 
