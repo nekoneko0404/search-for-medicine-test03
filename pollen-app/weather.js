@@ -2,6 +2,7 @@
 // Weather Display Logic
 let isWeatherVisible = false;
 let weatherLayerGroup;
+const weatherMarkers = {}; // Cache for marker objects: { cityCode: marker }
 
 function getWeatherIcon(code) {
     if (code === 0) return '<i class="fas fa-sun" style="color: #f39c12;"></i>';
@@ -217,12 +218,19 @@ async function toggleWeather() {
         if (weatherLayerGroup) {
             weatherLayerGroup.clearLayers();
         }
+        // Clear marker cache
+        Object.keys(weatherMarkers).forEach(code => delete weatherMarkers[code]);
     }
 }
 
 const weatherCache = {};
 const pendingRequests = new Set(); // Track cities currently being fetched
 const WEATHER_CACHE_DURATION = 10 * 60 * 1000;
+
+// Helper: Get cache key for a city and date
+function getWeatherCacheKey(cityCode, date) {
+    return `${cityCode}-${date}`;
+}
 
 async function updateWeatherMarkers() {
     if (!isWeatherVisible) return;
@@ -237,41 +245,128 @@ async function updateWeatherMarkers() {
 
     if (typeof CITIES === 'undefined' || !CITIES) return;
 
-    let targetLevels = new Set();
-    if (zoom < 9) targetLevels.add(1);
-    else if (zoom < 12) { targetLevels.add(1); targetLevels.add(2); }
-    else { targetLevels.add(1); targetLevels.add(2); targetLevels.add(3); }
+    let targetLevels = new Set([1]);
+    if (zoom >= 8) targetLevels.add(2);
+    if (zoom >= 10) targetLevels.add(3);
 
-    let visibleCities = CITIES.filter(c => bounds.contains([c.lat, c.lng]) && targetLevels.has(c.level));
+    // 1. Filter by level and bounds
+    let candidates = CITIES.filter(city => {
+        if (!targetLevels.has(city.level)) return false;
+        return bounds.contains(L.latLng(city.lat, city.lng));
+    });
 
-    let maxWeatherMarkers;
-    if (zoom < 7) maxWeatherMarkers = 6;
-    else if (zoom < 9) maxWeatherMarkers = 12;
-    else if (zoom < 10) maxWeatherMarkers = 20;
-    else if (zoom < 11) maxWeatherMarkers = 35;
-    else maxWeatherMarkers = 50;
+    // 2. Set max weather markers (significantly fewer than pollen markers)
+    let maxWeatherMarkers = 14; // National level: 10 or more, less than 15
+    if (zoom >= 7) maxWeatherMarkers = 20;
+    if (zoom >= 9) maxWeatherMarkers = 35;
+    if (zoom >= 11) maxWeatherMarkers = 50;
+    if (zoom >= 12) maxWeatherMarkers = 80;
 
-    const citiesToProcess = visibleCities.slice(0, maxWeatherMarkers);
-    if (weatherLayerGroup) weatherLayerGroup.clearLayers();
+    // 3. Priority Selection & Grid-based sampling
+    if (candidates.length > maxWeatherMarkers) {
+        // Disable visual center priority for weather to ensure nationwide scattering
+        // Instead, sort by level only
+        candidates.sort((a, b) => a.level - b.level);
 
-    const cachedCities = [];
-    const uncachedCities = [];
-    const now = Date.now();
+        const isNationalView = zoom < 7;
+        let others = candidates; // Treat all as candidates for grid sampling in national view
+        let prioritized = [];
 
-    for (const city of citiesToProcess) {
-        if (weatherCache[city.code] && (now - weatherCache[city.code].timestamp < WEATHER_CACHE_DURATION)) {
-            cachedCities.push({ city, weather: weatherCache[city.code].data });
-        } else if (!pendingRequests.has(city.code)) {
-            uncachedCities.push(city);
+        if (!isNationalView) {
+            prioritized = candidates.filter(c => c.level === 1);
+            others = candidates.filter(c => c.level !== 1);
         }
+
+        let result = [];
+        const selectedCodes = new Set();
+        const minDistancePx = 120; // Fine-tuned minimum distance between weather markers in pixels
+
+        const isTooClose = (city, selectedList) => {
+            const p1 = map.latLngToContainerPoint([city.lat, city.lng]);
+            for (const s of selectedList) {
+                const p2 = map.latLngToContainerPoint([s.lat, s.lng]);
+                const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+                if (dist < minDistancePx) return true;
+            }
+            return false;
+        };
+
+        // First, try to add prioritized (Level 1) cities if they are not too close
+        for (const city of prioritized) {
+            if (result.length < maxWeatherMarkers && !isTooClose(city, result)) {
+                result.push(city);
+                selectedCodes.add(city.code);
+            }
+        }
+
+        if (result.length < maxWeatherMarkers) {
+            let gridCount = isNationalView ? 5 : 6; // Coarser grid for better scattering
+            if (zoom >= 7) gridCount = 8;
+            if (zoom >= 10) gridCount = 10;
+
+            const latMin = bounds.getSouth();
+            const latMax = bounds.getNorth();
+            const lngMin = bounds.getWest();
+            const lngMax = bounds.getEast();
+
+            const latStep = (latMax - latMin) / gridCount;
+            const lngStep = (lngMax - lngMin) / gridCount;
+
+            const grid = Array.from({ length: gridCount }, () => Array.from({ length: gridCount }, () => []));
+
+            others.forEach(c => {
+                const latIdx = Math.min(gridCount - 1, Math.floor((c.lat - latMin) / latStep));
+                const lngIdx = Math.min(gridCount - 1, Math.floor((c.lng - lngMin) / lngStep));
+                if (latIdx >= 0 && lngIdx >= 0 && latIdx < gridCount && lngIdx < gridCount) {
+                    grid[latIdx][lngIdx].push(c);
+                }
+            });
+
+            // Pick from each grid cell until maxWeatherMarkers is reached, respecting min distance
+            for (let i = 0; i < gridCount && result.length < maxWeatherMarkers; i++) {
+                for (let j = 0; j < gridCount && result.length < maxWeatherMarkers; j++) {
+                    const cellCities = grid[i][j];
+                    if (cellCities.length > 0) {
+                        const pick = cellCities.find(c => !selectedCodes.has(c.code) && !isTooClose(c, result));
+                        if (pick) {
+                            result.push(pick);
+                            selectedCodes.add(pick.code);
+                        }
+                    }
+                }
+            }
+
+            // Final pass: if still have space, fill with remaining candidates if not too close
+            if (result.length < maxWeatherMarkers) {
+                for (let i = 0; i < candidates.length && result.length < maxWeatherMarkers; i++) {
+                    if (!selectedCodes.has(candidates[i].code) && !isTooClose(candidates[i], result)) {
+                        result.push(candidates[i]);
+                        selectedCodes.add(candidates[i].code);
+                    }
+                }
+            }
+        }
+        candidates = result.slice(0, maxWeatherMarkers);
     }
 
-    const createMarker = (city, weather) => {
+    const visibleCityCodes = new Set(candidates.map(c => c.code));
+    const now = Date.now();
+    const fetchQueue = [];
+    const today = new Date().toISOString().split('T')[0];
+    const isToday = typeof state !== 'undefined' && state.currentDate === today;
+    const currentDate = typeof state !== 'undefined' ? state.currentDate : today;
+
+    const createOrUpdateMarker = (city, weather) => {
         if (!isWeatherVisible) return;
+
+        // Use temperature_2m for current, temperature_2m_max for past
+        const temp = weather.temperature_2m !== undefined ? weather.temperature_2m : weather.temperature_2m_max;
+        const weathercode = weather.weathercode;
+
         const iconHtml = `
             <div class="weather-marker">
-                <div class="weather-icon">${getWeatherIcon(weather.weathercode)}</div>
-                <div class="weather-temp">${Math.round(weather.temperature_2m)}°</div>
+                <div class="weather-icon">${getWeatherIcon(weathercode)}</div>
+                <div class="weather-temp">${Math.round(temp)}°</div>
             </div>
         `;
         const icon = L.divIcon({
@@ -280,34 +375,65 @@ async function updateWeatherMarkers() {
             iconSize: [60, 30],
             iconAnchor: [-10, 15]
         });
-        const marker = L.marker([city.lat, city.lng], {
-            icon: icon,
-            zIndexOffset: -100,
-            interactive: false
-        });
-        weatherLayerGroup.addLayer(marker);
+
+        if (weatherMarkers[city.code]) {
+            const marker = weatherMarkers[city.code];
+            marker.setIcon(icon);
+            if (!weatherLayerGroup.hasLayer(marker)) {
+                weatherLayerGroup.addLayer(marker);
+            }
+        } else {
+            const marker = L.marker([city.lat, city.lng], {
+                icon: icon,
+                zIndexOffset: -100,
+                interactive: false
+            });
+            weatherMarkers[city.code] = marker;
+            weatherLayerGroup.addLayer(marker);
+        }
     };
 
-    cachedCities.forEach(item => createMarker(item.city, item.weather));
+    // Remove markers that are no longer visible
+    Object.keys(weatherMarkers).forEach(code => {
+        if (!visibleCityCodes.has(code)) {
+            if (weatherLayerGroup.hasLayer(weatherMarkers[code])) {
+                weatherLayerGroup.removeLayer(weatherMarkers[code]);
+            }
+        }
+    });
+
+    for (const city of candidates) {
+        const cacheKey = getWeatherCacheKey(city.code, currentDate);
+        if (weatherCache[cacheKey] && (now - weatherCache[cacheKey].timestamp < WEATHER_CACHE_DURATION)) {
+            createOrUpdateMarker(city, weatherCache[cacheKey].data);
+        } else if (!pendingRequests.has(city.code)) {
+            fetchQueue.push(city);
+        }
+    }
 
     if (windAnim) {
         const allWeatherData = Object.values(weatherCache).map(c => c.data).filter(d => d && d.wind_speed_10m !== undefined);
         if (allWeatherData.length > 0) windAnim.setWindData(allWeatherData);
     }
 
-    if (uncachedCities.length > 0) {
+    if (fetchQueue.length > 0) {
         const BATCH_SIZE = 50;
-        for (let i = 0; i < uncachedCities.length; i += BATCH_SIZE) {
+        for (let i = 0; i < fetchQueue.length; i += BATCH_SIZE) {
             if (!isWeatherVisible) break;
 
-            const batch = uncachedCities.slice(i, i + BATCH_SIZE);
+            const batch = fetchQueue.slice(i, i + BATCH_SIZE);
             batch.forEach(c => pendingRequests.add(c.code));
 
             const lats = batch.map(c => c.lat).join(',');
             const lngs = batch.map(c => c.lng).join(',');
 
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,weathercode,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo`;
+                let url;
+                if (isToday) {
+                    url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,weathercode,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo`;
+                } else {
+                    url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lats}&longitude=${lngs}&daily=temperature_2m_max,weathercode&timezone=Asia%2FTokyo&start_date=${currentDate}&end_date=${currentDate}`;
+                }
                 const response = await fetch(url);
 
                 if (response.ok) {
@@ -316,11 +442,17 @@ async function updateWeatherMarkers() {
 
                     results.forEach((result, index) => {
                         const city = batch[index];
-                        const weather = result.current;
+                        const weather = isToday ? result.current : {
+                            temperature_2m_max: result.daily.temperature_2m_max[0],
+                            weathercode: result.daily.weathercode[0]
+                        };
                         weather.lat = city.lat;
                         weather.lng = city.lng;
-                        weatherCache[city.code] = { data: weather, timestamp: Date.now() };
-                        createMarker(city, weather);
+                        const cacheKey = getWeatherCacheKey(city.code, currentDate);
+                        weatherCache[cacheKey] = { data: weather, timestamp: Date.now() };
+                        if (visibleCityCodes.has(city.code)) {
+                            createOrUpdateMarker(city, weather);
+                        }
                     });
 
                     if (windAnim) {
@@ -337,12 +469,15 @@ async function updateWeatherMarkers() {
                 batch.forEach(c => pendingRequests.delete(c.code));
             }
 
-            if (i + BATCH_SIZE < uncachedCities.length) {
+            if (i + BATCH_SIZE < fetchQueue.length) {
                 await new Promise(r => setTimeout(r, 500));
             }
         }
     }
 }
+
+// Expose to window
+window.updateWeatherMarkers = updateWeatherMarkers;
 
 // Initialize weather button
 function initWeatherFeature() {

@@ -741,6 +741,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         updateVisibleMarkers().catch(err => console.error(err));
+        if (typeof window.updateWeatherMarkers === 'function') {
+            window.updateWeatherMarkers().catch(err => console.error(err));
+        }
     }
 
     datePicker.addEventListener('change', (e) => {
