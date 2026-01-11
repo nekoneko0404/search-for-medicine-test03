@@ -7,8 +7,11 @@ const CONFIG = {
 // State to store fetched data
 const state = {
     cache: {}, // { key: { data: [...], timestamp: Date } }
-    currentDate: '' // YYYY-MM-DD
+    currentDate: '', // YYYY-MM-DD
+    currentMode: 'hourly' // 'hourly' or 'daily'
 };
+
+let currentOpenCity = null; // Track the city whose popup is currently open
 
 // Map variable (initialized later)
 let map;
@@ -253,7 +256,13 @@ async function updateVisibleMarkers() {
                 marker.bindPopup(`<div id="popup-${sanitizedCode}">読み込み中...</div>`, {
                     maxWidth: 350 // Slightly wider
                 });
-                marker.on('popupopen', () => handlePopupOpen(city, marker));
+                marker.on('popupopen', () => {
+                    currentOpenCity = city;
+                    handlePopupOpen(city, marker);
+                });
+                marker.on('popupclose', () => {
+                    currentOpenCity = null;
+                });
 
                 markers[city.code] = marker;
                 marker.addTo(map);
@@ -743,6 +752,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updateVisibleMarkers().catch(err => console.error(err));
         if (typeof window.updateWeatherMarkers === 'function') {
             window.updateWeatherMarkers().catch(err => console.error(err));
+        }
+
+        // Refresh open popup if any
+        if (currentOpenCity) {
+            const marker = markers[currentOpenCity.code];
+            if (marker && marker.isPopupOpen()) {
+                handlePopupOpen(currentOpenCity, marker).catch(err => console.error(err));
+            }
         }
     }
 

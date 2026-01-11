@@ -262,92 +262,101 @@ async function updateWeatherMarkers() {
     if (zoom >= 11) maxWeatherMarkers = 50;
     if (zoom >= 12) maxWeatherMarkers = 80;
 
-    // 3. Priority Selection & Grid-based sampling
-    if (candidates.length > maxWeatherMarkers) {
-        // Disable visual center priority for weather to ensure nationwide scattering
-        // Instead, sort by level only
-        candidates.sort((a, b) => a.level - b.level);
+    // 3. Selection & Overlap Prevention
+    const isNationalView = zoom < 7;
+    const minDistancePx = 120; // Minimum distance between weather markers in pixels
+    const selectedCodes = new Set();
+    const result = [];
 
-        const isNationalView = zoom < 7;
-        let others = candidates; // Treat all as candidates for grid sampling in national view
-        let prioritized = [];
+    // Key major cities to prioritize when overlaps occur (e.g. Tokyo over Saitama)
+    const SUPER_MAJOR_CITY_CODES = new Set([
+        '13101', // Tokyo (Chiyoda)
+        '27127', // Osaka (Kita)
+        '23101', // Nagoya (Chigusa)
+        '01101', // Sapporo
+        '40131', // Fukuoka (Higashi)
+        '04101', // Sendai
+        '34101'  // Hiroshima
+    ]);
 
-        if (!isNationalView) {
-            prioritized = candidates.filter(c => c.level === 1);
-            others = candidates.filter(c => c.level !== 1);
+    const isTooClose = (city, selectedList) => {
+        const p1 = map.latLngToContainerPoint([city.lat, city.lng]);
+        for (const s of selectedList) {
+            const p2 = map.latLngToContainerPoint([s.lat, s.lng]);
+            const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+            if (dist < minDistancePx) return true;
         }
+        return false;
+    };
 
-        let result = [];
-        const selectedCodes = new Set();
-        const minDistancePx = 120; // Fine-tuned minimum distance between weather markers in pixels
+    // Sort candidates by priority: Super Major > Level 1 > Level 2 > Level 3
+    candidates.sort((a, b) => {
+        const aSuper = SUPER_MAJOR_CITY_CODES.has(a.code) ? 0 : 1;
+        const bSuper = SUPER_MAJOR_CITY_CODES.has(b.code) ? 0 : 1;
+        if (aSuper !== bSuper) return aSuper - bSuper;
+        return a.level - b.level;
+    });
 
-        const isTooClose = (city, selectedList) => {
-            const p1 = map.latLngToContainerPoint([city.lat, city.lng]);
-            for (const s of selectedList) {
-                const p2 = map.latLngToContainerPoint([s.lat, s.lng]);
-                const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-                if (dist < minDistancePx) return true;
-            }
-            return false;
-        };
+    // Always prioritize Level 1 cities (major cities) regardless of zoom level
+    const prioritized = candidates.filter(c => c.level === 1);
+    const others = candidates.filter(c => c.level !== 1);
 
-        // First, try to add prioritized (Level 1) cities if they are not too close
-        for (const city of prioritized) {
-            if (result.length < maxWeatherMarkers && !isTooClose(city, result)) {
-                result.push(city);
-                selectedCodes.add(city.code);
-            }
+    // First, try to add prioritized (Level 1) cities if they are not too close
+    for (const city of prioritized) {
+        if (result.length < maxWeatherMarkers && !isTooClose(city, result)) {
+            result.push(city);
+            selectedCodes.add(city.code);
         }
-
-        if (result.length < maxWeatherMarkers) {
-            let gridCount = isNationalView ? 5 : 6; // Coarser grid for better scattering
-            if (zoom >= 7) gridCount = 8;
-            if (zoom >= 10) gridCount = 10;
-
-            const latMin = bounds.getSouth();
-            const latMax = bounds.getNorth();
-            const lngMin = bounds.getWest();
-            const lngMax = bounds.getEast();
-
-            const latStep = (latMax - latMin) / gridCount;
-            const lngStep = (lngMax - lngMin) / gridCount;
-
-            const grid = Array.from({ length: gridCount }, () => Array.from({ length: gridCount }, () => []));
-
-            others.forEach(c => {
-                const latIdx = Math.min(gridCount - 1, Math.floor((c.lat - latMin) / latStep));
-                const lngIdx = Math.min(gridCount - 1, Math.floor((c.lng - lngMin) / lngStep));
-                if (latIdx >= 0 && lngIdx >= 0 && latIdx < gridCount && lngIdx < gridCount) {
-                    grid[latIdx][lngIdx].push(c);
-                }
-            });
-
-            // Pick from each grid cell until maxWeatherMarkers is reached, respecting min distance
-            for (let i = 0; i < gridCount && result.length < maxWeatherMarkers; i++) {
-                for (let j = 0; j < gridCount && result.length < maxWeatherMarkers; j++) {
-                    const cellCities = grid[i][j];
-                    if (cellCities.length > 0) {
-                        const pick = cellCities.find(c => !selectedCodes.has(c.code) && !isTooClose(c, result));
-                        if (pick) {
-                            result.push(pick);
-                            selectedCodes.add(pick.code);
-                        }
-                    }
-                }
-            }
-
-            // Final pass: if still have space, fill with remaining candidates if not too close
-            if (result.length < maxWeatherMarkers) {
-                for (let i = 0; i < candidates.length && result.length < maxWeatherMarkers; i++) {
-                    if (!selectedCodes.has(candidates[i].code) && !isTooClose(candidates[i], result)) {
-                        result.push(candidates[i]);
-                        selectedCodes.add(candidates[i].code);
-                    }
-                }
-            }
-        }
-        candidates = result.slice(0, maxWeatherMarkers);
     }
+
+    if (result.length < maxWeatherMarkers) {
+        let gridCount = isNationalView ? 5 : 6; // Coarser grid for better scattering
+        if (zoom >= 7) gridCount = 8;
+        if (zoom >= 10) gridCount = 10;
+
+        const latMin = bounds.getSouth();
+        const latMax = bounds.getNorth();
+        const lngMin = bounds.getWest();
+        const lngMax = bounds.getEast();
+
+        const latStep = (latMax - latMin) / gridCount;
+        const lngStep = (lngMax - lngMin) / gridCount;
+
+        const grid = Array.from({ length: gridCount }, () => Array.from({ length: gridCount }, () => []));
+
+        others.forEach(c => {
+            const latIdx = Math.min(gridCount - 1, Math.floor((c.lat - latMin) / latStep));
+            const lngIdx = Math.min(gridCount - 1, Math.floor((c.lng - lngMin) / lngStep));
+            if (latIdx >= 0 && lngIdx >= 0 && latIdx < gridCount && lngIdx < gridCount) {
+                grid[latIdx][lngIdx].push(c);
+            }
+        });
+
+        // Pick from each grid cell until maxWeatherMarkers is reached, respecting min distance
+        for (let i = 0; i < gridCount && result.length < maxWeatherMarkers; i++) {
+            for (let j = 0; j < gridCount && result.length < maxWeatherMarkers; j++) {
+                const cellCities = grid[i][j];
+                if (cellCities.length > 0) {
+                    const pick = cellCities.find(c => !selectedCodes.has(c.code) && !isTooClose(c, result));
+                    if (pick) {
+                        result.push(pick);
+                        selectedCodes.add(pick.code);
+                    }
+                }
+            }
+        }
+
+        // Final pass: if still have space, fill with remaining candidates if not too close
+        if (result.length < maxWeatherMarkers) {
+            for (let i = 0; i < candidates.length && result.length < maxWeatherMarkers; i++) {
+                if (!selectedCodes.has(candidates[i].code) && !isTooClose(candidates[i], result)) {
+                    result.push(candidates[i]);
+                    selectedCodes.add(candidates[i].code);
+                }
+            }
+        }
+    }
+    candidates = result.slice(0, maxWeatherMarkers);
 
     const visibleCityCodes = new Set(candidates.map(c => c.code));
     const now = Date.now();
@@ -373,7 +382,7 @@ async function updateWeatherMarkers() {
             className: 'custom-weather-icon',
             html: iconHtml,
             iconSize: [60, 30],
-            iconAnchor: [-10, 15]
+            iconAnchor: [30, 15]
         });
 
         if (weatherMarkers[city.code]) {
