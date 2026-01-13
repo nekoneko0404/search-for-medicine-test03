@@ -76,8 +76,8 @@ function buildApiUrl(searchKeyword, filterWord) {
         return input.replace(/[^ぁ-んァ-ヶー一-龯A-Za-z0-9\s\-,、.()（）]/g, '').trim();
     };
 
-    const cleanSearch = sanitize(searchKeyword);
-    const cleanFilter = sanitize(filterWord);
+    const cleanSearch = sanitize(normalizeString(searchKeyword));
+    const cleanFilter = sanitize(normalizeString(filterWord));
 
     if (cleanSearch && !cleanFilter) {
         // Drug/Ingredient name only - search in both DATMEDNAME and DATGENERIC fields
@@ -338,12 +338,16 @@ function init() {
     initElements();
 
     // Enter key triggers search on both inputs
-    elements.searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') fetchIncidents();
-    });
-    elements.filterInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') fetchIncidents();
-    });
+    if (elements.searchInput) {
+        elements.searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchIncidents();
+        });
+    }
+    if (elements.filterInput) {
+        elements.filterInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchIncidents();
+        });
+    }
 
     // Search button
     if (elements.searchBtn) elements.searchBtn.addEventListener('click', fetchIncidents);
@@ -351,23 +355,26 @@ function init() {
     // Random button
     if (elements.randomBtn) elements.randomBtn.addEventListener('click', shuffleAndDisplay);
 
-    elements.reloadButton.addEventListener('click', () => {
-        elements.searchInput.value = '';
-        elements.filterInput.value = '';
-        elements.resultsContainer.innerHTML = '';
-        hideError();
-        document.body.classList.remove('search-mode');
-        if (elements.usageGuide) elements.usageGuide.classList.remove('hidden'); // 検索条件クリア時に使い方説明を表示
-        // URLからクエリパラメータを削除
-        const url = new URL(window.location);
-        url.search = '';
-        window.history.pushState({}, '', url);
-    });
+    // Reload/Clear button
+    if (elements.reloadButton) {
+        elements.reloadButton.addEventListener('click', () => {
+            if (elements.searchInput) elements.searchInput.value = '';
+            if (elements.filterInput) elements.filterInput.value = '';
+            if (elements.resultsContainer) elements.resultsContainer.innerHTML = '';
+            hideError();
+            document.body.classList.remove('search-mode');
+            if (elements.usageGuide) elements.usageGuide.classList.remove('hidden');
+            // URLからクエリパラメータを削除
+            const url = new URL(window.location);
+            url.search = '';
+            window.history.pushState({}, '', url);
+        });
+    }
 
     // URL パラメータで自動検索
     const params = new URLSearchParams(window.location.search);
     const kw = params.get('drugName') || params.get('ingredientName') || params.get('keyword');
-    if (kw) {
+    if (kw && elements.searchInput) {
         elements.searchInput.value = kw;
         fetchIncidents();
     }
