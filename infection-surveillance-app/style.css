@@ -691,6 +691,18 @@ body {
     .header-right {
         order: 2;
     }
+
+    .disease-card {
+        height: 300px;
+    }
+
+    .summary-cards .card {
+        padding: 15px;
+    }
+
+    .summary-cards .card .value {
+        font-size: 1.5rem;
+    }
 }
 
 /* Prefecture Chart */

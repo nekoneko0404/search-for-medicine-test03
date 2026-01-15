@@ -209,7 +209,7 @@ function handleIngredientClick(ingredient) {
  * @param {Array} data - Data to render
  */
 function renderResults(data) {
-    const isMobile = window.innerWidth <= 640;
+    const isMobile = window.innerWidth < 768;
     elements.searchResultTableBody.innerHTML = ""; // Clear table body
     elements.cardContainer.innerHTML = ""; // Clear card container
 

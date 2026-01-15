@@ -379,7 +379,7 @@ function searchData(reset = false) {
 }
 
 function renderResults(data) { // Renamed from renderTable
-    const isMobile = window.innerWidth <= 640;
+    const isMobile = window.innerWidth < 768;
     elements.resultTableBody.innerHTML = '';
     elements.cardContainer.innerHTML = ''; // Clear card container
 
