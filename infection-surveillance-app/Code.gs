@@ -1,11 +1,11 @@
 // 定数設定
 const FOLDER_NAME = "IDWR-Insight-Data";
-const PARENT_FOLDER_ID = "1QNMtQgeHELipJJgU38HJ0gEPQFGZ-gfC"; 
+const PARENT_FOLDER_ID = "1iUWcwIEcvyZSzEjO8YHatV38WIVSuGg2"; // IDWR-Insight-Data フォルダのID
 const SPREADSHEET_NAME = "Infection_Data_Master";
 const ADMIN_EMAIL = "admin@example.com";
-const INDEX_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/rapid/";
+const INDEX_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/jp/rapid/";
 const CSV_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/jp/rapid/";
-const CACHE_FILE_NAME = "combined_data_cache.json"; // キャッシュファイル名
+const CACHE_FILE_NAME = "combined_data_cache_v2.json"; // キャッシュファイル名 (v2に更新して再生成を強制)
 
 function doGet(e) {
   try {
@@ -66,7 +66,7 @@ function doGet(e) {
 
     const targetSheetName = allowedSheets[normalizedKey];
     
-    const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+    const folder = DriveApp.getFolderById(PARENT_FOLDER_ID);
     const ss = getOrCreateSpreadsheet_(folder, SPREADSHEET_NAME);
     
     // 単体取得の場合もキャッシュを活用する
@@ -90,7 +90,7 @@ function doGet(e) {
 }
 
 function getAllData_() {
-  const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+  const folder = DriveApp.getFolderById(PARENT_FOLDER_ID);
   const ss = getOrCreateSpreadsheet_(folder, SPREADSHEET_NAME);
   
   return {
@@ -151,7 +151,7 @@ function getHistoryDataAsObject_() {
   result.logs.push("getHistoryData started");
 
   try {
-    const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+    const folder = DriveApp.getFolderById(PARENT_FOLDER_ID);
     result.logs.push(`Target Folder: ${FOLDER_NAME} (ID: ${folder.getId()})`);
     
     const processFiles = (fileIterator, location) => {
@@ -190,6 +190,9 @@ function getHistoryDataAsObject_() {
                 }
               }
 
+              // ファイル名とサイズをログ出力（ユーザー確認用）
+              result.logs.push(`Found file: ${fileName} (Size: ${file.getSize()} bytes, Year: ${year})`);
+              
               result.data.push({
                 year: year,
                 fileName: fileName,
@@ -206,8 +209,8 @@ function getHistoryDataAsObject_() {
       }
     };
 
-    // 1. 親フォルダ直下のファイルを検索
-    processFiles(folder.getFiles(), "Root");
+    // 1. 親フォルダ直下のファイルを検索 (Teiten, Tougai, ARIなど)
+    // processFiles(folder.getFiles(), "Root"); // Rootには通常historyファイルはないはずだが念のため？いや、過去週報フォルダだけ見ればよい
 
     // 2. 「過去週報」サブフォルダ内のファイルを検索
     const subFolders = folder.getFoldersByName("過去週報");
@@ -218,6 +221,24 @@ function getHistoryDataAsObject_() {
     } else {
       result.logs.push("Subfolder '過去週報' not found.");
     }
+
+    // 重複排除: 同じ年のファイルが複数ある場合、更新日時が新しいものを採用
+    const yearMap = new Map();
+    result.data.forEach(item => {
+      if (!yearMap.has(item.year)) {
+        yearMap.set(item.year, item);
+      } else {
+        const existing = yearMap.get(item.year);
+        // 既存データのサイズチェック（簡易）: dataの長さで判断
+        if (item.data.length > existing.data.length) {
+             yearMap.set(item.year, item);
+             result.logs.push(`Replaced year ${item.year} with larger file: ${item.fileName}`);
+        } else {
+             result.logs.push(`Skipping duplicate/smaller file for year ${item.year}: ${item.fileName}`);
+        }
+      }
+    });
+    result.data = Array.from(yearMap.values());
 
     result.data.sort((a, b) => b.year - a.year);
     result.logs.push(`Total history files loaded: ${result.data.length}`);
@@ -232,15 +253,15 @@ function updateData_() {
   try {
     Logger.log("データ更新処理を開始します。");
 
-    const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+    const folder = DriveApp.getFolderById(PARENT_FOLDER_ID);
     const ss = getOrCreateSpreadsheet_(folder, SPREADSHEET_NAME);
     
     const currentYear = new Date().getFullYear();
     const indexPageUrl = `${INDEX_BASE_URL}${currentYear}/index.html`;
     const latestWeeklyPageUrl = getLatestWeeklyPageUrl_(indexPageUrl);
 
-    const match = latestWeeklyPageUrl.match(/\/(\d{4})\/week(\d{2})\.html$/);
-    if (!match) throw new Error("最新の週のURLから年と週を抽出できませんでした。");
+    const match = latestWeeklyPageUrl.match(/\/(\d{4})\/(\d{2})\/index\.html$/);
+    if (!match) throw new Error("最新の週のURLから年と週を抽出できませんでした。URL: " + latestWeeklyPageUrl);
     const year = parseInt(match[1], 10); 
     const week = parseInt(match[2], 10); 
     const weekStr = String(week).padStart(2, '0');
@@ -258,11 +279,12 @@ function updateData_() {
     const fileName = `${year}-${weekStr}-teiten-tougai.csv`;
     const existingFiles = historyFolder.getFilesByName(fileName);
     
-    // 重複チェック: すでに存在する場合は保存せず、処理を終了
+    // 重複チェック: すでに存在する場合はスキップ
     if (existingFiles.hasNext()) {
-      Logger.log(`File ${fileName} already exists in ${subFolderName}. Skipping update.`);
-      Logger.log("データ更新は不要なため、処理を終了します。");
-      return; // ここで処理を終了
+      Logger.log(`File ${fileName} already exists in ${subFolderName}. Skipping download.`);
+      // キャッシュ更新だけして終了（既存ファイルを含めてキャッシュ再生成）
+      updateCache_();
+      return { year, week, skipped: true };
     }
     
     // --- 更新が必要な場合のみ、以下の処理を実行 ---
@@ -280,6 +302,12 @@ function updateData_() {
     writeCsvToSheet_(ss, 'Teiten', csvData.Teiten);
     writeCsvToSheet_(ss, 'Tougai', csvData.Tougai);
     writeCsvToSheet_(ss, 'ARI', csvData.ARI);
+
+    // HTMLかどうかのチェック
+    if (csvData.Tougai.trim().startsWith('<') || csvData.Tougai.includes('<!DOCTYPE html>')) {
+        Logger.log("Error: Fetched Tougai data appears to be HTML. Aborting save.");
+        throw new Error("Fetched data is HTML, not CSV.");
+    }
 
     // ファイルが存在しないこと是確認済みのため、そのまま作成
     historyFolder.createFile(fileName, csvData.Tougai, MimeType.CSV);
@@ -335,7 +363,27 @@ function fetchAllCsv_(urls) {
   responses.forEach((response, i) => {
     const key = Object.keys(urls)[i];
     if (response.getResponseCode() == 200) {
-      csvData[key] = response.getBlob().getDataAsString('Shift_JIS');
+      const blob = response.getBlob();
+      let text = '';
+      
+      // まず Shift_JIS で試す (従来のファイルがShift_JISだったため)
+      try {
+        text = blob.getDataAsString('Shift_JIS');
+        // キーワードチェック: 正しくデコードできていれば "週" や "報告" が含まれるはず
+        if (!text.includes('週') && !text.includes('報告')) {
+           // 失敗とみなしてエラーを投げる -> catchブロックへ
+           throw new Error('Shift_JIS decoding seems incorrect');
+        }
+      } catch (e) {
+        // Shift_JISで失敗した場合、UTF-8で試す
+        try {
+          text = blob.getDataAsString('UTF-8');
+        } catch (e2) {
+          // UTF-8もだめならデフォルト（UTF-8）
+          text = blob.getDataAsString();
+        }
+      }
+      csvData[key] = text;
     } else {
       throw new Error("CSV取得失敗: " + key);
     }
@@ -385,16 +433,35 @@ function getLatestWeeklyPageUrl_(indexPageUrl) {
   const response = UrlFetchApp.fetch(indexPageUrl, { muteHttpExceptions: true });
   if (response.getResponseCode() !== 200) throw new Error("Index fetch failed");
   const htmlContent = response.getContentText();
-  const linkRegex = /IDWR速報データ \d{4}年第(\d{1,2})週/g;
-  let match, latestWeek = -1, latestLinkFileName = null; 
+  
+  // リンクのhref属性と週番号を抽出する正規表現
+  // <a>タグの内部で完結するようにし、他のリンク（#mainなど）を誤検知しないようにする
+  const linkRegex = /<a[^>]*\bhref="([^"]+)"[^>]*>(?:(?!<\/a>)[\s\S])*?IDWR速報データ \d{4}年第(\d{1,2})週/g;
+  
+  let match, latestWeek = -1, latestLinkUrl = null; 
+  
   while ((match = linkRegex.exec(htmlContent)) !== null) {
-    const weekNumber = parseInt(match[1], 10);
+    const href = match[1];
+    const weekNumber = parseInt(match[2], 10);
+    
     if (weekNumber > latestWeek) {
       latestWeek = weekNumber;
-      latestLinkFileName = `week${String(weekNumber).padStart(2, '0')}.html`;
+      latestLinkUrl = href;
     }
   }
-  if (latestLinkFileName) return indexPageUrl.substring(0, indexPageUrl.lastIndexOf('/') + 1) + latestLinkFileName;
+  
+  if (latestLinkUrl) {
+    // 相対パスの場合は絶対パスに変換
+    if (!latestLinkUrl.startsWith('http')) {
+      const baseUrl = indexPageUrl.substring(0, indexPageUrl.lastIndexOf('/') + 1);
+      let fullUrl = baseUrl + latestLinkUrl;
+      // /./ を / に置換してパスを正規化
+      fullUrl = fullUrl.replace(/\/\.\//g, '/');
+      return fullUrl;
+    }
+    return latestLinkUrl;
+  }
+  
   throw new Error("Latest link not found");
 }
 
@@ -429,7 +496,7 @@ function updateCache_() {
  * ドライブ上のキャッシュファイルに保存する
  */
 function saveFileCache_(content) {
-  const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+  const folder = DriveApp.getFolderById(PARENT_FOLDER_ID);
   const files = folder.getFilesByName(CACHE_FILE_NAME);
   
   if (files.hasNext()) {
@@ -445,10 +512,19 @@ function saveFileCache_(content) {
  */
 function getFileCache_() {
   try {
-    const folder = getOrCreateFolder_(PARENT_FOLDER_ID, FOLDER_NAME);
+    const folder = DriveApp.getFolderById(PARENT_FOLDER_ID);
     const files = folder.getFilesByName(CACHE_FILE_NAME);
     if (files.hasNext()) {
-      return files.next().getBlob().getDataAsString();
+      const file = files.next();
+      const content = file.getBlob().getDataAsString();
+      
+      // デバッグ用ログ: 取得したコンテンツの先頭を表示
+      Logger.log(`Cache file '${CACHE_FILE_NAME}' content. Length: ${content.length}. Start: ${content.substring(0, Math.min(content.length, 100))}`);
+
+      if (content.includes('<!DOCTYPE html>') || content.includes('<html')) {
+          Logger.log(`WARNING: Cache file '${CACHE_FILE_NAME}' content appears to be HTML.`);
+      }
+      return content;
     }
     return null;
   } catch (e) {

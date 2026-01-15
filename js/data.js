@@ -270,7 +270,7 @@ async function fetchExcelData(onProgress) {
         const csvText = await response.text();
         const processedData = processCsvData(csvText, onProgress);
 
-        if (processedData.length > 0) {
+        if (processedData.length > 0 && window.localforage) {
             const cachePayload = {
                 timestamp: new Date().getTime(),
                 data: processedData

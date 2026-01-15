@@ -41,113 +41,97 @@ body {
 
 /* Header */
 .main-header {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(135deg, #0072bc, #00a0e9);
     color: white;
-    padding: 1rem 0;
+    padding: 0.8rem 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.main-header .container {
+.header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.main-header nav {
+.header-left {
     display: flex;
     align-items: center;
+    gap: 12px;
 }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.logo-dot {
+    width: 12px;
+    height: 12px;
+    background-color: white;
+    border-radius: 50%;
 }
 
-.logo h1 {
+.header-left h1 {
     font-family: var(--font-en);
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
+    margin: 0;
+}
+
+.header-center {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.last-updated {
+    font-size: 0.95rem;
+    opacity: 0.95;
+    font-weight: 500;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .nav-button {
-    background-color: #fff;
-    color: var(--primary-color);
+    background-color: white;
+    color: #0072bc;
     border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
+    padding: 6px 16px;
+    border-radius: 6px;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-    margin-left: 20px;
+    transition: all 0.2s;
 }
 
 .nav-button:hover {
     background-color: #f0f0f0;
-    color: var(--primary-color);
+    transform: translateY(-1px);
 }
 
-/* Reload Button Specific Styles */
-#reload-btn {
-    padding: 8px;
-    width: 40px;
-    height: 40px;
-    display: inline-flex;
+.reload-icon-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    background-color: transparent;
-    color: white;
+    transition: transform 0.3s ease;
 }
 
-#reload-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-.icon-reload {
-    width: 24px;
-    height: 24px;
-    transition: transform 0.7s ease-in-out;
-}
-
-#reload-btn:hover .icon-reload {
+.reload-icon-btn:hover {
     transform: rotate(180deg);
 }
 
-.last-updated {
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
-
-/* Hero Section */
-.hero {
-    padding: 3rem 0 2rem;
-    text-align: center;
-    background-color: white;
-    border-bottom: 1px solid #eee;
-}
-
-.hero h2 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
-}
-
-.hero-subtitle {
-    color: var(--text-sub);
-    margin-bottom: 2rem;
-}
-
+/* Hero Section - Removed as it was causing extra space */
 /* Summary Cards – single row of three cards */
 .summary-cards {
     display: flex;
     flex-wrap: nowrap;
     gap: 20px;
-    margin-top: 20px;
+    margin: 20px 0;
     overflow-x: auto;
     padding: 10px 5px 15px 5px;
-    /* Add padding to prevent clipping of hover effects */
 }
 
 .summary-cards .card {
@@ -159,7 +143,6 @@ body {
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     border: 1px solid rgba(0, 0, 0, 0.05);
     border-top: 4px solid transparent;
-    /* Prepare for colored top border */
     cursor: pointer;
     position: relative;
     overflow: hidden;
@@ -194,7 +177,7 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Status Colors - Inactive State (Faint gradient) */
+/* Status Colors */
 .summary-cards .card[data-status="alert"] {
     background: linear-gradient(to bottom, #fff5f5, #ffffff);
 }
@@ -207,7 +190,6 @@ body {
     background: linear-gradient(to bottom, #f0fff4, #ffffff);
 }
 
-/* Active State Colors based on Status */
 .summary-cards .card[data-status="alert"].active {
     border-top-color: var(--alert-color);
     background: linear-gradient(to bottom, #ffebee, #ffffff);
@@ -236,17 +218,6 @@ body {
 }
 
 /* Dashboard Layout */
-.dashboard {
-    padding-bottom: 4rem;
-}
-
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
 .dashboard-content {
     min-height: 600px;
 }
@@ -283,34 +254,9 @@ body {
     min-width: 150px;
 }
 
-.other-diseases-control-panel {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0 20px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 20px;
-}
-
-.other-diseases-control-panel h3 {
-    font-size: 1.2rem;
-    color: var(--text-main);
-}
-
-.select-wrapper select {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    background-color: white;
-    cursor: pointer;
-    min-width: 150px;
-}
-
 .other-diseases-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    /* 適切な幅に調整 */
     gap: 20px;
     padding: 0 0 20px 0;
 }
@@ -323,15 +269,10 @@ body {
     display: flex;
     flex-direction: column;
     height: 350px;
-    /* グラフを表示するのに十分な高さ */
     cursor: default;
     border: 1px solid rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     overflow: hidden;
-}
-
-.disease-card.placeholder {
-    visibility: hidden;
 }
 
 .disease-card:hover {
@@ -347,26 +288,18 @@ body {
     transform: translate(-50%, -50%);
     width: 90vw;
     max-width: 900px;
-    /* Approx 3 cards width or comfortably large */
     height: 80vh;
     max-height: 800px;
-    /* Approx 2 cards height */
     z-index: 1001;
     cursor: zoom-out;
-    /* Indicate click to close */
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
     background-color: #fff;
-    /* Ensure opaque background */
     padding: 30px;
-    /* Increase padding for better view */
     overflow: hidden;
-    /* Prevent scrollbar on body if content is large */
 }
 
-/* Ensure canvas takes full space in expanded mode */
 .disease-card.expanded .chart-container {
     height: calc(100% - 40px);
-    /* Subtract header height */
 }
 
 /* Backdrop */
@@ -424,11 +357,6 @@ body {
     border-color: #ddd;
 }
 
-.expand-action-btn svg {
-    width: 20px;
-    height: 20px;
-}
-
 .close-expanded-btn {
     position: absolute;
     top: 15px;
@@ -450,31 +378,13 @@ body {
     transition: all 0.2s;
 }
 
-.close-expanded-btn:hover {
-    background-color: #f0f0f0;
-    color: #333;
-    transform: scale(1.05);
-}
-
 .disease-card.expanded .close-expanded-btn {
     display: flex;
-}
-
-.disease-card.expanded .expand-action-btn {
-    display: none;
 }
 
 .disease-card .chart-container {
     flex-grow: 1;
     position: relative;
-}
-
-.chart-container-no-data {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    color: #999;
 }
 
 .disease-card canvas {
@@ -552,10 +462,6 @@ body {
     transform: rotate(180deg);
 }
 
-.accordion-header.open .header-preview {
-    display: none;
-}
-
 .accordion-content {
     max-height: 0;
     overflow: hidden;
@@ -565,7 +471,6 @@ body {
 
 .accordion-content.open {
     max-height: 1200px;
-    /* Enough to show content */
     padding: 15px;
     border-top: 1px solid #eee;
 }
@@ -578,24 +483,11 @@ body {
     padding-bottom: 5px;
 }
 
-.accordion-content h4 {
-    font-size: 0.9rem;
-    margin-top: 15px;
-    margin-bottom: 8px;
-    color: var(--text-sub);
-}
-
 .accordion-content p {
     font-size: 0.9rem;
     color: var(--text-main);
     margin-bottom: 15px;
     line-height: 1.5;
-}
-
-.legend-section ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
 }
 
 .legend-section li {
@@ -671,19 +563,6 @@ body {
     color: #999;
 }
 
-.placeholder-text {
-    color: #999;
-    text-align: center;
-    margin-top: 50px;
-    display: block;
-}
-
-.no-data-message {
-    text-align: center;
-    padding: 2rem;
-    color: #666;
-}
-
 /* Utilities */
 .hidden {
     display: none !important;
@@ -693,10 +572,9 @@ body {
     position: relative;
 }
 
-/* --- Skeleton Loading Styles --- */
+/* Skeleton Loading */
 .loading .skeleton {
     display: block;
-    /* Initially show skeleton items */
 }
 
 .loading .skeleton-card-wrapper {
@@ -705,7 +583,6 @@ body {
 
 .loading #summary-cards .card {
     display: none;
-    /* Hide real cards while loading */
 }
 
 .loading .skeleton-map,
@@ -714,63 +591,6 @@ body {
     display: block;
 }
 
-.loading #japan-map>*,
-.loading #region-content>:not(.skeleton-details) {
-    visibility: hidden;
-    /* Hide real content until loaded to prevent layout shifts */
-}
-
-/* For chart, visibility alone can cause issues. Hide it completely. */
-.loading #trendChart {
-    visibility: hidden;
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-}
-
-#trendChart {
-    position: static;
-    top: auto;
-    left: auto;
-}
-
-
-/* Chart Loading Specific Skeleton */
-.chart-loading-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.8);
-    /* 白っぽい半透明の背景 */
-    border-radius: 8px;
-    z-index: 10;
-}
-
-.chart-loading-skeleton {
-    width: 90%;
-    height: 80%;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading-shimmer 1.5s infinite;
-    border-radius: 4px;
-}
-
-@keyframes loading-shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-
-    100% {
-        background-position: 200% 0;
-    }
-}
-
-/* Skeleton Loading Animation */
 @keyframes shimmer {
     0% {
         background-position: -200% 0;
@@ -783,20 +603,15 @@ body {
 
 .skeleton {
     background: #f0f0f0;
-    background-image: linear-gradient(90deg,
-            #f0f0f0 25%,
-            #e0e0e0 50%,
-            #f0f0f0 75%);
+    background-image: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 4px;
     display: none;
-    /* Hide skeletons by default */
 }
 
 .skeleton-card-wrapper {
     display: none;
-    /* Hide wrapper by default */
     width: 100%;
     gap: 20px;
 }
@@ -811,14 +626,12 @@ body {
     flex-direction: column;
     gap: 10px;
     height: 140px;
-    /* Match card height */
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .skeleton-title {
     height: 24px;
     width: 60%;
-    margin-bottom: 10px;
 }
 
 .skeleton-value {
@@ -835,13 +648,11 @@ body {
 .skeleton-map {
     width: 100%;
     height: 400px;
-    /* Adjust to match map container */
 }
 
 .skeleton-chart {
     width: 100%;
     height: 260px;
-    /* Match chart-container-wrapper height */
 }
 
 .skeleton-details {
@@ -851,10 +662,6 @@ body {
 .skeleton-text {
     height: 20px;
     margin-bottom: 10px;
-}
-
-.skeleton-text:last-child {
-    margin-bottom: 0;
 }
 
 /* Responsive */
@@ -871,44 +678,28 @@ body {
         flex: 0 0 100%;
     }
 
-    .skeleton-card-wrapper {
+    .header-container {
         flex-direction: column;
+        gap: 10px;
+        padding: 10px;
     }
 
-    .disease-card.expanded {
-        position: fixed;
-        /* fix for mobile layout */
-        width: 100%;
-        /* use 100% instead of 100vw to avoid scrollbar issues */
-        height: 100%;
-        /* use 100% instead of 100vh */
-        top: 0;
-        left: 0;
-        transform: none;
-        border-radius: 0;
-        padding: 40px 10px 10px;
-        overflow: hidden;
-        /* Hide overflow to keep chart contained */
-        z-index: 10000;
-        /* Ensure it's on top */
+    .header-center {
+        order: 3;
     }
 
-    .other-diseases-grid {
-        grid-template-columns: 1fr;
+    .header-right {
+        order: 2;
     }
-
-
 }
 
-/* Prefecture Chart Container (Swapped with Map) */
+/* Prefecture Chart */
 #pref-chart-container {
     background: white;
     padding: 20px;
     border-radius: var(--border-radius);
     height: 100%;
-    /* 親要素(left-panel)の高さを埋める */
     min-height: 500px;
-    /* 少なくとも500pxは確保 */
     position: relative;
     box-shadow: var(--shadow);
     display: flex;
@@ -917,9 +708,7 @@ body {
 
 #back-to-map-btn {
     align-self: flex-end;
-    /* 右寄せ */
     margin-bottom: 10px;
-    z-index: 10;
     padding: 5px 15px;
     cursor: pointer;
     background-color: #fff;
@@ -928,68 +717,31 @@ body {
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-sub);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     transition: all 0.2s;
-}
-
-#back-to-map-btn:hover {
-    background-color: #f8f9fa;
-    color: var(--primary-color);
 }
 
 .pref-chart-wrapper {
     flex-grow: 1;
-    /* 残りの高さを全て使う */
     width: 100%;
     min-height: 0;
-    /* Flexアイテムの最小サイズ制約を解除して縮小可能にする */
     position: relative;
 }
 
-.pref-chart-message-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-.pref-chart-message {
-    color: #666;
-    font-size: 1rem;
-}
-
-.link-style {
-    color: inherit;
-    text-decoration: underline;
-}
-
-/* Styles for Prefecture Detail List (from map.js) */
-.prefecture-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+/* Prefecture List */
 .pref-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 2px 5px; /* Add padding for highlighting */
-    transition: background-color 0.2s;
+    padding: 2px 5px;
 }
-.pref-row.selected {
-    background-color: #e3f2fd; /* Light blue highlight */
-    border-radius: 4px;
-    font-weight: bold;
-}
+
 .pref-name {
     width: 80px;
     font-weight: bold;
     cursor: pointer;
     text-decoration: underline;
 }
-.pref-name:hover {
-    color: var(--primary-color);
-}
+
 .pref-bar-container {
     flex-grow: 1;
     background: #eee;
@@ -997,76 +749,30 @@ body {
     border-radius: 5px;
     overflow: hidden;
 }
+
 .pref-bar {
     height: 100%;
     transition: width 0.5s ease;
 }
+
 .pref-bar.alert {
     background: #e74c3c;
 }
+
 .pref-bar.warning {
     background: #f39c12;
 }
+
 .pref-bar.caution {
     background: #f1c40f;
 }
+
 .pref-bar.normal {
     background: #2ecc71;
 }
+
 .pref-value {
     width: 50px;
     text-align: right;
     font-family: 'Inter', sans-serif;
 }
-
-/* Global Loading Overlay */
-body.loading::before {
-    content: 'Loading...'; /* Or you could use a more complex spinner animation */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: var(--primary-color);
-        z-index: 9999; /* Ensure it's on top of everything */
-    }
-    
-    /* Added for CSP compliance to replace inline styles */
-    .modal-expanded {
-        position: fixed;
-        z-index: 2000;
-    }
-    
-    .modal-close-button {
-        display: flex;
-    }
-    
-    .pref-chart-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    
-    .pref-chart-title {
-        margin: 0;
-        font-size: 1.2rem;
-        color: var(--text-main);
-    }
-    
-    .no-data-message-inline {
-        text-align: center;
-        padding: 2rem;
-        color: #666;
-    }
-    
-    .canvas-reset {
-        width: 100%;
-        height: 100%;
-    }
-    

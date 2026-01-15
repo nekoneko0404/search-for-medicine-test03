@@ -186,18 +186,33 @@ export function createDropdown(item, index) {
 
     const dropdownContent = document.createElement('div');
     dropdownContent.id = dropdownContentId;
-    dropdownContent.className = "invisible opacity-0 group-hover/dropdown:visible group-hover/dropdown:opacity-100 transition-all duration-200 delay-200 group-hover/dropdown:delay-0 absolute left-0 bottom-full mb-1 z-[99] min-w-[160px] py-1 bg-white border border-gray-200 rounded-md shadow-xl";
+    dropdownContent.className = "invisible opacity-0 group-hover/dropdown:visible group-hover/dropdown:opacity-100 transition-all duration-200 delay-200 group-hover/dropdown:delay-0 absolute left-0 z-[100] min-w-[160px] py-1 bg-white border border-gray-200 rounded-md shadow-xl";
 
-    // Desktop hover behavior - always position above
+    // Dynamic positioning logic
+    const updatePosition = () => {
+        const rect = button.getBoundingClientRect();
+        const spaceAbove = rect.top;
+        const menuHeight = 200; // Estimated height of the menu
+
+        if (spaceAbove < menuHeight) {
+            // Not enough space above, show below
+            dropdownContent.classList.remove('bottom-full', 'mb-1');
+            dropdownContent.classList.add('top-full', 'mt-1');
+        } else {
+            // Enough space above, show above
+            dropdownContent.classList.remove('top-full', 'mt-1');
+            dropdownContent.classList.add('bottom-full', 'mb-1');
+        }
+    };
+
+    // Desktop hover behavior
     dropdownContainer.addEventListener('mouseenter', () => {
         if (window.innerWidth > 640) {
-            // Force positioning above
-            dropdownContent.classList.add('bottom-full', 'mb-1');
-            dropdownContent.classList.remove('top-full', 'mt-1');
+            updatePosition();
         }
     });
 
-    // Mobile click behavior - always position above
+    // Mobile click behavior
     button.addEventListener('click', (e) => {
         if (window.innerWidth <= 640) {
             e.preventDefault();
@@ -213,9 +228,7 @@ export function createDropdown(item, index) {
             // Toggle current dropdown
             const isVisible = dropdownContent.classList.contains('!visible');
             if (!isVisible) {
-                // Force positioning above for mobile
-                dropdownContent.classList.add('bottom-full', 'mb-1');
-                dropdownContent.classList.remove('top-full', 'mt-1');
+                updatePosition();
                 dropdownContent.classList.add('!visible', '!opacity-100');
             } else {
                 dropdownContent.classList.remove('!visible', '!opacity-100');

@@ -4,43 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://www.googletagmanager.com; connect-src 'self' https://cdn.jsdelivr.net https://script.google.com https://script.googleusercontent.com https://cdnjs.cloudflare.com https://www.google-analytics.com https://analytics.google.com;">
-    <title>全国感染症発生状況可視化 - Kusuri Compass</title>
-    <meta name="description" content="全国の感染症発生状況をリアルタイムで可視化。インフルエンザ、新型コロナなどの流行状況を地図で確認できます。">
-    <meta name="keywords" content="感染症, 流行状況, インフルエンザ, 新型コロナ, 薬局, 薬剤師, Kusuri Compass">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://search-for-medicine.pages.dev/infection-surveillance-app/index.html">
+    <title>感染症流行状況ダッシュボード | Kusuri Compass</title>
+    <meta name="description" content="日本国内のインフルエンザ、COVID-19、急性呼吸器感染症（ARI）などの流行状況をリアルタイムで可視化するダッシュボードです。">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20251213-03">
-
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
-    <script async src="../gtag.js"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-H44R8N7W32');
+    </script>
 
-    <!-- Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
-        integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"
-        integrity="sha384-MTDrIlFOzEqpmOxY6UIA/1Zkh0a64UlmJ6R0UrZXqXCPx99siPGi8EmtQjIeCcTH"
-        crossorigin="anonymous"></script>
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.googletagmanager.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://www.google-analytics.com https://cdn.jsdelivr.net ws://127.0.0.1:*; frame-src 'none'; object-src 'none';">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 </head>
 
 <body>
     <header class="main-header">
-        <div class="container">
-            <div class="logo">
-                <span class="logo-icon">●</span>
+        <div class="container header-container">
+            <div class="header-left">
+                <div class="logo-dot"></div>
                 <h1>Infection Surveillance</h1>
             </div>
-            <nav>
-                <span class="last-updated">Last Updated: <span id="update-date">Loading...</span></span>
-                <button id="other-diseases-btn" class="nav-button">その他の感染症</button>
-                <button id="reload-btn" class="nav-button" aria-label="更新">
-                    <svg class="icon-reload" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            <div class="header-center">
+                <span id="update-date" class="last-updated">読み込み中...</span>
+            </div>
+            <nav class="header-right">
+                <button id="other-diseases-btn" class="nav-button">
+                    その他の感染症
+                </button>
+                <button id="reload-btn" class="reload-icon-btn" title="データを更新">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
@@ -182,7 +180,7 @@
 
     <div id="card-backdrop" class="card-backdrop"></div>
     <script src="map.js"></script>
-    <script src="main.js?v=20251213-03"></script>
+    <script src="main.js?v=20260114-01"></script>
 </body>
 
 </html>

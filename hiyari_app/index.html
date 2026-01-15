@@ -1,39 +1,46 @@
-<!DOCTYPE html>
-<html lang="ja">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-H44R8N7W32');
+</script>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://www.googletagmanager.com; connect-src 'self' https://hiyari-proxy-708146219355.asia-east1.run.app https://cdn.jsdelivr.net https://www.google-analytics.com https://analytics.google.com ws://127.0.0.1:* http://127.0.0.1:*;">
-    <title>ヒヤリ・ハット事例検索 - Kusuri Compass</title>
-    <meta name="description" content="薬局でのヒヤリ・ハット事例を検索。安全管理や再発防止に役立つ情報を素早く確認できます。">
-    <meta name="keywords" content="ヒヤリハット, インシデント, 薬局, 安全管理, 薬剤師, Kusuri Compass">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://search-for-medicine.pages.dev/hiyari_app/index.html">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc;
+    }
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.1/tailwindcss.js"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/style.css?v=20251213-01">
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: #4f46e5;
+        animation: spin 1s linear infinite;
+    }
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
-    <script async src="../gtag.js"></script>
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
 
-    <!-- Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"
-        integrity="sha384-MTDrIlFOzEqpmOxY6UIA/1Zkh0a64UlmJ6R0UrZXqXCPx99siPGi8EmtQjIeCcTH"
-        crossorigin="anonymous"></script>
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+<!-- Dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 </head>
 
-<body class="bg-slate-50 min-h-screen flex flex-col font-[Inter]">
+<body class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -41,8 +48,14 @@
                     <h1 class="text-xl font-bold text-indigo-900 block">Kusuri Compass</h1>
                 </a>
             </div>
-            <nav class="flex items-center gap-4">
-                <span class="text-sm font-bold text-gray-500">ヒヤリ・ハット検索</span>
+            <nav class="flex items-center gap-2 sm:gap-4">
+                <a href="../search.html"
+                    class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-3 py-2 rounded-md transition-colors">
+                    <span class="hidden sm:inline">出荷状況検索</span>
+                    <span class="sm:hidden">出荷状況</span>
+                </a>
+                <a href="../help/index.html" target="_blank" rel="noopener noreferrer"
+                    class="text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">使い方</a>
             </nav>
         </div>
     </header>
@@ -116,7 +129,8 @@
         </div>
 
         <div id="error-msg"
-            class="hidden bg-red-100 text-red-800 p-4 rounded-lg mb-6 border border-red-200 text-center"></div>
+            class="hidden bg-red-100 text-red-800 p-4 rounded-lg mb-6 border border-red-200 text-center">
+        </div>
 
         <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- Cards will be inserted here -->
