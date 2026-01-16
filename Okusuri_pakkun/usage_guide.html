@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ぱっくんスタンプ - 取扱説明書</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-H44R8N7W32');
+    </script>
+
+    <script src="qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #FF9AA2;
+            --secondary-color: #B5EAD7;
+            --accent-color: #FFDAC1;
+            --text-color: #5D4037;
+            --bg-color: #FFF9F9;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            background-color: #FFB7B2;
+            background-image: radial-gradient(#FFDAC1 20%, transparent 20%),
+                radial-gradient(#FFDAC1 20%, transparent 20%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .print-btn-container {
+            text-align: right;
+            margin-bottom: 5px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
+        }
+
+        .btn-print {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 3px dashed var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .title-char {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin: 0;
+            text-shadow: 1px 1px 0px rgba(255, 154, 162, 0.2);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 2px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.3rem;
+        }
+
+        h2::before {
+            content: '✨';
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 5px;
+            margin-bottom: 3px;
+            font-size: 1.1rem;
+        }
+
+        .intro-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .intro-text {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+
+        .char-img-medium {
+            height: 90px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .step-card {
+            background-color: var(--bg-color);
+            border-radius: 15px;
+            padding: 12px;
+            border: 2px solid var(--accent-color);
+            text-align: center;
+        }
+
+        .step-number {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .step-card p {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .features-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .features-list li {
+            margin-bottom: 4px;
+        }
+
+        .advice-box {
+            background-color: #FFF0F0;
+            padding: 12px 15px;
+            border-radius: 15px;
+            border-left: 6px solid var(--primary-color);
+        }
+
+        .advice-box p {
+            margin: 4px 0;
+            font-size: 0.85rem;
+        }
+
+        .qr-section {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #fff;
+            border: 3px dashed var(--secondary-color);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .qr-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        #qrcode {
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .qr-char {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .btn-start {
+            display: block;
+            width: fit-content;
+            margin: 15px auto;
+            padding: 10px 30px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 40px;
+            box-shadow: 0 4px 15px rgba(255, 154, 162, 0.4);
+            transition: all 0.3s;
+            border: 3px solid white;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
+            .print-btn-container,
+            .btn-start {
+                display: none;
+            }
+
+            body {
+                background-color: white;
+                background-image: none;
+                line-height: 1.3;
+            }
+
+            .container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                margin-top: 12px;
+                font-size: 1.2rem;
+            }
+
+            .title-char {
+                height: 50px;
+            }
+
+            .char-img-medium {
+                height: 70px;
+            }
+
+            .step-card {
+                padding: 10px;
+            }
+
+            .qr-section {
+                margin: 15px 0;
+                padding: 10px;
+            }
+
+            .qr-char {
+                height: 70px;
+            }
+
+            .advice-box {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                border-radius: 20px;
+                margin-top: 5px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .title-char {
+                height: 40px;
+            }
+
+            .intro-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .char-img-medium {
+                height: 70px;
+                order: -1;
+                /* Image on top */
+            }
+
+            .step-grid,
+            .bottom-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .qr-flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .qr-char {
+                height: 60px;
+            }
+
+            .btn-start {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+                font-size: 1.1rem;
+                padding: 12px 20px;
+            }
+
+            .print-btn-container {
+                text-align: center;
+                padding: 10px;
+            }
+
+            .btn-print {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+</head>
+
+<body>
+    <div class="print-btn-container">
+        <button class="btn-print" onclick="window.print()">
+            <span>🖨️ 印刷する (A4サイズ1枚)</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="title-container">
+                <img src="images/doctor_bear.png" alt="くま先生" class="title-char">
+                <h1>ぱっくんスタンプ</h1>
+                <img src="images/nurse_rabbit.png" alt="うさぎ看護師" class="title-char">
+            </div>
+            <p style="text-align: center; color: #666; margin-top: 5px;">〜お子様の「お薬飲めた！」を楽しく応援〜</p>
+        </header>
+
+        <section class="intro-section">
+            <div class="intro-text">
+                <h2 style="margin-top: 0; border: none;">はじめに</h2>
+                <p>このアプリは、お子様の服薬をサポートする保護者の方のために作られました。<br>
+                    単なる記録ツールではなく、お子様を褒め、励まし、一緒に達成感を味わうためのコミュニケーションツールです。</p>
+            </div>
+            <img src="images/pharmacist_cat.png" alt="ねこ薬剤師" class="char-img-medium">
+        </section>
+
+        <section>
+            <h2>1. 基本的な使い方</h2>
+            <div class="step-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <p><strong>設定をする</strong></p>
+                    <p>服用回数と期間を入力してスタート！</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <p><strong>スタンプ！</strong></p>
+                    <p>飲んだら光る枠をタップしてスタンプ！</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <p><strong>表彰状</strong></p>
+                    <p>全部たまったら表彰状がもらえます。</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="bottom-grid">
+            <section>
+                <h2>3. 便利な機能</h2>
+                <ul class="features-list">
+                    <li>✅ <strong>服用間隔の守り:</strong> 飲みすぎを防止するため、次の時間までスタンプが押せません。</li>
+                    <li>✅ <strong>スキップ機能:</strong> 飲み忘れた時も先の枠をタップして調整可能です。</li>
+                    <li>✅ <strong>テストモード:</strong> 時間制限なしでスタンプの動きを確認できます。</li>
+                </ul>
+            </section>
+
+            <section class="advice-box">
+                <h2 style="margin-top: 0; border: none; padding: 0; font-size: 1.3rem;">✨ 保護者の方へ</h2>
+                <p><strong>小さな成功を祝う:</strong> 苦いお薬を一口飲めただけでも、それは大きな成功です。最高のお祝いタイムにしましょう。</p>
+                <p><strong>親の笑顔が最大のご褒美:</strong> 「頑張ったね！」という笑顔が、お子様の「次も頑張ろう」という意欲を育てます。</p>
+            </section>
+        </div>
+
+        <div class="qr-section">
+            <h3 style="margin-bottom: 5px; font-size: 1.2rem;">📱 アプリへのアクセスはこちら</h3>
+            <p style="margin: 0; font-size: 0.9rem;">このQRコードをスマホで読み取ると、すぐにアプリを使えます。</p>
+            <div class="qr-flex">
+                <div id="qrcode"></div>
+                <img src="images/party_cat.png" alt="お祝いねこ" class="qr-char">
+            </div>
+            <p style="font-size: 0.8rem; color: #666; font-weight: bold; margin-top: 8px;">※このページを印刷して配布用にお使いください</p>
+        </div>
+
+        <a href="index.html" class="btn-start">アプリをはじめる</a>
+
+        <div class="footer-note">
+            <p style="margin: 0;">お子様の健やかな成長と、スムーズな服薬を心から応援しています！</p>
+        </div>
+    </div>
+
+    <script>
+        const appUrl = "https://search-for-medicine.pages.dev/Okusuri_pakkun/index.html";
+        new QRCode(document.getElementById("qrcode"), {
+            text: appUrl,
+            width: 120,
+            height: 120,
+            colorDark: "#5D4037",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    </script>
+</body>
+
+</html>
