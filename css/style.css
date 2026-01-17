@@ -42,6 +42,16 @@ body {
     }
 }
 
+/* Wide screen 4-column layout */
+@media (min-width: 1280px) {
+    .menu-container {
+        max-width: 1400px;
+    }
+    .menu-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
 /* カードスタイル */
 .card {
     background: #ffffff;
