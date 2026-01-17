@@ -17,6 +17,8 @@ let sortStates = {
 
 // DOM Elements
 const elements = {
+    mainHeader: null,
+    mainFooter: null,
     yjCodeInput: null,
     searchBtn: null,
     resultTableBody: null,
@@ -53,6 +55,8 @@ const elements = {
 };
 
 function initElements() {
+    elements.mainHeader = document.getElementById('mainHeader');
+    elements.mainFooter = document.getElementById('mainFooter');
     elements.yjCodeInput = document.getElementById('yjCodeInput');
     elements.searchBtn = document.getElementById('search-btn');
     elements.resultTableBody = document.getElementById('resultTableBody');

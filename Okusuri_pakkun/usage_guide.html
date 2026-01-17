@@ -34,7 +34,7 @@
             color: var(--text-color);
             margin: 0;
             padding: 20px;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .container {
@@ -42,25 +42,25 @@
             margin: 0 auto;
             background-color: white;
             padding: 30px;
-            border-radius: 30px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(255, 154, 162, 0.3);
             position: relative;
         }
 
         .print-btn-container {
             text-align: right;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             max-width: 800px;
             margin-left: auto;
             margin-right: auto;
-            padding: 0 20px;
+            padding: 0 10px;
         }
 
         .btn-print {
-            background-color: #666;
+            background-color: #777;
             color: white;
             border: none;
-            padding: 6px 15px;
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             font-family: inherit;
@@ -69,13 +69,19 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s;
+        }
+
+        .btn-print:active {
+            transform: scale(0.98);
         }
 
         header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border-bottom: 3px dashed var(--primary-color);
-            padding-bottom: 10px;
+            padding-bottom: 15px;
         }
 
         .title-container {
@@ -95,15 +101,16 @@
             color: var(--primary-color);
             font-size: 2rem;
             margin: 0;
-            text-shadow: 1px 1px 0px rgba(255, 154, 162, 0.2);
+            text-shadow: 2px 2px 0px rgba(255, 218, 193, 0.5);
+            letter-spacing: 1px;
         }
 
         h2 {
             color: var(--primary-color);
             border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 2px;
-            margin-top: 15px;
-            margin-bottom: 8px;
+            padding-bottom: 4px;
+            margin-top: 25px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -124,8 +131,8 @@
         .intro-section {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .intro-text {
@@ -143,92 +150,90 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .step-card {
             background-color: var(--bg-color);
-            border-radius: 15px;
-            padding: 12px;
+            border-radius: 16px;
+            padding: 15px;
             border: 2px solid var(--accent-color);
             text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
         }
 
         .step-number {
             display: inline-block;
             background-color: var(--primary-color);
             color: white;
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             text-align: center;
-            line-height: 24px;
+            line-height: 26px;
             font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .step-card p {
             margin: 0;
-            font-size: 0.85rem;
-        }
-
-        .bottom-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 15px;
+            font-size: 0.9rem;
         }
 
         .features-list {
             list-style: none;
             padding-left: 0;
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .features-list li {
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
         .advice-box {
             background-color: #FFF0F0;
-            padding: 12px 15px;
-            border-radius: 15px;
+            padding: 15px 20px;
+            border-radius: 16px;
             border-left: 6px solid var(--primary-color);
+            box-shadow: 0 4px 10px rgba(255, 154, 162, 0.1);
+            margin-bottom: 25px;
         }
 
         .advice-box p {
-            margin: 4px 0;
-            font-size: 0.85rem;
+            margin: 6px 0;
+            font-size: 0.9rem;
         }
 
         .qr-section {
-            margin: 15px 0;
-            padding: 15px;
+            margin: 25px 0;
+            padding: 20px;
             background-color: #fff;
             border: 3px dashed var(--secondary-color);
-            border-radius: 20px;
+            border-radius: 24px;
             text-align: center;
+            box-shadow: 0 5px 15px rgba(181, 234, 215, 0.3);
         }
 
         .qr-flex {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
-            margin-top: 8px;
+            gap: 25px;
+            margin-top: 15px;
         }
 
         #qrcode {
-            padding: 8px;
+            padding: 10px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         }
 
         .qr-char {
-            height: 80px;
+            height: 90px;
             width: auto;
             object-fit: contain;
         }
@@ -236,31 +241,40 @@
         .btn-start {
             display: block;
             width: fit-content;
-            margin: 15px auto;
-            padding: 10px 30px;
+            margin: 20px auto;
+            padding: 12px 40px;
             background-color: var(--primary-color);
             color: white;
             text-decoration: none;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            border-radius: 40px;
-            box-shadow: 0 4px 15px rgba(255, 154, 162, 0.4);
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(255, 154, 162, 0.5);
             transition: all 0.3s;
             border: 3px solid white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 154, 162, 0.6);
         }
 
         .footer-note {
             text-align: center;
             font-size: 0.9rem;
             color: var(--text-color);
-            margin-top: 15px;
+            margin-top: 20px;
             font-weight: bold;
+            opacity: 0.8;
         }
 
         @media print {
             @page {
                 size: A4;
-                margin: 10mm;
+                margin-top: 18mm;
+                margin-left: 20mm;
+                margin-right: 20mm;
+                margin-bottom: 8mm;
             }
 
             .print-btn-container,
@@ -271,7 +285,10 @@
             body {
                 background-color: white;
                 background-image: none;
-                line-height: 1.3;
+                line-height: 1.45;
+                font-size: 8.5pt;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .container {
@@ -280,46 +297,178 @@
                 padding: 0;
                 width: 100%;
                 max-width: 100%;
+                border-radius: 0;
+            }
+
+            header {
+                margin-bottom: 10px;
+                padding-bottom: 5px;
+                border-bottom-width: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            header p {
+                display: none;
+                /* Hide subtitle to save space */
+            }
+
+            .title-container {
+                gap: 10px;
             }
 
             h1 {
-                font-size: 1.8rem;
+                font-size: 1.4rem;
+                margin: 0;
+                text-shadow: none;
             }
 
             h2 {
-                margin-top: 12px;
-                font-size: 1.2rem;
+                margin-top: 10px;
+                margin-bottom: 5px;
+                font-size: 1.1rem;
+                border-bottom-width: 1px;
+                padding-bottom: 2px;
             }
 
             .title-char {
-                height: 50px;
+                height: 30px;
+            }
+
+            .intro-section {
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .intro-text h2 {
+                margin-top: 0;
             }
 
             .char-img-medium {
-                height: 70px;
+                height: 45px;
+                margin-left: 10px;
+            }
+
+            .step-grid {
+                gap: 10px;
+                margin-bottom: 15px;
             }
 
             .step-card {
-                padding: 10px;
+                padding: 8px;
+                border-width: 1px;
+                border-radius: 8px;
+                box-shadow: none;
             }
 
-            .qr-section {
-                margin: 15px 0;
-                padding: 10px;
+            .step-number {
+                width: 18px;
+                height: 18px;
+                line-height: 18px;
+                font-size: 0.8rem;
+                margin-bottom: 2px;
+                box-shadow: none;
             }
 
-            .qr-char {
-                height: 70px;
+            .step-card p {
+                font-size: 0.75rem;
+                line-height: 1.2;
             }
 
             .advice-box {
+                padding: 8px 12px;
+                margin-bottom: 15px;
+                border-left-width: 3px;
+                border-radius: 8px;
+                box-shadow: none;
+                background-color: #FFF5F5 !important;
+            }
+
+            .advice-box h2 {
+                margin-top: 0;
+            }
+
+            .features-list {
+                column-count: 2;
+                column-gap: 20px;
+                font-size: 0.8rem;
+            }
+
+            .features-list li {
+                margin-bottom: 2px;
+                break-inside: avoid;
+            }
+
+            .features-list ul {
+                margin-top: 2px !important;
+                padding-left: 15px !important;
+            }
+
+            .qr-section {
+                margin: 20px 0 0 0;
                 padding: 10px;
+                border: 2px dashed var(--secondary-color);
+                border-radius: 16px;
+                display: block;
+                text-align: center;
+                box-shadow: none;
+                break-inside: avoid;
+            }
+
+            .qr-section h3,
+            .qr-section p {
+                grid-column: auto;
+            }
+
+            .qr-section h3 {
+                font-size: 1rem;
+                margin: 0 0 4px 0;
+                color: var(--secondary-color);
+            }
+
+            .qr-section p {
+                font-size: 0.8rem !important;
+                margin: 0;
+            }
+
+            .qr-flex {
+                grid-column: auto;
+                grid-row: auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-top: 8px;
+                gap: 25px;
+            }
+
+            #qrcode {
+                padding: 5px;
+                box-shadow: none;
+                background: white;
+            }
+
+            #qrcode img {
+                width: 75px !important;
+                height: 75px !important;
+            }
+
+            .qr-char {
+                height: 60px;
+            }
+
+            .footer-note {
+                display: none;
+                /* Hide footer note to ensure 1 page */
             }
         }
 
         @media (max-width: 600px) {
             .container {
-                padding: 15px;
+                padding: 20px;
                 border-radius: 20px;
                 margin-top: 5px;
             }
@@ -343,19 +492,18 @@
                 /* Image on top */
             }
 
-            .step-grid,
-            .bottom-grid {
+            .step-grid {
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 12px;
             }
 
             .qr-flex {
                 flex-direction: column;
-                gap: 10px;
+                gap: 15px;
             }
 
             .qr-char {
-                height: 60px;
+                height: 70px;
             }
 
             .btn-start {
@@ -377,8 +525,6 @@
             }
         }
     </style>
-    <!-- Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 </head>
 
 <body>
@@ -436,8 +582,9 @@
         </section>
 
         <section>
-            <h2>3. 安心・便利な機能</h2>
+            <h2>2. 安心・便利な機能</h2>
             <ul class="features-list">
+                <li>✅ <strong>複数管理（タブ機能）:</strong> きょうだいや病院ごとに分けて記録できます（最大3つ）。</li>
                 <li>✅ <strong>飲みすぎ防止 (Time Lock):</strong>
                     <ul style="margin-top: 4px; padding-left: 20px; font-size: 0.85rem; color: #666;">
                         <li>1日3回なら4時間、2回なら6時間の間隔が必要です。</li>
