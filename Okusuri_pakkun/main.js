@@ -188,7 +188,96 @@ forms.settings.addEventListener('submit', (e) => {
 function getMinIntervalHours(doses) {
     if (doses === 1) return 12;
     if (doses === 2) return 6;
-    return 4; // 3 or more times
+    if (doses === 3) return 4;
+    return 1; // 4 or more times
+}
+
+function getEarliestReleaseTime(targetIndex) {
+    const currentTabState = getCurrentTabState();
+    const timestamps = currentTabState.progress.timestamps || [];
+    const minHours = getMinIntervalHours(currentTabState.config.dosesPerDay);
+    const intervalMs = minHours * 60 * 60 * 1000;
+
+    // If no stamps yet, the first one (index 0) is always ready.
+    // If targetIndex is 0, it's ready.
+    if (targetIndex === 0) return 0;
+
+    // If we have no stamps but targetIndex > 0 (e.g. skipped?), 
+    // strictly speaking we need a previous stamp to anchor.
+    // But if we skipped, we have "SKIPPED" entries in timestamps.
+    // "SKIPPED" entries don't have a time, so we can't anchor off them easily?
+    // Wait, if we skip, we usually just fill the slot.
+    // Let's assume we anchor off the last *valid* timestamp.
+
+    // However, the requirement is: "If time passes without stamping, next opens".
+    // This implies we can calculate release time based on ANY previous stamp.
+    // ReleaseTime = Time(i) + (targetIndex - i) * Interval
+    // We want the MINIMUM of these times.
+
+    let minReleaseTime = Infinity;
+    let foundAnchor = false;
+
+    for (let i = 0; i < timestamps.length; i++) {
+        const ts = timestamps[i];
+        if (ts === 'SKIPPED') continue; // Cannot anchor off a skip (no time)
+
+        const time = new Date(ts).getTime();
+        const releaseTime = time + (targetIndex - i) * intervalMs;
+
+        if (releaseTime < minReleaseTime) {
+            minReleaseTime = releaseTime;
+        }
+        foundAnchor = true;
+    }
+
+    if (!foundAnchor) {
+        return 0;
+    }
+
+    // Check for "Next Morning 6AM" rule
+    // If targetIndex is the start of a new day (index % doses == 0)
+    const dosesPerDay = currentTabState.config.dosesPerDay;
+    if (targetIndex > 0 && targetIndex % dosesPerDay === 0) {
+        // Find the last stamp of the previous day
+        // We need the timestamp of index (targetIndex - 1)
+        // But we iterated above. Let's just grab it directly if possible.
+        // timestamps array might have SKIPPED, so we need to find the last *valid* time in the previous day block?
+        // Actually, the rule is "After finishing the last dose".
+        // If the last dose was SKIPPED, does the rule apply?
+        // Probably yes. If I skipped the last dose, I finished the day.
+        // But if I skipped, I don't have a time anchor.
+        // If I skipped the last dose, maybe I can start the next day immediately?
+        // Or should we anchor off the last *actual* stamp?
+
+        // Let's stick to the anchor we found (minReleaseTime).
+        // minReleaseTime is calculated based on *some* previous stamp + intervals.
+        // We just need to enforce that it is ALSO >= Next Morning 6AM of the *previous day's last action*.
+
+        // Let's find the time of the last slot of the previous day (targetIndex - 1).
+        const prevIndex = targetIndex - 1;
+        if (prevIndex < timestamps.length) {
+            const prevVal = timestamps[prevIndex];
+            if (prevVal !== 'SKIPPED') {
+                const prevDate = new Date(prevVal);
+                let nextMorning = new Date(prevDate);
+
+                // If prevDate is before 6AM, next morning is today 6AM.
+                // If prevDate is after 6AM, next morning is tomorrow 6AM.
+                if (prevDate.getHours() < 6) {
+                    nextMorning.setHours(6, 0, 0, 0);
+                } else {
+                    nextMorning.setDate(nextMorning.getDate() + 1);
+                    nextMorning.setHours(6, 0, 0, 0);
+                }
+
+                if (nextMorning.getTime() > minReleaseTime) {
+                    minReleaseTime = nextMorning.getTime();
+                }
+            }
+        }
+    }
+
+    return minReleaseTime;
 }
 
 function canStamp() {
@@ -203,6 +292,29 @@ function canStamp() {
     return (now - last) >= (minHours * 60 * 60 * 1000);
 }
 
+let updateTimer = null;
+function scheduleNextUpdate() {
+    if (updateTimer) clearTimeout(updateTimer);
+
+    const currentTabState = getCurrentTabState();
+    if (!currentTabState.progress.lastStampTime) return;
+
+    const last = new Date(currentTabState.progress.lastStampTime).getTime();
+    const minHours = getMinIntervalHours(currentTabState.config.dosesPerDay);
+    const nextTime = last + (minHours * 60 * 60 * 1000);
+    const now = new Date().getTime();
+    const delay = nextTime - now;
+
+    if (delay > 0) {
+        if (delay < 2147483647) {
+            updateTimer = setTimeout(() => {
+                render();
+                playHappySound();
+            }, delay + 1000);
+        }
+    }
+}
+
 function checkTimeLimit() {
     const currentTabState = getCurrentTabState();
     const messageEl = elements.statusMessage;
@@ -213,12 +325,16 @@ function checkTimeLimit() {
         return;
     }
 
-    // Always show generic or encouraging message
+    if (!canStamp()) {
+        messageEl.textContent = "まだお薬の時間じゃないよ";
+        messageEl.className = "status-wait";
+        return;
+    }
+
     messageEl.textContent = "お薬飲めたかな？";
     messageEl.className = "status-ok";
 }
 
-// Current Week State (Internal UI state, not persisted)
 let currentWeekIndex = 0;
 
 function calculateCurrentWeek() {
@@ -227,18 +343,15 @@ function calculateCurrentWeek() {
     const dosesPerDay = currentTabState.config.dosesPerDay;
     const currentStamps = currentTabState.progress.stamps;
 
-    // Day index (0-based) of the next stamp
     let currentDayIndex = Math.floor(currentStamps / dosesPerDay);
     if (currentDayIndex >= totalDays) currentDayIndex = totalDays - 1;
 
     currentWeekIndex = Math.floor(currentDayIndex / 7);
 }
 
-// Grid Logic
 function renderGrid() {
-    // If undefined in this session (e.g. reload), calc it
     if (typeof currentWeekIndex === 'undefined') {
-        currentWeekIndex = 0; // Default fallback
+        currentWeekIndex = 0;
     }
 
     elements.grid.innerHTML = '';
@@ -246,11 +359,9 @@ function renderGrid() {
     const currentTabState = getCurrentTabState();
     if (!currentTabState.config) return;
 
-    // Pagination Controls
     const totalDays = currentTabState.config.durationDays;
     const totalWeeks = Math.ceil(totalDays / 7);
 
-    // Simple Navigation above grid
     const controls = document.createElement('div');
     controls.className = 'pagination-controls';
 
@@ -270,16 +381,15 @@ function renderGrid() {
     controls.appendChild(nextBtn);
     elements.grid.appendChild(controls);
 
-    // Render Days
     const dosesPerDay = currentTabState.config.dosesPerDay;
     const currentStamps = currentTabState.progress.stamps;
     const timestamps = currentTabState.progress.timestamps || [];
     const startOffset = currentTabState.config.startOffset || 0;
 
-    const startDay = currentWeekIndex * 7 + 1; // 1-based day
+    const startDay = currentWeekIndex * 7 + 1;
     const endDay = Math.min(startDay + 6, totalDays);
 
-    let slotCounter = (startDay - 1) * dosesPerDay; // Stamps before this week
+    let slotCounter = (startDay - 1) * dosesPerDay;
 
     for (let day = startDay; day <= endDay; day++) {
         const dayCard = document.createElement('div');
@@ -298,7 +408,6 @@ function renderGrid() {
         for (let dose = 0; dose < dosesPerDay; dose++) {
             const slotIndex = slotCounter;
 
-            // Stop rendering if we exceed total slots
             if (slotIndex >= currentTabState.config.totalSlots) {
                 break;
             }
@@ -306,9 +415,7 @@ function renderGrid() {
             const slot = document.createElement('div');
             slot.className = 'stamp-slot';
 
-            // Check if this slot was skipped due to late start
             if (slotIndex < startOffset) {
-                // Hide skipped slots
                 slot.style.visibility = 'hidden';
             } else {
                 hasVisibleSlots = true;
@@ -317,25 +424,43 @@ function renderGrid() {
                 if (effectiveIndex < 0) {
                     slot.style.visibility = 'hidden';
                 } else {
-                    // Check status based on timestamps array
                     if (effectiveIndex < timestamps.length) {
                         const status = timestamps[effectiveIndex];
                         if (status === 'SKIPPED') {
                             slot.classList.add('skipped');
                             slot.textContent = 'Skip';
+                            // Allow clicking to edit (retroactive stamp)
+                            slot.addEventListener('click', () => handleSlotClick(slotIndex));
                         } else {
                             slot.classList.add('stamped');
                             const mark = document.createElement('div');
                             mark.className = 'stamp-mark';
                             slot.appendChild(mark);
+                            // Stamped slots are generally done, but maybe we want to allow editing too?
+                            // For now, user only asked for "Skip" to be editable.
                         }
                     } else {
-                        // Not yet stamped
-                        // Check if it's the next expected slot
                         if (effectiveIndex === timestamps.length) {
-                            slot.classList.add('next-slot');
+                            if (canStamp()) {
+                                slot.classList.add('next-slot');
+                            } else {
+                                slot.classList.add('wait-slot');
+                                scheduleNextUpdate();
+                            }
+                        } else if (effectiveIndex > timestamps.length) {
+                            if (canStamp()) {
+                                const releaseTime = getEarliestReleaseTime(effectiveIndex);
+                                const now = new Date().getTime();
+                                if (now >= releaseTime) {
+                                    slot.classList.add('skip-slot');
+                                    slot.style.borderColor = 'var(--primary-color)';
+                                } else {
+                                    slot.classList.add('wait-slot');
+                                }
+                            } else {
+                                slot.classList.add('wait-slot');
+                            }
                         }
-                        // Allow clicking future slots too (for skip)
                         slot.addEventListener('click', () => handleSlotClick(slotIndex));
                     }
                 }
@@ -411,8 +536,27 @@ function handleSlotClick(clickedIndex) {
     // The expected clickedIndex should be (startOffset + currentStamps)
     const expectedIndex = startOffset + currentStamps;
 
+    // Check if we are clicking a PAST slot (Retroactive)
     if (clickedIndex < expectedIndex) {
-        // Already stamped/skipped
+        const effectiveIndex = clickedIndex - startOffset;
+        if (effectiveIndex >= 0 && currentTabState.progress.timestamps[effectiveIndex] === 'SKIPPED') {
+            if (confirm('このスキップを取り消して、現在時刻でスタンプしますか？')) {
+                // Retroactive Stamp
+                currentTabState.progress.timestamps[effectiveIndex] = new Date().toISOString();
+                // We do NOT update lastStampTime because that tracks the HEAD of the chain.
+                // Unless... wait, if we fill a hole, does it affect the head?
+                // No, the head is still the head.
+                saveState();
+                render();
+            }
+        }
+        return;
+    }
+
+    // Enforce strict interval lock for ANY action (stamp or skip)
+    if (!canStamp()) {
+        playErrorSound();
+        alert('まだ早いよ！次のお薬の時間まで待ってね。');
         return;
     }
 
@@ -428,12 +572,6 @@ function handleSlotClick(clickedIndex) {
             // Proceed to stamp the clicked one
             handleStamp();
         }
-        return;
-    }
-
-    if (!canStamp()) {
-        playErrorSound();
-        alert('まだ早いよ！次のお薬の時間まで待ってね。');
         return;
     }
 

@@ -330,6 +330,21 @@ header h1 {
     pointer-events: none;
 }
 
+.stamp-slot.wait-slot {
+    background-color: #e0e0e0;
+    border: 3px solid #ccc;
+    cursor: not-allowed;
+    position: relative;
+    animation: none;
+}
+
+.stamp-slot.wait-slot::after {
+    content: 'Wait';
+    font-size: 0.7rem;
+    color: #888;
+    font-weight: bold;
+}
+
 .stamp-mark {
     width: 80%;
     height: 80%;
