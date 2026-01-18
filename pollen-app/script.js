@@ -112,126 +112,103 @@ async function updateVisibleMarkers() {
     try {
         const zoom = map.getZoom();
         const bounds = map.getBounds();
+        const center = map.getCenter();
 
+        // 1. Determine Target Levels based on Zoom
         let targetLevels = new Set([1]);
         if (zoom >= 8) targetLevels.add(2);
         if (zoom >= 10) targetLevels.add(3);
 
-        let visibleCandidates = [];
-        for (const city of CITIES) {
-            if (targetLevels.has(city.level)) {
-                const latLng = L.latLng(city.lat, city.lng);
-                if (bounds.contains(latLng)) {
-                    visibleCandidates.push(city);
-                }
-            }
-        }
-
-        let maxMarkers = 30;
-        if (zoom >= 7) maxMarkers = 60;
-        if (zoom >= 9) maxMarkers = 120;
-        if (zoom >= 11) maxMarkers = 300;
-        if (zoom >= 12) maxMarkers = 1000; // Show almost all at max zoom
-
-        // 1. Filter by level and bounds
+        // 2. Filter Candidates by Level and Bounds
+        // We get all cities within bounds that match the target level
         let candidates = CITIES.filter(city => {
             if (!targetLevels.has(city.level)) return false;
             return bounds.contains(L.latLng(city.lat, city.lng));
         });
 
-        // 2. Priority Selection
-        if (candidates.length > maxMarkers) {
-            // Calculate visual center based on side panel state
-            const panel = document.getElementById('side-panel');
-            const isCollapsed = panel ? panel.classList.contains('collapsed') : true;
+        // 3. Calculate Distance from Center for Sorting
+        // We want to prioritize cities closer to the center
+        candidates.forEach(c => {
+            c._dist = Math.pow(c.lat - center.lat, 2) + Math.pow(c.lng - center.lng, 2);
+        });
+        candidates.sort((a, b) => a._dist - b._dist);
 
-            let referencePoint = map.getCenter();
+        // 4. Define Density Parameters
+        // Max markers allowed - Increased significantly to allow coverage of the whole screen
+        // The density control will be the primary limiting factor
+        let maxMarkers = 1000;
 
-            if (!isCollapsed && window.innerWidth > 600) {
-                // Offset center to the right by half of the panel width (approx 300px / 2 = 150px)
-                // Actually, the user said "offset to the right by the amount of the sub-window"
-                // So if panel is 280px + 20px margin = 300px, the visual center of the remaining map
-                // is (mapWidth - 300) / 2 + 300.
-                // The current map.getCenter() is mapWidth / 2.
-                // So we need to shift it right by 300 / 2 = 150 pixels.
-                const offsetPx = 150;
-                const centerPoint = map.latLngToContainerPoint(referencePoint);
-                const offsetPoint = L.point(centerPoint.x + offsetPx, centerPoint.y);
-                referencePoint = map.containerPointToLatLng(offsetPoint);
-            }
+        // Minimum distance parameters (in pixels)
+        // Center: closer spacing allowed. Edge: wider spacing required.
+        let minDistCenter = 40; // Minimum distance at the center (px)
+        let minDistEdge = 150;  // Minimum distance at the edge (px)
 
-            // Calculate distance from reference point for each city
-            candidates.forEach(c => {
-                c._dist = Math.pow(c.lat - referencePoint.lat, 2) + Math.pow(c.lng - referencePoint.lng, 2);
-            });
-
-            // Sort by level (priority 1) and distance from center (priority 2)
-            candidates.sort((a, b) => {
-                if (a.level !== b.level) return a.level - b.level;
-                return a._dist - b._dist;
-            });
-
-            // Adaptive grid-based sampling for all zoom levels to prevent concentration
-            const level1 = candidates.filter(c => c.level === 1);
-            const others = candidates.filter(c => c.level !== 1);
-
-            let result = [...level1];
-            const selectedCodes = new Set(result.map(c => c.code));
-
-            if (result.length < maxMarkers) {
-                // Adjust grid size based on zoom level
-                let gridCount = 6;
-                if (zoom >= 7) gridCount = 8;
-                if (zoom >= 10) gridCount = 10;
-
-                const latMin = bounds.getSouth();
-                const latMax = bounds.getNorth();
-                const lngMin = bounds.getWest();
-                const lngMax = bounds.getEast();
-
-                const latStep = (latMax - latMin) / gridCount;
-                const lngStep = (lngMax - lngMin) / gridCount;
-
-                const grid = Array.from({ length: gridCount }, () => Array.from({ length: gridCount }, () => []));
-
-                others.forEach(c => {
-                    const latIdx = Math.min(gridCount - 1, Math.floor((c.lat - latMin) / latStep));
-                    const lngIdx = Math.min(gridCount - 1, Math.floor((c.lng - lngMin) / lngStep));
-                    if (latIdx >= 0 && lngIdx >= 0 && latIdx < gridCount && lngIdx < gridCount) {
-                        grid[latIdx][lngIdx].push(c);
-                    }
-                });
-
-                // Pick from each grid cell until maxMarkers is reached
-                // First pass: pick one from each cell
-                for (let i = 0; i < gridCount && result.length < maxMarkers; i++) {
-                    for (let j = 0; j < gridCount && result.length < maxMarkers; j++) {
-                        const cellCities = grid[i][j];
-                        if (cellCities.length > 0) {
-                            const pick = cellCities.find(c => !selectedCodes.has(c.code));
-                            if (pick) {
-                                result.push(pick);
-                                selectedCodes.add(pick.code);
-                            }
-                        }
-                    }
-                }
-
-                // Second pass: if still have space, fill with remaining sorted candidates
-                // This ensures we don't leave empty slots if some cells are empty
-                if (result.length < maxMarkers) {
-                    for (let i = 0; i < candidates.length && result.length < maxMarkers; i++) {
-                        if (!selectedCodes.has(candidates[i].code)) {
-                            result.push(candidates[i]);
-                            selectedCodes.add(candidates[i].code);
-                        }
-                    }
-                }
-            }
-            candidates = result.slice(0, maxMarkers);
+        // Adjust for national view (low zoom) to show more points
+        if (zoom < 7) {
+            minDistCenter = 30;
+            minDistEdge = 80;
         }
-        visibleCandidates = candidates;
 
+        // If zoom is high (max zoom), show all points
+        if (zoom >= 12) {
+            maxMarkers = 10000; // Allow all
+            minDistCenter = 0;
+            minDistEdge = 0;
+        }
+
+        // Helper to calculate pixel distance
+        const getPixelDist = (c1, c2) => {
+            const p1 = map.latLngToContainerPoint([c1.lat, c1.lng]);
+            const p2 = map.latLngToContainerPoint([c2.lat, c2.lng]);
+            return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+        };
+
+        // Helper to get dynamic minimum distance based on distance from center
+        const mapSize = map.getSize();
+        const maxScreenDist = Math.sqrt(Math.pow(mapSize.x / 2, 2) + Math.pow(mapSize.y / 2, 2));
+
+        const getDynamicMinDist = (city) => {
+            const p = map.latLngToContainerPoint([city.lat, city.lng]);
+            const centerP = map.latLngToContainerPoint(center);
+            const distFromCenter = Math.sqrt(Math.pow(p.x - centerP.x, 2) + Math.pow(p.y - centerP.y, 2));
+
+            // Normalize distance (0 at center, 1 at corner)
+            const ratio = Math.min(1, distFromCenter / maxScreenDist);
+
+            // Linear interpolation between center and edge min distances
+            return minDistCenter + (minDistEdge - minDistCenter) * ratio;
+        };
+
+        // 5. Select Markers with Dynamic Density
+        const selected = [];
+        const selectedCodes = new Set();
+
+        // Iterate through ALL candidates (sorted by distance from center)
+        for (const city of candidates) {
+            // Safety break just in case, though density check should handle it
+            if (selected.length >= maxMarkers) break;
+
+            // Check distance against all already selected cities
+            let tooClose = false;
+            const requiredDist = getDynamicMinDist(city);
+
+            for (const existing of selected) {
+                const dist = getPixelDist(city, existing);
+                // We use the larger of the two required distances (or just the current one's requirement)
+                // Using the current one's requirement ensures that as we move out, we respect the wider spacing
+                if (dist < requiredDist) {
+                    tooClose = true;
+                    break;
+                }
+            }
+
+            if (!tooClose) {
+                selected.push(city);
+                selectedCodes.add(city.code);
+            }
+        }
+
+        const visibleCandidates = selected;
         const visibleCityCodes = new Set(visibleCandidates.map(c => c.code));
         currentVisibleCityCodes = visibleCityCodes;
 
@@ -254,7 +231,7 @@ async function updateVisibleMarkers() {
 
                 const sanitizedCode = sanitizeHTML(city.code);
                 marker.bindPopup(`<div id="popup-${sanitizedCode}">読み込み中...</div>`, {
-                    maxWidth: 350 // Slightly wider
+                    maxWidth: 350
                 });
                 marker.on('popupopen', () => {
                     currentOpenCity = city;
@@ -352,8 +329,10 @@ async function fetchCityDailyData(cityCode) {
 function updateMarkerTooltip(marker) {
     const height = marker.isPast ? marker.maxPollen * 0.4 : marker.maxPollen * 8; // Adjust height for past totals
     const color = getPollenColor(marker.maxPollen, marker.isPast);
+
+    // Wrapped in graph-tooltip-inner for rotation
     const content = `
-        <div style="display: flex; flex-direction: column; align-items: center;">
+        <div class="graph-tooltip-inner" style="display: flex; flex-direction: column; align-items: center;">
             <div style="width: 10px; height: ${Math.min(height, 150)}px; background-color: ${color}; border: 1px solid #fff;"></div>
             <span style="font-size: 10px;">${marker.maxPollen}</span>
         </div>
