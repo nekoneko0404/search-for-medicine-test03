@@ -81,86 +81,39 @@ function sanitizeHTML(text) {
     return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
-// CSVパーサー (簡易版)
-function parseCSV(text) {
-    const lines = text.split(/\r\n|\n/).map(line => line.trim()).filter(line => line);
-    return lines.map(line => {
-        const result = [];
-        let current = '';
-        let inQuote = false;
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') {
-                if (inQuote && line[i + 1] === '"') {
-                    current += '"';
-                    i++;
-                } else {
-                    inQuote = !inQuote;
-                }
-            } else if (char === ',' && !inQuote) {
-                result.push(sanitizeHTML(current));
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-        result.push(sanitizeHTML(current));
-        return result;
-    });
-}
+// Parsing functions removed (moved to server-side)
 
-// キャッシュ設定
 const CACHE_CONFIG = {
-    COMBINED_DATA_KEY: 'infection_surveillance_combined_data_v3', // キャッシュ無効化 (v3)
-    MAIN_EXPIRY: 1 * 60 * 60 * 1000, // 1時間
-    HISTORY_EXPIRY: 30 * 60 * 1000 // 30分 (combined data uses this for overall cache time)
+    COMBINED_DATA_KEY: 'infection_surveillance_combined_data_v4',
+    MAIN_EXPIRY: 1 * 60 * 60 * 1000,
+    HISTORY_EXPIRY: 30 * 60 * 1000
 };
 
-// LocalForageの設定（メイン画面と設定を合わせるため、デフォルト設定を使用）
-// メイン画面（../common.js）ではlocalforage.configを呼び出していないため、
-// こちらもデフォルト（name: 'localforage', storeName: 'keyvaluepairs'）に合わせます。
-// localforage.config({
-//     name: 'KusuriCompassDB',
-//     storeName: 'infection_surveillance_store'
-// });
+// LocalForage settings (default)
 
 async function fetchCombinedData() {
     const now = Date.now();
 
-    // 1. キャッシュ確認
     try {
         const cached = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
-        // combinedデータは、履歴データのキャッシュ期間に合わせる
         if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
-            // console.log('Using cached combined data');
             return cached.data;
         }
     } catch (e) {
         console.warn('Combined data cache check failed:', e);
     }
 
-    // 2. API取得 (type=combined)
-    // console.log('Fetching combined data from API...');
     try {
         const response = await fetch(`${API_URL}?type=combined`, {
-            redirect: 'follow' // リダイレクトを明示的に許可
+            redirect: 'follow'
         });
 
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
         }
 
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            // JSONでない場合はテキストとして取得してエラー詳細を確認
-            const text = await response.text();
-            console.error("Received non-JSON response:", text);
-            throw new Error(`Invalid content-type: ${contentType}. Expected application/json. Response sample: ${text.substring(0, 100)}`);
-        }
+        const data = await response.json();
 
-        const data = await response.json(); // Code.gsからJSONで返される
-
-        // 3. キャッシュ保存
         try {
             await localforage.setItem(CACHE_CONFIG.COMBINED_DATA_KEY, {
                 timestamp: now,
@@ -175,373 +128,6 @@ async function fetchCombinedData() {
         console.error('Fetch error for combined data:', e);
         throw e;
     }
-}
-
-function processData(teitenRows, ariRows, tougaiRows, historicalArchives) {
-    const influenzaData = parseTeitenRows(teitenRows, 'Influenza');
-    const covid19Data = parseTeitenRows(teitenRows, 'COVID-19');
-    const ariDataParsed = parseAriRows(ariRows, 'ARI');
-
-    const allData = [...influenzaData, ...covid19Data, ...ariDataParsed];
-
-    // 履歴データのパース
-    const historyData = parseTougaiRows(tougaiRows);
-
-    const alerts = generateAlerts(allData);
-
-    // historicalArchives はすでにパースされていることを想定
-    return {
-        current: {
-            data: allData,
-            history: historyData,
-            summary: { alerts }
-        },
-        archives: historicalArchives || []
-    };
-}
-
-function parseTeitenRows(rows, diseaseName) {
-    if (!rows || rows.length < 5) {
-        console.warn('Rows are empty or too short', rows);
-        return [];
-    }
-
-    const prefectures = [
-        '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-        '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-        '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
-        '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
-        '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-        '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
-        '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
-    ];
-
-    const diseaseHeaderRow = rows[2];
-    const subHeaderRow = rows[3];
-
-    let searchKeys = [diseaseName];
-    if (diseaseName === 'Influenza') searchKeys.push('インフルエンザ');
-    if (diseaseName === 'COVID-19') searchKeys.push('新型コロナウイルス感染症', 'COVID-19');
-
-    let diseaseColumnIndex = -1;
-
-    for (let i = 1; i < diseaseHeaderRow.length; i++) {
-        const cellValue = diseaseHeaderRow[i] || '';
-        if (searchKeys.some(key => cellValue.includes(key))) {
-            for (let j = i; j < subHeaderRow.length; j++) {
-                if ((subHeaderRow[j] || '').includes('定当')) {
-                    diseaseColumnIndex = j;
-                    break;
-                }
-            }
-            break;
-        }
-    }
-
-    if (diseaseColumnIndex === -1) {
-        console.warn(`${diseaseName} column not found.`);
-        return [];
-    }
-
-    const extractedData = [];
-    for (let i = 4; i < rows.length; i++) {
-        const row = rows[i];
-        if (row.length <= diseaseColumnIndex) continue;
-
-        const prefName = String(row[0] || '').trim();
-        const value = parseFloat(row[diseaseColumnIndex]);
-        const cleanValue = isNaN(value) ? 0 : value;
-
-        if (prefectures.includes(prefName)) {
-            extractedData.push({ disease: diseaseName, prefecture: prefName, value: cleanValue });
-        } else if (prefName.replace(/\s+/g, '') === '総数') {
-            extractedData.push({ disease: diseaseName, prefecture: '全国', value: cleanValue });
-        }
-    }
-    return extractedData;
-}
-
-function parseAriRows(rows, diseaseName) {
-    if (!rows || rows.length < 5) return [];
-
-    const prefectures = [
-        '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-        '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-        '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
-        '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
-        '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-        '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
-        '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
-    ];
-
-    const valueColumnIndex = 2;
-
-    const extractedData = [];
-    for (let i = 4; i < rows.length; i++) {
-        const row = rows[i];
-        const prefName = String(row[0] || '').trim();
-        const value = parseFloat(row[valueColumnIndex]);
-        const cleanValue = isNaN(value) ? 0 : value;
-
-        if (prefectures.includes(prefName)) {
-            extractedData.push({ disease: diseaseName, prefecture: prefName, value: cleanValue });
-        } else if (prefName.replace(/\s+/g, '') === '総数') {
-            extractedData.push({ disease: diseaseName, prefecture: '全国', value: cleanValue });
-        }
-    }
-    return extractedData;
-}
-
-function parseTougaiRows(rows) {
-    if (!rows || rows.length < 10) return [];
-
-    const historyData = [];
-    const diseaseSections = {}; // { diseaseKey: startRowIndex }
-
-    // 各疾患の開始行を探す
-    for (let i = 0; i < rows.length; i++) {
-        // A列 (index 0) をチェック
-        const firstCell = String(rows[i][0] || '').trim();
-
-        ALL_DISEASES.forEach(disease => {
-            // 完全一致、または特定の文字列を含む場合を疾患セクションの開始とみなす
-            // "インフルエンザ" という単独セル、あるいは "RSウイルス感染症" など
-            if (firstCell === disease.name || (firstCell.includes(disease.name) && firstCell.length < disease.name.length + 5)) {
-                // 既に検出済みの場合は上書きしない（最初の出現を採用）
-                if (diseaseSections[disease.key] === undefined) {
-                    diseaseSections[disease.key] = i;
-                }
-            }
-        });
-    }
-
-    // 各疾患の履歴データを抽出
-    ALL_DISEASES.forEach(disease => {
-        if (diseaseSections[disease.key] !== undefined) {
-            historyData.push(...extractHistoryFromSection(rows, diseaseSections[disease.key], disease.key, disease.name));
-        }
-    });
-
-    return historyData;
-}
-
-
-// 修正版: 画像1のCSV構造（疾患名行 -> 週ヘッダー -> タイプヘッダー -> データ）に対応
-function extractHistoryFromSection(rows, startRowIndex, diseaseKey, displayDiseaseName) {
-    console.log(`DEBUG: extractHistoryFromSection called for ${displayDiseaseName} (Key: ${diseaseKey}) at row ${startRowIndex}`);
-
-    // Log first few rows to verify content and week extraction
-    if (startRowIndex < 5) { // Only log for the first disease to avoid spam
-        for (let k = 0; k < Math.min(rows.length, 5); k++) {
-            console.log(`DEBUG: Row ${k}: ${JSON.stringify(rows[k])}`);
-            const rowStr = rows[k].join('');
-            const match = rowStr.match(/(\d{4})年(\d{1,2})週/);
-            if (match) {
-                console.log(`DEBUG: Regex matched in Row ${k}: Year=${match[1]}, Week=${match[2]}`);
-            }
-        }
-    }
-
-    const results = [];
-    let weekHeaderRowIndex = -1;
-    let typeHeaderRowIndex = -1;
-
-    // ヘッダー行を探索 (startRowIndexの直下から広めに確認)
-    for (let i = startRowIndex + 1; i < Math.min(rows.length, startRowIndex + 20); i++) {
-        const row = rows[i];
-        const rowStr = row.join(','); // join(', ')だと見づらい可能性があるのでカンマのみ
-
-        // 「週」が含まれる行を週ヘッダーとみなす
-        if (rowStr.includes('週')) {
-            const weekMatches = rowStr.match(/(\d{1,2})週/g);
-            if (weekMatches && weekMatches.length > 5) { // 5つ以上週の表記があれば確度が高い
-                weekHeaderRowIndex = i;
-                // その次の行をタイプヘッダーと仮定
-                if (i + 1 < rows.length) {
-                    typeHeaderRowIndex = i + 1;
-                }
-                break;
-            }
-        }
-    }
-
-    // if (weekHeaderRowIndex === -1 || typeHeaderRowIndex === -1) {
-    //     return [];
-    // }
-
-    // 重複する宣言を削除し、一度定義した変数を使用
-    const weekHeaderRow = rows[weekHeaderRowIndex];
-    const typeHeaderRow = rows[typeHeaderRowIndex];
-
-    const weekColumns = [];
-    if (weekHeaderRow && typeHeaderRow) {
-        for (let j = 0; j < weekHeaderRow.length; j++) {
-            const weekText = String(weekHeaderRow[j] || '');
-            const typeText = String(typeHeaderRow[j] || '');
-            const weekMatch = weekText.match(/(\d{1,2})週/);
-
-            // 2026年形式: "定点当たり" もチェック
-            if (weekMatch && (typeText.includes('定当') || typeText.includes('定点当たり'))) {
-                weekColumns.push({
-                    week: parseInt(weekMatch[1]),
-                    colIndex: j
-                });
-            }
-        }
-    }
-
-    if (weekColumns.length === 0) {
-        // フォールバック: 週ヘッダーが見つからない場合、単一週のレポート（スプレッドシート形式）かどうかを確認
-        // 例: A2セルに "2026年01週..." のような記載があり、4行目に "定当" がある場合
-
-        // タイトル行から週番号を抽出
-        let singleWeekNum = null;
-        // ファイルの先頭から数行を確認（タイトル行は通常上部にある）
-        for (let i = 0; i < Math.min(rows.length, 10); i++) {
-            const rowStr = rows[i].join('');
-            const match = rowStr.match(/(\d{4})年(\d{1,2})週/);
-            if (match) {
-                singleWeekNum = parseInt(match[2]);
-                console.log(`DEBUG: Found singleWeekNum: ${singleWeekNum} in row ${i}: ${rowStr.substring(0, 50)}...`);
-                break;
-            }
-        }
-
-        if (singleWeekNum) {
-            // "定当" または "定点当たり" の列を探す
-            // ヘッダー行は startRowIndex + 3 (4行目) あたりにあると想定
-            let foundHeader = false;
-            for (let i = startRowIndex + 1; i < Math.min(rows.length, startRowIndex + 10); i++) {
-                const row = rows[i];
-                const prevRow = rows[i - 1]; // 1つ上の行（週番号が書いてあるはず）
-
-                for (let j = 0; j < row.length; j++) {
-                    const cell = String(row[j] || '');
-                    if (cell.includes('定当') || cell.includes('定点当たり')) {
-                        // 1つ上の行が週番号と一致するか確認
-                        // "01週" や "1週" など
-                        const prevCell = prevRow ? String(prevRow[j] || '') : '';
-                        const weekPattern = new RegExp(`${singleWeekNum}週`);
-
-                        // console.log(`DEBUG: Checking col ${j} at row ${i}. Cell: '${cell}', Prev: '${prevCell}', Pattern: ${weekPattern}`);
-
-                        if (prevCell.match(weekPattern)) {
-                            console.log(`DEBUG: Match found! Week: ${singleWeekNum}, Col: ${j}`);
-                            weekColumns.push({
-                                week: singleWeekNum,
-                                colIndex: j
-                            });
-                            typeHeaderRowIndex = i; // データ開始行の基準
-                            foundHeader = true;
-                            break;
-                        }
-                    }
-                }
-                if (foundHeader) break;
-            }
-        }
-
-        if (weekColumns.length === 0) {
-            console.warn(`DEBUG: No week columns found for ${displayDiseaseName}. Header row: ${weekHeaderRowIndex}, Type row: ${typeHeaderRowIndex}, SingleWeekNum: ${singleWeekNum}`);
-            return [];
-        }
-    }
-    console.log(`DEBUG: weekColumns found for ${displayDiseaseName}:`, JSON.stringify(weekColumns));
-
-    // データ抽出 (タイプヘッダーの次の行から)
-    console.log(`DEBUG: Starting data extraction from row ${typeHeaderRowIndex + 1}`);
-    let logCount = 0;
-    for (let i = typeHeaderRowIndex + 1; i < rows.length; i++) {
-        const row = rows[i];
-        const prefName = String(row[0] || '').trim();
-
-        if (logCount < 3) {
-            console.log(`DEBUG: Row ${i} prefName: '${prefName}'`);
-            logCount++;
-        }
-
-        if (!prefName) continue; // 空行はスキップ
-
-        // 次の疾患セクションの開始（またはフッター）を検知したら終了
-        const isNextSection = ALL_DISEASES.some(d => d.key !== diseaseKey && prefName.includes(d.name));
-        if (isNextSection || prefName.includes('報告数・定点当たり')) {
-            console.log(`DEBUG: Stopping at row ${i} (Next section or footer): ${prefName}`);
-            break;
-        }
-
-        if (logCount < 1) {
-            console.log(`DEBUG: Checking prefName '${prefName}' (Length: ${prefName.length})`);
-            const codes = [];
-            for (let k = 0; k < prefName.length; k++) {
-                codes.push(prefName.charCodeAt(k));
-            }
-            console.log(`DEBUG: Char codes: ${codes.join(', ')}`);
-        }
-
-        // 都道府県名リストに含まれるか、または「総数」である場合のみ処理
-        const validPrefectures = [
-            '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-            '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-            '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
-            '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
-            '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
-            '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県', '総数'
-        ];
-        const isValidPrefecture = validPrefectures.includes(prefName);
-
-        if (logCount < 1) {
-            console.log(`DEBUG: isValidPrefecture: ${isValidPrefecture}`);
-        }
-
-        if (isValidPrefecture) {
-            const history = weekColumns.map(wc => {
-                const val = parseFloat(row[wc.colIndex]);
-                return { week: wc.week, value: isNaN(val) ? null : val };
-            });
-
-            if (logCount < 3) {
-                console.log(`DEBUG: Extracted history for ${prefName}:`, JSON.stringify(history));
-            }
-
-            results.push({
-                disease: diseaseKey,
-                prefecture: prefName === '総数' ? '全国' : prefName,
-                history: history
-            });
-        }
-    }
-    return results;
-}
-function generateAlerts(data) {
-    const comments = [];
-    // 主要な疾患のみアラートを生成
-    const diseasesForAlerts = ALL_DISEASES.filter(d => ['Influenza', 'COVID-19', 'ARI'].includes(d.key));
-
-    diseasesForAlerts.forEach(diseaseObj => {
-        const diseaseKey = diseaseObj.key;
-        const nationalData = data.find(item => item.disease === diseaseKey && item.prefecture === '全国');
-        if (nationalData) {
-            const value = nationalData.value;
-            let level = 'normal';
-            let message = '全国的に平常レベルです。';
-
-            if (diseaseKey === 'Influenza') {
-                if (value >= 30.0) { level = 'alert'; message = '全国的に警報レベルです。'; }
-                else if (value >= 10.0) { level = 'warning'; message = '全国的に注意報レベルです。'; }
-                else if (value >= 1.0) { level = 'normal'; message = '全国的に流行入りしています。'; }
-            } else if (diseaseKey === 'COVID-19') {
-                if (value >= 15.0) { level = 'alert'; message = '高い感染レベルです。'; }
-                else if (value >= 10.0) { level = 'warning'; message = '注意が必要です。'; }
-            } else if (diseaseKey === 'ARI') {
-                if (value >= 120.0) { level = 'alert'; message = '流行レベルです。'; }
-                else if (value >= 80.0) { level = 'warning'; message = '注意が必要です。'; }
-            }
-
-            comments.push({ disease: diseaseKey, level, message });
-        }
-    });
-    return comments;
 }
 
 function renderSummary(data) {
@@ -724,11 +310,11 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         return;
     }
 
-    let pointRadius = 1;
-    const datasets = yearDataSets.map(ds => {
+    const createDataset = (ds) => {
         const year = ds.year;
         let borderColor;
         let borderWidth;
+        let pointRadius = 1;
 
         if (year === new Date().getFullYear()) {
             const validDataPoints = ds.data.filter(d => d && d.value !== null && d.value !== undefined);
@@ -795,7 +381,13 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
             };
         }
         return dataset;
-    });
+    };
+
+    const currentYear = new Date().getFullYear();
+    const sortedSets = yearDataSets.sort((a, b) => b.year - a.year);
+
+    // Render all datasets at once
+    const datasets = sortedSets.map(createDataset);
 
     const chartConfig = {
         type: 'line',
@@ -808,7 +400,7 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
             maintainAspectRatio: false,
             scales: { y: { beginAtZero: true, title: { display: true, text: '定点当たり報告数' }, suggestedMax: yAxisMax } },
             interaction: { intersect: false, mode: 'index', axis: 'x' },
-            elements: { point: { hitRadius: 20, radius: pointRadius, hoverRadius: pointRadius + 2 }, line: { borderCapStyle: 'round', borderJoinStyle: 'round' } },
+            elements: { point: { hitRadius: 20, hoverRadius: 4 }, line: { borderCapStyle: 'round', borderJoinStyle: 'round' } },
             plugins: {
                 title: { display: false, text: `${prefecture} ${getDiseaseName(diseaseKey)} 週次推移`, font: { size: 16, family: "'Noto Sans JP', sans-serif" } },
                 tooltip: { enabled: !isMobile, mode: 'index', intersect: false, position: 'nearest', bodyFont: { size: isMobile ? 14 : 13 }, titleFont: { size: isMobile ? 14 : 13 }, padding: 10, boxPadding: 4, backgroundColor: 'rgba(0, 0, 0, 0.8)', titleColor: '#fff', bodyColor: '#fff', footerColor: '#fff' },
@@ -824,37 +416,25 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                         const isAllOriginal = otherDatasets.every(ds => ds.borderColor === ds._originalColor);
                         if (isAllOriginal) {
                             datasets.forEach((ds, i) => {
-                                if (i === index) {
-                                    ds.borderColor = ds._originalColor === '#E0E0E0' ? '#34495e' : ds._originalColor;
-                                    ds.borderWidth = 3;
-                                } else {
-                                    ds.borderColor = '#e0e0e0';
+                                if (i !== index) {
+                                    ds.borderColor = 'rgba(200, 200, 200, 0.2)';
                                     ds.borderWidth = 1;
+                                } else {
+                                    ds.borderColor = ds._originalColor;
+                                    ds.borderWidth = 3;
                                 }
                             });
                         } else {
-                            const isClickedGray = clickedDataset.borderColor === '#e0e0e0';
-                            if (isClickedGray) {
-                                datasets.forEach((ds, i) => {
-                                    if (i === index) {
-                                        ds.borderColor = ds._originalColor === '#E0E0E0' ? '#34495e' : ds._originalColor;
-                                        ds.borderWidth = 3;
-                                    } else {
-                                        ds.borderColor = '#e0e0e0';
-                                        ds.borderWidth = 1;
-                                    }
-                                });
-                            } else {
-                                datasets.forEach(ds => {
-                                    ds.borderColor = ds._originalColor;
-                                    ds.borderWidth = ds._originalBorderWidth;
-                                });
-                            }
+                            datasets.forEach(ds => {
+                                ds.borderColor = ds._originalColor;
+                                ds.borderWidth = ds._originalBorderWidth;
+                            });
                         }
                         chart.update();
                     }
                 }
-            }
+            },
+            animation: { duration: 0 } // Disable animation for instant display
         }
     };
 
@@ -879,7 +459,6 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         });
         observer.observe(container);
     } else {
-        // Fallback for older browsers or if container is not available
         setTimeout(initializeChart, 50);
     }
 }
@@ -1634,167 +1213,39 @@ function initEventListeners() {
         });
     }
 }
-// 過去データを取得する関数
-async function fetchHistoryData() {
-    try {
-        const response = await fetch(`${API_URL}?type=history&_=${Date.now()}`, { redirect: 'follow' });
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-        const data = await response.json();
-        return data.data; // { data: [...], logs: [...] } の data を返す
-    } catch (e) {
-        console.warn('Failed to fetch history data:', e);
-        return [];
-    }
-}
-
-// 最新データを取得する関数
-async function fetchLatestData() {
-    try {
-        const response = await fetch(`${API_URL}?type=latest&_=${Date.now()}`, { redirect: 'follow' });
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-        return await response.json();
-    } catch (e) {
-        console.error('Failed to fetch latest data:', e);
-        throw e;
-    }
-}
-
 async function loadAndRenderData() {
     try {
         const now = Date.now();
-        let useCache = false;
-        let cachedCombined = null;
+        let combinedData = null;
 
-        // 1. キャッシュの確認
+        // 1. キャッシュ確認
         try {
-            cachedCombined = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
-            // console.log('DEBUG: Cached combined data from main.js:', cachedCombined);
-            // console.log('DEBUG: Current time:', now);
-            if (cachedCombined) {
-                // console.log('DEBUG: Cached timestamp:', cachedCombined.timestamp);
-                // console.log('DEBUG: Cache age:', now - cachedCombined.timestamp);
-                // console.log('DEBUG: Cache expiry (HISTORY_EXPIRY):', CACHE_CONFIG.HISTORY_EXPIRY);
-            }
-            if (cachedCombined && (now - cachedCombined.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
-                // console.log('DEBUG: Cache is valid and will be used.');
-                useCache = true;
-            } else {
-                // console.log('DEBUG: Cache is invalid or too old, will fetch new data.');
+            const cached = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
+            if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
+                combinedData = cached.data;
             }
         } catch (e) {
-            console.warn('Cache check failed in main.js:', e);
+            console.warn('Cache check failed:', e);
         }
 
-        if (useCache && cachedCombined) {
-            // キャッシュデータを使用
-            const data = cachedCombined.data; // { latestData, historyData }
-            const latestData = data.latestData;
-            const historyData = data.historyData || [];
+        // 2. キャッシュがない場合はAPIから取得
+        if (!combinedData) {
+            combinedData = await fetchCombinedData();
+        }
 
-            const teitenCsv = latestData.Teiten;
-            const ariCsv = latestData.ARI;
-            const tougaiCsv = latestData.Tougai;
+        cachedData = combinedData;
 
-            const teitenData = parseCSV(teitenCsv);
-            const ariData = parseCSV(ariCsv);
-            const tougaiData = parseCSV(tougaiCsv);
-
-            const historicalArchives = historyData.map(archive => {
-                const rows = parseCSV(archive.content);
-                return {
-                    year: archive.year,
-                    data: parseTougaiRows(rows)
-                };
-            });
-
-            // 一括で処理
-            cachedData = processData(teitenData, ariData, tougaiData, historicalArchives);
-
-            // 日付表示更新
-            updateDateDisplay(teitenCsv);
-
-            // 描画
-            renderSummary(cachedData);
-            renderDashboard(currentDisease, cachedData);
-            updateLoadingState(false);
-
+        // 日付表示更新
+        if (cachedData.current && cachedData.current.meta && cachedData.current.meta.dateInfo) {
+            updateDateDisplay(cachedData.current.meta.dateInfo);
         } else {
-            // 2. キャッシュがない場合: 最新データを先に取得・表示
-            console.log('Fetching latest data from API...');
-            const latestData = await fetchLatestData();
-
-            const teitenCsv = latestData.Teiten;
-            const ariCsv = latestData.ARI;
-            const tougaiCsv = latestData.Tougai;
-
-            const teitenData = parseCSV(teitenCsv);
-            const ariData = parseCSV(ariCsv);
-            const tougaiData = parseCSV(tougaiCsv);
-
-            // まず最新データのみで初期化
-            cachedData = processData(teitenData, ariData, tougaiData, []);
-
-            // 日付表示更新
-            updateDateDisplay(teitenCsv);
-
-            renderSummary(cachedData);
-
-            renderDashboard(currentDisease, cachedData);
-
-            updateLoadingState(false);
-
-            // 3. 過去データを非同期で取得して追加
-            // console.log('Fetching history data in background...');
-            const historyData = await fetchHistoryData();
-
-            if (historyData) { // historyData might be empty array
-                const historicalArchives = historyData.map(archive => {
-                    const rows = parseCSV(archive.content);
-                    const parsedData = parseTougaiRows(rows);
-                    console.log(`DEBUG: Parsed archive ${archive.year}: ${parsedData.length} records. Content length: ${archive.content.length}`);
-                    if (parsedData.length === 0) {
-                        console.warn(`DEBUG: Archive ${archive.year} parsed to EMPTY data!`);
-                        // コンテンツの先頭を表示して中身を確認
-                        console.warn(`DEBUG: Content snippet for ${archive.year}: ${archive.content.substring(0, 200)}`);
-                    }
-                    return {
-                        year: archive.year,
-                        data: parsedData
-                    };
-                });
-
-                // 既存のデータに過去データを統合
-                cachedData.archives = historicalArchives;
-
-                // console.log(`Loaded ${historicalArchives.length} history files. Updating charts...`);
-
-                // グラフのみ再描画 (現在の表示状態を維持)
-                if (currentPrefecture) {
-                    showPrefectureChart(currentPrefecture, currentDisease);
-                } else {
-                    // その他感染症リストが表示中なら更新
-                    if (!document.getElementById('other-diseases-list-view').classList.contains('hidden')) {
-                        const prefSelect = document.getElementById('prefecture-select');
-                        renderOtherDiseasesList(prefSelect ? prefSelect.value : '全国');
-                    }
-                }
-
-                // 4. 次回のためにキャッシュに保存 (Combined形式で)
-                try {
-                    const combinedData = {
-                        latestData: latestData,
-                        historyData: historyData
-                    };
-                    await localforage.setItem(CACHE_CONFIG.COMBINED_DATA_KEY, {
-                        timestamp: Date.now(),
-                        data: combinedData
-                    });
-                    // console.log('Data cached successfully (constructed from split fetch).');
-                } catch (e) {
-                    console.warn('Failed to save cache:', e);
-                }
-            }
+            updateDateDisplay('');
         }
+
+        // 描画
+        renderSummary(cachedData);
+        renderDashboard(currentDisease, cachedData);
+        updateLoadingState(false);
 
     } catch (e) {
         console.error('Error in loadAndRenderData:', e);
@@ -1802,25 +1253,25 @@ async function loadAndRenderData() {
     }
 }
 
-function updateDateDisplay(csvContent) {
-    const dateMatch = csvContent.match(/(\d{4})年(\d{1,2})週(?:\((.*?)\))?/);
+function updateDateDisplay(dateString) {
     const dateElement = document.getElementById('update-date');
-    if (dateElement) {
-        if (dateMatch) {
-            const year = dateMatch[1];
-            const week = dateMatch[2];
-            let dateRange = dateMatch[3];
+    if (!dateElement) return;
 
-            if (dateRange) {
-                // Convert 11月17日〜11月23日 to 11/17～11/23
-                dateRange = dateRange.replace(/月/g, '/').replace(/日/g, '').replace(/[〜~]/g, '～');
-                dateElement.textContent = `${year}年 第${week}週 （${dateRange}）`;
-            } else {
-                dateElement.textContent = `${year}年 第${week}週`;
-            }
+    const dateMatch = dateString.match(/(\d{4})年(\d{1,2})週(?:\((.*?)\))?/);
+    if (dateMatch) {
+        const year = dateMatch[1];
+        const week = dateMatch[2];
+        let dateRange = dateMatch[3];
+
+        if (dateRange) {
+            // Convert 11月17日〜11月23日 to 11/17～11/23
+            dateRange = dateRange.replace(/月/g, '/').replace(/日/g, '').replace(/[〜~]/g, '～');
+            dateElement.textContent = `${year}年 第${week}週 （${dateRange}）`;
         } else {
-            dateElement.textContent = new Date().toLocaleDateString('ja-JP');
+            dateElement.textContent = `${year}年 第${week}週`;
         }
+    } else {
+        dateElement.textContent = new Date().toLocaleDateString('ja-JP');
     }
 }
 
