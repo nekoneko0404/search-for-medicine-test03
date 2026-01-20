@@ -412,9 +412,26 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                         const chart = legend.chart;
                         const datasets = chart.data.datasets;
                         const clickedDataset = datasets[index];
-                        const otherDatasets = datasets.filter((_, i) => i !== index);
-                        const isAllOriginal = otherDatasets.every(ds => ds.borderColor === ds._originalColor);
-                        if (isAllOriginal) {
+
+                        // Ensure original properties are saved
+                        if (!clickedDataset._originalColor) {
+                            clickedDataset._originalColor = clickedDataset.borderColor;
+                            clickedDataset._originalBorderWidth = clickedDataset.borderWidth;
+                        }
+
+                        // Check if the clicked dataset is the ONLY one currently highlighted (active)
+                        // Active means it matches its original color AND others are dimmed
+                        const isClickedActive = clickedDataset.borderColor === clickedDataset._originalColor;
+                        const areOthersDimmed = datasets.some((ds, i) => i !== index && ds.borderColor === 'rgba(200, 200, 200, 0.2)');
+
+                        // If currently active and others are dimmed, toggle OFF (reset all)
+                        if (isClickedActive && areOthersDimmed) {
+                            datasets.forEach(ds => {
+                                ds.borderColor = ds._originalColor;
+                                ds.borderWidth = ds._originalBorderWidth;
+                            });
+                        } else {
+                            // Otherwise, highlight THIS one and dim others
                             datasets.forEach((ds, i) => {
                                 if (i !== index) {
                                     ds.borderColor = 'rgba(200, 200, 200, 0.2)';
@@ -423,11 +440,6 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
                                     ds.borderColor = ds._originalColor;
                                     ds.borderWidth = 3;
                                 }
-                            });
-                        } else {
-                            datasets.forEach(ds => {
-                                ds.borderColor = ds._originalColor;
-                                ds.borderWidth = ds._originalBorderWidth;
                             });
                         }
                         chart.update();

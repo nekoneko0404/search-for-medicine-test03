@@ -691,67 +691,6 @@ body {
     .header-right {
         order: 2;
     }
-
-    .disease-card {
-        height: 300px;
-    }
-
-    .summary-cards .card {
-        padding: 15px;
-    }
-
-    .summary-cards .card .value {
-        font-size: 1.5rem;
-    }
-}
-
-/* Prefecture Chart */
-#pref-chart-container {
-    background: white;
-    padding: 20px;
-    border-radius: var(--border-radius);
-    height: 100%;
-    min-height: 500px;
-    position: relative;
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-}
-
-#back-to-map-btn {
-    align-self: flex-end;
-    margin-bottom: 10px;
-    padding: 5px 15px;
-    cursor: pointer;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-sub);
-    transition: all 0.2s;
-}
-
-.pref-chart-wrapper {
-    flex-grow: 1;
-    width: 100%;
-    min-height: 0;
-    position: relative;
-}
-
-/* Prefecture List */
-.pref-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 2px 5px;
-}
-
-.pref-name {
-    width: 80px;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: underline;
 }
 
 .pref-bar-container {
@@ -787,4 +726,71 @@ body {
     width: 50px;
     text-align: right;
     font-family: 'Inter', sans-serif;
+}
+
+/* Prefecture Chart */
+#pref-chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    height: 100%;
+    min-height: 500px;
+    position: relative;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+}
+
+.pref-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.pref-chart-title {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-main);
+}
+
+#back-to-map-btn {
+    padding: 6px 16px;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-sub);
+    transition: all 0.2s;
+}
+
+#back-to-map-btn:hover {
+    background-color: #f0f0f0;
+    color: var(--primary-color);
+    border-color: #ccc;
+}
+
+.pref-chart-wrapper {
+    flex-grow: 1;
+    width: 100%;
+    min-height: 0;
+    position: relative;
+}
+
+/* Prefecture List */
+.pref-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 5px;
+}
+
+.pref-name {
+    width: 80px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
 }
