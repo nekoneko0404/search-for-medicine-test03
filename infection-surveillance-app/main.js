@@ -30,7 +30,7 @@ function hideChartLoading(containerElement) {
     }
 }
 
-console.log("infection app main.js loaded"); // 追加
+console.log("infection app main.js loaded");
 const API_URL = 'https://script.google.com/macros/s/AKfycby8wh0NMuPtEOgLVHXfc0jzNqlOENuOgCwQmYYzMSZCKTvhSDiJpZkAyJxntGISTGOmbQ/exec';
 let cachedData = {
     current: null, // 当年のデータ
@@ -84,7 +84,7 @@ function sanitizeHTML(text) {
 // Parsing functions removed (moved to server-side)
 
 const CACHE_CONFIG = {
-    COMBINED_DATA_KEY: 'infection_surveillance_combined_data_v4',
+    COMBINED_DATA_KEY: 'infection_surveillance_combined_data_v18',
     MAIN_EXPIRY: 1 * 60 * 60 * 1000,
     HISTORY_EXPIRY: 30 * 60 * 1000
 };
