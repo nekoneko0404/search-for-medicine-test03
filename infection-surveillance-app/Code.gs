@@ -5,7 +5,7 @@ const SPREADSHEET_NAME = "Infection_Data_Master";
 const ADMIN_EMAIL = "admin@example.com";
 const INDEX_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/jp/rapid/";
 const CSV_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/jp/rapid/";
-const CACHE_FILE_NAME = "combined_data_cache_v5.json"; // キャッシュファイル名 (v5に更新して再生成を強制)
+const CACHE_FILE_NAME = 'combined_data_cache_v18.json'; // キャッシュファイル名 (v18に更新して再生成を強制)
 
 function doGet(e) {
   try {
@@ -50,8 +50,14 @@ function doGet(e) {
       }
       
       // 2. キャッシュがない場合は生成して保存し、返す
-      const combinedResult = generateCombinedData_();
-      const jsonString = JSON.stringify(combinedResult);
+      const combinedData = generateCombinedData_();
+    
+    // デバッグログ: 2026年 宮城県 COVID-19 の最終的なアーカイブデータを確認
+    const covid2026 = combinedData.archives.find(a => a.year === 2026)?.data.find(d => d.disease === 'COVID-19' && d.prefecture === '宮城県');
+    Logger.log(`DEBUG_FINAL: 2026 Miyagi COVID-19 Archive in Cache: ${JSON.stringify(covid2026 ? covid2026.history : 'NOT FOUND')}`);
+
+    const jsonString = JSON.stringify(combinedData);
+    // const blob = Utilities.newBlob(jsonString, "application/json", CACHE_FILE_NAME); // This line was in the instruction but not in the original code, and saveFileCache_ expects a string.
       saveFileCache_(jsonString); // 次回のために保存
 
       return ContentService.createTextOutput(jsonString)
@@ -209,10 +215,7 @@ function getHistoryDataAsObject_() {
       }
     };
 
-    // 1. 親フォルダ直下のファイルを検索 (Teiten, Tougai, ARIなど)
-    // processFiles(folder.getFiles(), "Root"); // Rootには通常historyファイルはないはずだが念のため？いや、過去週報フォルダだけ見ればよい
-
-    // 2. 「過去週報」サブフォルダ内のファイルを検索
+    // 1. 「過去週報」サブフォルダ内のファイルを検索 (ユーザーの要望により、ここを主とする)
     const subFolders = folder.getFoldersByName("過去週報");
     if (subFolders.hasNext()) {
       const subFolder = subFolders.next();
@@ -222,20 +225,33 @@ function getHistoryDataAsObject_() {
       result.logs.push("Subfolder '過去週報' not found.");
     }
 
-    // 重複排除: 同じ年のファイルが複数ある場合、更新日時が新しいものを採用
+    // 重複排除とマージ: 同じ年のファイルが複数ある場合、データを統合する
     const yearMap = new Map();
     result.data.forEach(item => {
       if (!yearMap.has(item.year)) {
         yearMap.set(item.year, item);
       } else {
         const existing = yearMap.get(item.year);
-        // 既存データのサイズチェック（簡易）: dataの長さで判断
-        if (item.data.length > existing.data.length) {
-             yearMap.set(item.year, item);
-             result.logs.push(`Replaced year ${item.year} with larger file: ${item.fileName}`);
-        } else {
-             result.logs.push(`Skipping duplicate/smaller file for year ${item.year}: ${item.fileName}`);
-        }
+        // 既存データに新しいデータ（別の週）をマージする
+        // item.data は [{disease, prefecture, history: [{week, value}, ...]}, ...] の形式
+        item.data.forEach(newDiseaseData => {
+          let existingDiseaseData = existing.data.find(d => d.disease === newDiseaseData.disease && d.prefecture === newDiseaseData.prefecture);
+          if (!existingDiseaseData) {
+            // 新しい疾患データとして追加
+            existingDiseaseData = { disease: newDiseaseData.disease, prefecture: newDiseaseData.prefecture, history: [] };
+            existing.data.push(existingDiseaseData);
+          }
+          
+          // 既存の疾患データに新しい週のデータを追加
+          newDiseaseData.history.forEach(newWeek => {
+            if (!existingDiseaseData.history.some(h => Number(h.week) === Number(newWeek.week))) {
+              existingDiseaseData.history.push(newWeek);
+            }
+          });
+          // 週番号でソート
+          existingDiseaseData.history.sort((a, b) => Number(a.week) - Number(b.week));
+        });
+        result.logs.push(`Merged data for year ${item.year}`);
       }
     });
     result.data = Array.from(yearMap.values());
@@ -282,6 +298,13 @@ function updateData_() {
     // 重複チェック: すでに存在する場合はスキップ
     if (existingFiles.hasNext()) {
       Logger.log(`File ${fileName} already exists in ${subFolderName}. Skipping download.`);
+      
+      // 欠落している週のデータをバックフィル (最新ファイル戦略のため無効化)
+      // backfillMissingWeeks_(historyFolder, year, week);
+
+      // 古い週報ファイルの削除 (最新ファイルのみ残す)
+      cleanUpOldWeeklyFiles_(historyFolder, year, week);
+
       // キャッシュ更新だけして終了（既存ファイルを含めてキャッシュ再生成）
       updateCache_();
       return { year, week, skipped: true };
@@ -313,8 +336,11 @@ function updateData_() {
     historyFolder.createFile(fileName, csvData.Tougai, MimeType.CSV);
     Logger.log(`Saved history CSV to Drive (${subFolderName}): ${fileName}`);
     
-    // 同年の古い週のファイルを削除
+    // 同年の古い週のファイルを削除 (最新ファイルのみ残すため有効化)
     cleanUpOldWeeklyFiles_(historyFolder, year, week);
+
+    // 欠落している週のデータをバックフィル (最新ファイル戦略のため無効化)
+    // backfillMissingWeeks_(historyFolder, year, week);
 
     // キャッシュファイルの更新（combinedデータ）
     updateCache_();
@@ -404,26 +430,62 @@ function getOrCreateFolder_(parentFolderId, targetFolderName) {
 
 function cleanUpOldWeeklyFiles_(folder, currentYear, currentWeek) {
   const files = folder.getFiles();
-  // ファイル名パターン: YYYY-WW-teiten-tougai.csv
-  const pattern = /^(\d{4})-(\d{2})-teiten-tougai\.csv$/i;
-  
   while (files.hasNext()) {
     const file = files.next();
     const name = file.getName();
-    const match = name.match(pattern);
-    
+    // ファイル名形式: YYYY-WW-teiten-tougai.csv
+    const match = name.match(/^(\d{4})-(\d{2})-teiten-tougai\.csv$/);
     if (match) {
       const fileYear = parseInt(match[1], 10);
       const fileWeek = parseInt(match[2], 10);
       
-      // 同じ年で、かつ現在の週より古い場合は削除 (ゴミ箱へ移動)
+      // 同じ年で、かつ現在の週より古いファイルを削除
       if (fileYear === currentYear && fileWeek < currentWeek) {
-        try {
-          file.setTrashed(true);
-          Logger.log(`Deleted old file: ${name}`);
-        } catch (e) {
-          Logger.log(`Failed to delete file ${name}: ${e.toString()}`);
+        Logger.log(`Deleting old weekly file: ${name}`);
+        file.setTrashed(true);
+      }
+    }
+  }
+}
+
+/**
+ * 現在の年において、1週目から最新週までの間で欠落しているファイルを再取得する
+ */
+function backfillMissingWeeks_(historyFolder, currentYear, latestWeek) {
+  Logger.log(`Backfill check started for ${currentYear} up to week ${latestWeek}`);
+  
+  for (let w = 1; w < latestWeek; w++) {
+    const weekStr = String(w).padStart(2, '0');
+    const fileName = `${currentYear}-${weekStr}-teiten-tougai.csv`;
+    const existingFiles = historyFolder.getFilesByName(fileName);
+    
+    if (!existingFiles.hasNext()) {
+      Logger.log(`Backfilling missing file: ${fileName}`);
+      try {
+        const url = `${CSV_BASE_URL}${currentYear}/${weekStr}/${currentYear}-${weekStr}-teiten-tougai.csv`;
+        const response = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+        
+        if (response.getResponseCode() === 200) {
+          const blob = response.getBlob();
+          let csvContent = '';
+          try {
+            csvContent = blob.getDataAsString('Shift_JIS');
+            if (!csvContent.includes('週') && !csvContent.includes('報告')) {
+              throw new Error('Shift_JIS fail');
+            }
+          } catch (e) {
+            csvContent = blob.getDataAsString('UTF-8');
+          }
+          
+          if (!csvContent.trim().startsWith('<')) {
+            historyFolder.createFile(fileName, csvContent, MimeType.CSV);
+            Logger.log(`Successfully backfilled: ${fileName}`);
+          }
+        } else {
+          Logger.log(`Failed to fetch ${fileName}: HTTP ${response.getResponseCode()}`);
         }
+      } catch (e) {
+        Logger.log(`Error backfilling ${fileName}: ${e.toString()}`);
       }
     }
   }
@@ -486,11 +548,16 @@ function getLatestDataAsObject_() {
   const ariRows = getDataValuesWithCache_(ss, 'ARI');
   const tougaiRows = getDataValuesWithCache_(ss, 'Tougai');
 
-  const influenzaData = parseTeitenRows_(teitenRows, 'Influenza');
-  const covid19Data = parseTeitenRows_(teitenRows, 'COVID-19');
+  const otherDiseasesData = [];
+  ALL_DISEASES.forEach(d => {
+      if (d.key !== 'ARI') {
+          const parsed = parseTeitenRows_(teitenRows, d.key, d.name);
+          otherDiseasesData.push(...parsed);
+      }
+  });
   const ariDataParsed = parseAriRows_(ariRows, 'ARI');
   
-  const allData = [...influenzaData, ...covid19Data, ...ariDataParsed];
+  const allData = [...otherDiseasesData, ...ariDataParsed];
   const historyData = parseTougaiRows_(tougaiRows);
   const alerts = generateAlerts_(allData);
 
@@ -515,7 +582,19 @@ function getLatestDataAsObject_() {
     }
   }
 
+  let year = new Date().getFullYear();
+  let week = 0;
+  if (dateInfo) {
+      const match = dateInfo.match(/(\d{4})年(\d{1,2})週/);
+      if (match) {
+          year = parseInt(match[1], 10);
+          week = parseInt(match[2], 10);
+      }
+  }
+
   return {
+      year: year,
+      week: week,
       data: allData,
       history: historyData,
       summary: { alerts },
@@ -611,7 +690,7 @@ const ALL_DISEASES = [
     { key: 'RotavirusGastroenteritis', name: '感染性胃腸炎（ロタウイルス）' }
 ];
 
-function parseTeitenRows_(rows, diseaseName) {
+function parseTeitenRows_(rows, diseaseName, japaneseName) {
     if (!rows || rows.length < 5) {
         return [];
     }
@@ -630,6 +709,7 @@ function parseTeitenRows_(rows, diseaseName) {
     const subHeaderRow = rows[3];
 
     let searchKeys = [diseaseName];
+    if (japaneseName) searchKeys.push(japaneseName);
     if (diseaseName === 'Influenza') searchKeys.push('インフルエンザ');
     if (diseaseName === 'COVID-19') searchKeys.push('新型コロナウイルス感染症', 'COVID-19');
 
@@ -702,70 +782,113 @@ function parseAriRows_(rows, diseaseName) {
 }
 
 function parseTougaiRows_(rows) {
-    if (!rows || rows.length < 10) return [];
+    if (!rows || rows.length < 5) return [];
 
     const historyData = [];
     const diseaseSections = {};
 
-    for (let i = 0; i < rows.length; i++) {
-        const firstCell = String(rows[i][0] || '').trim();
+    // --- グローバルヘッダーの検出 (ファイル冒頭で一度だけ実行) ---
+    let globalWeekHeaderRowIndex = -1;
+    let globalTypeHeaderRowIndex = -1;
+    let globalWeekColumns = [];
 
-        ALL_DISEASES.forEach(disease => {
-            if (firstCell === disease.name || (firstCell.includes(disease.name) && firstCell.length < disease.name.length + 5)) {
-                if (diseaseSections[disease.key] === undefined) {
-                    diseaseSections[disease.key] = i;
-                }
-            }
-        });
-    }
-
-    ALL_DISEASES.forEach(disease => {
-        if (diseaseSections[disease.key] !== undefined) {
-            historyData.push(...extractHistoryFromSection_(rows, diseaseSections[disease.key], disease.key, disease.name));
-        }
-    });
-
-    return historyData;
-}
-
-function extractHistoryFromSection_(rows, startRowIndex, diseaseKey, displayDiseaseName) {
-    const results = [];
-    let weekHeaderRowIndex = -1;
-    let typeHeaderRowIndex = -1;
-
-    for (let i = startRowIndex + 1; i < Math.min(rows.length, startRowIndex + 20); i++) {
-        const row = rows[i];
-        const rowStr = row.join(',');
-
+    // ファイルの冒頭20行を走査してヘッダーを探す
+    for (let i = 0; i < Math.min(rows.length, 20); i++) {
+        const rowStr = rows[i].join(',');
         if (rowStr.includes('週')) {
             const weekMatches = rowStr.match(/(\d{1,2})週/g);
-            if (weekMatches && weekMatches.length > 5) {
-                weekHeaderRowIndex = i;
+            if (weekMatches && weekMatches.length > 1) {
+                globalWeekHeaderRowIndex = i;
                 if (i + 1 < rows.length) {
-                    typeHeaderRowIndex = i + 1;
+                    globalTypeHeaderRowIndex = i + 1;
                 }
                 break;
             }
         }
     }
 
-    const weekColumns = [];
-    let singleWeekNum = null;
-
-    if (weekHeaderRowIndex !== -1 && typeHeaderRowIndex !== -1) {
-        const weekHeaderRow = rows[weekHeaderRowIndex];
-        const typeHeaderRow = rows[typeHeaderRowIndex];
-
+    if (globalWeekHeaderRowIndex !== -1 && globalTypeHeaderRowIndex !== -1) {
+        const weekHeaderRow = rows[globalWeekHeaderRowIndex];
+        const typeHeaderRow = rows[globalTypeHeaderRowIndex];
         for (let j = 0; j < weekHeaderRow.length; j++) {
             const weekText = String(weekHeaderRow[j] || '');
             const typeText = String(typeHeaderRow[j] || '');
             const weekMatch = weekText.match(/(\d{1,2})週/);
-
             if (weekMatch && (typeText.includes('定当') || typeText.includes('定点当たり'))) {
-                weekColumns.push({
-                    week: parseInt(weekMatch[1]),
-                    colIndex: j
-                });
+                globalWeekColumns.push({ week: parseInt(weekMatch[1]), colIndex: j });
+            }
+        }
+        Logger.log(`DEBUG_PARSE: Global headers detected. Weeks: ${globalWeekColumns.map(wc => wc.week).join(', ')}`);
+    }
+    // ---------------------------------------------------------
+
+    // 各疾患の開始行を特定
+    for (let i = 0; i < rows.length; i++) {
+        const firstCol = String(rows[i][0] || '').trim();
+        ALL_DISEASES.forEach(disease => {
+            if (firstCol === disease.name) {
+                diseaseSections[disease.key] = i;
+            }
+        });
+    }
+
+    ALL_DISEASES.forEach(disease => {
+        if (diseaseSections[disease.key] !== undefined) {
+            // グローバルヘッダーが見つかっている場合はそれを渡す
+            const sectionData = extractHistoryFromSection_(rows, diseaseSections[disease.key], disease.key, disease.name, globalWeekColumns);
+            if (sectionData.length > 0) {
+                historyData.push(...sectionData);
+            } else {
+                Logger.log(`DEBUG_PARSE: Section for ${disease.name} found but no history extracted.`);
+            }
+        }
+    });
+
+    return historyData;
+}
+
+function extractHistoryFromSection_(rows, startRowIndex, diseaseKey, displayDiseaseName, globalWeekColumns) {
+    const results = [];
+    let weekColumns = globalWeekColumns && globalWeekColumns.length > 0 ? [...globalWeekColumns] : [];
+    let typeHeaderRowIndex = startRowIndex; // デフォルトでは疾患名の行から開始
+    let singleWeekNum = null;
+    
+    // もしグローバルヘッダーがない場合、またはセクション固有のヘッダーを探したい場合は従来通り検索
+    if (weekColumns.length === 0) {
+        let weekHeaderRowIndex = -1;
+        typeHeaderRowIndex = -1; // 検索する場合はリセット
+
+        for (let i = startRowIndex + 1; i < Math.min(rows.length, startRowIndex + 20); i++) {
+            const row = rows[i];
+            const rowStr = row.join(',');
+
+            if (rowStr.includes('週')) {
+                const weekMatches = rowStr.match(/(\d{1,2})週/g);
+                if (weekMatches && weekMatches.length > 1) {
+                    weekHeaderRowIndex = i;
+                    if (i + 1 < rows.length) {
+                        typeHeaderRowIndex = i + 1;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (weekHeaderRowIndex !== -1 && typeHeaderRowIndex !== -1) {
+            const weekHeaderRow = rows[weekHeaderRowIndex];
+            const typeHeaderRow = rows[typeHeaderRowIndex];
+
+            for (let j = 0; j < weekHeaderRow.length; j++) {
+                const weekText = String(weekHeaderRow[j] || '');
+                const typeText = String(typeHeaderRow[j] || '');
+                const weekMatch = weekText.match(/(\d{1,2})週/);
+
+                if (weekMatch && (typeText.includes('定当') || typeText.includes('定点当たり'))) {
+                    weekColumns.push({
+                        week: parseInt(weekMatch[1]),
+                        colIndex: j
+                    });
+                }
             }
         }
     }
@@ -839,6 +962,11 @@ function extractHistoryFromSection_(rows, startRowIndex, diseaseKey, displayDise
                 return { week: wc.week, value: isNaN(val) ? null : val };
             });
 
+            // デバッグログ: 宮城県のCOVID-19の抽出結果を特定
+            if (diseaseKey === 'COVID-19' && prefName === '宮城県') {
+                Logger.log(`DEBUG_EXTRACT: COVID-19 Miyagi history from CSV: ${JSON.stringify(history)}`);
+            }
+
             results.push({
                 disease: diseaseKey,
                 prefecture: prefName === '総数' ? '全国' : prefName,
@@ -877,4 +1005,105 @@ function generateAlerts_(data) {
         }
     });
     return comments;
+}
+
+function debug2026Deep() {
+    const folder = DriveApp.getFolderById(PARENT_FOLDER_ID);
+    const subFolders = folder.getFoldersByName("過去週報");
+    if (!subFolders.hasNext()) {
+        Logger.log("No '過去週報' folder found.");
+        return;
+    }
+    const historyFolder = subFolders.next();
+    const files = historyFolder.getFiles();
+
+    Logger.log("--- Checking 2026 Files ---");
+    while (files.hasNext()) {
+        const file = files.next();
+        if (file.getName().includes("2026")) {
+            Logger.log(`File: ${file.getName()} (Size: ${file.getSize()})`);
+            const content = file.getBlob().getDataAsString('UTF-8'); 
+
+            // Log first 10 lines
+            const lines = content.split('\n').slice(0, 10);
+            Logger.log("--- First 10 lines ---");
+            lines.forEach((line, i) => Logger.log(`${i}: ${line}`));
+
+            // Parse with verbose logging
+            const rows = Utilities.parseCsv(content);
+            Logger.log(`Total Rows: ${rows.length}`);
+            
+            let weekHeaderRowIndex = -1;
+            let typeHeaderRowIndex = -1;
+
+            for (let i = 0; i < Math.min(rows.length, 10); i++) {
+                const row = rows[i];
+                const rowStr = row.join(',');
+                const weekMatches = rowStr.match(/(\d{1,2})週/g);
+                if (weekMatches) {
+                    Logger.log(`Row ${i} matches '週': ${weekMatches.length} matches. Content: ${rowStr.substring(0, 50)}...`);
+                    if (weekMatches.length > 1) {
+                         Logger.log(`  -> Candidate for Header Row (matches > 1)`);
+                         weekHeaderRowIndex = i;
+                         if (i + 1 < rows.length) typeHeaderRowIndex = i + 1;
+                         break;
+                    }
+                }
+            }
+            Logger.log(`Detected weekHeaderRowIndex: ${weekHeaderRowIndex}, typeHeaderRowIndex: ${typeHeaderRowIndex}`);
+
+            if (weekHeaderRowIndex !== -1) {
+                const weekColumns = [];
+                const weekHeaderRow = rows[weekHeaderRowIndex];
+                const typeHeaderRow = rows[typeHeaderRowIndex];
+                
+                for (let j = 0; j < weekHeaderRow.length; j++) {
+                    const weekText = String(weekHeaderRow[j] || '');
+                    const typeText = String(typeHeaderRow[j] || '');
+                    const weekMatch = weekText.match(/(\d{1,2})週/);
+                    
+                    if (weekMatch) {
+                        Logger.log(`  Col ${j}: WeekText='${weekText}', TypeText='${typeText}'`);
+                        if (typeText.includes('定当') || typeText.includes('定点当たり')) {
+                             Logger.log(`    -> Valid Column: Week ${weekMatch[1]}`);
+                             weekColumns.push({ week: parseInt(weekMatch[1]), colIndex: j });
+                        }
+                    }
+                }
+                Logger.log(`Extracted weekColumns: ${JSON.stringify(weekColumns)}`);
+            }
+
+            // Try actual parsing
+            try {
+                const parsed = parseTougaiRows_(rows);
+                Logger.log(`Parsed Data Count: ${parsed.length}`);
+                if (parsed.length > 0) {
+                    const covid = parsed.find(d => d.disease === 'COVID-19' && d.prefecture === '宮城県');
+                    if (covid) {
+                        Logger.log("COVID-19 Miyagi History: " + JSON.stringify(covid.history));
+                    } else {
+                        Logger.log("COVID-19 Miyagi NOT FOUND in this file.");
+                    }
+                }
+            } catch (e) {
+                Logger.log("Parse Error: " + e.toString());
+            }
+            Logger.log("-----------------------");
+        }
+    }
+
+    Logger.log("--- Checking Combined Data Generation ---");
+    const combined = generateCombinedData_();
+    const archive2026 = combined.archives.find(a => a.year === 2026);
+    if (archive2026) {
+        Logger.log("Archive 2026 Data Found.");
+        const covid = archive2026.data.find(d => d.disease === 'COVID-19' && d.prefecture === '宮城県');
+        if (covid) {
+            Logger.log("Combined COVID-19 Miyagi History: " + JSON.stringify(covid.history));
+        } else {
+            Logger.log("No COVID-19 Miyagi data in 2026 archive.");
+        }
+    } else {
+        Logger.log("No 2026 data in archives.");
+    }
 }
