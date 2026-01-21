@@ -1,3 +1,10 @@
+// Helper: Get Japan Standard Time date string (YYYY-MM-DD)
+function getJSTDateString(date = new Date()) {
+    // Convert to JST (UTC+9)
+    const jstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+    return jstDate.toISOString().split('T')[0];
+}
+
 const CONFIG = {
     API_ENDPOINT: 'https://wxtech.weathernews.com/opendata/v1/pollen',
     ZOOM_THRESHOLD: 11,
@@ -293,8 +300,8 @@ async function fetchCityDailyData(cityCode) {
     const data = await fetchData(cityCode, start, endStr);
 
     if (data.length > 0) {
-        const today = new Date().toISOString().split('T')[0];
-        const isToday = state.currentDate === today;
+        const todayJST = getJSTDateString();
+        const isToday = state.currentDate === todayJST;
 
         let displayValue = 0;
         if (isToday) {
@@ -458,8 +465,8 @@ async function handlePopupOpen(city, marker) {
 // Fetch Weather Data from Open-Meteo
 // Fetch Weather Data from Open-Meteo
 async function fetchWeatherData(lat, lng, dateStr) {
-    const today = new Date().toISOString().split('T')[0];
-    const isToday = dateStr === today;
+    const todayJST = getJSTDateString();
+    const isToday = dateStr === todayJST;
 
     try {
         let url;
@@ -719,8 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = getJSTDateString();
     state.currentDate = todayStr;
 
     const datePicker = document.getElementById('date-picker');
@@ -742,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (years !== undefined) {
                 d.setFullYear(d.getFullYear() - parseInt(years));
             }
-            const dStr = d.toISOString().split('T')[0];
+            const dStr = getJSTDateString(d);
             btn.classList.toggle('active', dStr === newDateStr);
         });
 
@@ -776,13 +782,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('prev-day').addEventListener('click', () => {
         const d = new Date(state.currentDate);
         d.setDate(d.getDate() - 1);
-        updateDate(d.toISOString().split('T')[0]);
+        updateDate(getJSTDateString(d));
     });
 
     document.getElementById('next-day').addEventListener('click', () => {
         const d = new Date(state.currentDate);
         d.setDate(d.getDate() + 1);
-        const nextStr = d.toISOString().split('T')[0];
+        const nextStr = getJSTDateString(d);
         if (nextStr <= todayStr) {
             updateDate(nextStr);
         }
@@ -799,7 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (years !== undefined) {
                 d.setFullYear(d.getFullYear() - parseInt(years));
             }
-            updateDate(d.toISOString().split('T')[0]);
+            updateDate(getJSTDateString(d));
         });
     });
 
