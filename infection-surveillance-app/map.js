@@ -54,6 +54,9 @@ function renderJapanMap(containerId, data, disease) {
         { id: "Kyushu", x: 130, y: 420, w: 100, h: 120, label: "九州・沖縄" }
     ];
 
+    // DocumentFragmentを使用してDOM操作を最小化
+    const fragment = document.createDocumentFragment();
+
     layout.forEach(region => {
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         group.setAttribute("class", "region-group");
@@ -120,9 +123,11 @@ function renderJapanMap(containerId, data, disease) {
 
         group.appendChild(rect);
         group.appendChild(text);
-        svg.appendChild(group);
+        fragment.appendChild(group);
     });
 
+    // 一括でSVGに追加（再描画は1回のみ）
+    svg.appendChild(fragment);
     container.appendChild(svg);
 }
 

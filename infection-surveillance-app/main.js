@@ -476,12 +476,7 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
 }
 
 function renderDashboard(disease, data) {
-    if (typeof renderJapanMap === 'function') {
-        if (document.getElementById('japan-map')) {
-            renderJapanMap('japan-map', data.current, disease); // cachedData.currentを渡す
-        }
-    }
-
+    // 右パネルのグラフを優先的に描画(ユーザーが最初に見たい情報)
     const chartView = document.getElementById('chart-view');
     if (chartView) {
         showChartLoading(chartView);
@@ -489,6 +484,16 @@ function renderDashboard(disease, data) {
     renderTrendChart(disease, data.current); // cachedData.currentを渡す
     if (chartView) {
         hideChartLoading(chartView); // renderTrendChart内で非表示にするのでここは不要だが、念のため
+    }
+
+    // 地図描画をrequestAnimationFrameで遅延実行(メインスレッドをブロックしない)
+    if (typeof renderJapanMap === 'function') {
+        const mapContainer = document.getElementById('japan-map');
+        if (mapContainer) {
+            requestAnimationFrame(() => {
+                renderJapanMap('japan-map', data.current, disease);
+            });
+        }
     }
 }
 
@@ -854,24 +859,23 @@ function renderOtherDiseasesList(prefecture = '全国') {
     // 主要3疾患以外をフィルタリング
     const otherDiseases = ALL_DISEASES.filter(d => !['Influenza', 'COVID-19', 'ARI'].includes(d.key));
 
+    // 最適化: まずすべてのカードの骨組みを作成（高速）
+    const diseaseCards = [];
     otherDiseases.forEach(disease => {
         const card = document.createElement('div');
         card.className = 'disease-card';
         card.dataset.disease = disease.key;
-
-        // card.onclick を削除し、ボタンでの拡大に変更
 
         // card-header
         const cardHeader = document.createElement('div');
         cardHeader.className = 'card-header';
 
         const h4 = document.createElement('h4');
-        h4.textContent = disease.name; // Use textContent for safety
+        h4.textContent = disease.name;
 
         const expandButton = document.createElement('button');
         expandButton.className = 'expand-action-btn';
         expandButton.setAttribute('aria-label', '拡大表示');
-        // SVGをクリア
         expandButton.innerHTML = '';
 
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -895,7 +899,7 @@ function renderOtherDiseasesList(prefecture = '全国') {
         cardHeader.appendChild(expandButton);
         card.appendChild(cardHeader);
 
-        // chart-container
+        // chart-container（ローディング状態で表示）
         const chartContainer = document.createElement('div');
         chartContainer.className = 'chart-container';
         const canvas = document.createElement('canvas');
@@ -903,50 +907,65 @@ function renderOtherDiseasesList(prefecture = '全国') {
         chartContainer.appendChild(canvas);
         card.appendChild(chartContainer);
 
-        // close-expanded-btn
-        const closeButton = document.createElement('button');
-        closeButton.className = 'close-expanded-btn';
-        closeButton.setAttribute('aria-label', '閉じる');
-        closeButton.textContent = '×'; // Use textContent for safety
-        card.appendChild(closeButton);
         gridContainer.appendChild(card);
+
+        // ローディング表示
+        showChartLoading(chartContainer);
 
         // イベントリスナー設定
         const expandBtn = card.querySelector('.expand-action-btn');
         if (expandBtn) {
             expandBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // 新しいモーダル方式で開く
                 openExpandedChart(disease.key, prefecture);
             });
         }
 
-        // 小さいカードには閉じるボタン不要 (モーダル側にのみ存在)
-        const closeBtn = card.querySelector('.close-expanded-btn');
-        if (closeBtn) {
-            closeBtn.remove();
-        }
+        // 後で描画するためにカード情報を保存
+        diseaseCards.push({
+            disease,
+            chartContainer,
+            canvas
+        });
+    });
 
-        // 各疾患のデータと過去データを取得 (ヘルパー関数を使用)
-        const yearDataSets = getYearDataSets(disease.key, prefecture);
+    // 最適化: グラフを非同期に段階的に描画
+    requestAnimationFrame(() => {
+        let index = 0;
 
-        if (yearDataSets.length > 0) {
-            const globalMax = getGlobalMaxForDisease(disease.key);
-            renderComparisonChart(`chart-${disease.key}`, disease.key, prefecture, yearDataSets, globalMax, chartContainer);
-        } else {
-            // console.warn(`No history data for ${disease.name} in ${prefecture}`);
-            // ローディングを非表示にし、メッセージを表示
-            hideChartLoading(chartContainer);
-            const p = document.createElement('p');
-            p.textContent = 'データがありません';
+        function renderNextChart() {
+            if (index >= diseaseCards.length) return;
 
-            while (chartContainer.firstChild) {
-                chartContainer.removeChild(chartContainer.firstChild);
+            const { disease, chartContainer, canvas } = diseaseCards[index];
+
+            // 各疾患のデータを取得して描画
+            const yearDataSets = getYearDataSets(disease.key, prefecture);
+
+            if (yearDataSets.length > 0) {
+                const globalMax = getGlobalMaxForDisease(disease.key);
+                renderComparisonChart(`chart-${disease.key}`, disease.key, prefecture, yearDataSets, globalMax, chartContainer);
+            } else {
+                hideChartLoading(chartContainer);
+                const p = document.createElement('p');
+                p.textContent = 'データがありません';
+
+                while (chartContainer.firstChild) {
+                    chartContainer.removeChild(chartContainer.firstChild);
+                }
+                chartContainer.appendChild(p);
+                chartContainer.classList.add('chart-container-no-data');
             }
-            chartContainer.appendChild(p);
 
-            chartContainer.classList.add('chart-container-no-data');
+            index++;
+
+            // 次のグラフを少し遅延して描画（UIをブロックしないため）
+            if (index < diseaseCards.length) {
+                setTimeout(renderNextChart, 0);
+            }
         }
+
+        // 最初のグラフから描画開始
+        renderNextChart();
     });
 }
 
@@ -1019,51 +1038,11 @@ async function reloadData() {
             showChartLoading(chartView);
         }
 
-        // その他の感染症グリッドのクリア
-        const otherDiseasesGrid = document.getElementById('other-diseases-grid');
-        if (otherDiseasesGrid) {
-            otherDiseasesGrid.innerHTML = '';
-            // 「その他の感染症」ビューがアクティブな場合、各カードにローディング表示
-            const otherDiseasesListView = document.getElementById('other-diseases-list-view');
-            if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
-                const otherDiseases = ALL_DISEASES.filter(d => !['Influenza', 'COVID-19', 'ARI'].includes(d.key));
-                otherDiseases.forEach(disease => {
-                    const card = document.createElement('div');
-                    card.className = 'disease-card';
-                    card.dataset.disease = disease.key;
-                    card.innerHTML = `<div class="card-header"><h4>${disease.name}</h4></div><div class="chart-container"></div>`;
-                    otherDiseasesGrid.appendChild(card);
-                    const chartContainer = card.querySelector('.chart-container');
-                    if (chartContainer) {
-                        showChartLoading(chartContainer);
-                    }
-                });
-            }
-        }
+        // その他の感染症グリッドはrenderOtherDiseasesList()で完全に再構築されるため、
+        // ここでの初期化は不要（重複してDOM要素が消失する問題を回避）
 
-        // 都道府県チャートがアクティブな場合はローディングオーバーレイを追加
-        const prefChartContainer = document.getElementById('pref-chart-container');
-        if (prefChartContainer && !prefChartContainer.classList.contains('hidden')) {
-            prefChartContainer.innerHTML = ''; // 既存のチャートやメッセージをクリア
-            // 戻るボタンを再生成
-            const backButton = document.createElement('button');
-            backButton.id = 'back-to-map-btn';
-            backButton.textContent = '戻る';
-            prefChartContainer.appendChild(backButton);
-            const chartWrapper = document.createElement('div');
-            chartWrapper.className = 'pref-chart-wrapper';
-            prefChartContainer.appendChild(chartWrapper);
-            showChartLoading(chartWrapper);
-            // 戻るボタンのイベントリスナー再設定
-            const newBackBtn = document.getElementById('back-to-map-btn');
-            if (newBackBtn) {
-                newBackBtn.addEventListener('click', () => {
-                    document.getElementById('map-view').classList.remove('hidden');
-                    document.getElementById('pref-chart-container').classList.add('hidden');
-                    currentPrefecture = null;
-                });
-            }
-        }
+        // 都道府県チャートはshowPrefectureChart()で完全に再構築されるため、
+        // ここでの初期化は不要（重複してDOM要素が消失する問題を回避）
 
         // 地域詳細パネルがアクティブな場合はスケルトンを追加
         const regionContent = document.getElementById('region-content');
@@ -1080,21 +1059,7 @@ async function reloadData() {
 
         // データ取得とレンダリングのコア処理を再実行
         await loadAndRenderData();
-
-        // グラフローディングオーバーレイを全て非表示
-        if (chartView) hideChartLoading(chartView);
-        if (prefChartContainer && !prefChartContainer.classList.contains('hidden')) {
-            const chartWrapper = prefChartContainer.querySelector('.pref-chart-wrapper');
-            if (chartWrapper) hideChartLoading(chartWrapper);
-        }
-        const otherDiseasesListView = document.getElementById('other-diseases-list-view');
-        if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
-            const diseaseCards = otherDiseasesGrid.querySelectorAll('.disease-card');
-            diseaseCards.forEach(card => {
-                const chartContainer = card.querySelector('.chart-container');
-                if (chartContainer) hideChartLoading(chartContainer);
-            });
-        }
+        // loadAndRenderData()内でグラフ描画とローディング非表示が処理される
 
 
         // 地域が選択されていた場合は地域詳細パネルを再描画
@@ -1102,7 +1067,13 @@ async function reloadData() {
             window.updateDetailPanel(currentRegionId, cachedData, currentDisease, currentPrefecture);
         }
 
+        // 都道府県別グラフが表示されていた場合は再描画
+        if (currentPrefecture) {
+            showPrefectureChart(currentPrefecture, currentDisease);
+        }
+
         // 「その他の感染症」リストビューが表示中であれば、リロード後に再度レンダリングしてグラフを表示
+        const otherDiseasesListView = document.getElementById('other-diseases-list-view');
         if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
             const prefSelect = document.getElementById('prefecture-select');
             renderOtherDiseasesList(prefSelect ? prefSelect.value : '全国');
@@ -1121,8 +1092,7 @@ async function reloadData() {
             summaryCards.appendChild(errorPara);
         }
     } finally {
-        // 少し待ってからローディング表示を消す
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // ローディング状態を即座に解除(スケルトンからコンテンツへスムーズに切り替わる)
         updateLoadingState(false);
     }
 }
@@ -1296,8 +1266,7 @@ async function init() {
 
         await loadAndRenderData();
 
-        // データの取得・処理が終わってから少し待つ（アニメーションを見せるため）
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // ローディング状態を即座に解除(スケルトンからコンテンツへスムーズに切り替わる)
         updateLoadingState(false);
 
     } catch (error) {
@@ -1317,3 +1286,4 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
