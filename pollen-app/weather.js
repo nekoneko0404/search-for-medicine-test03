@@ -37,9 +37,9 @@ class WindAnimation {
         this.animationFrameId = null;
 
         // Particle settings
-        this.particleCount = 500;
+        this.particleCount = 100;
         this.maxAge = 60;
-        this.velocityScale = 0.02;
+        this.velocityScale = 0.03;
         this.opacity = 0.85;
         this.trailAlpha = 0.96; // Balanced trail persistence
 
@@ -142,7 +142,7 @@ class WindAnimation {
         const dynamicOpacity = Math.min(0.95, 0.6 + Math.max(0, zoom - 5) * 0.06);
 
         this.ctx.strokeStyle = `rgba(0, 240, 255, ${dynamicOpacity})`; // Electric Cyan with dynamic opacity
-        this.ctx.lineWidth = 1.2;
+        this.ctx.lineWidth = 3;
         this.ctx.shadowBlur = 0; // No glow for subtle look
         this.ctx.beginPath();
 
