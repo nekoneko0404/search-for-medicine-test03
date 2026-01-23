@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YJコード検索 - Kusuri Compass</title>
+    <title>薬効分類検索 - Kusuri Compass</title>
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
     <script>
@@ -65,8 +65,8 @@
     <main
         class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl md:h-full md:flex md:flex-col pb-32 transition-all duration-500">
         <div class="text-center mb-8 flex-shrink-0">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">YJコード検索</h2>
-            <p class="text-gray-500 text-sm">YJコードから医薬品情報を検索します</p>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">薬効分類検索</h2>
+            <p class="text-gray-500 text-sm">薬効分類から医薬品情報を検索します</p>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 flex-shrink-0">
@@ -131,14 +131,25 @@
                         <span class="ml-1.5 text-gray-700 text-sm">供給停止</span>
                     </label>
                 </div>
-                <button id="search-btn"
-                    class="bg-slate-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-slate-700 transition-colors shadow-sm flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                    検索
-                </button>
+                <div class="flex items-center gap-3">
+                    <button id="search-btn"
+                        class="bg-slate-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-slate-700 transition-colors shadow-sm flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        検索
+                    </button>
+                    <button id="share-btn"
+                        class="border-2 border-indigo-600 text-indigo-600 px-6 py-2.5 rounded-lg font-medium hover:bg-indigo-50 transition-colors shadow-sm flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
+                            </path>
+                        </svg>
+                        共有
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -177,6 +188,17 @@
 
         <div id="cardContainer" class="search-results-grid"></div>
 
+        <!-- Home Button -->
+        <a href="../index.html"
+            class="fixed top-20 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
+            aria-label="ホームに戻る">
+            <svg class="w-10 h-10 transition-transform duration-300 group-hover:scale-110" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                </path>
+            </svg>
+        </a>
         <!-- Reload Button -->
         <button id="reload-data"
             class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"

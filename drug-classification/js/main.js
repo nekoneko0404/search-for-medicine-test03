@@ -1,5 +1,5 @@
 /**
- * YJ Code Search App Main Logic
+ * Drug Classification Search App Main Logic
  */
 
 import { loadAndCacheData, fetchManufacturerData, clearCacheAndReload } from '../../js/data.js';
@@ -21,6 +21,7 @@ const elements = {
     mainFooter: null,
     yjCodeInput: null,
     searchBtn: null,
+    shareBtn: null,
     resultTableBody: null,
     resultCardContainer: null,
     loadingIndicator: null,
@@ -59,6 +60,7 @@ function initElements() {
     elements.mainFooter = document.getElementById('mainFooter');
     elements.yjCodeInput = document.getElementById('yjCodeInput');
     elements.searchBtn = document.getElementById('search-btn');
+    elements.shareBtn = document.getElementById('share-btn');
     elements.resultTableBody = document.getElementById('resultTableBody');
     elements.resultCardContainer = document.getElementById('resultCardContainer');
     elements.loadingIndicator = document.getElementById('loadingIndicator');
@@ -108,12 +110,17 @@ async function initApp() {
         }
         manufacturerLinks = links || {};
 
-        // Check URL params
+        // Check URL params - 新しい共有パラメータ形式を優先
         const urlParams = new URLSearchParams(window.location.search);
-        const yjCodeParam = urlParams.get('yjcode');
+        const yjCodeParam = urlParams.get('yj') || urlParams.get('yjcode'); // 新旧両対応
         const modeParam = urlParams.get('mode');
 
-        if (yjCodeParam) {
+        // 新しい共有パラメータがある場合は、それを使用
+        if (urlParams.has('yj')) {
+            restoreFromUrlParams(urlParams);
+            searchYjCode();
+        } else if (yjCodeParam) {
+            // 旧形式のパラメータ(yjcode + mode)の処理
             elements.yjCodeInput.value = yjCodeParam;
 
             // Determine checkbox settings based on mode
@@ -158,6 +165,11 @@ async function initApp() {
     // Event Listeners
     elements.searchBtn.addEventListener('click', () => searchYjCode());
 
+    // 共有ボタンのイベントリスナー
+    if (elements.shareBtn) {
+        elements.shareBtn.addEventListener('click', () => shareSearchConditions());
+    }
+
     if (elements.reloadDataBtn) {
         elements.reloadDataBtn.addEventListener('click', async () => {
             if (elements.reloadDataBtn.disabled) return;
@@ -200,6 +212,72 @@ async function initApp() {
     if (elements.sortButtons.ingredientName) elements.sortButtons.ingredientName.addEventListener('click', () => sortResults('ingredientName'));
     if (elements.sortButtons.status) elements.sortButtons.status.addEventListener('click', () => sortResults('status'));
     if (elements.sortButtons.yjCode) elements.sortButtons.yjCode.addEventListener('click', () => sortResults('yjCode'));
+}
+
+/**
+ * URLクエリパラメータから検索条件を復元
+ * @param {URLSearchParams} urlParams - URLパラメータ
+ */
+function restoreFromUrlParams(urlParams) {
+    // YJコードを復元
+    const yjCode = urlParams.get('yj');
+    if (yjCode && elements.yjCodeInput) {
+        elements.yjCodeInput.value = yjCode;
+    }
+
+    // 検索条件チェックボックスを復元
+    if (elements.checkboxes.class3) elements.checkboxes.class3.checked = urlParams.get('class3') === '1';
+    if (elements.checkboxes.class4) elements.checkboxes.class4.checked = urlParams.get('class4') === '1';
+    if (elements.checkboxes.ingredient) elements.checkboxes.ingredient.checked = urlParams.get('ingredient') === '1';
+    if (elements.checkboxes.form) elements.checkboxes.form.checked = urlParams.get('form') === '1';
+    if (elements.checkboxes.standard) elements.checkboxes.standard.checked = urlParams.get('standard') === '1';
+    if (elements.checkboxes.brand) elements.checkboxes.brand.checked = urlParams.get('brand') === '1';
+
+    // 出荷状況チェックボックスを復元
+    if (elements.statusCheckboxes.normal) elements.statusCheckboxes.normal.checked = urlParams.get('normal') === '1';
+    if (elements.statusCheckboxes.limited) elements.statusCheckboxes.limited.checked = urlParams.get('limited') === '1';
+    if (elements.statusCheckboxes.stopped) elements.statusCheckboxes.stopped.checked = urlParams.get('stop') === '1';
+}
+
+/**
+ * 現在の検索条件を共有URLとしてクリップボードにコピー
+ */
+async function shareSearchConditions() {
+    const yjCode = elements.yjCodeInput?.value?.trim() || '';
+
+    // パラメータを構築
+    const params = new URLSearchParams();
+
+    // YJコードを追加
+    if (yjCode) {
+        params.set('yj', yjCode);
+    }
+
+    // 検索条件を追加
+    params.set('class3', elements.checkboxes.class3?.checked ? '1' : '0');
+    params.set('class4', elements.checkboxes.class4?.checked ? '1' : '0');
+    params.set('ingredient', elements.checkboxes.ingredient?.checked ? '1' : '0');
+    params.set('form', elements.checkboxes.form?.checked ? '1' : '0');
+    params.set('standard', elements.checkboxes.standard?.checked ? '1' : '0');
+    params.set('brand', elements.checkboxes.brand?.checked ? '1' : '0');
+
+    // 出荷状況を追加
+    params.set('normal', elements.statusCheckboxes.normal?.checked ? '1' : '0');
+    params.set('limited', elements.statusCheckboxes.limited?.checked ? '1' : '0');
+    params.set('stop', elements.statusCheckboxes.stopped?.checked ? '1' : '0');
+
+    // 完全なURLを生成
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?${params.toString()}`;
+
+    // クリップボードにコピー
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showMessage('検索条件のURLをクリップボードにコピーしました', 'success');
+    } catch (err) {
+        console.error('Failed to copy to clipboard:', err);
+        showMessage('URLのコピーに失敗しました', 'error');
+    }
 }
 
 let filteredResults = [];
