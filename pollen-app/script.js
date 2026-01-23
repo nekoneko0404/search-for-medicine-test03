@@ -295,7 +295,13 @@ async function fetchCityDailyData(cityCode) {
     const start = state.currentDate.replace(/-/g, '');
     const end = new Date(state.currentDate);
     end.setDate(end.getDate() + 1);
-    const endStr = end.toISOString().split('T')[0].replace(/-/g, '');
+    let endStr = end.toISOString().split('T')[0].replace(/-/g, '');
+
+    // Clamp end date to today to avoid API errors
+    const todayStr = getJSTDateString().replace(/-/g, '');
+    if (endStr > todayStr) {
+        endStr = todayStr;
+    }
 
     const data = await fetchData(cityCode, start, endStr);
 
@@ -305,8 +311,10 @@ async function fetchCityDailyData(cityCode) {
 
         let displayValue = 0;
         if (isToday) {
-            // For today, use the latest non-null hourly value
-            const latest = [...data].reverse().find(v => v.pollen !== null);
+            // For today, use the latest non-null hourly value that is not in the future
+            const now = new Date();
+            const validData = data.filter(v => v.date <= now && v.pollen !== null);
+            const latest = validData.length > 0 ? validData[validData.length - 1] : null;
             displayValue = latest ? latest.pollen : 0;
         } else {
             // For past data, use the daily total (sum) for the selected date only
@@ -364,7 +372,13 @@ async function handlePopupOpen(city, marker) {
     const start = state.currentDate.replace(/-/g, '');
     const end = new Date(state.currentDate);
     end.setDate(end.getDate() + 1);
-    const endStr = end.toISOString().split('T')[0].replace(/-/g, '');
+    let endStr = end.toISOString().split('T')[0].replace(/-/g, '');
+
+    // Clamp end date to today to avoid API errors
+    const todayStr = getJSTDateString().replace(/-/g, '');
+    if (endStr > todayStr) {
+        endStr = todayStr;
+    }
 
     const data = await fetchData(city.code, start, endStr);
     const [year, month, day] = state.currentDate.split('-').map(Number);
@@ -525,7 +539,13 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
     // Set endStr to the day after the selected date to include the selected date's data
     const apiEndDate = new Date(endDate);
     apiEndDate.setDate(apiEndDate.getDate() + 1);
-    const endStr = apiEndDate.toISOString().split('T')[0].replace(/-/g, '');
+    let endStr = apiEndDate.toISOString().split('T')[0].replace(/-/g, '');
+
+    // Clamp end date to today to avoid API errors
+    const todayStr = getJSTDateString().replace(/-/g, '');
+    if (endStr > todayStr) {
+        endStr = todayStr;
+    }
 
     const startDateISO = startDate.toISOString().split('T')[0];
     const endDateISO = state.currentDate;
