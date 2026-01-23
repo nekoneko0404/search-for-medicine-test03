@@ -21,6 +21,7 @@ const elements = {
     searchBtn: null,
     recoveryBtn: null,
     clearBtn: null,
+    shareBtn: null,
     resultTableBody: null,
     tableContainer: null,
     loadingIndicator: null,
@@ -54,6 +55,7 @@ function initElements() {
     elements.searchBtn = document.getElementById('search-btn');
     elements.recoveryBtn = document.getElementById('recovery-btn');
     elements.clearBtn = document.getElementById('clear-btn');
+    elements.shareBtn = document.getElementById('share-btn');
     elements.resultTableBody = document.getElementById('resultTableBody');
     elements.tableContainer = document.getElementById('tableContainer');
     elements.cardContainer = document.getElementById('cardContainer');
@@ -93,23 +95,29 @@ async function initApp() {
             const shippingStatus = urlParams.get('shippingStatus');
             const updateDate = urlParams.get('updateDate');
 
-            if (productName) elements.searchInput.value = productName;
-            if (updateDate) elements.updatePeriod.value = updateDate;
+            // New params for share feature
+            const q = urlParams.get('q');
+            const period = urlParams.get('period');
+            const hasShareParams = urlParams.has('q') || urlParams.has('period') || urlParams.has('normal');
 
-            // Handle status param if present
-            if (shippingStatus) {
-                if (shippingStatus === 'all') {
-                    elements.statusCheckboxes.normal.checked = true;
-                    elements.statusCheckboxes.limited.checked = true;
-                    elements.statusCheckboxes.stopped.checked = true;
-                } else {
-                    elements.statusCheckboxes.normal.checked = shippingStatus === 'normal';
-                    elements.statusCheckboxes.limited.checked = shippingStatus === 'limited';
-                    elements.statusCheckboxes.stopped.checked = shippingStatus === 'stopped';
+            if (hasShareParams) {
+                restoreFromUrlParams(urlParams);
+                searchData();
+            } else if (productName || shippingStatus || updateDate) {
+                // Legacy/Simple params support
+                if (productName) elements.searchInput.value = productName;
+                if (updateDate) elements.updatePeriod.value = updateDate;
+                if (shippingStatus) {
+                    if (shippingStatus === 'all') {
+                        elements.statusCheckboxes.normal.checked = true;
+                        elements.statusCheckboxes.limited.checked = true;
+                        elements.statusCheckboxes.stopped.checked = true;
+                    } else {
+                        elements.statusCheckboxes.normal.checked = shippingStatus === 'normal';
+                        elements.statusCheckboxes.limited.checked = shippingStatus === 'limited';
+                        elements.statusCheckboxes.stopped.checked = shippingStatus === 'stopped';
+                    }
                 }
-            }
-
-            if (productName || shippingStatus || updateDate) {
                 searchData();
             } else {
                 clearAndResetSearch();
@@ -155,6 +163,11 @@ async function initApp() {
 
 
     elements.clearBtn.addEventListener('click', clearAndResetSearch);
+
+    // 共有ボタンのイベントリスナー
+    if (elements.shareBtn) {
+        elements.shareBtn.addEventListener('click', () => shareSearchConditions());
+    }
 
     elements.recoveryBtn.addEventListener('click', () => {
         // Clear inputs
@@ -213,6 +226,65 @@ function clearAndResetSearch() {
     if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = false;
 
     searchData(true); // reset=true を渡す
+}
+
+/**
+ * URLクエリパラメータから検索条件を復元
+ * @param {URLSearchParams} urlParams - URLパラメータ
+ */
+function restoreFromUrlParams(urlParams) {
+    // 検索ワード
+    const q = urlParams.get('q');
+    if (q !== null && elements.searchInput) elements.searchInput.value = q;
+
+    // 期間
+    const period = urlParams.get('period');
+    if (period && elements.updatePeriod) elements.updatePeriod.value = period;
+
+    // 出荷状況
+    if (elements.statusCheckboxes.normal) elements.statusCheckboxes.normal.checked = urlParams.get('normal') === '1';
+    if (elements.statusCheckboxes.limited) elements.statusCheckboxes.limited.checked = urlParams.get('limited') === '1';
+    if (elements.statusCheckboxes.stopped) elements.statusCheckboxes.stopped.checked = urlParams.get('stopped') === '1';
+
+    // 傾向
+    if (elements.trendCheckboxes.up) elements.trendCheckboxes.up.checked = urlParams.get('up') === '1';
+    if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = urlParams.get('down') === '1';
+}
+
+/**
+ * 現在の検索条件を共有URLとしてクリップボードにコピー
+ */
+async function shareSearchConditions() {
+    const q = elements.searchInput?.value?.trim() || '';
+    const period = elements.updatePeriod?.value || '7days';
+
+    // パラメータを構築
+    const params = new URLSearchParams();
+
+    if (q) params.set('q', q);
+    if (period !== '7days') params.set('period', period);
+
+    // 出荷状況
+    params.set('normal', elements.statusCheckboxes.normal?.checked ? '1' : '0');
+    params.set('limited', elements.statusCheckboxes.limited?.checked ? '1' : '0');
+    params.set('stopped', elements.statusCheckboxes.stopped?.checked ? '1' : '0');
+
+    // 傾向
+    params.set('up', elements.trendCheckboxes.up?.checked ? '1' : '0');
+    params.set('down', elements.trendCheckboxes.down?.checked ? '1' : '0');
+
+    // 完全なURLを生成
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?${params.toString()}`;
+
+    // クリップボードにコピー
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showMessage('検索条件のURLをクリップボードにコピーしました', 'success');
+    } catch (err) {
+        console.error('Failed to copy to clipboard:', err);
+        showMessage('URLのコピーに失敗しました', 'error');
+    }
 }
 
 /**

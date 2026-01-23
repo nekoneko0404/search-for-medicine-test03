@@ -31,6 +31,7 @@ const elements = {
     sortProductNameIcon: null,
     sortIngredientNameIcon: null,
     reloadDataBtn: null,
+    shareBtn: null,
 
     pageFooter: null,
     infoContainer: null,
@@ -58,6 +59,7 @@ function initElements() {
     elements.sortProductNameIcon = document.getElementById('sort-productName-icon');
     elements.sortIngredientNameIcon = document.getElementById('sort-ingredientName-icon');
     elements.reloadDataBtn = document.getElementById('reload-data');
+    elements.shareBtn = document.getElementById('share-btn');
 
     elements.infoContainer = document.getElementById('infoContainer');
 }
@@ -513,10 +515,78 @@ function sortResults(key) {
 
 
 /**
+ * URLクエリパラメータから検索条件を復元
+ * @param {URLSearchParams} urlParams - URLパラメータ
+ */
+function restoreFromUrlParams(urlParams) {
+    // テキスト入力の復元
+    const drug = urlParams.get('drug');
+    if (drug && elements.drugName) elements.drugName.value = drug;
+
+    const ingredient = urlParams.get('ingredient');
+    if (ingredient && elements.ingredientName) elements.ingredientName.value = ingredient;
+
+    const maker = urlParams.get('maker');
+    if (maker && elements.makerName) elements.makerName.value = maker;
+
+    // 出荷状況チェックボックスを復元
+    if (elements.statusNormal) elements.statusNormal.checked = urlParams.get('normal') === '1';
+    if (elements.statusLimited) elements.statusLimited.checked = urlParams.get('limited') === '1';
+    if (elements.statusStopped) elements.statusStopped.checked = urlParams.get('stop') === '1';
+}
+
+/**
+ * 現在の検索条件を共有URLとしてクリップボードにコピー
+ */
+async function shareSearchConditions() {
+    const drug = elements.drugName?.value?.trim() || '';
+    const ingredient = elements.ingredientName?.value?.trim() || '';
+    const maker = elements.makerName?.value?.trim() || '';
+
+    // パラメータを構築
+    const params = new URLSearchParams();
+
+    if (drug) params.set('drug', drug);
+    if (ingredient) params.set('ingredient', ingredient);
+    if (maker) params.set('maker', maker);
+
+    // 出荷状況を追加
+    params.set('normal', elements.statusNormal?.checked ? '1' : '0');
+    params.set('limited', elements.statusLimited?.checked ? '1' : '0');
+    params.set('stop', elements.statusStopped?.checked ? '1' : '0');
+
+    // 完全なURLを生成
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?${params.toString()}`;
+
+    // クリップボードにコピー
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showMessage('検索条件のURLをクリップボードにコピーしました', 'success');
+    } catch (err) {
+        console.error('Failed to copy to clipboard:', err);
+        showMessage('URLのコピーに失敗しました', 'error');
+    }
+}
+
+/**
  * Initialize application
  */
 async function initApp() {
     initElements();
+
+    // 共有ボタンのイベントリスナー
+    if (elements.shareBtn) {
+        elements.shareBtn.addEventListener('click', () => shareSearchConditions());
+    }
+
+    // Check URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    let shouldSearch = false;
+    if (urlParams.has('drug') || urlParams.has('ingredient') || urlParams.has('maker') || urlParams.has('normal')) {
+        restoreFromUrlParams(urlParams);
+        shouldSearch = true;
+    }
 
 
     // Attach Event Listeners
@@ -579,6 +649,10 @@ async function initApp() {
             renderResults([]);
             elements.tableContainer.classList.add('hidden');
             showMessage(`データ(${result.date}) ${excelData.length} 件を読み込みました。`, "success");
+
+            if (shouldSearch) {
+                searchData();
+            }
         } else {
             showMessage('データの読み込みに失敗しました。リロードボタンで再試行してください。', "error");
         }
