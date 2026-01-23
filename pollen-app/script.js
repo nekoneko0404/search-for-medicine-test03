@@ -77,7 +77,7 @@ async function fetchData(cityCode, start, end) {
         const data = rows.map(row => {
             const [code, dateStr, pollenStr] = row.split(',');
             let pollen = parseInt(pollenStr, 10);
-            if (isNaN(pollen) || pollen < 0) pollen = 0; // Treat negative or NaN as 0
+            if (isNaN(pollen) || pollen < 0) pollen = -1; // Treat negative or NaN as -1 (missing)
             return {
                 date: new Date(dateStr),
                 pollen: pollen
@@ -311,9 +311,9 @@ async function fetchCityDailyData(cityCode) {
 
         let displayValue = 0;
         if (isToday) {
-            // For today, use the latest non-null hourly value that is not in the future
+            // For today, use the latest non-null hourly value that is not in the future and not missing (-1)
             const now = new Date();
-            const validData = data.filter(v => v.date <= now && v.pollen !== null);
+            const validData = data.filter(v => v.date <= now && v.pollen !== null && v.pollen >= 0);
             const latest = validData.length > 0 ? validData[validData.length - 1] : null;
             displayValue = latest ? latest.pollen : 0;
         } else {
@@ -324,7 +324,7 @@ async function fetchCityDailyData(cityCode) {
                     const d = item.date;
                     return d.getFullYear() === year && (d.getMonth() + 1) === month && d.getDate() === day;
                 })
-                .reduce((sum, item) => sum + (item.pollen || 0), 0);
+                .reduce((sum, item) => sum + (item.pollen > 0 ? item.pollen : 0), 0);
         }
 
         const marker = markers[cityCode];
@@ -410,8 +410,8 @@ async function handlePopupOpen(city, marker) {
             labels: dayData.map(d => d.date.getHours() + '時'),
             datasets: [{
                 label: '花粉数',
-                data: dayData.map(d => d.pollen),
-                backgroundColor: dayData.map(d => getPollenColor(d.pollen)),
+                data: dayData.map(d => d.pollen >= 0 ? d.pollen : 0),
+                backgroundColor: dayData.map(d => getPollenColor(d.pollen >= 0 ? d.pollen : 0)),
                 borderWidth: 0,
                 barPercentage: 0.9,
                 categoryPercentage: 1.0
@@ -589,7 +589,9 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
         const dateKey = `${year}-${month}-${day}`;
 
         if (!dailyMap[dateKey]) dailyMap[dateKey] = { sum: 0, count: 0 };
-        dailyMap[dateKey].sum += item.pollen;
+        if (item.pollen >= 0) {
+            dailyMap[dateKey].sum += item.pollen;
+        }
         dailyMap[dateKey].count++;
     });
 
@@ -833,11 +835,39 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.btn-quick-date[data-days="0"]').classList.add('active');
 
     try {
+        // Load saved state
+        let initialCenter = [36.2048, 138.2529];
+        let initialZoom = 5;
+        try {
+            const savedState = localStorage.getItem('pollenMapState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                if (state.lat && state.lng && state.zoom) {
+                    initialCenter = [state.lat, state.lng];
+                    initialZoom = state.zoom;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load map state:', e);
+        }
+
         map = L.map('map', {
             zoomControl: false,
             minZoom: 2,
             maxZoom: 12
-        }).setView([36.2048, 138.2529], 5);
+        }).setView(initialCenter, initialZoom);
+
+        // Save state on moveend
+        map.on('moveend', () => {
+            const center = map.getCenter();
+            const zoom = map.getZoom();
+            const state = {
+                lat: center.lat,
+                lng: center.lng,
+                zoom: zoom
+            };
+            localStorage.setItem('pollenMapState', JSON.stringify(state));
+        });
 
         L.control.zoom({
             position: 'bottomright'
@@ -879,6 +909,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         map.on('zoomend', debouncedUpdate);
         map.on('moveend', debouncedUpdate);
+
+        // Toggle crosshair visibility on popup open/close
+        map.on('popupopen', () => {
+            const crosshair = document.getElementById('crosshair');
+            if (crosshair) crosshair.style.opacity = '0';
+        });
+        map.on('popupclose', () => {
+            const crosshair = document.getElementById('crosshair');
+            if (crosshair) crosshair.style.opacity = '1';
+        });
 
         initMarkers();
     } catch (e) {
