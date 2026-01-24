@@ -631,21 +631,29 @@ html {
         top: 10px;
         left: 10px;
         width: calc(100% - 20px);
-        padding: 10px 15px;
+        padding: 8px 12px;
         box-sizing: border-box;
         transition: transform 0.3s ease, opacity 0.3s ease;
         z-index: 999;
     }
 
     .app-header h1 {
-        font-size: 16px;
+        font-size: 14px;
+    }
+
+    .app-header .subtitle {
+        font-size: 10px;
+    }
+
+    .app-header .menu-link {
+        font-size: 12px !important;
     }
 
     .side-panel {
-        top: 70px;
+        top: 60px;
         left: 10px;
         width: calc(100% - 20px);
-        max-height: calc(100% - 80px);
+        max-height: calc(100% - 70px);
         padding: 0;
         box-sizing: border-box;
     }

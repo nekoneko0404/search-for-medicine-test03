@@ -1254,11 +1254,13 @@ const NotificationManager = {
         try {
             // Vibrate if supported (mainly for mobile devices)
             if ('vibrate' in navigator) {
-                // Pattern: vibrate 200ms, pause 100ms, vibrate 200ms
-                navigator.vibrate([200, 100, 200]);
-                console.log('Vibration triggered');
+                // Stronger pattern: vibrate 300ms, pause 100ms, vibrate 300ms
+                const pattern = [300, 100, 300];
+                const result = navigator.vibrate(pattern);
+                console.log('Vibration triggered, result:', result);
+                console.log('Vibration pattern:', pattern);
             } else {
-                console.log('Vibration not supported on this device');
+                console.log('Vibration API not supported on this device');
             }
         } catch (error) {
             console.error('Error vibrating:', error);
@@ -1317,16 +1319,18 @@ const NotificationManager = {
 
         const now = new Date();
 
-        // Fetch data
+        // Fetch data using JST dates - use same date for start and end
         const todayStr = getJSTDateString();
         const start = todayStr.replace(/-/g, '');
-        // End date needs to be tomorrow to get full today data
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const endStr = tomorrow.toISOString().split('T')[0].replace(/-/g, '');
+        const end = start; // Use same date for both start and end
 
-        const data = await fetchData(settings.cityCode, start, endStr);
-        if (!data || data.length === 0) return;
+        console.log('Checking pollen levels:', { start, end, cityCode: settings.cityCode });
+
+        const data = await fetchData(settings.cityCode, start, end);
+        if (!data || data.length === 0) {
+            console.log('No data returned from API');
+            return;
+        }
 
         // Filter for today's data
         const validData = data.filter(v => {
