@@ -1107,21 +1107,25 @@ const NotificationManager = {
 
         if (permission === 'granted') {
             console.log('Creating notification...');
-            try {
-                const settings = this.getSettings();
-                const testCityName = settings ? settings.cityName : 'テスト地点';
 
+            const settings = this.getSettings();
+            const testCityName = settings ? settings.cityName : 'テスト地点';
+
+            // Play sound and vibrate first (these work even if notification fails)
+            this.playNotificationSound();
+            this.vibrate();
+
+            // Show toast notification (always works)
+            this.showToast(`${testCityName}の花粉の量が1時間あたり35個を観測しました。`, 'warning', 10000);
+
+            try {
+                // Create notification with minimal options for better compatibility
                 const notification = new Notification('花粉通知テスト', {
                     body: `${testCityName}の花粉の量が1時間あたり35個を観測しました。`,
-                    requireInteraction: false,
-                    tag: 'pollen-test',
-                    silent: true // We'll play our own sound
+                    silent: true
                 });
-                console.log('Notification created:', notification);
 
-                // Play sound and vibrate
-                this.playNotificationSound();
-                this.vibrate();
+                console.log('Notification created:', notification);
 
                 notification.onshow = () => {
                     console.log('Notification shown!');
@@ -1137,14 +1141,10 @@ const NotificationManager = {
                     notification.close();
                 };
 
-                // Alert user that notification was created
-                setTimeout(() => {
-                    this.showToast(`${testCityName}の花粉の量が1時間あたり35個を観測しました。`, 'warning', 10000);
-                }, 100);
-
             } catch (error) {
                 console.error('Notification error:', error);
-                alert('通知の作成に失敗しました: ' + error.message);
+                // Don't show error alert - sound and toast already played
+                console.log('Note: System notification failed, but sound and toast notification were shown');
             }
         } else {
             console.log('Permission denied');
@@ -1351,14 +1351,19 @@ const NotificationManager = {
 
             const notificationBody = messages.join('\n');
 
-            new Notification(`【花粉注意】${settings.cityName}`, {
-                body: notificationBody,
-                tag: 'pollen-alert',
-                silent: true // We play our own sound
-            });
-
             // Show toast notification at the bottom of the screen
             this.showToast(notificationBody, 'warning', 10000);
+
+            try {
+                // Create system notification with minimal options for compatibility
+                new Notification(`【花粉注意】${settings.cityName}`, {
+                    body: notificationBody,
+                    silent: true
+                });
+            } catch (error) {
+                console.error('System notification failed:', error);
+                // Continue anyway - sound and toast were already shown
+            }
 
             // Update last notified
             settings.lastNotified = now.getTime();
