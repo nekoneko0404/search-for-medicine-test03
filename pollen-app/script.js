@@ -986,6 +986,19 @@ const NotificationManager = {
         this.setupEventListeners();
         this.startMonitoring();
         this.updateRegisteredLocationUI();
+        this.unlockAudio(); // Initialize audio unlocking
+    },
+
+    // Unlock audio for iOS/Safari
+    unlockAudio() {
+        const unlock = () => {
+            this.playNotificationSound(true); // Play silent sound
+            window.removeEventListener('click', unlock);
+            window.removeEventListener('touchstart', unlock);
+            console.log('Audio unlocked');
+        };
+        window.addEventListener('click', unlock);
+        window.addEventListener('touchstart', unlock);
     },
 
     setupEventListeners() {
@@ -1078,6 +1091,24 @@ const NotificationManager = {
             clearBtn.classList.add('hidden');
         }
 
+        // iOS/Safari compatibility check
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+        const notificationSupported = typeof Notification !== 'undefined';
+
+        let warningMsg = '';
+        if (isIOS && !isPWA) {
+            warningMsg = '※iPhoneでは「ホーム画面に追加」して起動しないと、ブラウザを閉じた状態での通知は届きません。';
+        } else if (!notificationSupported) {
+            warningMsg = '※お使いのブラウザはシステム通知に対応していません。アプリを開いている間のみアラートが表示されます。';
+        }
+
+        const warningElem = document.getElementById('notification-compatibility-warning');
+        if (warningElem) {
+            warningElem.textContent = warningMsg;
+            warningElem.classList.toggle('hidden', !warningMsg);
+        }
+
         modal.classList.add('show');
     },
 
@@ -1100,16 +1131,20 @@ const NotificationManager = {
 
         if (!cityCode) return;
 
-        // Request permission only if not already granted
-        if (Notification.permission === 'default') {
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') {
-                alert('通知の許可が得られませんでした。ブラウザの設定を確認してください。');
-                return;
+        // Request permission only if supported and not already granted
+        if (typeof Notification !== 'undefined') {
+            if (Notification.permission === 'default') {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        console.log('Notification permission denied');
+                    }
+                } catch (e) {
+                    console.error('Error requesting notification permission:', e);
+                }
+            } else if (Notification.permission === 'denied') {
+                alert('通知がブロックされています。ブラウザの設定から通知を許可してください。システム通知以外の機能は利用可能です。');
             }
-        } else if (Notification.permission === 'denied') {
-            alert('通知がブロックされています。ブラウザの設定から通知を許可してください。');
-            return;
         }
 
         const settings = {
@@ -1149,10 +1184,15 @@ const NotificationManager = {
 
     async testNotification() {
         console.log('Testing notification...');
-        console.log('Current permission:', Notification.permission);
 
-        const permission = await Notification.requestPermission();
-        console.log('Permission after request:', permission);
+        let permission = 'granted';
+        if (typeof Notification !== 'undefined') {
+            console.log('Current permission:', Notification.permission);
+            permission = await Notification.requestPermission();
+            console.log('Permission after request:', permission);
+        } else {
+            console.log('Notification API not supported');
+        }
 
         if (permission === 'granted') {
             console.log('Creating notification...');
@@ -1167,33 +1207,35 @@ const NotificationManager = {
             // Show toast notification (always works)
             this.showToast(`${testCityName}の花粉の量が1時間あたり35個を観測しました。`, 'warning', 10000);
 
-            try {
-                // Create notification with minimal options for better compatibility
-                const notification = new Notification('花粉通知テスト', {
-                    body: `${testCityName}の花粉の量が1時間あたり35個を観測しました。`,
-                    silent: true
-                });
+            if (typeof Notification !== 'undefined' && permission === 'granted') {
+                try {
+                    // Create notification with minimal options for better compatibility
+                    const notification = new Notification('花粉通知テスト', {
+                        body: `${testCityName}の花粉の量が1時間あたり35個を観測しました。`,
+                        silent: true
+                    });
 
-                console.log('Notification created:', notification);
+                    console.log('Notification created:', notification);
 
-                notification.onshow = () => {
-                    console.log('Notification shown!');
-                };
+                    notification.onshow = () => {
+                        console.log('Notification shown!');
+                    };
 
-                notification.onerror = (error) => {
-                    console.error('Notification error event:', error);
-                };
+                    notification.onerror = (error) => {
+                        console.error('Notification error event:', error);
+                    };
 
-                notification.onclick = () => {
-                    console.log('Notification clicked');
-                    window.focus();
-                    notification.close();
-                };
+                    notification.onclick = () => {
+                        console.log('Notification clicked');
+                        window.focus();
+                        notification.close();
+                    };
 
-            } catch (error) {
-                console.error('Notification error:', error);
-                // Don't show error alert - sound and toast already played
-                console.log('Note: System notification failed, but sound and toast notification were shown');
+                } catch (error) {
+                    console.error('Notification error:', error);
+                    // Don't show error alert - sound and toast already played
+                    console.log('Note: System notification failed, but sound and toast notification were shown');
+                }
             }
         } else {
             console.log('Permission denied');
@@ -1201,13 +1243,13 @@ const NotificationManager = {
         }
     },
 
-    playNotificationSound() {
+    playNotificationSound(silent = false) {
         // Check if custom audio file exists, if so use it instead of beep
-        const customAudioPath = 'notification.mp3'; // You can place your audio file here
+        const customAudioPath = 'notification.mp3';
 
         // Try to play custom audio first
         const audio = new Audio(customAudioPath);
-        audio.volume = 1.0;
+        audio.volume = silent ? 0 : 1.0;
 
         audio.play().catch(() => {
             // If custom audio fails, fall back to beep sound
@@ -1407,15 +1449,17 @@ const NotificationManager = {
             // Show toast notification at the bottom of the screen
             this.showToast(notificationBody, 'warning', 10000);
 
-            try {
-                // Create system notification with minimal options for compatibility
-                new Notification(`【花粉注意】${settings.cityName}`, {
-                    body: notificationBody,
-                    silent: true
-                });
-            } catch (error) {
-                console.error('System notification failed:', error);
-                // Continue anyway - sound and toast were already shown
+            if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+                try {
+                    // Create system notification with minimal options for compatibility
+                    new Notification(`【花粉注意】${settings.cityName}`, {
+                        body: notificationBody,
+                        silent: true
+                    });
+                } catch (error) {
+                    console.error('System notification failed:', error);
+                    // Continue anyway - sound and toast were already shown
+                }
             }
 
             // Update last notified

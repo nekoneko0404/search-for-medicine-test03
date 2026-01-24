@@ -480,6 +480,17 @@ html {
     display: none;
 }
 
+.notification-warning {
+    font-size: 13px;
+    color: #ff6b00;
+    background: #fff3e0;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border-left: 3px solid #ff9800;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
 .spinner {
     width: 40px;
     height: 40px;
