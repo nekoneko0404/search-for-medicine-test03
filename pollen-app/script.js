@@ -46,10 +46,10 @@ function getPollenColor(count, isPast = false) {
         return '#FFFFFF'; // None (White)
     } else {
         // Latest Hourly Thresholds
-        if (count >= 12) return '#9C27B0'; // Very High (Purple)
-        if (count >= 7) return '#f44336'; // High (Red)
-        if (count >= 4) return '#FFEB3B'; // Medium (Yellow)
-        if (count >= 1) return '#2196F3'; // Low (Blue)
+        if (count >= 30) return '#9C27B0'; // Very High (Purple)
+        if (count >= 15) return '#f44336'; // High (Red)
+        if (count >= 9) return '#FFEB3B'; // Medium (Yellow)
+        if (count >= 3) return '#2196F3'; // Low (Blue)
         return '#FFFFFF'; // None (White)
     }
 }
