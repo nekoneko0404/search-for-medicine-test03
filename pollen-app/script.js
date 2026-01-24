@@ -929,14 +929,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Panel Toggle Logic
-    const panel = document.getElementById('side-panel');
     const toggleBtn = document.getElementById('panel-toggle');
+    const sidePanel = document.querySelector('.side-panel');
+    const appHeader = document.querySelector('.app-header');
 
-    if (panel && toggleBtn) {
+    if (toggleBtn && sidePanel) {
         toggleBtn.addEventListener('click', () => {
-            panel.classList.toggle('collapsed');
-            const isCollapsed = panel.classList.contains('collapsed');
+            sidePanel.classList.toggle('collapsed');
+            const isCollapsed = sidePanel.classList.contains('collapsed');
             toggleBtn.title = isCollapsed ? 'パネルを開く' : 'パネルを閉じる';
+
+            // On mobile, also toggle app-header visibility
+            if (window.innerWidth <= 600 && appHeader) {
+                if (isCollapsed) {
+                    appHeader.style.transform = 'translateX(-100%)';
+                    appHeader.style.opacity = '0';
+                    appHeader.style.pointerEvents = 'none';
+                } else {
+                    appHeader.style.transform = '';
+                    appHeader.style.opacity = '';
+                    appHeader.style.pointerEvents = '';
+                }
+            }
 
             // Update markers when panel state changes to adjust visual center
             setTimeout(() => {

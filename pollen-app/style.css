@@ -601,12 +601,33 @@ html {
         font-size: 13px;
     }
 
+    /* Reduce popup size on mobile */
+    .leaflet-popup-content {
+        margin: 10px !important;
+        width: 260px !important;
+    }
+
+    .popup-chart-container {
+        height: 180px !important;
+    }
+
+    .popup-header {
+        font-size: 13px;
+    }
+
+    .btn-trend,
+    .btn-notification {
+        padding: 5px 10px;
+        font-size: 10px;
+    }
+
     .app-header {
         top: 10px;
         left: 10px;
         width: calc(100% - 20px);
         padding: 10px 15px;
         box-sizing: border-box;
+        transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
     .app-header h1 {
@@ -629,6 +650,13 @@ html {
     .side-panel.collapsed {
         transform: translateX(-100%);
         left: 0;
+    }
+
+    /* Hide app header when side panel is collapsed on mobile */
+    .side-panel.collapsed~.app-header {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
     }
 
     .panel-toggle {
