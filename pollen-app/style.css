@@ -604,7 +604,7 @@ html {
     /* Reduce popup size on mobile */
     .leaflet-popup-content {
         margin: 10px !important;
-        width: 260px !important;
+        width: 220px !important;
     }
 
     .popup-chart-container {
@@ -621,6 +621,12 @@ html {
         font-size: 10px;
     }
 
+    /* Ensure modal close button is clickable */
+    .close-btn {
+        z-index: 10001;
+        position: relative;
+    }
+
     .app-header {
         top: 10px;
         left: 10px;
@@ -628,6 +634,7 @@ html {
         padding: 10px 15px;
         box-sizing: border-box;
         transition: transform 0.3s ease, opacity 0.3s ease;
+        z-index: 999;
     }
 
     .app-header h1 {
@@ -635,10 +642,10 @@ html {
     }
 
     .side-panel {
-        top: 80px;
+        top: 70px;
         left: 10px;
         width: calc(100% - 20px);
-        max-height: calc(100% - 100px);
+        max-height: calc(100% - 80px);
         padding: 0;
         box-sizing: border-box;
     }
@@ -930,6 +937,22 @@ html {
     margin-top: 20px;
     border-top: 1px solid var(--border-color);
     padding-top: 20px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: color 0.2s;
+    z-index: 10;
+}
+
+.close-btn:hover {
+    color: var(--text-main);
 }
 
 .btn-primary,

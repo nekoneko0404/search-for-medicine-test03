@@ -960,8 +960,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Auto-collapse on small screens initially
         if (window.innerWidth <= 600) {
-            panel.classList.add('collapsed');
+            sidePanel.classList.add('collapsed');
             toggleBtn.title = 'パネルを開く';
+
+            // Also hide header on mobile initially
+            if (appHeader) {
+                appHeader.style.transform = 'translateX(-100%)';
+                appHeader.style.opacity = '0';
+                appHeader.style.pointerEvents = 'none';
+            }
         }
     }
 
@@ -995,9 +1002,19 @@ const NotificationManager = {
             if (e.target === modal) modal.classList.remove('show');
         });
 
-        saveBtn.onclick = () => this.saveSettings();
-        testBtn.onclick = () => this.testNotification();
-        clearBtn.onclick = () => this.clearSettings();
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => this.saveSettings());
+        }
+
+        if (testBtn) {
+            testBtn.addEventListener('click', () => {
+                this.testNotification();
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.clearSettings());
+        }
     },
 
     openSettings(cityCode, cityName) {
