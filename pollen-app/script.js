@@ -985,6 +985,7 @@ const NotificationManager = {
     init() {
         this.setupEventListeners();
         this.startMonitoring();
+        this.updateRegisteredLocationUI();
     },
 
     setupEventListeners() {
@@ -1015,9 +1016,27 @@ const NotificationManager = {
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.clearSettings());
         }
+
+        // Registered location section controls
+        const jumpBtn = document.getElementById('btn-jump-to-registered');
+        const editBtn = document.getElementById('btn-edit-registered');
+
+        if (jumpBtn) {
+            jumpBtn.addEventListener('click', () => this.jumpToRegisteredLocation());
+        }
+
+        if (editBtn) {
+            editBtn.addEventListener('click', () => {
+                const settings = NotificationManager.getSettings();
+                if (settings) {
+                    NotificationManager.openSettings(settings.cityCode, settings.cityName);
+                }
+            });
+        }
     },
 
     openSettings(cityCode, cityName) {
+        console.log('Opening settings for:', cityName, cityCode);
         const modal = document.getElementById('notification-modal');
         const targetCitySpan = document.getElementById('notification-target-city');
         const hourlyInput = document.getElementById('threshold-hourly');
@@ -1108,6 +1127,9 @@ const NotificationManager = {
         document.getElementById('notification-modal').classList.remove('show');
         this.showToast(`${cityName}の通知設定を保存しました`);
 
+        // Update UI
+        this.updateRegisteredLocationUI();
+
         // Restart monitoring with new settings
         this.startMonitoring();
 
@@ -1120,6 +1142,7 @@ const NotificationManager = {
             localStorage.removeItem(this.settingsKey);
             document.getElementById('notification-modal').classList.remove('show');
             this.showToast('通知設定を解除しました');
+            this.updateRegisteredLocationUI();
             this.stopMonitoring();
         }
     },
@@ -1413,5 +1436,36 @@ const NotificationManager = {
             toast.classList.add('fade-out');
             toast.addEventListener('animationend', () => toast.remove());
         }, duration);
+    },
+
+    updateRegisteredLocationUI() {
+        const section = document.getElementById('registered-location-section');
+        const cityNameSpan = document.getElementById('registered-city-name');
+        const settings = this.getSettings();
+
+        if (settings && settings.cityCode) {
+            cityNameSpan.textContent = settings.cityName;
+            section.classList.remove('hidden');
+        } else {
+            section.classList.add('hidden');
+        }
+    },
+
+    jumpToRegisteredLocation() {
+        const settings = this.getSettings();
+        if (!settings || !settings.cityCode) return;
+
+        const city = CITIES.find(c => c.code === settings.cityCode);
+        if (city && map) {
+            map.setView([city.lat, city.lng], 10);
+
+            // Open popup for the city if it's visible or can be made visible
+            setTimeout(() => {
+                const marker = markers[city.code];
+                if (marker) {
+                    marker.openPopup();
+                }
+            }, 500);
+        }
     }
 };

@@ -1021,3 +1021,58 @@ html {
 .btn-notification:hover {
     background-color: #f57c00;
 }
+
+/* Registered Location Section */
+.registered-location-card {
+    background: linear-gradient(135deg, #4caf5015 0%, #2196f315 100%);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 5px;
+}
+
+.location-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.city-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--primary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.location-actions {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.btn-icon {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-sub);
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+.hidden {
+    display: none;
+}

@@ -58,6 +58,22 @@
             <i class="fas fa-chevron-left"></i>
         </button>
         <div class="side-panel-content">
+            <!-- Registered Location -->
+            <div id="registered-location-section" class="panel-section hidden">
+                <h2 class="section-title"><i class="fas fa-map-marker-alt"></i> 通知登録地点</h2>
+                <div class="registered-location-card">
+                    <div class="location-info">
+                        <span id="registered-city-name" class="city-name">未設定</span>
+                        <div class="location-actions">
+                            <button id="btn-jump-to-registered" class="btn-icon" title="地図で表示"><i
+                                    class="fas fa-crosshairs"></i></button>
+                            <button id="btn-edit-registered" class="btn-icon" title="通知設定"><i
+                                    class="fas fa-cog"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Date Selection -->
             <div class="panel-section">
                 <h2 class="section-title"><i class="fas fa-calendar-alt"></i> 表示日付</h2>
@@ -187,7 +203,7 @@
     <div id="crosshair"></div>
 
     <!-- Modal for Weekly Trend -->
-    <div id="trend-modal" class="modal hidden">
+    <div id="trend-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2 id="modal-city-name">都市名</h2>
@@ -202,7 +218,7 @@
     </div>
 
     <!-- Modal for Notification Settings -->
-    <div id="notification-modal" class="modal hidden">
+    <div id="notification-modal" class="modal">
         <div class="modal-content notification-modal-content">
             <span class="close-btn" id="notification-close-btn">&times;</span>
             <h2><i class="fas fa-bell"></i> 花粉通知設定</h2>
