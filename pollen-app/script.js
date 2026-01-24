@@ -396,7 +396,10 @@ async function handlePopupOpen(city, marker) {
     container.innerHTML = `
         <div class="popup-header">
             <span>${sanitizedName} (${sanitizedDate})</span>
-            <button class="btn-trend" onclick="showWeeklyTrend('${sanitizedCode}', '${sanitizedName}')">週間推移</button>
+            <div>
+                <button class="btn-trend" onclick="showWeeklyTrend('${sanitizedCode}', '${sanitizedName}')">週間推移</button>
+                <button class="btn-notification" onclick="NotificationManager.openSettings('${sanitizedCode}', '${sanitizedName}')" title="通知設定"><i class="fas fa-bell"></i></button>
+            </div>
         </div>
         <div class="popup-chart-container">
             <canvas id="chart-${sanitizedCode}"></canvas>
@@ -947,4 +950,433 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleBtn.title = 'パネルを開く';
         }
     }
+
+    // Initialize Notification Manager
+    NotificationManager.init();
 });
+
+// --- Notification Manager ---
+const NotificationManager = {
+    settingsKey: 'pollen_notification_settings',
+    checkInterval: 15 * 60 * 1000, // 15 minutes
+    timerId: null,
+
+    init() {
+        this.setupEventListeners();
+        this.startMonitoring();
+    },
+
+    setupEventListeners() {
+        // Modal controls
+        const modal = document.getElementById('notification-modal');
+        const closeBtn = document.getElementById('notification-close-btn');
+        const saveBtn = document.getElementById('btn-save-notification');
+        const testBtn = document.getElementById('btn-test-notification');
+        const clearBtn = document.getElementById('btn-clear-notification');
+
+        closeBtn.onclick = () => modal.classList.remove('show');
+
+        // Close on outside click
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('show');
+        });
+
+        saveBtn.onclick = () => this.saveSettings();
+        testBtn.onclick = () => this.testNotification();
+        clearBtn.onclick = () => this.clearSettings();
+    },
+
+    openSettings(cityCode, cityName) {
+        const modal = document.getElementById('notification-modal');
+        const targetCitySpan = document.getElementById('notification-target-city');
+        const hourlyInput = document.getElementById('threshold-hourly');
+        const dailyInput = document.getElementById('threshold-daily');
+        const soundCheckbox = document.getElementById('enable-sound');
+        const vibrationCheckbox = document.getElementById('enable-vibration');
+        const clearBtn = document.getElementById('btn-clear-notification');
+
+        // Load existing settings
+        const settings = this.getSettings();
+
+        // Check if user is trying to register a different location
+        // Only show confirmation if there's an existing registration AND it's a different city
+        if (settings && settings.cityCode && settings.cityCode !== cityCode) {
+            const confirmChange = confirm(
+                `現在「${settings.cityName}」が登録されています。\n` +
+                `「${cityName}」に変更しますか？\n\n` +
+                `※1ユーザーにつき1か所のみ登録できます。`
+            );
+            if (!confirmChange) {
+                return; // User cancelled, don't open modal
+            }
+        }
+
+        // Set current target
+        targetCitySpan.textContent = cityName;
+        targetCitySpan.dataset.code = cityCode;
+
+        // Populate inputs if this city is already registered
+        if (settings && settings.cityCode === cityCode) {
+            hourlyInput.value = settings.thresholdHourly;
+            dailyInput.value = settings.thresholdDaily;
+            soundCheckbox.checked = settings.enableSound !== false; // Default true
+            vibrationCheckbox.checked = settings.enableVibration !== false; // Default true
+            clearBtn.classList.remove('hidden');
+        } else {
+            // Defaults: 1時間30個、累積150個
+            hourlyInput.value = 30;
+            dailyInput.value = 150;
+            soundCheckbox.checked = true;
+            vibrationCheckbox.checked = true;
+            clearBtn.classList.add('hidden');
+        }
+
+        modal.classList.add('show');
+    },
+
+    getSettings() {
+        const json = localStorage.getItem(this.settingsKey);
+        return json ? JSON.parse(json) : null;
+    },
+
+    async saveSettings() {
+        const targetCitySpan = document.getElementById('notification-target-city');
+        const hourlyInput = document.getElementById('threshold-hourly');
+        const dailyInput = document.getElementById('threshold-daily');
+        const soundCheckbox = document.getElementById('enable-sound');
+        const vibrationCheckbox = document.getElementById('enable-vibration');
+
+        const cityCode = targetCitySpan.dataset.code;
+        const cityName = targetCitySpan.textContent;
+        const thresholdHourly = parseInt(hourlyInput.value, 10);
+        const thresholdDaily = parseInt(dailyInput.value, 10);
+        const enableSound = soundCheckbox.checked;
+        const enableVibration = vibrationCheckbox.checked;
+
+        if (!cityCode) return;
+
+        // Request permission only if not already granted
+        if (Notification.permission === 'default') {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                alert('通知の許可が得られませんでした。ブラウザの設定を確認してください。');
+                return;
+            }
+        } else if (Notification.permission === 'denied') {
+            alert('通知がブロックされています。ブラウザの設定から通知を許可してください。');
+            return;
+        }
+
+        const settings = {
+            cityCode,
+            cityName,
+            thresholdHourly,
+            thresholdDaily,
+            enableSound,
+            enableVibration,
+            lastNotified: 0
+        };
+
+        localStorage.setItem(this.settingsKey, JSON.stringify(settings));
+
+        document.getElementById('notification-modal').classList.remove('show');
+        this.showToast(`${cityName}の通知設定を保存しました`);
+
+        // Restart monitoring with new settings
+        this.startMonitoring();
+
+        // Check immediately
+        this.checkPollenLevels();
+    },
+
+    clearSettings() {
+        if (confirm('通知設定を解除しますか？')) {
+            localStorage.removeItem(this.settingsKey);
+            document.getElementById('notification-modal').classList.remove('show');
+            this.showToast('通知設定を解除しました');
+            this.stopMonitoring();
+        }
+    },
+
+    async testNotification() {
+        console.log('Testing notification...');
+        console.log('Current permission:', Notification.permission);
+
+        const permission = await Notification.requestPermission();
+        console.log('Permission after request:', permission);
+
+        if (permission === 'granted') {
+            console.log('Creating notification...');
+            try {
+                const settings = this.getSettings();
+                const testCityName = settings ? settings.cityName : 'テスト地点';
+
+                const notification = new Notification('花粉通知テスト', {
+                    body: `${testCityName}の花粉の量が1時間あたり35個を観測しました。`,
+                    requireInteraction: false,
+                    tag: 'pollen-test',
+                    silent: true // We'll play our own sound
+                });
+                console.log('Notification created:', notification);
+
+                // Play sound and vibrate
+                this.playNotificationSound();
+                this.vibrate();
+
+                notification.onshow = () => {
+                    console.log('Notification shown!');
+                };
+
+                notification.onerror = (error) => {
+                    console.error('Notification error event:', error);
+                };
+
+                notification.onclick = () => {
+                    console.log('Notification clicked');
+                    window.focus();
+                    notification.close();
+                };
+
+                // Alert user that notification was created
+                setTimeout(() => {
+                    this.showToast(`${testCityName}の花粉の量が1時間あたり35個を観測しました。`, 'warning', 10000);
+                }, 100);
+
+            } catch (error) {
+                console.error('Notification error:', error);
+                alert('通知の作成に失敗しました: ' + error.message);
+            }
+        } else {
+            console.log('Permission denied');
+            alert('通知の許可が得られませんでした。');
+        }
+    },
+
+    playNotificationSound() {
+        // Check if custom audio file exists, if so use it instead of beep
+        const customAudioPath = 'notification.mp3'; // You can place your audio file here
+
+        // Try to play custom audio first
+        const audio = new Audio(customAudioPath);
+        audio.volume = 1.0;
+
+        audio.play().catch(() => {
+            // If custom audio fails, fall back to beep sound
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                // Configure sound (pleasant notification tone)
+                oscillator.frequency.value = 800; // Hz
+                oscillator.type = 'sine';
+
+                // Fade in and out
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
+                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.4);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+
+                console.log('Notification beep played');
+            } catch (error) {
+                console.error('Error playing sound:', error);
+            }
+        });
+    },
+
+    speakMessage(message) {
+        try {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'ja-JP'; // Japanese
+                utterance.rate = 1.0; // Normal speed
+                utterance.pitch = 1.0; // Normal pitch
+                utterance.volume = 1.0; // Full volume
+
+                // Try to select a Japanese voice
+                const voices = window.speechSynthesis.getVoices();
+                const japaneseVoice = voices.find(voice => voice.lang.startsWith('ja'));
+                if (japaneseVoice) {
+                    utterance.voice = japaneseVoice;
+                    console.log('Using voice:', japaneseVoice.name);
+                }
+
+                console.log('Speaking:', message);
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.log('Speech synthesis not supported');
+            }
+        } catch (error) {
+            console.error('Error speaking message:', error);
+        }
+    },
+
+    vibrate() {
+        try {
+            // Vibrate if supported (mainly for mobile devices)
+            if ('vibrate' in navigator) {
+                // Pattern: vibrate 200ms, pause 100ms, vibrate 200ms
+                navigator.vibrate([200, 100, 200]);
+                console.log('Vibration triggered');
+            } else {
+                console.log('Vibration not supported on this device');
+            }
+        } catch (error) {
+            console.error('Error vibrating:', error);
+        }
+    },
+
+    startMonitoring() {
+        this.stopMonitoring();
+
+        const settings = this.getSettings();
+        if (!settings) return;
+
+        console.log(`Monitoring started for ${settings.cityName}`);
+
+        // Check immediately on app load
+        this.checkPollenLevels();
+
+        // Schedule to run at 10 minutes past every hour
+        const scheduleNextCheck = () => {
+            const now = new Date();
+            const nextCheck = new Date(now);
+
+            // Set to next hour at 10 minutes
+            nextCheck.setHours(now.getHours() + 1);
+            nextCheck.setMinutes(10);
+            nextCheck.setSeconds(0);
+            nextCheck.setMilliseconds(0);
+
+            // If current time is before 10 minutes past current hour, check this hour instead
+            if (now.getMinutes() < 10) {
+                nextCheck.setHours(now.getHours());
+            }
+
+            const timeUntilCheck = nextCheck - now;
+            console.log(`Next check scheduled at ${nextCheck.toLocaleTimeString('ja-JP')} (in ${Math.round(timeUntilCheck / 1000 / 60)} minutes)`);
+
+            this.timerId = setTimeout(() => {
+                this.checkPollenLevels();
+                scheduleNextCheck(); // Schedule the next check
+            }, timeUntilCheck);
+        };
+
+        scheduleNextCheck();
+    },
+
+    stopMonitoring() {
+        if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+        }
+    },
+
+    async checkPollenLevels() {
+        const settings = this.getSettings();
+        if (!settings) return;
+
+        const now = new Date();
+
+        // Fetch data
+        const todayStr = getJSTDateString();
+        const start = todayStr.replace(/-/g, '');
+        // End date needs to be tomorrow to get full today data
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const endStr = tomorrow.toISOString().split('T')[0].replace(/-/g, '');
+
+        const data = await fetchData(settings.cityCode, start, endStr);
+        if (!data || data.length === 0) return;
+
+        // Filter for today's data
+        const validData = data.filter(v => {
+            const dStr = v.date.toISOString().split('T')[0];
+            return dStr === todayStr && v.pollen >= 0;
+        });
+
+        if (validData.length === 0) return;
+
+        // Calculate metrics
+        const latestHourly = validData[validData.length - 1].pollen;
+        const dailyTotal = validData.reduce((sum, item) => sum + item.pollen, 0);
+
+        let trigger = false;
+        let messages = [];
+
+        const hourlyExceeded = latestHourly >= settings.thresholdHourly;
+        const dailyExceeded = dailyTotal >= settings.thresholdDaily;
+
+        // Check hourly threshold (always alert when exceeded)
+        if (hourlyExceeded) {
+            trigger = true;
+            messages.push(`${settings.cityName}の花粉の量が1時間あたり${latestHourly}個を観測しました。`);
+        }
+
+        // Check daily threshold
+        if (dailyExceeded) {
+            const lastDailyAlert = settings.lastDailyAlert || '';
+
+            // Show daily alert if:
+            // 1. First time exceeding today (lastDailyAlert !== todayStr), OR
+            // 2. Hourly threshold is also exceeded (show both messages)
+            if (lastDailyAlert !== todayStr || hourlyExceeded) {
+                trigger = true;
+                messages.push(`${settings.cityName}の花粉の量が累積値${dailyTotal}個になりました。`);
+
+                // Mark that we've alerted for daily threshold today (only if not already marked)
+                if (lastDailyAlert !== todayStr) {
+                    settings.lastDailyAlert = todayStr;
+                    localStorage.setItem(this.settingsKey, JSON.stringify(settings));
+                }
+            }
+        }
+
+        if (trigger) {
+            // Play sound and vibrate based on user settings
+            if (settings.enableSound !== false) {
+                this.playNotificationSound();
+            }
+            if (settings.enableVibration !== false) {
+                this.vibrate();
+            }
+
+            const notificationBody = messages.join('\n');
+
+            new Notification(`【花粉注意】${settings.cityName}`, {
+                body: notificationBody,
+                tag: 'pollen-alert',
+                silent: true // We play our own sound
+            });
+
+            // Show toast notification at the bottom of the screen
+            this.showToast(notificationBody, 'warning', 10000);
+
+            // Update last notified
+            settings.lastNotified = now.getTime();
+            localStorage.setItem(this.settingsKey, JSON.stringify(settings));
+        }
+    },
+
+    showToast(msg, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        const icon = type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('fade-out');
+            toast.addEventListener('animationend', () => toast.remove());
+        }, duration);
+    }
+};

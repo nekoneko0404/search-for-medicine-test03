@@ -19,7 +19,7 @@
       "乳酸菌飲料",
       "チョコ（苦味が出る報告あり）"
     ],
-    "special_notes": "鉄剤と同時に飲むと吸収が悪くなることがある。便が赤っぽくなることがある。苦味が出やすいので味の濃いもので挟むのが推奨。メーカー指導箋あり。",
+    "special_notes": "鉄剤と同時に飲むと吸収が悪くなることがある。便が赤っぽくなることがある。苦味が出やすいので味の濃いもので挟むのが推奨。ヨーグルトとの相性が特に良い。メーカー指導箋あり。",
     "source": "Meiji Seika ファルマ IF / 指導箋"
   },
   {
@@ -219,14 +219,17 @@
       "チョコクリーム",
       "ココア",
       "練乳",
-      "バニラアイス"
+      "バニラアイス",
+      "プリン",
+      "単シロップ"
     ],
     "bad_compatibility": [
       "オレンジジュース",
       "スポドリ",
       "アップルジュース",
       "乳酸菌飲料",
-      "ヨーグルト"
+      "ヨーグルト",
+      "バナナ"
     ],
     "special_notes": "酸性飲料でコーティングが剥がれ、激苦になるので注意（重要）。",
     "source": "高田製薬 IF / 北信総合病院"
@@ -359,11 +362,12 @@
       "麦茶",
       "ココア",
       "プリン",
-      "チョコ"
+      "チョコ",
+      "イチゴヨーグルト",
+      "イチゴジャム",
+      "アイスクリーム（バニラ、ストロベリー）"
     ],
     "bad_compatibility": [
-      "バニラアイス",
-      "ヨーグルト",
       "スポーツ飲料",
       "牛乳（吸収低下注意）"
     ],
@@ -1110,5 +1114,115 @@
     ],
     "special_notes": "漢方薬。小児虚弱体質に。",
     "source": "ツムラ"
+  },
+  {
+    "yj_code": "UNKNOWN_CLAVAMOX",
+    "brand_name": "クラバモックス小児用配合ドライシロップ",
+    "manufacturer": "GSK",
+    "taste_smell": "イチゴ風味（特異な芳香）。甘い。",
+    "good_compatibility": [
+      "オレンジジュース",
+      "バニラアイス",
+      "プリン",
+      "ヨーグルト"
+    ],
+    "bad_compatibility": [
+      "牛乳",
+      "リンゴジュース",
+      "スポーツ飲料"
+    ],
+    "special_notes": "牛乳との混合は避ける（味の変化）。オレンジジュースは推奨。",
+    "source": "GSK 指導箋 / 調査レポート"
+  },
+  {
+    "yj_code": "UNKNOWN_THEOPHYLLINE_SAWAI",
+    "brand_name": "テオフィリン徐放ドライシロップ小児用20％「サワイ」",
+    "manufacturer": "沢井製薬",
+    "taste_smell": "甘い。",
+    "good_compatibility": [
+      "アイスクリーム",
+      "オレンジジュース",
+      "スポーツ飲料"
+    ],
+    "bad_compatibility": [
+      "牛乳（味変化の可能性）"
+    ],
+    "special_notes": "【重要】噛み砕かないこと（徐放性が失われ苦味が出る）。作り置き厳禁。",
+    "source": "沢井製薬 指導箋"
+  },
+  {
+    "yj_code": "UNKNOWN_OXATOMIDE_SAWAI",
+    "brand_name": "オキサトミドDS小児用2％「サワイ」",
+    "manufacturer": "沢井製薬",
+    "taste_smell": "甘い。",
+    "good_compatibility": [
+      "牛乳",
+      "プリン",
+      "アイスクリーム"
+    ],
+    "bad_compatibility": [
+      "オレンジジュース",
+      "スポーツ飲料"
+    ],
+    "special_notes": "酸性飲料と混ぜると苦く感じることがある。",
+    "source": "沢井製薬 指導箋"
+  },
+  {
+    "yj_code": "UNKNOWN_CEFCAPENE_TOWA",
+    "brand_name": "セフカペンピボキシル塩酸塩細粒小児用10%「TW」",
+    "manufacturer": "東和薬品",
+    "taste_smell": "苦味防止設計。",
+    "good_compatibility": [
+      "水",
+      "牛乳",
+      "ジュース"
+    ],
+    "bad_compatibility": [],
+    "special_notes": "つぶしたり練ったりしないこと（苦味が出る）。飲む直前に混ぜる。",
+    "source": "東和薬品"
+  },
+  {
+    "yj_code": "UNKNOWN_VALACICLOVIR_TOWA",
+    "brand_name": "バラシクロビル顆粒50%「トーワ」",
+    "manufacturer": "東和薬品",
+    "taste_smell": "顆粒。",
+    "good_compatibility": [
+      "つぶしたバナナ",
+      "すりおろしたリンゴ",
+      "服薬ゼリー"
+    ],
+    "bad_compatibility": [
+      "水",
+      "ジュース"
+    ],
+    "special_notes": "サラサラした液体では沈殿して飲み残すリスクがあるため、粘度のある食品推奨。",
+    "source": "東和薬品"
+  },
+  {
+    "yj_code": "UNKNOWN_CARBOCISTEINE_NICHI",
+    "brand_name": "カルボシステインDS小児用「日医工」",
+    "manufacturer": "日医工",
+    "taste_smell": "ピーチ風味（甘く少し酸味）。",
+    "good_compatibility": [
+      "アイスクリーム",
+      "ヨーグルト",
+      "オレンジジュース",
+      "スポーツドリンク"
+    ],
+    "bad_compatibility": [
+      "麦茶"
+    ],
+    "special_notes": "麦茶と混ぜると飲みにくくなることがある。",
+    "source": "日医工"
+  },
+  {
+    "yj_code": "UNKNOWN_CEFDITOREN_NICHI",
+    "brand_name": "セフジトレンピボキシル細粒10%小児用「日医工」",
+    "manufacturer": "日医工",
+    "taste_smell": "甘く、わずかに苦い。だいだい色。",
+    "good_compatibility": [],
+    "bad_compatibility": [],
+    "special_notes": "メイアクトのジェネリック。",
+    "source": "日医工"
   }
 ]
