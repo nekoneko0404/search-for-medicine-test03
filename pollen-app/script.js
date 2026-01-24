@@ -1023,7 +1023,6 @@ const NotificationManager = {
         const hourlyInput = document.getElementById('threshold-hourly');
         const dailyInput = document.getElementById('threshold-daily');
         const soundCheckbox = document.getElementById('enable-sound');
-        const vibrationCheckbox = document.getElementById('enable-vibration');
         const clearBtn = document.getElementById('btn-clear-notification');
 
         // Load existing settings
@@ -1051,14 +1050,12 @@ const NotificationManager = {
             hourlyInput.value = settings.thresholdHourly;
             dailyInput.value = settings.thresholdDaily;
             soundCheckbox.checked = settings.enableSound !== false; // Default true
-            vibrationCheckbox.checked = settings.enableVibration !== false; // Default true
             clearBtn.classList.remove('hidden');
         } else {
             // Defaults: 1時間30個、累積150個
             hourlyInput.value = 30;
             dailyInput.value = 150;
             soundCheckbox.checked = true;
-            vibrationCheckbox.checked = true;
             clearBtn.classList.add('hidden');
         }
 
@@ -1075,14 +1072,12 @@ const NotificationManager = {
         const hourlyInput = document.getElementById('threshold-hourly');
         const dailyInput = document.getElementById('threshold-daily');
         const soundCheckbox = document.getElementById('enable-sound');
-        const vibrationCheckbox = document.getElementById('enable-vibration');
 
         const cityCode = targetCitySpan.dataset.code;
         const cityName = targetCitySpan.textContent;
         const thresholdHourly = parseInt(hourlyInput.value, 10);
         const thresholdDaily = parseInt(dailyInput.value, 10);
         const enableSound = soundCheckbox.checked;
-        const enableVibration = vibrationCheckbox.checked;
 
         if (!cityCode) return;
 
@@ -1104,7 +1099,7 @@ const NotificationManager = {
             thresholdHourly,
             thresholdDaily,
             enableSound,
-            enableVibration,
+            enableVibration: false, // Always disabled
             lastNotified: 0
         };
 
