@@ -226,8 +226,8 @@ async function updateVisibleMarkers() {
                 const marker = L.circleMarker([city.lat, city.lng], {
                     radius: 8,
                     fillColor: '#ccc',
-                    color: '#fff',
-                    weight: 1.5,
+                    color: 'rgba(0, 0, 0, 0.3)',
+                    weight: 1,
                     opacity: 1,
                     fillOpacity: 0.8
                 });
