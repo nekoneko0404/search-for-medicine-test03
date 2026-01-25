@@ -1790,6 +1790,25 @@ const BackgroundNotificationManager = {
                 const registration = await navigator.serviceWorker.register('./service-worker.js');
                 console.log('[BackgroundNotification] Service Worker registered with scope:', registration.scope);
 
+                // Wait for Service Worker to be active
+                await new Promise((resolve) => {
+                    if (registration.active) {
+                        resolve();
+                    } else {
+                        const serviceWorker = registration.installing || registration.waiting;
+                        if (serviceWorker) {
+                            serviceWorker.addEventListener('statechange', (e) => {
+                                if (e.target.state === 'activated') {
+                                    resolve();
+                                }
+                            });
+                        } else {
+                            // Fallback if state is unclear
+                            setTimeout(resolve, 1000);
+                        }
+                    }
+                });
+
                 // Get Token with explicit SW registration
                 const token = await this.messaging.getToken({
                     serviceWorkerRegistration: registration,
