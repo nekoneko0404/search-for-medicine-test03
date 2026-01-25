@@ -1356,7 +1356,11 @@ const NotificationManager = {
         // Note: Initial check will be performed by AutoUpdate after data refresh
         // This ensures we use fresh data for the first notification check
 
+        // DISABLED: Independent notification scheduler
+        // AutoUpdate now handles both data refresh AND notification checks
+        // This prevents duplicate checks and ensures notifications always use fresh data
 
+        /*
         // Schedule to run at 10 minutes past every hour
         const scheduleNextCheck = () => {
             const now = new Date();
@@ -1383,6 +1387,7 @@ const NotificationManager = {
         };
 
         scheduleNextCheck();
+        */
     },
 
     stopMonitoring() {
