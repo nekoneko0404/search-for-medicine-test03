@@ -1078,6 +1078,7 @@ html {
     transition: all 0.2s;
 }
 
+
 .btn-icon:hover {
     background: var(--secondary-color);
     color: white;

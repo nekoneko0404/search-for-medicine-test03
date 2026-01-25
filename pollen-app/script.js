@@ -337,6 +337,12 @@ async function fetchCityDailyData(cityCode) {
             if (map.getZoom() >= CONFIG.ZOOM_THRESHOLD) {
                 updateMarkerTooltip(marker);
             }
+
+            // Update registered location UI if this is the registered city
+            const settings = NotificationManager.getSettings();
+            if (settings && settings.cityCode === cityCode) {
+                NotificationManager.updateRegisteredLocationUI();
+            }
         }
     }
 }
@@ -786,6 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         updateVisibleMarkers().catch(err => console.error(err));
+        NotificationManager.updateRegisteredLocationUI();
         if (typeof window.updateWeatherMarkers === 'function') {
             window.updateWeatherMarkers().catch(err => console.error(err));
         }
@@ -1482,14 +1489,69 @@ const NotificationManager = {
         }, duration);
     },
 
-    updateRegisteredLocationUI() {
+    async updateRegisteredLocationUI() {
         const section = document.getElementById('registered-location-section');
         const cityNameSpan = document.getElementById('registered-city-name');
+        const dot = document.getElementById('registered-pollen-dot');
+        const countSpan = document.getElementById('registered-pollen-count');
         const settings = this.getSettings();
 
         if (settings && settings.cityCode) {
             cityNameSpan.textContent = settings.cityName;
             section.classList.remove('hidden');
+
+            // Check if we have data in markers first (most efficient)
+            const marker = markers[settings.cityCode];
+            if (marker && marker.maxPollen !== undefined) {
+                const color = getPollenColor(marker.maxPollen, marker.isPast);
+                dot.style.backgroundColor = color;
+                dot.classList.remove('hidden');
+                countSpan.textContent = marker.maxPollen;
+                countSpan.classList.remove('hidden');
+            } else {
+                // If not in markers, try to fetch it specifically for the current date
+                try {
+                    const todayJST = getJSTDateString();
+                    const isToday = state.currentDate === todayJST;
+                    const start = state.currentDate.replace(/-/g, '');
+                    const end = new Date(state.currentDate);
+                    end.setDate(end.getDate() + 1);
+                    let endStr = end.toISOString().split('T')[0].replace(/-/g, '');
+                    const todayStr = todayJST.replace(/-/g, '');
+                    if (endStr > todayStr) endStr = todayStr;
+
+                    const data = await fetchData(settings.cityCode, start, endStr);
+                    if (data && data.length > 0) {
+                        let displayValue = 0;
+                        if (isToday) {
+                            const now = new Date();
+                            const validData = data.filter(v => v.date <= now && v.pollen !== null && v.pollen >= 0);
+                            const latest = validData.length > 0 ? validData[validData.length - 1] : null;
+                            displayValue = latest ? latest.pollen : 0;
+                        } else {
+                            const [year, month, day] = state.currentDate.split('-').map(Number);
+                            displayValue = data
+                                .filter(item => {
+                                    const d = item.date;
+                                    return d.getFullYear() === year && (d.getMonth() + 1) === month && d.getDate() === day;
+                                })
+                                .reduce((sum, item) => sum + (item.pollen > 0 ? item.pollen : 0), 0);
+                        }
+                        const color = getPollenColor(displayValue, !isToday);
+                        dot.style.backgroundColor = color;
+                        dot.classList.remove('hidden');
+                        countSpan.textContent = displayValue;
+                        countSpan.classList.remove('hidden');
+                    } else {
+                        dot.classList.add('hidden');
+                        countSpan.classList.add('hidden');
+                    }
+                } catch (e) {
+                    console.error('Error updating registered location UI:', e);
+                    dot.classList.add('hidden');
+                    countSpan.classList.add('hidden');
+                }
+            }
         } else {
             section.classList.add('hidden');
         }
@@ -1513,3 +1575,117 @@ const NotificationManager = {
         }
     }
 };
+
+// Auto Update Manager - Updates data every hour at 10 minutes past
+const AutoUpdateManager = {
+    updateTimer: null,
+    nextUpdateTime: null,
+
+    init() {
+        this.scheduleNextUpdate();
+    },
+
+    // Calculate next update time (randomly between 10 to 13 minutes past the hour)
+    calculateNextUpdateTime() {
+        const now = new Date();
+        const next = new Date(now);
+
+        // Random delay between 10 and 13 minutes (10m 0s to 13m 59s)
+        const randomMinutes = 10 + Math.floor(Math.random() * 4); // 10, 11, 12, or 13
+        const randomSeconds = Math.floor(Math.random() * 60);
+
+        next.setMinutes(randomMinutes, randomSeconds, 0);
+
+        // If we're already past this random time in the current hour, move to next hour
+        if (now >= next) {
+            next.setHours(next.getHours() + 1);
+        }
+
+        return next;
+    },
+
+    scheduleNextUpdate() {
+        if (this.updateTimer) {
+            clearTimeout(this.updateTimer);
+        }
+
+        this.nextUpdateTime = this.calculateNextUpdateTime();
+        const now = new Date();
+        const timeUntilUpdate = this.nextUpdateTime - now;
+
+        console.log(`[AutoUpdate] Next update scheduled at ${this.nextUpdateTime.toLocaleTimeString('ja-JP')} (in ${Math.round(timeUntilUpdate / 1000 / 60)} minutes)`);
+
+        this.updateTimer = setTimeout(() => {
+            this.performUpdate();
+            this.scheduleNextUpdate();
+        }, timeUntilUpdate);
+    },
+
+    async performUpdate() {
+        console.log('[AutoUpdate] Starting automatic update...', { currentDate: state.currentDate });
+
+        try {
+            // Clear all caches
+            state.cache = {};
+            fetchedCities.clear();
+
+            // Reset all markers to default state (gray) and clear fetched status
+            Object.values(markers).forEach(marker => {
+                marker.setStyle({ fillColor: '#ccc' });
+                marker.maxPollen = 0;
+                marker.isPast = false;
+                if (marker.getTooltip()) {
+                    marker.unbindTooltip();
+                }
+            });
+
+            // If viewing today's data, update to ensure we're showing the latest
+            const todayStr = getJSTDateString();
+            if (state.currentDate === todayStr) {
+                // Refresh all visible markers - this will now fetch fresh data
+                await updateVisibleMarkers();
+
+                // Update tooltips if zoom level is high enough
+                updateVis();
+
+                // Update weather data if visible
+                if (typeof window.updateWeatherMarkers === 'function') {
+                    await window.updateWeatherMarkers();
+                }
+
+                // Refresh open popup if any
+                if (currentOpenCity) {
+                    const marker = markers[currentOpenCity.code];
+                    if (marker && marker.isPopupOpen()) {
+                        await handlePopupOpen(currentOpenCity, marker);
+                    }
+                }
+                console.log('[AutoUpdate] Automatic update completed successfully');
+            } else {
+                console.log('[AutoUpdate] Not today, skipping data refresh');
+            }
+        } catch (error) {
+            console.error('[AutoUpdate] Automatic update failed:', error);
+        }
+    },
+
+    destroy() {
+        if (this.updateTimer) {
+            clearTimeout(this.updateTimer);
+        }
+    }
+};
+
+// Initialize auto-update when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Wait a bit for other initializations to complete
+        setTimeout(() => {
+            AutoUpdateManager.init();
+        }, 1000);
+    });
+} else {
+    setTimeout(() => {
+        AutoUpdateManager.init();
+    }, 1000);
+}

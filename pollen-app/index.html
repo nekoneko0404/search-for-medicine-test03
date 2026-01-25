@@ -63,7 +63,13 @@
                 <h2 class="section-title"><i class="fas fa-map-marker-alt"></i> 通知登録地点</h2>
                 <div class="registered-location-card">
                     <div class="location-info">
-                        <span id="registered-city-name" class="city-name">未設定</span>
+                        <div class="city-group" style="display: flex; align-items: center; flex: 1; min-width: 0;">
+                            <span id="registered-city-name" class="city-name">未設定</span>
+                            <span id="registered-pollen-dot" class="dot hidden"
+                                style="margin-left: 8px; flex-shrink: 0;"></span>
+                            <span id="registered-pollen-count" class="pollen-count hidden"
+                                style="margin-left: 5px; font-size: 14px; font-weight: 600; color: var(--text-main);"></span>
+                        </div>
                         <div class="location-actions">
                             <button id="btn-jump-to-registered" class="btn-icon" title="地図で表示"><i
                                     class="fas fa-crosshairs"></i></button>
@@ -97,6 +103,7 @@
                     </div>
                 </div>
             </div>
+
 
 
             <!-- Map Type Selection -->
