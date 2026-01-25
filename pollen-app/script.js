@@ -1787,33 +1787,40 @@ const BackgroundNotificationManager = {
                 this.updateStatus('トークンを取得中...', false);
 
                 // Register Service Worker explicitly
-                const registration = await navigator.serviceWorker.register('./service-worker.js');
-                console.log('[BackgroundNotification] Service Worker registered with scope:', registration.scope);
+                let registration;
+                try {
+                    registration = await navigator.serviceWorker.register('./service-worker.js');
+                    console.log('[BackgroundNotification] Service Worker registered with scope:', registration.scope);
+                } catch (err) {
+                    console.error('[BackgroundNotification] SW Registration failed:', err);
+                    throw new Error('Service Worker registration failed');
+                }
 
-                // Wait for Service Worker to be active
-                await new Promise((resolve) => {
-                    if (registration.active) {
-                        resolve();
-                    } else {
-                        const serviceWorker = registration.installing || registration.waiting;
-                        if (serviceWorker) {
-                            serviceWorker.addEventListener('statechange', (e) => {
-                                if (e.target.state === 'activated') {
-                                    resolve();
-                                }
-                            });
-                        } else {
-                            // Fallback if state is unclear
-                            setTimeout(resolve, 1000);
-                        }
-                    }
-                });
+                // Wait for Service Worker to be ready
+                await navigator.serviceWorker.ready;
 
                 // Get Token with explicit SW registration
-                const token = await this.messaging.getToken({
-                    serviceWorkerRegistration: registration,
-                    vapidKey: undefined // Optional: Add VAPID key if needed
-                });
+                let token;
+                try {
+                    token = await this.messaging.getToken({
+                        serviceWorkerRegistration: registration,
+                        vapidKey: undefined // Optional: Add VAPID key if needed
+                    });
+                } catch (err) {
+                    // If AbortError happens, it might be a temporary issue or permission sync issue.
+                    // Sometimes unregistering and re-registering helps.
+                    console.warn('[BackgroundNotification] getToken failed, retrying after unregister...', err);
+                    if (err.name === 'AbortError' || err.message.includes('Registration failed')) {
+                        await registration.unregister();
+                        registration = await navigator.serviceWorker.register('./service-worker.js');
+                        await navigator.serviceWorker.ready;
+                        token = await this.messaging.getToken({
+                            serviceWorkerRegistration: registration
+                        });
+                    } else {
+                        throw err;
+                    }
+                }
 
                 if (token) {
                     await this.saveToken(token);
