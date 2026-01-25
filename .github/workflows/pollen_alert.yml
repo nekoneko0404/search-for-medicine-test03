@@ -21,7 +21,7 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./pollen-app/backend
-        run: npm ci
+        run: npm install
 
       - name: Run Alert Script
         working-directory: ./pollen-app/backend
