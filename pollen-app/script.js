@@ -1699,10 +1699,146 @@ if (document.readyState === 'loading') {
         // Wait a bit for other initializations to complete
         setTimeout(() => {
             AutoUpdateManager.init();
+            BackgroundNotificationManager.init();
         }, 1000);
     });
 } else {
     setTimeout(() => {
         AutoUpdateManager.init();
+        BackgroundNotificationManager.init();
     }, 1000);
 }
+
+// --- Background Notification System (Firebase) ---
+const BackgroundNotificationManager = {
+    messaging: null,
+    db: null,
+    isSupported: false,
+
+    async init() {
+        const btnEnable = document.getElementById('btn-enable-push');
+        if (!btnEnable) return;
+
+        // Check if Firebase is loaded
+        if (typeof firebase === 'undefined') {
+            console.warn('[BackgroundNotification] Firebase SDK not loaded.');
+            this.updateStatus('Firebase SDK未ロード', true);
+            return;
+        }
+
+        // Initialize Firebase
+        // TODO: User must replace these values!
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIBR0B_D_1uXZc5RbQeo9DPWKhRY9xDuc",
+            authDomain: "pollen-alert-app.firebaseapp.com",
+            projectId: "pollen-alert-app",
+            storageBucket: "pollen-alert-app.firebasestorage.app",
+            messagingSenderId: "974262321585",
+            appId: "1:974262321585:web:b7edbba1c74eaf7cb5bd90",
+            measurementId: "G-QNN07J889M"
+        };
+
+        try {
+            // Check if config is still placeholder
+            if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+                console.warn('[BackgroundNotification] Firebase config is placeholder.');
+                this.updateStatus('設定が必要です (FIREBASE_SETUP.md参照)', true);
+                btnEnable.disabled = true;
+                return;
+            }
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+
+            this.messaging = firebase.messaging();
+            this.db = firebase.firestore();
+            this.isSupported = true;
+
+            // Check current permission
+            if (Notification.permission === 'granted') {
+                this.updateStatus('設定済み', false);
+                btnEnable.textContent = '設定済み';
+                btnEnable.disabled = true;
+            }
+
+            btnEnable.addEventListener('click', () => this.enableNotifications());
+
+        } catch (e) {
+            console.error('[BackgroundNotification] Init failed:', e);
+            this.updateStatus('初期化エラー', true);
+        }
+    },
+
+    async enableNotifications() {
+        if (!this.isSupported) return;
+
+        const btnEnable = document.getElementById('btn-enable-push');
+        btnEnable.disabled = true;
+        this.updateStatus('権限を確認中...', false);
+
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                this.updateStatus('トークンを取得中...', false);
+
+                // Get Token
+                const token = await this.messaging.getToken({
+                    vapidKey: undefined // Optional: Add VAPID key if needed
+                });
+
+                if (token) {
+                    await this.saveToken(token);
+                    this.updateStatus('設定完了！', false);
+                    btnEnable.textContent = '設定済み';
+
+                    // Send test notification via local service worker (optional immediate feedback)
+                    new Notification('設定完了', {
+                        body: 'バックグラウンド通知が有効になりました。',
+                        icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png'
+                    });
+                } else {
+                    this.updateStatus('トークン取得失敗', true);
+                    btnEnable.disabled = false;
+                }
+            } else {
+                this.updateStatus('通知が許可されませんでした', true);
+                btnEnable.disabled = false;
+            }
+        } catch (e) {
+            console.error('[BackgroundNotification] Error:', e);
+            this.updateStatus('エラーが発生しました', true);
+            btnEnable.disabled = false;
+        }
+    },
+
+    async saveToken(token) {
+        const settings = UI.getSettings(); // Get current city settings
+        if (!settings || !settings.cityCode) {
+            alert('通知対象の地点が設定されていません。先に地点を登録してください。');
+            return;
+        }
+
+        try {
+            await this.db.collection('pollen_subscribers').doc(token).set({
+                token: token,
+                cityCode: settings.cityCode,
+                cityName: settings.cityName,
+                thresholdHourly: parseInt(document.getElementById('threshold-hourly').value) || 10,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log('[BackgroundNotification] Token saved to Firestore');
+        } catch (e) {
+            console.error('[BackgroundNotification] Firestore save failed:', e);
+            throw e;
+        }
+    },
+
+    updateStatus(msg, isError) {
+        const el = document.getElementById('push-status-msg');
+        if (el) {
+            el.textContent = msg;
+            el.style.color = isError ? 'red' : 'green';
+        }
+    }
+};

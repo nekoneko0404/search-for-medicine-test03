@@ -1,0 +1,13 @@
+{
+    "name": "pollen-alert-backend",
+    "version": "1.0.0",
+    "description": "Backend script for sending pollen alerts via FCM",
+    "main": "send_alerts.js",
+    "scripts": {
+        "start": "node send_alerts.js"
+    },
+    "dependencies": {
+        "axios": "^1.6.0",
+        "firebase-admin": "^12.0.0"
+    }
+}
