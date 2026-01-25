@@ -1717,7 +1717,8 @@ const BackgroundNotificationManager = {
 
     async init() {
         const btnEnable = document.getElementById('btn-enable-push');
-        if (!btnEnable) return;
+        const btnDisable = document.getElementById('btn-disable-push');
+        if (!btnEnable || !btnDisable) return;
 
         // Check if Firebase is loaded
         if (typeof firebase === 'undefined') {
@@ -1758,11 +1759,12 @@ const BackgroundNotificationManager = {
             // Check current permission
             if (Notification.permission === 'granted') {
                 this.updateStatus('設定済み', false);
-                btnEnable.textContent = '設定済み';
-                btnEnable.disabled = true;
+                btnEnable.classList.add('hidden');
+                btnDisable.classList.remove('hidden');
             }
 
             btnEnable.addEventListener('click', () => this.enableNotifications());
+            btnDisable.addEventListener('click', () => this.disableNotifications());
 
         } catch (e) {
             console.error('[BackgroundNotification] Init failed:', e);
@@ -1774,6 +1776,8 @@ const BackgroundNotificationManager = {
         if (!this.isSupported) return;
 
         const btnEnable = document.getElementById('btn-enable-push');
+        const btnDisable = document.getElementById('btn-disable-push');
+
         btnEnable.disabled = true;
         this.updateStatus('権限を確認中...', false);
 
@@ -1782,15 +1786,22 @@ const BackgroundNotificationManager = {
             if (permission === 'granted') {
                 this.updateStatus('トークンを取得中...', false);
 
-                // Get Token
+                // Register Service Worker explicitly
+                const registration = await navigator.serviceWorker.register('./service-worker.js');
+                console.log('[BackgroundNotification] Service Worker registered with scope:', registration.scope);
+
+                // Get Token with explicit SW registration
                 const token = await this.messaging.getToken({
+                    serviceWorkerRegistration: registration,
                     vapidKey: undefined // Optional: Add VAPID key if needed
                 });
 
                 if (token) {
                     await this.saveToken(token);
                     this.updateStatus('設定完了！', false);
-                    btnEnable.textContent = '設定済み';
+                    btnEnable.classList.add('hidden');
+                    btnDisable.classList.remove('hidden');
+                    btnEnable.disabled = false;
 
                     // Send test notification via local service worker (optional immediate feedback)
                     new Notification('設定完了', {
@@ -1809,6 +1820,75 @@ const BackgroundNotificationManager = {
             console.error('[BackgroundNotification] Error:', e);
             this.updateStatus('エラーが発生しました', true);
             btnEnable.disabled = false;
+        }
+    },
+
+    async disableNotifications() {
+        if (!this.isSupported) return;
+
+        const btnEnable = document.getElementById('btn-enable-push');
+        const btnDisable = document.getElementById('btn-disable-push');
+
+        if (!confirm('通知設定を解除しますか？')) return;
+
+        btnDisable.disabled = true;
+        this.updateStatus('解除中...', false);
+
+        try {
+            // Register Service Worker explicitly to match enable flow
+            const registration = await navigator.serviceWorker.register('./service-worker.js');
+
+            // Get Token to delete
+            const token = await this.messaging.getToken({
+                serviceWorkerRegistration: registration
+            });
+
+            if (token) {
+                // Delete from Firestore
+                await this.db.collection('pollen_subscribers').doc(token).delete();
+                console.log('[BackgroundNotification] Token deleted from Firestore');
+
+                // Optional: Delete token from FCM (not strictly necessary as we deleted from DB)
+                // await this.messaging.deleteToken(); 
+
+                this.updateStatus('設定を解除しました', false);
+                btnEnable.classList.remove('hidden');
+                btnDisable.classList.add('hidden');
+                this.updateStatus('トークンが見つかりませんでした', true);
+            }
+        } catch (e) {
+            console.error('[BackgroundNotification] Disable failed:', e);
+
+            // Even if we fail to get the token (e.g. AbortError), we should probably let the user
+            // reset the UI state if they want to try again or if the token is already invalid.
+            // However, to be safe, we'll just show an error message but maybe allow a force reset?
+            // For now, let's just treat AbortError as "maybe already disabled" or "network issue".
+
+            if (e.code === 'messaging/token-unsubscribe-failed' || e.message.includes('Registration failed') || e.name === 'AbortError') {
+                // Force UI reset
+                this.updateStatus('設定を解除しました(強制)', false);
+                btnEnable.classList.remove('hidden');
+                btnDisable.classList.add('hidden');
+
+                // Try to unregister SW anyway to clean up
+                try {
+                    const reg = await navigator.serviceWorker.getRegistration('./service-worker.js');
+                    if (reg) await reg.unregister();
+                } catch (err) { console.error('SW unregister failed:', err); }
+            } else {
+                this.updateStatus('解除に失敗しました', true);
+            }
+        } finally {
+            // Always try to unregister SW on success too
+            try {
+                const reg = await navigator.serviceWorker.getRegistration('./service-worker.js');
+                if (reg) {
+                    await reg.unregister();
+                    console.log('[BackgroundNotification] Service Worker unregistered');
+                }
+            } catch (err) { console.error('SW unregister failed:', err); }
+
+            btnDisable.disabled = false;
         }
     },
 

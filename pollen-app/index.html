@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; font-src https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://cyberjapandata.gsi.go.jp https://www.googletagmanager.com; connect-src 'self' https://wxtech.weathernews.com https://api.open-meteo.com https://archive-api.open-meteo.com https://www.google-analytics.com https://analytics.google.com https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://unpkg.com https://cdn.jsdelivr.net;">
+        content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; font-src https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://cyberjapandata.gsi.go.jp https://www.googletagmanager.com https://cdn-icons-png.flaticon.com; connect-src 'self' https://wxtech.weathernews.com https://api.open-meteo.com https://archive-api.open-meteo.com https://www.google-analytics.com https://analytics.google.com https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://unpkg.com https://cdn.jsdelivr.net ws://127.0.0.1:*;">
     <title>花粉飛散リアルタイム監視 - Pollen Radar | Kusuri Compass</title>
     <meta name="description" content="全国のポールンロボ（花粉観測機）から届くリアルタイムな花粉飛散状況を地図上で可視化。過去の飛散傾向や気象データとの比較も可能です。">
     <meta name="keywords" content="花粉, 花粉飛散, リアルタイム, ポールンロボ, ウェザーニュース, Kusuri Compass, 薬剤師, 薬局">
@@ -250,6 +250,9 @@
                         <button id="btn-enable-push" class="btn-primary"
                             style="width: 100%; background-color: #0ea5e9;">
                             <i class="fas fa-bell"></i> 通知を受け取る
+                        </button>
+                        <button id="btn-disable-push" class="btn-danger hidden" style="width: 100%; margin-top: 5px;">
+                            <i class="fas fa-bell-slash"></i> 通知を解除する
                         </button>
                         <p id="push-status-msg" style="font-size: 12px; margin-top: 5px; color: #666;"></p>
                     </div>
