@@ -457,10 +457,16 @@ async function updateWeatherMarkers() {
 
             try {
                 let url;
-                if (isToday) {
-                    url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,weathercode,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo&windspeed_unit=ms`;
-                } else {
+                // Use forecast API for today and future dates, archive API only for past dates
+                const currentDateObj = new Date(currentDate);
+                const todayObj = new Date(today);
+                const isPastDate = currentDateObj < todayObj;
+
+                if (isPastDate) {
                     url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lats}&longitude=${lngs}&daily=temperature_2m_max,weathercode,wind_speed_10m_max,wind_direction_10m_dominant&timezone=Asia%2FTokyo&start_date=${currentDate}&end_date=${currentDate}&windspeed_unit=ms`;
+                } else {
+                    // Use forecast API for today and future dates
+                    url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,weathercode,wind_speed_10m,wind_direction_10m&timezone=Asia%2FTokyo&windspeed_unit=ms`;
                 }
                 const response = await fetch(url);
 
@@ -470,12 +476,12 @@ async function updateWeatherMarkers() {
 
                     results.forEach((result, index) => {
                         const city = batch[index];
-                        const weather = isToday ? result.current : {
+                        const weather = isPastDate ? {
                             temperature_2m_max: result.daily.temperature_2m_max[0],
                             weathercode: result.daily.weathercode[0],
                             wind_speed_10m: result.daily.wind_speed_10m_max[0],
                             wind_direction_10m: result.daily.wind_direction_10m_dominant[0]
-                        };
+                        } : result.current;
                         weather.lat = city.lat;
                         weather.lng = city.lng;
                         const cacheKey = getWeatherCacheKey(city.code, currentDate);
