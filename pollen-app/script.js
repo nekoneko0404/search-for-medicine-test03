@@ -403,14 +403,25 @@ async function handlePopupOpen(city, marker) {
         <div class="popup-header">
             <span>${sanitizedName} (${sanitizedDate})</span>
             <div>
-                <button class="btn-trend" onclick="showWeeklyTrend('${sanitizedCode}', '${sanitizedName}')">週間推移</button>
-                <button class="btn-notification" onclick="NotificationManager.openSettings('${sanitizedCode}', '${sanitizedName}')" title="通知設定"><i class="fas fa-bell"></i></button>
+                <button class="btn-trend">週間推移</button>
+                <button class="btn-notification" title="通知設定"><i class="fas fa-bell"></i></button>
             </div>
         </div>
         <div class="popup-chart-container">
             <canvas id="chart-${sanitizedCode}"></canvas>
         </div>
     `;
+
+    // Attach event listeners safely
+    const trendBtn = container.querySelector('.btn-trend');
+    if (trendBtn) {
+        trendBtn.addEventListener('click', () => showWeeklyTrend(city.code, city.name));
+    }
+
+    const notifBtn = container.querySelector('.btn-notification');
+    if (notifBtn) {
+        notifBtn.addEventListener('click', () => NotificationManager.openSettings(city.code, city.name));
+    }
 
     const ctx = document.getElementById(`chart-${city.code}`).getContext('2d');
     new Chart(ctx, {
@@ -1479,8 +1490,14 @@ const NotificationManager = {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
 
-        const icon = type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
-        toast.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+        const icon = document.createElement('i');
+        icon.className = `fas ${type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}`;
+
+        toast.appendChild(icon);
+        // Add a space before the message
+        toast.appendChild(document.createTextNode(' '));
+        // Safely add the message as text
+        toast.appendChild(document.createTextNode(msg));
 
         document.body.appendChild(toast);
         setTimeout(() => {
