@@ -1353,8 +1353,9 @@ const NotificationManager = {
 
         console.log(`Monitoring started for ${settings.cityName}`);
 
-        // Check immediately on app load
-        this.checkPollenLevels();
+        // Note: Initial check will be performed by AutoUpdate after data refresh
+        // This ensures we use fresh data for the first notification check
+
 
         // Schedule to run at 10 minutes past every hour
         const scheduleNextCheck = () => {
@@ -1678,6 +1679,11 @@ const AutoUpdateManager = {
                     }
                 }
                 console.log('[AutoUpdate] Automatic update completed successfully');
+
+                // Check pollen levels and send notifications if needed (using fresh data)
+                if (typeof NotificationManager !== 'undefined' && NotificationManager.checkPollenLevels) {
+                    await NotificationManager.checkPollenLevels();
+                }
             } else {
                 console.log('[AutoUpdate] Not today, skipping data refresh');
             }
