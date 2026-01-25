@@ -1796,30 +1796,39 @@ const BackgroundNotificationManager = {
                     throw new Error('Service Worker registration failed');
                 }
 
-                // Wait for Service Worker to be ready
-                await navigator.serviceWorker.ready;
+                // Robust wait for active state
+                const waitForActive = (reg) => {
+                    return new Promise((resolve) => {
+                        const serviceWorker = reg.installing || reg.waiting || reg.active;
+                        if (serviceWorker.state === 'activated') {
+                            resolve(reg);
+                            return;
+                        }
+                        serviceWorker.addEventListener('statechange', (e) => {
+                            if (e.target.state === 'activated') {
+                                resolve(reg);
+                            }
+                        });
+                    });
+                };
+
+                await waitForActive(registration);
+                console.log('[BackgroundNotification] Service Worker is active');
 
                 // Get Token with explicit SW registration
                 let token;
                 try {
                     token = await this.messaging.getToken({
                         serviceWorkerRegistration: registration,
-                        vapidKey: undefined // Optional: Add VAPID key if needed
+                        vapidKey: undefined
                     });
                 } catch (err) {
-                    // If AbortError happens, it might be a temporary issue or permission sync issue.
-                    // Sometimes unregistering and re-registering helps.
-                    console.warn('[BackgroundNotification] getToken failed, retrying after unregister...', err);
-                    if (err.name === 'AbortError' || err.message.includes('Registration failed')) {
-                        await registration.unregister();
-                        registration = await navigator.serviceWorker.register('./service-worker.js');
-                        await navigator.serviceWorker.ready;
-                        token = await this.messaging.getToken({
-                            serviceWorkerRegistration: registration
-                        });
-                    } else {
-                        throw err;
-                    }
+                    console.warn('[BackgroundNotification] getToken failed, retrying...', err);
+                    // Retry once
+                    await new Promise(r => setTimeout(r, 1000));
+                    token = await this.messaging.getToken({
+                        serviceWorkerRegistration: registration
+                    });
                 }
 
                 if (token) {

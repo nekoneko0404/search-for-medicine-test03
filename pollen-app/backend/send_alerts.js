@@ -2,8 +2,6 @@ const admin = require('firebase-admin');
 const axios = require('axios');
 
 // Initialize Firebase Admin SDK
-// The service account key is passed via environment variable or file
-// In GitHub Actions, we'll write the secret to a file or parse it from env
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 
 admin.initializeApp({
@@ -13,40 +11,35 @@ admin.initializeApp({
 const db = admin.firestore();
 const messaging = admin.messaging();
 
-const POLLEN_API_URL = 'https://wxtech.weathernews.com/opendata/v1/pollen?citycode=ALL';
+function getTodayDateString() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}${m}${d}`;
+}
 
 async function main() {
     try {
-        console.log('Fetching pollen data...');
-        const response = await axios.get(POLLEN_API_URL);
+        const todayStr = getTodayDateString();
+        const API_URL = `https://wxtech.weathernews.com/opendata/v1/pollen?citycode=ALL&start=${todayStr}&end=${todayStr}`;
+
+        console.log(`Fetching pollen data from: ${API_URL}`);
+        const response = await axios.get(API_URL);
         const csvData = response.data;
 
-        // Parse CSV (Simple parser)
-        // Format: date,citycode,pollen,prefcode,cityname,station_name
+        // Parse CSV (Format: date,citycode,pollen,prefcode,cityname,station_name)
         const lines = csvData.trim().split('\n');
-        const headers = lines[0].split(',');
-
-        // Create a map of cityCode -> pollenCount (latest hour)
         const pollenMap = {};
 
-        // We only care about the latest data for each city
-        // The CSV might contain multiple lines per city (history), but usually the API returns latest?
-        // Actually the spec says "Realtime (1 hour)". Let's assume it returns current data for all cities.
-        // If it returns history, we need to filter for the latest date/time.
-        // Let's assume the API returns the latest available data for all cities.
-
-        // Skip header
+        // Skip header, parse data
         for (let i = 1; i < lines.length; i++) {
             const cols = lines[i].split(',');
             if (cols.length < 3) continue;
 
-            const dateStr = cols[0]; // e.g., 2023-02-27T10:00:00
             const cityCode = cols[1];
             const pollen = parseInt(cols[2]);
 
-            // Store the latest pollen count for the city
-            // If there are duplicates, we might want the latest timestamp, but usually this API endpoint is a snapshot.
-            // Let's just overwrite.
             if (!isNaN(pollen) && pollen >= 0) {
                 pollenMap[cityCode] = pollen;
             }
@@ -87,7 +80,7 @@ async function main() {
                         data: {
                             cityCode: cityCode,
                             pollen: String(currentPollen),
-                            url: 'https://search-for-medicine.pages.dev/pollen-app/index.html' // TODO: Update with real URL
+                            url: 'https://search-for-medicine.pages.dev/pollen-app/index.html'
                         }
                     });
                 }
@@ -96,10 +89,6 @@ async function main() {
 
         if (messages.length > 0) {
             console.log(`Sending ${messages.length} notifications...`);
-
-            // Send in batches of 500 (FCM limit)
-            // Since we are using send() for individual messages or sendEach()
-            // Let's use sendEach()
 
             const response = await messaging.sendEach(messages);
             console.log(`Successfully sent ${response.successCount} messages; Failed ${response.failureCount} messages.`);
