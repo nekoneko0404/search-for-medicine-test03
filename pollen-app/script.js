@@ -78,8 +78,16 @@ async function fetchData(cityCode, start, end) {
             const [code, dateStr, pollenStr] = row.split(',');
             let pollen = parseInt(pollenStr, 10);
             if (isNaN(pollen) || pollen < 0) pollen = -1; // Treat negative or NaN as -1 (missing)
+
+            // Parse date and create JST-based date key
+            const date = new Date(dateStr);
+            // Extract date in JST by using the date string directly (already in JST format)
+            // Format: YYYY-MM-DDTHH:MM:SS+09:00
+            const dateKey = dateStr.split('T')[0]; // Extract YYYY-MM-DD part
+
             return {
-                date: new Date(dateStr),
+                date: date,
+                dateKey: dateKey, // JST date key for filtering
                 pollen: pollen
             };
         });
@@ -318,12 +326,8 @@ async function fetchCityDailyData(cityCode) {
             displayValue = latest ? latest.pollen : 0;
         } else {
             // For past data, use the daily total (sum) for the selected date only
-            const [year, month, day] = state.currentDate.split('-').map(Number);
             displayValue = data
-                .filter(item => {
-                    const d = item.date;
-                    return d.getFullYear() === year && (d.getMonth() + 1) === month && d.getDate() === day;
-                })
+                .filter(item => item.dateKey === state.currentDate)
                 .reduce((sum, item) => sum + (item.pollen > 0 ? item.pollen : 0), 0);
         }
 
@@ -387,11 +391,9 @@ async function handlePopupOpen(city, marker) {
     }
 
     const data = await fetchData(city.code, start, endStr);
-    const [year, month, day] = state.currentDate.split('-').map(Number);
-    const dayData = data.filter(d => {
-        const dt = d.date;
-        return dt.getFullYear() === year && (dt.getMonth() + 1) === month && dt.getDate() === day;
-    });
+
+    // Filter data for the selected date using JST-based dateKey
+    const dayData = data.filter(d => d.dateKey === state.currentDate);
 
     const displayDate = state.currentDate.split('-').slice(1).join('/');
 
@@ -432,7 +434,12 @@ async function handlePopupOpen(city, marker) {
                 label: '花粉数',
                 data: dayData.map(d => d.pollen >= 0 ? d.pollen : 0),
                 backgroundColor: dayData.map(d => getPollenColor(d.pollen >= 0 ? d.pollen : 0)),
-                borderWidth: 0,
+                borderColor: dayData.map(d => {
+                    const color = getPollenColor(d.pollen >= 0 ? d.pollen : 0);
+                    // 白色の場合は濃いグレーの枠線、それ以外は同色の濃い枠線
+                    return color === '#FFFFFF' ? '#999999' : color;
+                }),
+                borderWidth: 1.5,
                 barPercentage: 0.9,
                 categoryPercentage: 1.0
             }]
@@ -603,10 +610,7 @@ window.showWeeklyTrend = async function (cityCode, cityName) {
 
     const dailyMap = {};
     pollenData.forEach(item => {
-        const year = item.date.getFullYear();
-        const month = String(item.date.getMonth() + 1).padStart(2, '0');
-        const day = String(item.date.getDate()).padStart(2, '0');
-        const dateKey = `${year}-${month}-${day}`;
+        const dateKey = item.dateKey; // Use JST-based date key
 
         if (!dailyMap[dateKey]) dailyMap[dateKey] = { sum: 0, count: 0 };
         if (item.pollen >= 0) {
@@ -1552,12 +1556,8 @@ const NotificationManager = {
                             const latest = validData.length > 0 ? validData[validData.length - 1] : null;
                             displayValue = latest ? latest.pollen : 0;
                         } else {
-                            const [year, month, day] = state.currentDate.split('-').map(Number);
                             displayValue = data
-                                .filter(item => {
-                                    const d = item.date;
-                                    return d.getFullYear() === year && (d.getMonth() + 1) === month && d.getDate() === day;
-                                })
+                                .filter(item => item.dateKey === state.currentDate)
                                 .reduce((sum, item) => sum + (item.pollen > 0 ? item.pollen : 0), 0);
                         }
                         const color = getPollenColor(displayValue, !isToday);
