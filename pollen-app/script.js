@@ -131,8 +131,8 @@ async function updateVisibleMarkers() {
 
         // 1. Determine Target Levels based on Zoom
         let targetLevels = new Set([1]);
-        if (zoom >= 8) targetLevels.add(2);
-        if (zoom >= 10) targetLevels.add(3);
+        if (zoom >= 6) targetLevels.add(2);
+        if (zoom >= 8) targetLevels.add(3);
 
         // 2. Filter Candidates by Level and Bounds
         // We get all cities within bounds that match the target level
@@ -155,13 +155,21 @@ async function updateVisibleMarkers() {
 
         // Minimum distance parameters (in pixels)
         // Center: closer spacing allowed. Edge: wider spacing required.
-        let minDistCenter = 40; // Minimum distance at the center (px)
-        let minDistEdge = 150;  // Minimum distance at the edge (px)
+        let minDistCenter = 12; // Minimum distance at the center (px) - Further reduced for higher density
+        let minDistEdge = 180;  // Minimum distance at the edge (px) - Slightly increased to balance total count
 
         // Adjust for national view (low zoom) to show more points
         if (zoom < 7) {
-            minDistCenter = 30;
-            minDistEdge = 80;
+            minDistCenter = 10;
+            minDistEdge = 100;
+        }
+
+        // Fine-tune for zoom 7-9 to keep total markers around 100
+        if (zoom >= 7 && zoom <= 9) {
+            // Gradually increase distance as more detailed points (Level 2, 3) are added
+            // Adjusted to start from a higher density
+            minDistCenter = 15 + (zoom - 7) * 5; // 15, 20, 25
+            minDistEdge = 200 + (zoom - 7) * 50; // 200, 250, 300
         }
 
         // If zoom is high (max zoom), show all points
@@ -355,10 +363,11 @@ function updateMarkerTooltip(marker) {
     const height = marker.isPast ? marker.maxPollen * 0.4 : marker.maxPollen * 8; // Adjust height for past totals
     const color = getPollenColor(marker.maxPollen, marker.isPast);
 
+    const borderColor = color === '#FFFFFF' ? '#999999' : '#FFFFFF';
     // Wrapped in graph-tooltip-inner for rotation
     const content = `
         <div class="graph-tooltip-inner" style="display: flex; flex-direction: column; align-items: center;">
-            <div style="width: 10px; height: ${Math.min(height, 150)}px; background-color: ${color}; border: 1px solid #fff;"></div>
+            <div style="width: 10px; height: ${Math.min(height, 150)}px; background-color: ${color}; border: 1px solid ${borderColor};"></div>
             <span style="font-size: 10px;">${marker.maxPollen}</span>
         </div>
     `;
