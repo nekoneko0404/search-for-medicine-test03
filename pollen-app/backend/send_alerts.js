@@ -25,7 +25,19 @@ async function main() {
         const API_URL = `https://wxtech.weathernews.com/opendata/v1/pollen?citycode=ALL&start=${todayStr}&end=${todayStr}`;
 
         console.log(`Fetching pollen data from: ${API_URL}`);
-        const response = await axios.get(API_URL);
+        let response;
+        try {
+            response = await axios.get(API_URL);
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                const errorData = error.response.data;
+                if (errorData && errorData.errors && errorData.errors[0].message === 'data does not exist') {
+                    console.log('Pollen data does not exist yet for today. Skipping alert check.');
+                    return;
+                }
+            }
+            throw error; // Re-throw if it's a different error
+        }
         const csvData = response.data;
 
         // Parse CSV (Format: date,citycode,pollen,prefcode,cityname,station_name)
