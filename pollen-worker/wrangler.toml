@@ -1,0 +1,9 @@
+name = "pollen-alert-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[triggers]
+crons = ["15 * * * *"]
+
+[vars]
+FIREBASE_PROJECT_ID = "pollen-alert-app"
