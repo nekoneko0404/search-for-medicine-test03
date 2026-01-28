@@ -31,12 +31,14 @@ async function main() {
         } catch (error) {
             if (error.response && error.response.status === 404) {
                 const errorData = error.response.data;
-                if (errorData && errorData.errors && errorData.errors[0].message === 'data does not exist') {
+                const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
+
+                if (errorMessage && errorMessage.includes('data does not exist')) {
                     console.log('Pollen data does not exist yet for today. Skipping alert check.');
                     return;
                 }
             }
-            throw error; // Re-throw if it's a different error
+            throw error;
         }
         const csvData = response.data;
 
