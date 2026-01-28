@@ -1,4 +1,13 @@
-    
+name: Pollen Alert
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 * * * *'
+
+jobs:
+  send-alerts:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
