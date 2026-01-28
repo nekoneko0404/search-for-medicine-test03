@@ -1840,7 +1840,7 @@ const BackgroundNotificationManager = {
                 try {
                     token = await this.messaging.getToken({
                         serviceWorkerRegistration: registration,
-                        vapidKey: undefined
+                        vapidKey: 'BOpPJiA0ETtiqtizv-Uc0EmfKe71hGl4sv8sERB0I31gtjLsfu6sgS25NQoDidIxqh08z449mtSIpre5gbYdeFo'
                     });
                 } catch (err) {
                     console.warn('[BackgroundNotification] getToken failed, retrying...', err);
