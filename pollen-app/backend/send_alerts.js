@@ -19,6 +19,36 @@ function getTodayDateString() {
     return `${y}${m}${d}`;
 }
 
+async function sendBatch(messages, db) {
+    if (messages.length === 0) return;
+
+    console.log(`Sending batch of ${messages.length} notifications...`);
+    const response = await admin.messaging().sendEach(messages);
+    console.log(`Batch result: ${response.successCount} success, ${response.failureCount} failure.`);
+
+    if (response.failureCount > 0) {
+        const tokensToDelete = [];
+        response.responses.forEach((resp, idx) => {
+            if (!resp.success) {
+                const error = resp.error;
+                if (error.code === 'messaging/registration-token-not-registered') {
+                    tokensToDelete.push(messages[idx].token);
+                }
+            }
+        });
+
+        if (tokensToDelete.length > 0) {
+            console.log(`Deleting ${tokensToDelete.length} invalid tokens...`);
+            const batch = db.batch();
+            tokensToDelete.forEach(token => {
+                const ref = db.collection('pollen_subscribers').doc(token);
+                batch.delete(ref);
+            });
+            await batch.commit();
+        }
+    }
+}
+
 async function main() {
     try {
         const todayStr = getTodayDateString();
@@ -61,19 +91,15 @@ async function main() {
 
         console.log(`Loaded pollen data for ${Object.keys(pollenMap).length} cities.`);
 
-        // Fetch all subscribers
+        // Fetch all subscribers using stream
         console.log('Fetching subscribers...');
-        const snapshot = await db.collection('pollen_subscribers').get();
+        const stream = db.collection('pollen_subscribers').stream();
 
-        if (snapshot.empty) {
-            console.log('No subscribers found.');
-            return;
-        }
+        let batchMessages = [];
+        const BATCH_SIZE = 500; // Firebase limit is 500
+        let totalProcessed = 0;
 
-        const messages = [];
-        const tokensToDelete = [];
-
-        snapshot.forEach(doc => {
+        for await (const doc of stream) {
             const data = doc.data();
             const token = data.token;
             const cityCode = data.cityCode;
@@ -83,9 +109,7 @@ async function main() {
                 const currentPollen = pollenMap[cityCode];
 
                 if (currentPollen >= threshold) {
-                    console.log(`Alert for ${data.cityName}: ${currentPollen} >= ${threshold}`);
-
-                    messages.push({
+                    batchMessages.push({
                         token: token,
                         notification: {
                             title: `【花粉アラート】${data.cityName}`,
@@ -99,38 +123,20 @@ async function main() {
                     });
                 }
             }
-        });
 
-        if (messages.length > 0) {
-            console.log(`Sending ${messages.length} notifications...`);
-
-            const response = await messaging.sendEach(messages);
-            console.log(`Successfully sent ${response.successCount} messages; Failed ${response.failureCount} messages.`);
-
-            if (response.failureCount > 0) {
-                response.responses.forEach((resp, idx) => {
-                    if (!resp.success) {
-                        const error = resp.error;
-                        if (error.code === 'messaging/registration-token-not-registered') {
-                            tokensToDelete.push(messages[idx].token);
-                        }
-                    }
-                });
+            if (batchMessages.length >= BATCH_SIZE) {
+                await sendBatch(batchMessages, db);
+                batchMessages = [];
             }
-        } else {
-            console.log('No alerts to send.');
+            totalProcessed++;
         }
 
-        // Cleanup invalid tokens
-        if (tokensToDelete.length > 0) {
-            console.log(`Deleting ${tokensToDelete.length} invalid tokens...`);
-            const batch = db.batch();
-            tokensToDelete.forEach(token => {
-                const ref = db.collection('pollen_subscribers').doc(token);
-                batch.delete(ref);
-            });
-            await batch.commit();
+        // Send remaining messages
+        if (batchMessages.length > 0) {
+            await sendBatch(batchMessages, db);
         }
+
+        console.log(`Processed ${totalProcessed} subscribers.`);
 
     } catch (error) {
         console.error('Error:', error);
