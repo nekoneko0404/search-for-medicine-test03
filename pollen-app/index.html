@@ -235,8 +235,7 @@
             <h2><i class="fas fa-bell"></i> 花粉通知設定</h2>
             <div class="modal-body">
                 <p class="notification-desc">
-                    登録した地点の花粉飛散量が設定値を超えた場合に、ブラウザ通知でお知らせします。<br>
-                    <small>※通知を受け取るには、このページを開いたまま（または最小化）にしておく必要があります。</small>
+                    登録した地点の花粉飛散量が設定値を超えた場合に、通知でお知らせします。
                 </p>
                 <p id="notification-compatibility-warning" class="notification-warning hidden"></p>
 
@@ -246,56 +245,58 @@
                         <span id="notification-target-city" class="target-city-name">未設定</span>
                     </div>
 
-                    <div class="setting-group">
-                        <label for="threshold-hourly">1時間あたりの飛散量 (個):</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="threshold-hourly" min="0" value="10">
-                            <span class="unit">個以上で通知</span>
+                    <!-- Threshold Settings (Horizontal Layout) -->
+                    <div
+                        style="display: grid !important; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label for="threshold-hourly" style="display: block; margin-bottom: 5px;">1時間あたりの飛散量
+                                (個):</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="threshold-hourly" min="0" value="10">
+                                <span class="unit">個以上で通知</span>
+                            </div>
+                            <p class="setting-hint">目安: 10個以上で「やや多い」レベル</p>
                         </div>
-                        <p class="setting-hint">目安: 10個以上で「やや多い」レベル</p>
-                    </div>
 
-                    <div class="setting-group">
-                        <label for="threshold-daily">1日の積算飛散量 (個):</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="threshold-daily" min="0" value="30">
-                            <span class="unit">個以上で通知</span>
+                        <div>
+                            <label for="threshold-daily" style="display: block; margin-bottom: 5px;">1日の積算飛散量
+                                (個):</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="threshold-daily" min="0" value="30">
+                                <span class="unit">個以上で通知</span>
+                            </div>
+                            <p class="setting-hint">目安: 30個以上で「やや多い」レベル</p>
                         </div>
-                        <p class="setting-hint">目安: 30個以上で「やや多い」レベル</p>
                     </div>
 
+                    <!-- Notification Options (Horizontal Layout) -->
                     <div class="setting-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="enable-sound" checked>
-                            <span>アラート音を鳴らす (アプリ起動時のみ)</span>
-                        </label>
-                        <p class="setting-hint">音声による通知が再生されます</p>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">通知オプション:</label>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <label class="checkbox-label" style="flex: 1; min-width: 200px;">
+                                <input type="checkbox" id="enable-sound" checked>
+                                <span>アラート音を鳴らす</span>
+                            </label>
+                            <label class="checkbox-label" style="flex: 1; min-width: 200px;">
+                                <input type="checkbox" id="enable-voice" checked>
+                                <span>音声通知</span>
+                            </label>
+                        </div>
+                        <p class="setting-hint">アラート音: ピンポーン / 音声通知: 花粉飛散状況を読み上げ</p>
                     </div>
 
-                    <!-- Background Push Section -->
+                    <!-- Background Notification Info -->
                     <div class="setting-group"
-                        style="background: #f0f9ff; padding: 10px; border-radius: 8px; border: 1px solid #bae6fd; margin-bottom: 15px;">
-                        <label style="color: #0369a1; font-weight: bold;"><i class="fas fa-satellite-dish"></i>
-                            バックグラウンド通知 (Beta)</label>
-                        <p class="setting-hint" style="margin-bottom: 10px;">ブラウザを閉じていても通知を受け取れます。</p>
-
-                        <!-- Experimental Notice -->
-                        <div
-                            style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 6px; padding: 8px; margin-bottom: 10px;">
-                            <p style="margin: 0; font-size: 12px; color: #92400e;">
-                                <i class="fas fa-flask"></i> <strong>実験中の機能</strong><br>
-                                現在、この機能は開発・調整中のため正常に動作しない場合があります。ご了承ください。
-                            </p>
+                        style="background: #f0f9ff; padding: 12px; border-radius: 8px; border: 1px solid #bae6fd;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <i class="fas fa-satellite-dish" style="color: #0369a1;"></i>
+                            <label style="color: #0369a1; font-weight: bold; margin: 0;">バックグラウンド通知 (Beta)</label>
                         </div>
-
-                        <button id="btn-enable-push" class="btn-primary"
-                            style="width: 100%; background-color: #0ea5e9;">
-                            <i class="fas fa-bell"></i> 通知を受け取る
-                        </button>
-                        <button id="btn-disable-push" class="btn-danger hidden" style="width: 100%; margin-top: 5px;">
-                            <i class="fas fa-bell-slash"></i> 通知を解除する
-                        </button>
-                        <p id="push-status-msg" style="font-size: 12px; margin-top: 5px; color: #666;"></p>
+                        <p class="setting-hint" style="margin: 0; color: #0c4a6e;">
+                            <strong>アプリを開いている時:</strong> このページで即座に通知<br>
+                            <strong>アプリを閉じている時:</strong> 毎時15分に自動で通知を送信<br>
+                            <small>※バックグラウンド通知は自動で有効になっています。設定は不要です。</small>
+                        </p>
                     </div>
                 </div>
 

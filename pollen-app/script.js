@@ -1086,6 +1086,7 @@ const NotificationManager = {
         const hourlyInput = document.getElementById('threshold-hourly');
         const dailyInput = document.getElementById('threshold-daily');
         const soundCheckbox = document.getElementById('enable-sound');
+        const voiceCheckbox = document.getElementById('enable-voice');
         const clearBtn = document.getElementById('btn-clear-notification');
 
         // Load existing settings
@@ -1113,12 +1114,14 @@ const NotificationManager = {
             hourlyInput.value = settings.thresholdHourly;
             dailyInput.value = settings.thresholdDaily;
             soundCheckbox.checked = settings.enableSound !== false; // Default true
+            voiceCheckbox.checked = settings.enableVoice !== false; // Default true
             clearBtn.classList.remove('hidden');
         } else {
             // Defaults: 1時間30個、累積150個
             hourlyInput.value = 30;
             dailyInput.value = 150;
             soundCheckbox.checked = true;
+            voiceCheckbox.checked = true;
             clearBtn.classList.add('hidden');
         }
 
@@ -1153,12 +1156,14 @@ const NotificationManager = {
         const hourlyInput = document.getElementById('threshold-hourly');
         const dailyInput = document.getElementById('threshold-daily');
         const soundCheckbox = document.getElementById('enable-sound');
+        const voiceCheckbox = document.getElementById('enable-voice');
 
         const cityCode = targetCitySpan.dataset.code;
         const cityName = targetCitySpan.textContent;
         const thresholdHourly = parseInt(hourlyInput.value, 10);
         const thresholdDaily = parseInt(dailyInput.value, 10);
         const enableSound = soundCheckbox.checked;
+        const enableVoice = voiceCheckbox.checked;
 
         if (!cityCode) return;
 
@@ -1184,6 +1189,7 @@ const NotificationManager = {
             thresholdHourly,
             thresholdDaily,
             enableSound,
+            enableVoice,
             enableVibration: false, // Always disabled
             lastNotified: 0
         };
@@ -1232,7 +1238,12 @@ const NotificationManager = {
             const testCityName = settings ? settings.cityName : 'テスト地点';
 
             // Play sound and vibrate first (these work even if notification fails)
-            this.playNotificationSound();
+            const soundCheckbox = document.getElementById('enable-sound');
+            const voiceCheckbox = document.getElementById('enable-voice');
+            const enableSound = soundCheckbox ? soundCheckbox.checked : true;
+            const enableVoice = voiceCheckbox ? voiceCheckbox.checked : true;
+
+            this.playNotificationSound(false, enableSound, enableVoice);
             this.vibrate();
 
             // Show toast notification (always works)
@@ -1342,19 +1353,95 @@ const NotificationManager = {
     },
 
     vibrate() {
-        try {
-            // Vibrate if supported (mainly for mobile devices)
-            if ('vibrate' in navigator) {
-                // Stronger pattern: vibrate 300ms, pause 100ms, vibrate 300ms
-                const pattern = [300, 100, 300];
-                const result = navigator.vibrate(pattern);
-                console.log('Vibration triggered, result:', result);
-                console.log('Vibration pattern:', pattern);
-            } else {
-                console.log('Vibration API not supported on this device');
+        const pattern = [300, 100, 300]; // vibrate 300ms, pause 100ms, vibrate 300ms
+        if (navigator.vibrate) {
+            const result = navigator.vibrate(pattern);
+            console.log('Vibration triggered, result:', result);
+            console.log('Vibration pattern:', pattern);
+        } else {
+            console.log('Vibration API not supported');
+        }
+    },
+
+    playNotificationSound(silent = false, enableSound = null, enableVoice = null) {
+        if (silent) {
+            // Silent mode for audio unlocking
+            return;
+        }
+
+        // If not provided, get from settings
+        if (enableSound === null || enableVoice === null) {
+            const settings = this.getSettings();
+            if (!settings) return;
+
+            if (enableSound === null) {
+                enableSound = settings.enableSound !== false; // Default true
             }
+            if (enableVoice === null) {
+                enableVoice = settings.enableVoice !== false; // Default true
+            }
+        }
+
+        // Play alert sound (ping-pong)
+        if (enableSound) {
+            this.playAlertSound();
+        }
+
+        // Play voice notification (notification.mp3) after 0.8 second delay
+        if (enableVoice) {
+            setTimeout(() => {
+                this.playVoiceNotification();
+            }, 800);
+        }
+    },
+
+    playAlertSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const now = audioContext.currentTime;
+
+            // 1音目: 880Hz (高いラ)
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+
+            osc1.frequency.value = 880;
+            osc1.type = 'sine';
+            gain1.gain.setValueAtTime(0.3, now);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+            osc1.start(now);
+            osc1.stop(now + 0.2);
+
+            // 2音目: 660Hz (ミ)
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+
+            osc2.frequency.value = 660;
+            osc2.type = 'sine';
+            gain2.gain.setValueAtTime(0, now + 0.15);
+            gain2.gain.setValueAtTime(0.3, now + 0.15);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+            osc2.start(now + 0.15);
+            osc2.stop(now + 0.5);
         } catch (error) {
-            console.error('Error vibrating:', error);
+            console.error('Error playing alert sound:', error);
+        }
+    },
+
+    playVoiceNotification() {
+        try {
+            const audio = new Audio('notification.mp3');
+            audio.volume = 0.7;
+            audio.play().catch(error => {
+                console.error('Error playing voice notification:', error);
+            });
+        } catch (error) {
+            console.error('Error creating audio:', error);
         }
     },
 
@@ -1612,6 +1699,8 @@ const NotificationManager = {
 const AutoUpdateManager = {
     updateTimer: null,
     nextUpdateTime: null,
+    lastUpdateTime: null, // Track last update time for cooldown
+    COOLDOWN_PERIOD: 5 * 60 * 1000, // 5 minutes in milliseconds
 
     init() {
         this.scheduleNextUpdate();
@@ -1655,6 +1744,20 @@ const AutoUpdateManager = {
 
     async performUpdate() {
         console.log('[AutoUpdate] Starting automatic update...', { currentDate: state.currentDate });
+
+        // Check cooldown period (5 minutes)
+        const now = new Date();
+        if (this.lastUpdateTime) {
+            const timeSinceLastUpdate = now - this.lastUpdateTime;
+            if (timeSinceLastUpdate < this.COOLDOWN_PERIOD) {
+                const remainingCooldown = Math.ceil((this.COOLDOWN_PERIOD - timeSinceLastUpdate) / 1000 / 60);
+                console.log(`[AutoUpdate] Skipping update - cooldown period active (${remainingCooldown} minutes remaining)`);
+                return;
+            }
+        }
+
+        // Record update time
+        this.lastUpdateTime = now;
 
         try {
             // Clear all caches
@@ -1719,261 +1822,10 @@ if (document.readyState === 'loading') {
         // Wait a bit for other initializations to complete
         setTimeout(() => {
             AutoUpdateManager.init();
-            BackgroundNotificationManager.init();
         }, 1000);
     });
 } else {
     setTimeout(() => {
         AutoUpdateManager.init();
-        BackgroundNotificationManager.init();
     }, 1000);
 }
-
-// --- Background Notification System (Firebase) ---
-const BackgroundNotificationManager = {
-    messaging: null,
-    db: null,
-    isSupported: false,
-
-    async init() {
-        const btnEnable = document.getElementById('btn-enable-push');
-        const btnDisable = document.getElementById('btn-disable-push');
-        if (!btnEnable || !btnDisable) return;
-
-        // Check if Firebase is loaded
-        if (typeof firebase === 'undefined') {
-            console.warn('[BackgroundNotification] Firebase SDK not loaded.');
-            this.updateStatus('Firebase SDK未ロード', true);
-            return;
-        }
-
-        // Initialize Firebase
-        // TODO: User must replace these values!
-        const firebaseConfig = {
-            apiKey: "AIzaSyAIBR0B_D_1uXZc5RbQeo9DPWKhRY9xDuc",
-            authDomain: "pollen-alert-app.firebaseapp.com",
-            projectId: "pollen-alert-app",
-            storageBucket: "pollen-alert-app.firebasestorage.app",
-            messagingSenderId: "974262321585",
-            appId: "1:974262321585:web:b7edbba1c74eaf7cb5bd90",
-            measurementId: "G-QNN07J889M"
-        };
-
-        try {
-            // Check if config is still placeholder
-            if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-                console.warn('[BackgroundNotification] Firebase config is placeholder.');
-                this.updateStatus('設定が必要です (FIREBASE_SETUP.md参照)', true);
-                btnEnable.disabled = true;
-                return;
-            }
-
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-
-            this.messaging = firebase.messaging();
-            this.db = firebase.firestore();
-            this.isSupported = true;
-
-            // Check current permission
-            if (Notification.permission === 'granted') {
-                this.updateStatus('設定済み', false);
-                btnEnable.classList.add('hidden');
-                btnDisable.classList.remove('hidden');
-            }
-
-            btnEnable.addEventListener('click', () => this.enableNotifications());
-            btnDisable.addEventListener('click', () => this.disableNotifications());
-
-        } catch (e) {
-            console.error('[BackgroundNotification] Init failed:', e);
-            this.updateStatus('初期化エラー', true);
-        }
-    },
-
-    async enableNotifications() {
-        if (!this.isSupported) return;
-
-        const btnEnable = document.getElementById('btn-enable-push');
-        const btnDisable = document.getElementById('btn-disable-push');
-
-        btnEnable.disabled = true;
-        this.updateStatus('権限を確認中...', false);
-
-        try {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                this.updateStatus('トークンを取得中...', false);
-
-                // Register Service Worker explicitly
-                let registration;
-                try {
-                    registration = await navigator.serviceWorker.register('./service-worker.js');
-                    console.log('[BackgroundNotification] Service Worker registered with scope:', registration.scope);
-                } catch (err) {
-                    console.error('[BackgroundNotification] SW Registration failed:', err);
-                    throw new Error('Service Worker registration failed');
-                }
-
-                // Robust wait for active state
-                const waitForActive = (reg) => {
-                    return new Promise((resolve) => {
-                        const serviceWorker = reg.installing || reg.waiting || reg.active;
-                        if (serviceWorker.state === 'activated') {
-                            resolve(reg);
-                            return;
-                        }
-                        serviceWorker.addEventListener('statechange', (e) => {
-                            if (e.target.state === 'activated') {
-                                resolve(reg);
-                            }
-                        });
-                    });
-                };
-
-                await waitForActive(registration);
-                console.log('[BackgroundNotification] Service Worker is active');
-
-                // Get Token with explicit SW registration
-                let token;
-                try {
-                    token = await this.messaging.getToken({
-                        serviceWorkerRegistration: registration,
-                        vapidKey: 'BOpPJiA0ETtiqtizv-Uc0EmfKe71hGl4sv8sERB0I31gtjLsfu6sgS25NQoDidIxqh08z449mtSIpre5gbYdeFo'
-                    });
-                } catch (err) {
-                    console.warn('[BackgroundNotification] getToken failed, retrying...', err);
-                    // Retry once
-                    await new Promise(r => setTimeout(r, 1000));
-                    token = await this.messaging.getToken({
-                        serviceWorkerRegistration: registration
-                    });
-                }
-
-                if (token) {
-                    await this.saveToken(token);
-                    this.updateStatus('設定完了！', false);
-                    btnEnable.classList.add('hidden');
-                    btnDisable.classList.remove('hidden');
-                    btnEnable.disabled = false;
-
-                    // Send test notification via local service worker (optional immediate feedback)
-                    new Notification('設定完了', {
-                        body: 'バックグラウンド通知が有効になりました。',
-                        icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png'
-                    });
-                } else {
-                    this.updateStatus('トークン取得失敗', true);
-                    btnEnable.disabled = false;
-                }
-            } else {
-                this.updateStatus('通知が許可されませんでした', true);
-                btnEnable.disabled = false;
-            }
-        } catch (e) {
-            console.error('[BackgroundNotification] Error:', e);
-            this.updateStatus('エラーが発生しました', true);
-            btnEnable.disabled = false;
-        }
-    },
-
-    async disableNotifications() {
-        if (!this.isSupported) return;
-
-        const btnEnable = document.getElementById('btn-enable-push');
-        const btnDisable = document.getElementById('btn-disable-push');
-
-        if (!confirm('通知設定を解除しますか？')) return;
-
-        btnDisable.disabled = true;
-        this.updateStatus('解除中...', false);
-
-        try {
-            // Register Service Worker explicitly to match enable flow
-            const registration = await navigator.serviceWorker.register('./service-worker.js');
-
-            // Get Token to delete
-            const token = await this.messaging.getToken({
-                serviceWorkerRegistration: registration
-            });
-
-            if (token) {
-                // Delete from Firestore
-                await this.db.collection('pollen_subscribers').doc(token).delete();
-                console.log('[BackgroundNotification] Token deleted from Firestore');
-
-                // Optional: Delete token from FCM (not strictly necessary as we deleted from DB)
-                // await this.messaging.deleteToken(); 
-
-                this.updateStatus('設定を解除しました', false);
-                btnEnable.classList.remove('hidden');
-                btnDisable.classList.add('hidden');
-                this.updateStatus('トークンが見つかりませんでした', true);
-            }
-        } catch (e) {
-            console.error('[BackgroundNotification] Disable failed:', e);
-
-            // Even if we fail to get the token (e.g. AbortError), we should probably let the user
-            // reset the UI state if they want to try again or if the token is already invalid.
-            // However, to be safe, we'll just show an error message but maybe allow a force reset?
-            // For now, let's just treat AbortError as "maybe already disabled" or "network issue".
-
-            if (e.code === 'messaging/token-unsubscribe-failed' || e.message.includes('Registration failed') || e.name === 'AbortError') {
-                // Force UI reset
-                this.updateStatus('設定を解除しました(強制)', false);
-                btnEnable.classList.remove('hidden');
-                btnDisable.classList.add('hidden');
-
-                // Try to unregister SW anyway to clean up
-                try {
-                    const reg = await navigator.serviceWorker.getRegistration('./service-worker.js');
-                    if (reg) await reg.unregister();
-                } catch (err) { console.error('SW unregister failed:', err); }
-            } else {
-                this.updateStatus('解除に失敗しました', true);
-            }
-        } finally {
-            // Always try to unregister SW on success too
-            try {
-                const reg = await navigator.serviceWorker.getRegistration('./service-worker.js');
-                if (reg) {
-                    await reg.unregister();
-                    console.log('[BackgroundNotification] Service Worker unregistered');
-                }
-            } catch (err) { console.error('SW unregister failed:', err); }
-
-            btnDisable.disabled = false;
-        }
-    },
-
-    async saveToken(token) {
-        const settings = UI.getSettings(); // Get current city settings
-        if (!settings || !settings.cityCode) {
-            alert('通知対象の地点が設定されていません。先に地点を登録してください。');
-            return;
-        }
-
-        try {
-            await this.db.collection('pollen_subscribers').doc(token).set({
-                token: token,
-                cityCode: settings.cityCode,
-                cityName: settings.cityName,
-                thresholdHourly: parseInt(document.getElementById('threshold-hourly').value) || 10,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            console.log('[BackgroundNotification] Token saved to Firestore');
-        } catch (e) {
-            console.error('[BackgroundNotification] Firestore save failed:', e);
-            throw e;
-        }
-    },
-
-    updateStatus(msg, isError) {
-        const el = document.getElementById('push-status-msg');
-        if (el) {
-            el.textContent = msg;
-            el.style.color = isError ? 'red' : 'green';
-        }
-    }
-};
