@@ -48,10 +48,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         category: catItem ? catItem.category : '-'
                     };
                 });
+
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                const summaryTable = document.getElementById('summaryTable');
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                if (summaryTable) summaryTable.classList.remove('hidden');
+
                 renderResults();
             }
         } catch (error) {
             console.error('Error loading data:', error);
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) loadingIndicator.classList.add('hidden');
             summaryTableBody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">データの読み込みに失敗しました</td></tr>';
         }
     }
@@ -143,17 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const statsA = grouped[a];
             const statsB = grouped[b];
 
-            // Sort by category first
             if (statsA.category !== statsB.category) {
                 return statsA.category.localeCompare(statsB.category);
             }
 
-            // Then by drug class code
             if (statsA.drugClassCode !== statsB.drugClassCode) {
                 return statsA.drugClassCode.localeCompare(statsB.drugClassCode);
             }
 
-            // Finally by ingredient name
             return a.localeCompare(b, 'ja');
         });
 
