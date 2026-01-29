@@ -1,3926 +1,3926 @@
 [
   {
-    "drug_class_code": "114",
-    "drug_class_name": "解熱鎮痛消炎剤",
-    "ingredient_name": "アセトアミノフェン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "アドレナリン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "アルガトロバン水和物",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "アンピシリンナトリウム・スルバクタムナトリウム",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "インフルエンザHAワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "コロナウイルス(SARS-CoV-2)RNAワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "シクロスポリン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "スガマデクスナトリウム",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "セファゾリンナトリウム",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "セフトリアキソンナトリウム水和物",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "セフメタゾールナトリウム",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "タクロリムス水和物",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "タゾバクタム・ピペラシリン水和物",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "ドパミン塩酸塩",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "332",
-    "drug_class_name": "止血剤",
-    "ingredient_name": "トロンビン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "ノルアドレナリン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "611",
-    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤",
-    "ingredient_name": "バンコマイシン塩酸塩",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "221",
-    "drug_class_name": "呼吸促進剤",
-    "ingredient_name": "フルマゼニル",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "111",
-    "drug_class_name": "全身麻酔剤",
     "ingredient_name": "プロポフォール",
-    "category": "A"
+    "category": "A",
+    "drug_class_code": "111",
+    "drug_class_name": "全身麻酔剤"
   },
   {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
     "ingredient_name": "ミダゾラム",
-    "category": "A"
+    "category": "A",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
   },
   {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "メトトレキサート",
-    "category": "A"
+    "ingredient_name": "アセトアミノフェン",
+    "category": "A",
+    "drug_class_code": "114",
+    "drug_class_name": "解熱鎮痛消炎剤"
   },
   {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "メロペネム水和物",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "122",
-    "drug_class_name": "骨格筋弛緩剤",
     "ingredient_name": "ロクロニウム臭化物",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "333",
-    "drug_class_name": "血液凝固阻止剤",
-    "ingredient_name": "ワルファリンカリウム",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "乾燥BCGワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "乾燥細胞培養日本脳炎ワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "乾燥弱毒生おたふくかぜワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "乾燥弱毒生水痘ワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "636",
-    "drug_class_name": "混合生物学的製剤",
-    "ingredient_name": "乾燥弱毒生麻しん風しん混合ワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "乾燥組換え帯状疱疹ワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "組換え沈降9価ヒトパピローマウイルス様粒子ワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "組換え沈降B型肝炎ワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "沈降20価肺炎球菌結合型ワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "636",
-    "drug_class_name": "混合生物学的製剤",
-    "ingredient_name": "沈降ジフテリア破傷風混合トキソイド",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "636",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "沈降精製百日せきジフテリア破傷風不活化ポリオヘモフィルスb型混合ワクチン",
-    "category": "A"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "4価髄膜炎菌ワクチン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "pH4処理酸性人免疫グロブリン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "pH4処理酸性人免疫グロブリン(皮下注射)",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "アスホターゼ アルファ(遺伝子組換え)",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "アルプロスタジル",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "エプタコグアルファ(活性型)(遺伝子組換え)",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "エベロリムス",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "エベロリムス",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "カバジタキセル アセトン付加物",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "394",
-    "drug_class_name": "痛風治療剤",
-    "ingredient_name": "コルヒチン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "ジアゼパム",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ダラツムマブ(遺伝子組換え)",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "テガフール・ギメラシル・オテラシルカリウム配合剤",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "テモゾロミド",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "213",
-    "drug_class_name": "利尿剤",
-    "ingredient_name": "トルバプタン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "パゾパニブ塩酸塩",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "バルガンシクロビル塩酸塩",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "ヒドロキシカルバミド",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ヒドロキシクロロキン硫酸塩",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "ヒト血漿由来乾燥血液凝固第XI因子",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "ブスルファン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "フルダラビンリン酸エステル",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "フルドロコルチゾン酢酸エステル",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ベリムマブ(遺伝子組換え)",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "ポリエチレングリコール処理人免疫グロブリン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "239",
-    "drug_class_name": "その他の消化器官用薬",
-    "ingredient_name": "ポリカルボフィルカルシウム",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "121",
-    "drug_class_name": "局所麻酔剤",
-    "ingredient_name": "ロピバカイン塩酸塩水和物",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "塩化ラジウム(223Ra)",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "黄熱ワクチン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "639",
-    "drug_class_name": "その他の生物学的製剤",
-    "ingredient_name": "乾燥BCG膀胱内用(日本株)",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "乾燥イオン交換樹脂処理人免疫グロブリン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "乾燥スルホ化人免疫グロブリン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "乾燥ポリエチレングリコール処理人免疫グロブリン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "乾燥細胞培養痘そうワクチン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "乾燥人フィブリノゲン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "乾燥組織培養不活化A型肝炎ワクチン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "639",
-    "drug_class_name": "その他の生物学的製剤",
-    "ingredient_name": "抗ヒト胸腺細胞ウサギ免疫グロブリン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "人免疫グロブリン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "精製Vi多糖体腸チフスワクチン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "不活化ポリオワクチン",
-    "category": "B"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "3-ヨードベンジルグアニジン(123I)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "3-ヨードベンジルグアニジン(131I)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "5価経口弱毒生ロタウイルスワクチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "D-マンニトール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "L-アルギニン・L-アルギニン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "L-アルギニン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "l-イソプレナリン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "223",
-    "drug_class_name": "去たん剤",
-    "ingredient_name": "L-カルボシステイン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "N-ピリドキシル-5-メチルトリプトファンテクネチウム(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "アキシチニブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "423",
-    "drug_class_name": "抗腫瘍性抗生物質製剤",
-    "ingredient_name": "アクチノマイシンD",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "アザシチジン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "アザチオプリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "アシクロビル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "アシクロビル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "614",
-    "drug_class_name": "主としてグラム陽性菌、マイコプラズマに作用する抗生物質製剤",
-    "ingredient_name": "アジスロマイシン水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "614",
-    "drug_class_name": "主としてグラム陽性菌、マイコプラズマに作用する抗生物質製剤",
-    "ingredient_name": "アジスロマイシン水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "214",
-    "drug_class_name": "血圧降下剤",
-    "ingredient_name": "アジルサルタン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "314",
-    "drug_class_name": "ビタミンC剤",
-    "ingredient_name": "アスコルビン酸",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "314",
-    "drug_class_name": "ビタミンC剤",
-    "ingredient_name": "アスコルビン酸",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "612",
-    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "アズトレオナム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "339",
-    "drug_class_name": "その他の血液・体液用薬",
-    "ingredient_name": "アスピリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "114",
-    "drug_class_name": "解熱鎮痛消炎剤",
-    "ingredient_name": "アスピリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "213",
-    "drug_class_name": "利尿剤",
-    "ingredient_name": "アセタゾラミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "アセチルシステイン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "アセチルフェネトライド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "114",
-    "drug_class_name": "解熱鎮痛消炎剤",
-    "ingredient_name": "アセトアミノフェン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "114",
-    "drug_class_name": "解熱鎮痛消炎剤",
-    "ingredient_name": "アセトアミノフェン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "アダリムマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "アテゾリズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "629",
-    "drug_class_name": "その他の化学療法剤",
-    "ingredient_name": "アトバコン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "アトモキセチン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "124",
-    "drug_class_name": "鎮けい剤",
-    "ingredient_name": "アトロピン硫酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "アナストロゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "アニフロルマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "アバタセプト(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "アバルグルコシダーゼ アルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "243",
-    "drug_class_name": "甲状腺、副甲状腺ホルモン剤",
-    "ingredient_name": "アバロパラチド酢酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "333",
-    "drug_class_name": "血液凝固阻止剤",
-    "ingredient_name": "アピキサバン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "アビラテロン酢酸エステル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "131",
-    "drug_class_name": "眼科用剤",
-    "ingredient_name": "アフリベルセプト(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "239",
-    "drug_class_name": "その他の消化器官用薬",
-    "ingredient_name": "アプレピタント",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "アベマシクリブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "アミオダロン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "アミオダロン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "612",
-    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "アミカシン硫酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "721",
-    "drug_class_name": "X線造影剤",
-    "ingredient_name": "アミドトリゾ酸ナトリウムメグルミン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "アミトリプチリン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "325",
-    "drug_class_name": "たん白アミノ酸製剤",
-    "ingredient_name": "アミノ酸・糖・電解質・ビタミン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "アミバンタマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "617",
-    "drug_class_name": "主としてカビに作用する抗生物質製剤",
-    "ingredient_name": "アムホテリシンB",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "617",
-    "drug_class_name": "主としてカビに作用する抗生物質製剤",
-    "ingredient_name": "アムホテリシンB",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "423",
-    "drug_class_name": "抗腫瘍性抗生物質製剤",
-    "ingredient_name": "アムルビシン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "アムロジピンベシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "アモキシシリン水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "アモキシシリン水和物・クラブラン酸カリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "アリピプラゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "アルテプラーゼ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "311",
-    "drug_class_name": "ビタミンA及びD剤",
-    "ingredient_name": "アルファカルシドール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "アルプロスタジル アルファデクス",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "アレクチニブ塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "アレンドロン酸ナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "394",
-    "drug_class_name": "痛風治療剤",
-    "ingredient_name": "アロプリノール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "339",
-    "drug_class_name": "その他の血液・体液用薬",
-    "ingredient_name": "アンデキサネット アルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "アンピシリンナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "アンブリセンタン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "223",
-    "drug_class_name": "去たん剤",
-    "ingredient_name": "アンブロキソール塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "イオフルパン(123I)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "213",
-    "drug_class_name": "利尿剤",
-    "ingredient_name": "イソソルビド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "622",
-    "drug_class_name": "抗結核剤",
-    "ingredient_name": "イソニアジド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "325",
-    "drug_class_name": "たん白アミノ酸製剤",
-    "ingredient_name": "イソロイシン・ロイシン・バリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "339",
-    "drug_class_name": "その他の血液・体液用薬",
-    "ingredient_name": "イダルシズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "イデュルスルファーゼ ベータ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "イデュルスルファーゼ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "629",
-    "drug_class_name": "その他の化学療法剤",
-    "ingredient_name": "イトラコナゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "423",
-    "drug_class_name": "抗腫瘍性抗生物質製剤",
-    "ingredient_name": "イノツズマブ オゾガマイシン(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "イピリムマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "イホスファミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "イマチニブメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "イリノテカン塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "218",
-    "drug_class_name": "高脂血症用剤",
-    "ingredient_name": "インクリシランナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "インスリン ヒト (遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "インスリンアスパルト (遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "インスリングラルギン(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "インスリンデグルデク(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "インスリンデテミル (遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "インスリンリスプロ (遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "722",
-    "drug_class_name": "機能検査用試薬",
-    "ingredient_name": "インドシアニングリーン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "239",
-    "drug_class_name": "その他の消化器官用薬",
-    "ingredient_name": "インフリキシマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ウパダシチニブ水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "214",
-    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬",
-    "ingredient_name": "ウラピジル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "236",
-    "drug_class_name": "利胆剤",
-    "ingredient_name": "ウルソデオキシコール酸",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "エスシタロプラムシュウ酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "エスゾピクロン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "247",
-    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤",
-    "ingredient_name": "エストラジオール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "218",
-    "drug_class_name": "高脂血症用剤",
-    "ingredient_name": "エゼチミブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "エタネルセプト(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "119",
-    "drug_class_name": "その他の中枢神経系用薬",
-    "ingredient_name": "エダラポン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "622",
-    "drug_class_name": "抗結核剤",
-    "ingredient_name": "エタンブトール塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "エチレンジシステイネートオキソテクネチウム(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "エテルカルセチド塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "エテルカルセチド塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "333",
-    "drug_class_name": "血液凝固阻止剤",
-    "ingredient_name": "エドキサバントシル酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "エトスクシミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "エトポシド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "エトポシド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "423",
-    "drug_class_name": "抗腫瘍性抗生物質製剤",
-    "ingredient_name": "エピルビシン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "214",
-    "drug_class_name": "血圧降下剤",
-    "ingredient_name": "エプレレノン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "エポエチン ベータ ペゴル(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "エポエチンアルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "エポエチンベータ (遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "エポプロステノールナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "218",
-    "drug_class_name": "高脂血症用剤",
-    "ingredient_name": "エボロクマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "614",
-    "drug_class_name": "主としてグラム陽性菌、マイコプラズマに作用する抗生物質製剤",
-    "ingredient_name": "エリスロマイシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "エリブリンメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "エルトロンボパグ オラミン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "エロスルファーゼ アルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "エンコラフェニブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "エンザルタミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "エンテカビル水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "オキサリプラチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "811",
-    "drug_class_name": "あへんアルカロイド系麻薬",
-    "ingredient_name": "オキシコドン塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "241",
-    "drug_class_name": "脳下垂体ホルモン剤",
-    "ingredient_name": "オキシトシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "オシメルチニブメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "オセルタミビルリン酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "229",
-    "drug_class_name": "その他の呼吸器官用薬",
-    "ingredient_name": "オマリズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "232",
-    "drug_class_name": "消化性潰瘍用剤",
-    "ingredient_name": "オメプラゾールナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "オラパリブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "オランザピン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "オリプダーゼ アルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "オルプリノン塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "214",
-    "drug_class_name": "血圧降下剤",
-    "ingredient_name": "オルメサルタンメドキソミル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "449",
-    "drug_class_name": "その他のアレルギー用薬",
-    "ingredient_name": "オロパタジン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "239",
-    "drug_class_name": "その他の消化器官用薬",
-    "ingredient_name": "オンダンセトロン塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "カナキヌマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "612",
-    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "カナマイシン一硫酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ガバペンチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "214",
-    "drug_class_name": "血圧降下剤",
-    "ingredient_name": "カプトプリル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ガベキサートメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "カペシタビン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "116",
-    "drug_class_name": "抗パーキンソン剤",
-    "ingredient_name": "カベルゴリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "ガラクトシル人血清アルブミンジエチレントリアミン五酢酸テクネチウム(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "カルグルミン酸",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "311",
-    "drug_class_name": "ビタミンA及びD剤",
-    "ingredient_name": "カルシトリオール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "311",
-    "drug_class_name": "ビタミンA及びD剤",
-    "ingredient_name": "カルシトリオール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "ガルスルファーゼ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "カルテオロール塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "カルバマゼピン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "214",
-    "drug_class_name": "血圧降下剤",
-    "ingredient_name": "カルベジロール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "カルペリチド(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "カルボプラチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "ガンシクロビル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ギルテリチニブフマル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "グアンファシン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "クエチアピンフマル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "394",
-    "drug_class_name": "痛風治療剤",
-    "ingredient_name": "クエン酸カリウム・クエン酸ナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "クエン酸第二鉄水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "グスペリムス塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "614",
-    "drug_class_name": "主としてグラム陽性菌、マイコプラズマに作用する抗生物質製剤",
-    "ingredient_name": "クラリスロマイシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "396",
-    "drug_class_name": "糖尿病用剤",
-    "ingredient_name": "グリベンクラミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "396",
-    "drug_class_name": "糖尿病用剤",
-    "ingredient_name": "グリメピリド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "611",
-    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤",
-    "ingredient_name": "クリンダマイシンリン酸エステル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "グルカルピダーゼ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "321",
-    "drug_class_name": "カルシウム剤",
-    "ingredient_name": "グルコン酸カルシウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "グレカプレビル水和物・ピブレンタスビル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "クロザピン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "クロナゼパム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "クロバザム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "339",
-    "drug_class_name": "その他の血液・体液用薬",
-    "ingredient_name": "クロピドグレル硫酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "623",
-    "drug_class_name": "抗ハンセン病剤",
-    "ingredient_name": "クロファジミン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "クロミフェンクエン酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "247",
-    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤",
-    "ingredient_name": "クロルマジノン酢酸エステル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "111",
-    "drug_class_name": "全身麻酔剤",
-    "ingredient_name": "ケタミン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "ゲムシタビン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "423",
-    "drug_class_name": "抗腫瘍性抗生物質製剤",
-    "ingredient_name": "ゲムツズマブ オゾガマイシン(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "ゲンタマイシン硫酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "ゴセレリン酢酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "259",
-    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬",
-    "ingredient_name": "コハク酸ソリフェナシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "313",
-    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)",
-    "ingredient_name": "コバマミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "612",
-    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "コリスチンメタンスルホン酸ナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "218",
-    "drug_class_name": "高脂血症用剤",
-    "ingredient_name": "コレスチミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "サクビトリルバルサルタンナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "サプロプテリン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "621",
-    "drug_class_name": "サルファ剤",
-    "ingredient_name": "サラゾスルファピリジン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "114",
-    "drug_class_name": "解熱鎮痛消炎剤",
-    "ingredient_name": "サリチル酸ナトリウム・ジブカイン配合剤",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "抗ハンセン病剤",
-    "ingredient_name": "サリドマイド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "サリルマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "ジアゼパム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ジアゾキシド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "269",
-    "drug_class_name": "その他の外皮用薬",
-    "ingredient_name": "ジアフェニルスルホン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "ジエノゲスト",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "シクロスポリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "シクロホスファミド水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "シクロホスファミド水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "ジゴキシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "システアミン酒石酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "シスプラチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "396",
-    "drug_class_name": "糖尿病用剤",
-    "ingredient_name": "シタグリプチンリン酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "624",
-    "drug_class_name": "合成抗菌剤",
-    "ingredient_name": "シタフロキサシン水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "シタラビン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "247",
-    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤",
-    "ingredient_name": "ジドロゲステロン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "シナカルセト塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "ジノプロスト",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "624",
-    "drug_class_name": "合成抗菌剤",
-    "ingredient_name": "シプロフロキサシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "624",
-    "drug_class_name": "合成抗菌剤",
-    "ingredient_name": "シプロフロキサシン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "シベンゾリンコハク酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "ジメルカプトコハク酸テクネチウム(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "ジルコニウムシクロケイ酸ナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "ジルチアゼム塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "シルデナフィルクエン酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "339",
-    "drug_class_name": "その他の血液・体液用薬",
-    "ingredient_name": "シロスタゾール",
-    "category": "C"
-  },
-  {
+    "category": "A",
     "drug_class_code": "122",
-    "drug_class_name": "骨格筋弛緩剤",
-    "ingredient_name": "スキサメトニウム塩化物水和物",
-    "category": "C"
+    "drug_class_name": "骨格筋弛緩剤"
   },
   {
-    "drug_class_code": "449",
-    "drug_class_name": "その他のアレルギー用薬",
-    "ingredient_name": "スギ花粉エキス",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "スクロオキシ水酸化鉄",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "スチリペントール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "213",
-    "drug_class_name": "利尿剤",
-    "ingredient_name": "スピロノラクトン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "612",
-    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "スペクチノマイシン塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "216",
-    "drug_class_name": "血管収縮剤",
-    "ingredient_name": "スマトリプタンコハク酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "スルチアム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "629",
-    "drug_class_name": "その他の化学療法剤",
-    "ingredient_name": "スルファメトキサゾール・トリメトプリム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "セツキシマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "セファクロル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "セファレキシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "セフェピム塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "セフォタキシムナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "セフジトレンピボキシル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "セベリパーゼ アルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "セマグルチド(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "セマグルチド(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "セルペルカチニブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "セルリポナーゼ アルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "ソタロール塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ソトラシブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ゾニサミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "ソホスブビル・ベルパタスビル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ゾルベツキシマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ゾレドロン酸水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "329",
-    "drug_class_name": "その他の滋養強壮薬",
-    "ingredient_name": "ダイズ油",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "423",
-    "drug_class_name": "抗腫瘍性抗生物質製剤",
-    "ingredient_name": "ダウノルビシン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "ダカルバジン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "タクロリムス水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ダサチニブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "タダラフィル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "449",
-    "drug_class_name": "その他のアレルギー用薬",
-    "ingredient_name": "ダニアレルゲンエキス",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "396",
-    "drug_class_name": "糖尿病用剤",
-    "ingredient_name": "ダパグリフロジンプロピレングリコール水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ダブラフェニブメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ダプロデュスタット",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "259",
-    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬",
-    "ingredient_name": "タムスロシン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "タモキシフェンクエン酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "333",
-    "drug_class_name": "血液凝固阻止剤",
-    "ingredient_name": "ダルテパリンナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ダルベポエチンアルファ (遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "243",
-    "drug_class_name": "甲状腺、副甲状腺ホルモン剤",
-    "ingredient_name": "チアマゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "111",
-    "drug_class_name": "全身麻酔剤",
-    "ingredient_name": "チアミラールナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "312",
-    "drug_class_name": "ビタミンB1剤",
-    "ingredient_name": "チアミン塩化物塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "チオテパ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "391",
-    "drug_class_name": "肝臓疾患用剤",
-    "ingredient_name": "チオプロニン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "チオ硫酸ナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "612",
-    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "チゲサイクリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "224",
-    "drug_class_name": "鎮咳去たん剤",
-    "ingredient_name": "チペピジンヒベンズ酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "チルゼパチド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "611",
-    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤",
-    "ingredient_name": "テイコプラニン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "225",
-    "drug_class_name": "気管支拡張剤",
-    "ingredient_name": "テオフィリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "テガフール・ウラシル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "デガレリクス酢酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "デキサメタゾン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "デキサメタゾンパルミチン酸エステル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "デキサメタゾンリン酸エステルナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "222",
-    "drug_class_name": "鎮咳剤",
-    "ingredient_name": "デキストロメトルファン臭化水素酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "デクスメデトミジン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "テクネチウム大凝集人血清アルブミン(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "246",
-    "drug_class_name": "男性ホルモン剤",
-    "ingredient_name": "テストステロンエナント酸エステル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "241",
-    "drug_class_name": "脳下垂体ホルモン剤",
-    "ingredient_name": "デスモプレシン酢酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "241",
-    "drug_class_name": "脳下垂体ホルモン剤",
-    "ingredient_name": "テトラコサクチド酢酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "テトロホスミンテクネチウム(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "デノスマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "テノホビル アラフェナミドフマル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "236",
-    "drug_class_name": "利胆剤",
-    "ingredient_name": "デヒドロコール酸",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "テビペネム ピボキシル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "391",
-    "drug_class_name": "肝臓疾患用剤",
-    "ingredient_name": "デフィプロチドナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "デフェラシロクス",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "テモゾロミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "449",
-    "drug_class_name": "その他のアレルギー用薬",
-    "ingredient_name": "デュピルマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "デュラグルチド(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "デュルバルマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "デュロキセチン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "243",
-    "drug_class_name": "甲状腺、副甲状腺ホルモン剤",
-    "ingredient_name": "テリパラチド(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "243",
-    "drug_class_name": "甲状腺、副甲状腺ホルモン剤",
-    "ingredient_name": "テリパラチド酢酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "214",
-    "drug_class_name": "血圧降下剤",
-    "ingredient_name": "ドキサゾシンメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "423",
-    "drug_class_name": "抗腫瘍性抗生物質製剤",
-    "ingredient_name": "ドキソルビシン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "315",
-    "drug_class_name": "ビタミンE剤",
-    "ingredient_name": "トコフェロール酢酸エステル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "624",
-    "drug_class_name": "合成抗菌剤",
-    "ingredient_name": "トスフロキサシントシル酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "ドセタキセル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "ドセタキセル水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "トピラマート",
-    "category": "C"
-  },
-  {
+    "ingredient_name": "ドパミン塩酸塩",
+    "category": "A",
     "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "ドブタミン塩酸塩",
-    "category": "C"
+    "drug_class_name": "強心剤"
   },
   {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "トラスツズマブ エムタンシン(遺伝子組換え)",
-    "category": "C"
+    "ingredient_name": "アルガトロバン水和物",
+    "category": "A",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
   },
   {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "トラスツズマブ デルクステカン(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "トラスツズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "332",
-    "drug_class_name": "止血剤",
-    "ingredient_name": "トラネキサム酸",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "トラベクテジン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "トラメチニブ ジメチルスルホキシド付加物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "トリエンチン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "213",
-    "drug_class_name": "利尿剤",
-    "ingredient_name": "トリクロルメチアジド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "トリフルリジン・チピラシル塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "トレチノイン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "248",
-    "drug_class_name": "混合ホルモン剤",
-    "ingredient_name": "ドロスピレノン・エチニルエストラジオールベータデクス",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "339",
-    "drug_class_name": "その他の血液・体液用薬",
-    "ingredient_name": "トロメタモール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "333",
-    "drug_class_name": "血液凝固阻止剤",
-    "ingredient_name": "トロンボモジュリンアルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "799",
-    "drug_class_name": "他に分類されない治療を主目的としない医薬品",
-    "ingredient_name": "ナトリウム・カリウム・アスコルビン酸配合剤",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ナファモスタットメシル酸塩",
-    "category": "C"
-  },
-  {
+    "ingredient_name": "フルマゼニル",
+    "category": "A",
     "drug_class_code": "221",
-    "drug_class_name": "呼吸促進剤",
-    "ingredient_name": "ナロキソン塩酸塩",
-    "category": "C"
+    "drug_class_name": "呼吸促進剤"
   },
   {
-    "drug_class_code": "214",
-    "drug_class_name": "血圧降下剤",
-    "ingredient_name": "ニカルジピン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "ニコランジル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ニチシノン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "ニトラゼパム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "ニトログリセリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "ニフェジピン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ニボルマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ニラパリブトシル酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ニンテダニブエタンスルホン酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ネダプラチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "ノギテカン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "248",
-    "drug_class_name": "混合ホルモン剤",
-    "ingredient_name": "ノルエチステロン・エチニルエストラジオール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "248",
-    "drug_class_name": "混合ホルモン剤",
-    "ingredient_name": "ノルゲストレル・エチニルエストラジオール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "パクリタキセル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "241",
-    "drug_class_name": "脳下垂体ホルモン剤",
-    "ingredient_name": "バソプレシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "パビナフスプ アルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "パミドロン酸二ナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "バラシクロビル塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "バリシチニブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "パリビズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "バルプロ酸ナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "パルボシクリブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "ハロペリドール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "233",
-    "drug_class_name": "健胃消化剤",
-    "ingredient_name": "パンクレリパーゼ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "319",
-    "drug_class_name": "その他のビタミン剤",
-    "ingredient_name": "ビオチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "319",
-    "drug_class_name": "その他のビタミン剤",
-    "ingredient_name": "ビオチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ビガバトリン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ビカルタミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "218",
-    "drug_class_name": "高脂血症用剤",
-    "ingredient_name": "ピタバスタチンカルシウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "ヒドロキシメチレンジホスホン酸テクネチウム(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "313",
-    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)",
-    "ingredient_name": "ヒドロキソコバラミン酢酸塩",
-    "category": "C"
-  },
-  {
+    "ingredient_name": "アドレナリン",
+    "category": "A",
     "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "ヒドロコルチゾン",
-    "category": "C"
+    "drug_class_name": "副腎ホルモン剤"
   },
   {
+    "ingredient_name": "ノルアドレナリン",
+    "category": "A",
     "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "ヒドロコルチゾンコハク酸エステルナトリウム",
-    "category": "C"
+    "drug_class_name": "副腎ホルモン剤"
   },
   {
-    "drug_class_code": "811",
-    "drug_class_name": "あへんアルカロイド系麻薬",
-    "ingredient_name": "ヒドロモルフォン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "241",
-    "drug_class_name": "脳下垂体ホルモン剤",
-    "ingredient_name": "ヒト絨毛性性腺刺激ホルモン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "ビノレルビン酒石酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ビメキズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "ピモベンダン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "622",
-    "drug_class_name": "抗結核剤",
-    "ingredient_name": "ピラジナミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "ピルシカイニド塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "ビンクリスチン硫酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "424",
-    "drug_class_name": "抗腫瘍性植物成分製剤",
-    "ingredient_name": "ビンブラスチン硫酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "ファスジル塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "ファロペネムナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "フィブリノゲン加第XI因子",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "339",
-    "drug_class_name": "その他の血液・体液用薬",
-    "ingredient_name": "フィルグラスチム(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "フィンゴリモド塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "449",
-    "drug_class_name": "その他のアレルギー用薬",
-    "ingredient_name": "フェキソフェナジン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "フェニトイン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "フェニトインナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "327",
-    "drug_class_name": "乳幼児用剤",
-    "ingredient_name": "フェニルアラニン除去ミルク",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "フェニル酪酸ナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "フェノバルビタール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "フェノバルビタールナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "394",
-    "drug_class_name": "痛風治療剤",
-    "ingredient_name": "フェブキソスタット",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "821",
-    "drug_class_name": "合成麻薬",
-    "ingredient_name": "フェンタニルクエン酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "フェンフルラミン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "323",
-    "drug_class_name": "糖類剤",
-    "ingredient_name": "ブドウ糖",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "121",
-    "drug_class_name": "局所麻酔剤",
-    "ingredient_name": "ブピバカイン塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "プラリドキシムヨウ化物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ブリナツモマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "プリミドン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "フルオロウラシル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "629",
-    "drug_class_name": "その他の化学療法剤",
-    "ingredient_name": "フルコナゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "フルシクロビン(18F)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "フルテメタモル(18F)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "フルベストラント",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "フルボキサミンマレイン酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "423",
-    "drug_class_name": "抗腫瘍性抗生物質製剤",
-    "ingredient_name": "ブレオマイシン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "プレドニゾロン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "プレドニゾロンコハク酸エステルナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ブレンツキシマブ ベドチン(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "121",
-    "drug_class_name": "局所麻酔剤",
-    "ingredient_name": "プロカイン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "247",
-    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤",
-    "ingredient_name": "プロゲステロン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "247",
-    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤",
-    "ingredient_name": "プロゲステロン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ブロスマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "213",
-    "drug_class_name": "利尿剤",
-    "ingredient_name": "フロセミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "213",
-    "drug_class_name": "利尿剤",
-    "ingredient_name": "フロセミド",
-    "category": "C"
-  },
-  {
+    "ingredient_name": "トロンビン",
+    "category": "A",
     "drug_class_code": "332",
-    "drug_class_name": "止血剤",
-    "ingredient_name": "プロタミン硫酸塩",
-    "category": "C"
+    "drug_class_name": "止血剤"
   },
   {
-    "drug_class_code": "243",
-    "drug_class_name": "甲状腺、副甲状腺ホルモン剤",
-    "ingredient_name": "プロピルチオウラシル",
-    "category": "C"
+    "ingredient_name": "ワルファリンカリウム",
+    "category": "A",
+    "drug_class_code": "333",
+    "drug_class_name": "血液凝固阻止剤"
   },
   {
-    "drug_class_code": "290",
-    "drug_class_name": "その他の個々の器官用医薬品",
-    "ingredient_name": "プロプラノロール塩酸塩",
-    "category": "C"
+    "ingredient_name": "スガマデクスナトリウム",
+    "category": "A",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
   },
   {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "プロプラノロール塩酸塩",
-    "category": "C"
+    "ingredient_name": "シクロスポリン",
+    "category": "A",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
   },
   {
+    "ingredient_name": "タクロリムス水和物",
+    "category": "A",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "メトトレキサート",
+    "category": "A",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "バンコマイシン塩酸塩",
+    "category": "A",
+    "drug_class_code": "611",
+    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アンピシリンナトリウム・スルバクタムナトリウム",
+    "category": "A",
     "drug_class_code": "613",
-    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤",
-    "ingredient_name": "フロモキセフナトリウム",
-    "category": "C"
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
   },
   {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "フロルベタピル(18F)",
-    "category": "C"
+    "ingredient_name": "セファゾリンナトリウム",
+    "category": "A",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
   },
   {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "ヘキサキスメトキシイソブチルイソニトリルテクネチウム(99mTc)",
-    "category": "C"
+    "ingredient_name": "セフトリアキソンナトリウム水和物",
+    "category": "A",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
   },
   {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ペグアスパルガーゼ",
-    "category": "C"
+    "ingredient_name": "セフメタゾールナトリウム",
+    "category": "A",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
   },
   {
-    "drug_class_code": "339",
-    "drug_class_name": "その他の血液・体液用薬",
-    "ingredient_name": "ペグフィルグラスチム(遺伝子組換え)",
-    "category": "C"
+    "ingredient_name": "タゾバクタム・ピペラシリン水和物",
+    "category": "A",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
   },
   {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "ベストロニダーゼ アルファ(遺伝子組換え)",
-    "category": "C"
+    "ingredient_name": "メロペネム水和物",
+    "category": "A",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
   },
   {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ベタイン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "ベタメタゾン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "239",
-    "drug_class_name": "その他の消化器官用薬",
-    "ingredient_name": "ベドリズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "ペニシラミン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ベネトクラクス",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ベバシズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "333",
-    "drug_class_name": "血液凝固阻止剤",
-    "ingredient_name": "ヘパリンカルシウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "333",
-    "drug_class_name": "血液凝固阻止剤",
-    "ingredient_name": "ヘパリンナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "ベプリジル塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "218",
-    "drug_class_name": "高脂血症用剤",
-    "ingredient_name": "ペマフィブラート",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ペムプロリズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "ペメトレキセドナトリウムヘミペンタ水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "ベラパミル塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "ペラミビル水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ペランパネル水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ペランパネル水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ペルツズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "611",
-    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤",
-    "ingredient_name": "ベンジルペニシリンカリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "611",
-    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤",
-    "ingredient_name": "ベンジルペニシリンベンザチン水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "ベンダムスチン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "ペンテトレオチド・塩化インジウム(111In)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "229",
-    "drug_class_name": "その他の呼吸器官用薬",
-    "ingredient_name": "ベンラリズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ホスフェニトインナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "232",
-    "drug_class_name": "消化性潰瘍用剤",
-    "ingredient_name": "ボノプラザンフマル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ポマリドミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ポラツズマブ ベドチン(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "617",
-    "drug_class_name": "主としてカビに作用する抗生物質製剤",
-    "ingredient_name": "ボリコナゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "617",
-    "drug_class_name": "主としてカビに作用する抗生物質製剤",
-    "ingredient_name": "ボリコナゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "ポリスチレンスルホン酸カルシウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "332",
-    "drug_class_name": "止血剤",
-    "ingredient_name": "ポリドカノール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "241",
-    "drug_class_name": "脳下垂体ホルモン剤",
-    "ingredient_name": "ホリトロピンアルファ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "ホリナートカルシウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ボルテゾミブ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "311",
-    "drug_class_name": "ビタミンA及びD剤",
-    "ingredient_name": "マキサカルシトール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "617",
-    "drug_class_name": "主としてカビに作用する抗生物質製剤",
-    "ingredient_name": "ミカファンギンナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ミグルスタット",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ミコフェノール酸 モフェチル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ミゾリビン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ミダゾラム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ミトキサントロン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "ミトタン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "615",
-    "drug_class_name": "主としてグラム陽性・陰性菌、リケッチア、クラミジアに作用する抗生物質製剤",
-    "ingredient_name": "ミノサイクリン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "615",
-    "drug_class_name": "主としてグラム陽性・陰性菌、リケッチア、クラミジアに作用する抗生物質製剤",
-    "ingredient_name": "ミノサイクリン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "259",
-    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬",
-    "ingredient_name": "ミラベグロン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "ミルタザピン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "ミルリノン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "313",
-    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)",
-    "ingredient_name": "メコバラミン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "821",
-    "drug_class_name": "合成麻薬",
-    "ingredient_name": "メサドン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "239",
-    "drug_class_name": "その他の消化器官用薬",
-    "ingredient_name": "メサラジン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "239",
-    "drug_class_name": "その他の消化器官用薬",
-    "ingredient_name": "メサラジン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "メスナ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "722",
-    "drug_class_name": "機能検査用試薬",
-    "ingredient_name": "メチラポン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "253",
-    "drug_class_name": "子宮収縮剤",
-    "ingredient_name": "メチルエルゴメトリンマレイン酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "メチルチオニニウム塩化物水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "214",
-    "drug_class_name": "血圧降下剤",
-    "ingredient_name": "メチルドパ水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "メチルフェニデート塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "245",
-    "drug_class_name": "副腎ホルモン剤",
-    "ingredient_name": "メチルプレドニゾロンコハク酸エステルナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "メチレンジホスホン酸テクネチウム(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "239",
-    "drug_class_name": "その他の消化器官用薬",
-    "ingredient_name": "メトクロプラミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "メトトレキサート",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "メトトレキサート",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "メトトレキサート",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "396",
-    "drug_class_name": "糖尿病用剤",
-    "ingredient_name": "メトホルミン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "247",
-    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤",
-    "ingredient_name": "メドロキシプロゲステロン酢酸エステル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "641",
-    "drug_class_name": "抗原虫剤",
-    "ingredient_name": "メトロニダゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "316",
-    "drug_class_name": "ビタミンK剤",
-    "ingredient_name": "メナテトレノン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "316",
-    "drug_class_name": "ビタミンK剤",
-    "ingredient_name": "メナテトレノン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "121",
-    "drug_class_name": "局所麻酔剤",
-    "ingredient_name": "メピバカイン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "229",
-    "drug_class_name": "その他の呼吸器官用薬",
-    "ingredient_name": "メポリズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "119",
-    "drug_class_name": "その他の中枢神経系用薬",
-    "ingredient_name": "メラトニン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "422",
-    "drug_class_name": "代謝拮抗剤",
-    "ingredient_name": "メルカプトプリン水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "メルファラン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "811",
-    "drug_class_name": "あへんアルカロイド系麻薬",
-    "ingredient_name": "モルヒネ塩酸塩水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "モンテプラーゼ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "449",
-    "drug_class_name": "その他のアレルギー用薬",
-    "ingredient_name": "モンテルカストナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "ユビデカレノン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "322",
-    "drug_class_name": "無機質製剤",
-    "ingredient_name": "ヨウ化カリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "ヨウ化ナトリウム(131I)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "ヨードアンフェタミン(123I)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ラクツロース",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ラコサミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ラコサミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "421",
-    "drug_class_name": "アルキル化剤",
-    "ingredient_name": "ラニムスチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ラムシルマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "119",
-    "drug_class_name": "その他の中枢神経系用薬",
-    "ingredient_name": "ラメルテオン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ラモトリギン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ラロキシフェン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "395",
-    "drug_class_name": "酵素製剤",
-    "ingredient_name": "ラロニダーゼ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "212",
-    "drug_class_name": "不整脈用剤",
-    "ingredient_name": "ランジオロール塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "ランレオチド酢酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "リスデキサンフェタミンメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
-    "ingredient_name": "リスペリドン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "リツキシマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "121",
-    "drug_class_name": "局所麻酔剤",
-    "ingredient_name": "リドカイン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "121",
-    "drug_class_name": "局所麻酔剤",
-    "ingredient_name": "リドカイン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "259",
-    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬",
-    "ingredient_name": "リトドリン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "333",
-    "drug_class_name": "血液凝固阻止剤",
-    "ingredient_name": "リバーロキサバン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "619",
-    "drug_class_name": "その他の抗生物質製剤(複合抗生物質製剤を含む。)",
-    "ingredient_name": "リファキシミン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "616",
-    "drug_class_name": "主として抗酸菌に作用する抗生物質製剤",
-    "ingredient_name": "リファンピシン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "313",
-    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)",
-    "ingredient_name": "リボフラビンリン酸エステルナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "313",
-    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)",
-    "ingredient_name": "リボフラビン酪酸エステル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "リュープロレリン酢酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "331",
-    "drug_class_name": "血液代用剤",
-    "ingredient_name": "リン酸水素ナトリウム水和物・リン酸二水素ナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "322",
-    "drug_class_name": "無機質製剤",
-    "ingredient_name": "リン酸二水素ナトリウム一水和物・無水リン酸水素二ナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "ルテチウムオキソドトレオチド(177Lu)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ルフィナミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "317",
-    "drug_class_name": "混合ビタミン剤(ビタミンA・D混合製剤を除く。)",
-    "ingredient_name": "レチノール・カルシフェロール配合剤",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "625",
-    "drug_class_name": "抗ウイルス剤",
-    "ingredient_name": "レテルモビル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "レトロゾール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "レナリドミド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "レナリドミド水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "レベチラセタム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "レベチラセタム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "レボカルニチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "レボカルニチン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "449",
-    "drug_class_name": "その他のアレルギー用薬",
-    "ingredient_name": "レボセチリジン塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "243",
-    "drug_class_name": "甲状腺、副甲状腺ホルモン剤",
-    "ingredient_name": "レボチロキシンナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "116",
-    "drug_class_name": "抗パーキンソン剤",
-    "ingredient_name": "レボドパ",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "248",
-    "drug_class_name": "混合ホルモン剤",
-    "ingredient_name": "レボノルゲストレル・エチニルエストラジオール",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "624",
-    "drug_class_name": "合成抗菌剤",
-    "ingredient_name": "レボフロキサシン水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "624",
-    "drug_class_name": "合成抗菌剤",
-    "ingredient_name": "レボフロキサシン水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "レボホリナートカルシウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "111",
-    "drug_class_name": "全身麻酔剤",
-    "ingredient_name": "レミマゾラムベシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "249",
-    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)",
-    "ingredient_name": "レルゴリクス",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "レンバチニブメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "119",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "レンボレキサント",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "327",
-    "drug_class_name": "乳幼児用剤",
-    "ingredient_name": "ロイシン・イソロイシン・バリン除去ミルク",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "114",
-    "drug_class_name": "解熱鎮痛消炎剤",
-    "ingredient_name": "ロキソプロフェンナトリウム水和物",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "ロフラゼプ酸エチル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "231",
-    "drug_class_name": "止しゃ剤、整腸剤",
-    "ingredient_name": "ロペラミド塩酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "218",
-    "drug_class_name": "高脂血症用剤",
-    "ingredient_name": "ロミタピドメシル酸塩",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ロミプロスチム(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "ロモソズマブ(遺伝子組換え)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "113",
-    "drug_class_name": "抗てんかん剤",
-    "ingredient_name": "ロラゼパム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "ロラゼパム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "114",
-    "drug_class_name": "解熱鎮痛消炎剤",
-    "ingredient_name": "ワクシニアウイルス接種家兎炎症皮膚抽出液",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "322",
-    "drug_class_name": "無機質製剤",
-    "ingredient_name": "亜セレン酸ナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "亜硝酸アミル",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "331",
-    "drug_class_name": "血液代用剤",
-    "ingredient_name": "維持液",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "322",
-    "drug_class_name": "無機質製剤",
-    "ingredient_name": "塩化カリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "322",
-    "drug_class_name": "無機質製剤",
-    "ingredient_name": "塩化カリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "塩化タリウム(201Tl)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "331",
-    "drug_class_name": "血液代用剤",
-    "ingredient_name": "塩化ナトリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "322",
-    "drug_class_name": "無機質製剤",
-    "ingredient_name": "塩化マンガン・硫酸亜鉛水和物配合剤",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "121",
-    "drug_class_name": "局所麻酔剤",
-    "ingredient_name": "塩酸レボブピバカイン",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "430",
-    "drug_class_name": "放射性医薬品",
-    "ingredient_name": "過テクネチウム酸ナトリウム(99mTc)",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "325",
-    "drug_class_name": "たん白アミノ酸製剤",
-    "ingredient_name": "肝不全用アミノ酸製剤",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "球形吸着炭",
-    "category": "C"
-  },
-  {
+    "ingredient_name": "インフルエンザHAワクチン",
+    "category": "A",
     "drug_class_code": "631",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "経口弱毒生ヒトロタウイルスワクチン",
-    "category": "C"
+    "drug_class_name": "ワクチン類"
   },
   {
-    "drug_class_code": "325",
-    "drug_class_name": "たん白アミノ酸製剤",
-    "ingredient_name": "経腸成分栄養剤",
-    "category": "C"
+    "ingredient_name": "コロナウイルス(SARS-CoV-2)RNAワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
   },
   {
-    "drug_class_code": "247",
-    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤",
-    "ingredient_name": "結合型エストロゲン",
-    "category": "C"
+    "ingredient_name": "乾燥BCGワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
   },
   {
-    "drug_class_code": "323",
-    "drug_class_name": "糖類剤",
-    "ingredient_name": "高カロリー輸液用基本液",
-    "category": "C"
+    "ingredient_name": "乾燥細胞培養日本脳炎ワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
   },
   {
-    "drug_class_code": "325",
-    "drug_class_name": "たん白アミノ酸製剤",
-    "ingredient_name": "高カロリー輸液用総合アミノ酸製剤",
-    "category": "C"
+    "ingredient_name": "乾燥弱毒生おたふくかぜワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
   },
   {
-    "drug_class_code": "429",
-    "drug_class_name": "その他の腫瘍用薬",
-    "ingredient_name": "三酸化ヒ素",
-    "category": "C"
+    "ingredient_name": "乾燥弱毒生水痘ワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
   },
   {
+    "ingredient_name": "乾燥組換え帯状疱疹ワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "組換え沈降9価ヒトパピローマウイルス様粒子ワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "組換え沈降B型肝炎ワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "沈降20価肺炎球菌結合型ワクチン",
+    "category": "A",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "乾燥弱毒生麻しん風しん混合ワクチン",
+    "category": "A",
+    "drug_class_code": "636",
+    "drug_class_name": "混合生物学的製剤"
+  },
+  {
+    "ingredient_name": "沈降ジフテリア破傷風混合トキソイド",
+    "category": "A",
+    "drug_class_code": "636",
+    "drug_class_name": "混合生物学的製剤"
+  },
+  {
+    "ingredient_name": "沈降精製百日せきジフテリア破傷風不活化ポリオヘモフィルスb型混合ワクチン",
+    "category": "A",
+    "drug_class_code": "636",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "ジアゼパム",
+    "category": "B",
     "drug_class_code": "112",
-    "drug_class_name": "催眠鎮静剤、抗不安剤",
-    "ingredient_name": "臭化カリウム",
-    "category": "C"
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
   },
   {
-    "drug_class_code": "634",
-    "drug_class_name": "血液製剤類",
-    "ingredient_name": "人血清アルブミン",
-    "category": "C"
+    "ingredient_name": "ロピバカイン塩酸塩水和物",
+    "category": "B",
+    "drug_class_code": "121",
+    "drug_class_name": "局所麻酔剤"
   },
   {
-    "drug_class_code": "341",
-    "drug_class_name": "人工腎臓透析用剤",
-    "ingredient_name": "人工透析液",
-    "category": "C"
+    "ingredient_name": "トルバプタン",
+    "category": "B",
+    "drug_class_code": "213",
+    "drug_class_name": "利尿剤"
   },
   {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "酢酸亜鉛水和物",
-    "category": "C"
+    "ingredient_name": "アルプロスタジル",
+    "category": "B",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
   },
   {
-    "drug_class_code": "331",
-    "drug_class_name": "血液代用剤",
-    "ingredient_name": "生理食塩液",
-    "category": "C"
+    "ingredient_name": "ポリカルボフィルカルシウム",
+    "category": "B",
+    "drug_class_code": "239",
+    "drug_class_name": "その他の消化器官用薬"
   },
   {
+    "ingredient_name": "フルドロコルチゾン酢酸エステル",
+    "category": "B",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "コルヒチン",
+    "category": "B",
+    "drug_class_code": "394",
+    "drug_class_name": "痛風治療剤"
+  },
+  {
+    "ingredient_name": "アスホターゼ アルファ(遺伝子組換え)",
+    "category": "B",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "エベロリムス",
+    "category": "B",
     "drug_class_code": "399",
-    "drug_class_name": "他に分類されない代謝性医薬品",
-    "ingredient_name": "精製ヒアルロン酸ナトリウム",
-    "category": "C"
+    "drug_class_name": "他に分類されない代謝性医薬品"
   },
   {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "炭酸ランタン水和物",
-    "category": "C"
+    "ingredient_name": "ヒドロキシクロロキン硫酸塩",
+    "category": "B",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
   },
   {
+    "ingredient_name": "ベリムマブ(遺伝子組換え)",
+    "category": "B",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "テモゾロミド",
+    "category": "B",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "ブスルファン",
+    "category": "B",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "テガフール・ギメラシル・オテラシルカリウム配合剤",
+    "category": "B",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "ヒドロキシカルバミド",
+    "category": "B",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "フルダラビンリン酸エステル",
+    "category": "B",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "カバジタキセル アセトン付加物",
+    "category": "B",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "エベロリムス",
+    "category": "B",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ダラツムマブ(遺伝子組換え)",
+    "category": "B",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "パゾパニブ塩酸塩",
+    "category": "B",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "塩化ラジウム(223Ra)",
+    "category": "B",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "バルガンシクロビル塩酸塩",
+    "category": "B",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "4価髄膜炎菌ワクチン",
+    "category": "B",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "黄熱ワクチン",
+    "category": "B",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "乾燥細胞培養痘そうワクチン",
+    "category": "B",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "乾燥組織培養不活化A型肝炎ワクチン",
+    "category": "B",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "精製Vi多糖体腸チフスワクチン",
+    "category": "B",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "不活化ポリオワクチン",
+    "category": "B",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "pH4処理酸性人免疫グロブリン",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "pH4処理酸性人免疫グロブリン(皮下注射)",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "エプタコグアルファ(活性型)(遺伝子組換え)",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "ヒト血漿由来乾燥血液凝固第XI因子",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "ポリエチレングリコール処理人免疫グロブリン",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "乾燥イオン交換樹脂処理人免疫グロブリン",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "乾燥スルホ化人免疫グロブリン",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "乾燥ポリエチレングリコール処理人免疫グロブリン",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "乾燥人フィブリノゲン",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "人免疫グロブリン",
+    "category": "B",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "乾燥BCG膀胱内用(日本株)",
+    "category": "B",
+    "drug_class_code": "639",
+    "drug_class_name": "その他の生物学的製剤"
+  },
+  {
+    "ingredient_name": "抗ヒト胸腺細胞ウサギ免疫グロブリン",
+    "category": "B",
+    "drug_class_code": "639",
+    "drug_class_name": "その他の生物学的製剤"
+  },
+  {
+    "ingredient_name": "ケタミン塩酸塩",
+    "category": "C",
+    "drug_class_code": "111",
+    "drug_class_name": "全身麻酔剤"
+  },
+  {
+    "ingredient_name": "チアミラールナトリウム",
+    "category": "C",
+    "drug_class_code": "111",
+    "drug_class_name": "全身麻酔剤"
+  },
+  {
+    "ingredient_name": "レミマゾラムベシル酸塩",
+    "category": "C",
+    "drug_class_code": "111",
+    "drug_class_name": "全身麻酔剤"
+  },
+  {
+    "ingredient_name": "エスゾピクロン",
+    "category": "C",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
+  },
+  {
+    "ingredient_name": "ジアゼパム",
+    "category": "C",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
+  },
+  {
+    "ingredient_name": "デクスメデトミジン塩酸塩",
+    "category": "C",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
+  },
+  {
+    "ingredient_name": "ニトラゼパム",
+    "category": "C",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
+  },
+  {
+    "ingredient_name": "フェノバルビタール",
+    "category": "C",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
+  },
+  {
+    "ingredient_name": "ロフラゼプ酸エチル",
+    "category": "C",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
+  },
+  {
+    "ingredient_name": "ロラゼパム",
+    "category": "C",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
+  },
+  {
+    "ingredient_name": "臭化カリウム",
+    "category": "C",
+    "drug_class_code": "112",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
+  },
+  {
+    "ingredient_name": "アセチルフェネトライド",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "エトスクシミド",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ガバペンチン",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "カルバマゼピン",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "クロナゼパム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "クロバザム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "スチリペントール",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "スルチアム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ゾニサミド",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "トピラマート",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "バルプロ酸ナトリウム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ビガバトリン",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "フェニトイン",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "フェニトインナトリウム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "フェノバルビタールナトリウム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "フェンフルラミン塩酸塩",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "プリミドン",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ペランパネル水和物",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ペランパネル水和物",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ホスフェニトインナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ミダゾラム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ラコサミド",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ラコサミド",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ラモトリギン",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ルフィナミド",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "レベチラセタム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "レベチラセタム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "ロラゼパム",
+    "category": "C",
+    "drug_class_code": "113",
+    "drug_class_name": "抗てんかん剤"
+  },
+  {
+    "ingredient_name": "アスピリン",
+    "category": "C",
+    "drug_class_code": "114",
+    "drug_class_name": "解熱鎮痛消炎剤"
+  },
+  {
+    "ingredient_name": "アセトアミノフェン",
+    "category": "C",
+    "drug_class_code": "114",
+    "drug_class_name": "解熱鎮痛消炎剤"
+  },
+  {
+    "ingredient_name": "アセトアミノフェン",
+    "category": "C",
+    "drug_class_code": "114",
+    "drug_class_name": "解熱鎮痛消炎剤"
+  },
+  {
+    "ingredient_name": "サリチル酸ナトリウム・ジブカイン配合剤",
+    "category": "C",
+    "drug_class_code": "114",
+    "drug_class_name": "解熱鎮痛消炎剤"
+  },
+  {
+    "ingredient_name": "ロキソプロフェンナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "114",
+    "drug_class_name": "解熱鎮痛消炎剤"
+  },
+  {
+    "ingredient_name": "ワクシニアウイルス接種家兎炎症皮膚抽出液",
+    "category": "C",
+    "drug_class_code": "114",
+    "drug_class_name": "解熱鎮痛消炎剤"
+  },
+  {
+    "ingredient_name": "カベルゴリン",
+    "category": "C",
+    "drug_class_code": "116",
+    "drug_class_name": "抗パーキンソン剤"
+  },
+  {
+    "ingredient_name": "レボドパ",
+    "category": "C",
+    "drug_class_code": "116",
+    "drug_class_name": "抗パーキンソン剤"
+  },
+  {
+    "ingredient_name": "アトモキセチン塩酸塩",
+    "category": "C",
     "drug_class_code": "117",
-    "drug_class_name": "精神神経用剤",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "アミトリプチリン塩酸塩",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "アリピプラゾール",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "エスシタロプラムシュウ酸塩",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "オランザピン",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "グアンファシン塩酸塩",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "クエチアピンフマル酸塩",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "クロザピン",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "デュロキセチン塩酸塩",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "ハロペリドール",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "フルボキサミンマレイン酸塩",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "ミルタザピン",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "メチルフェニデート塩酸塩",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "リスデキサンフェタミンメシル酸塩",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
+    "ingredient_name": "リスペリドン",
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
+  },
+  {
     "ingredient_name": "炭酸リチウム",
-    "category": "C"
+    "category": "C",
+    "drug_class_code": "117",
+    "drug_class_name": "精神神経用剤"
   },
   {
-    "drug_class_code": "234",
-    "drug_class_name": "制酸剤",
-    "ingredient_name": "炭酸水素ナトリウム",
-    "category": "C"
+    "ingredient_name": "エダラポン",
+    "category": "C",
+    "drug_class_code": "119",
+    "drug_class_name": "その他の中枢神経系用薬"
   },
   {
-    "drug_class_code": "392",
-    "drug_class_name": "解毒剤",
-    "ingredient_name": "炭酸水素ナトリウム",
-    "category": "C"
+    "ingredient_name": "メラトニン",
+    "category": "C",
+    "drug_class_code": "119",
+    "drug_class_name": "その他の中枢神経系用薬"
   },
   {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "沈降炭酸カルシウム",
-    "category": "C"
+    "ingredient_name": "ラメルテオン",
+    "category": "C",
+    "drug_class_code": "119",
+    "drug_class_name": "その他の中枢神経系用薬"
   },
   {
-    "drug_class_code": "632",
-    "drug_class_name": "ワクチン類",
-    "ingredient_name": "沈降破傷風トキソイド",
-    "category": "C"
+    "ingredient_name": "レンボレキサント",
+    "category": "C",
+    "drug_class_code": "119",
+    "drug_class_name": "催眠鎮静剤、抗不安剤"
   },
   {
-    "drug_class_code": "520",
-    "drug_class_name": "漢方製剤",
-    "ingredient_name": "釣藤散エキス",
-    "category": "C"
+    "ingredient_name": "ブピバカイン塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "121",
+    "drug_class_name": "局所麻酔剤"
   },
   {
-    "drug_class_code": "321",
-    "drug_class_name": "カルシウム剤",
-    "ingredient_name": "乳酸カルシウム水和物",
-    "category": "C"
+    "ingredient_name": "プロカイン塩酸塩",
+    "category": "C",
+    "drug_class_code": "121",
+    "drug_class_name": "局所麻酔剤"
   },
   {
-    "drug_class_code": "331",
-    "drug_class_name": "血液代用剤",
-    "ingredient_name": "乳酸リンゲル",
-    "category": "C"
+    "ingredient_name": "メピバカイン塩酸塩",
+    "category": "C",
+    "drug_class_code": "121",
+    "drug_class_name": "局所麻酔剤"
   },
   {
-    "drug_class_code": "219",
-    "drug_class_name": "その他の循環器官用薬",
-    "ingredient_name": "濃グリセリン・果糖",
-    "category": "C"
+    "ingredient_name": "リドカイン",
+    "category": "C",
+    "drug_class_code": "121",
+    "drug_class_name": "局所麻酔剤"
   },
   {
-    "drug_class_code": "712",
-    "drug_class_name": "軟膏基剤",
-    "ingredient_name": "白色ワセリン",
-    "category": "C"
+    "ingredient_name": "リドカイン塩酸塩",
+    "category": "C",
+    "drug_class_code": "121",
+    "drug_class_name": "局所麻酔剤"
   },
   {
-    "drug_class_code": "342",
-    "drug_class_name": "腹膜透析用剤",
-    "ingredient_name": "腹膜透析液",
-    "category": "C"
+    "ingredient_name": "塩酸レボブピバカイン",
+    "category": "C",
+    "drug_class_code": "121",
+    "drug_class_name": "局所麻酔剤"
   },
   {
-    "drug_class_code": "211",
-    "drug_class_name": "強心剤",
-    "ingredient_name": "無水カフェイン",
-    "category": "C"
+    "ingredient_name": "スキサメトニウム塩化物水和物",
+    "category": "C",
+    "drug_class_code": "122",
+    "drug_class_name": "骨格筋弛緩剤"
   },
   {
-    "drug_class_code": "231",
-    "drug_class_name": "止しゃ剤、整腸剤",
-    "ingredient_name": "酪酸菌",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "255",
-    "drug_class_name": "痔疾用剤",
-    "ingredient_name": "硫酸アルミニウムカリウム水和物・タンニン酸",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "217",
-    "drug_class_name": "血管拡張剤",
-    "ingredient_name": "硫酸イソソルビド",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "721",
-    "drug_class_name": "X線造影剤",
-    "ingredient_name": "硫酸バリウム",
-    "category": "C"
-  },
-  {
-    "drug_class_code": "721",
-    "drug_class_name": "X線造影剤",
-    "ingredient_name": "硫酸バリウム",
-    "category": "C"
-  },
-  {
+    "ingredient_name": "アトロピン硫酸塩水和物",
+    "category": "C",
     "drug_class_code": "124",
-    "drug_class_name": "鎮けい剤",
-    "ingredient_name": "硫酸マグネシウム水和物・ブドウ糖",
-    "category": "C"
+    "drug_class_name": "鎮けい剤"
   },
   {
-    "drug_class_code": "259",
-    "drug_class_name": "鎮けい剤",
     "ingredient_name": "硫酸マグネシウム水和物・ブドウ糖",
-    "category": "C"
+    "category": "C",
+    "drug_class_code": "124",
+    "drug_class_name": "鎮けい剤"
+  },
+  {
+    "ingredient_name": "アフリベルセプト(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "131",
+    "drug_class_name": "眼科用剤"
+  },
+  {
+    "ingredient_name": "l-イソプレナリン塩酸塩",
+    "category": "C",
+    "drug_class_code": "211",
+    "drug_class_name": "強心剤"
+  },
+  {
+    "ingredient_name": "オルプリノン塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "211",
+    "drug_class_name": "強心剤"
+  },
+  {
+    "ingredient_name": "ジゴキシン",
+    "category": "C",
+    "drug_class_code": "211",
+    "drug_class_name": "強心剤"
+  },
+  {
+    "ingredient_name": "ドブタミン塩酸塩",
+    "category": "C",
+    "drug_class_code": "211",
+    "drug_class_name": "強心剤"
+  },
+  {
+    "ingredient_name": "ピモベンダン",
+    "category": "C",
+    "drug_class_code": "211",
+    "drug_class_name": "強心剤"
+  },
+  {
+    "ingredient_name": "ミルリノン",
+    "category": "C",
+    "drug_class_code": "211",
+    "drug_class_name": "強心剤"
+  },
+  {
+    "ingredient_name": "ユビデカレノン",
+    "category": "C",
+    "drug_class_code": "211",
+    "drug_class_name": "強心剤"
+  },
+  {
+    "ingredient_name": "無水カフェイン",
+    "category": "C",
+    "drug_class_code": "211",
+    "drug_class_name": "強心剤"
+  },
+  {
+    "ingredient_name": "アミオダロン塩酸塩",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "アミオダロン塩酸塩",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "カルテオロール塩酸塩",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "シベンゾリンコハク酸塩",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "ソタロール塩酸塩",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "ピルシカイニド塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "プロプラノロール塩酸塩",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "ベプリジル塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "ランジオロール塩酸塩",
+    "category": "C",
+    "drug_class_code": "212",
+    "drug_class_name": "不整脈用剤"
+  },
+  {
+    "ingredient_name": "アセタゾラミド",
+    "category": "C",
+    "drug_class_code": "213",
+    "drug_class_name": "利尿剤"
+  },
+  {
+    "ingredient_name": "イソソルビド",
+    "category": "C",
+    "drug_class_code": "213",
+    "drug_class_name": "利尿剤"
+  },
+  {
+    "ingredient_name": "スピロノラクトン",
+    "category": "C",
+    "drug_class_code": "213",
+    "drug_class_name": "利尿剤"
+  },
+  {
+    "ingredient_name": "トリクロルメチアジド",
+    "category": "C",
+    "drug_class_code": "213",
+    "drug_class_name": "利尿剤"
+  },
+  {
+    "ingredient_name": "フロセミド",
+    "category": "C",
+    "drug_class_code": "213",
+    "drug_class_name": "利尿剤"
+  },
+  {
+    "ingredient_name": "フロセミド",
+    "category": "C",
+    "drug_class_code": "213",
+    "drug_class_name": "利尿剤"
+  },
+  {
+    "ingredient_name": "アジルサルタン",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "血圧降下剤"
+  },
+  {
+    "ingredient_name": "ウラピジル",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬"
+  },
+  {
+    "ingredient_name": "エプレレノン",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "血圧降下剤"
+  },
+  {
+    "ingredient_name": "オルメサルタンメドキソミル",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "血圧降下剤"
+  },
+  {
+    "ingredient_name": "カプトプリル",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "血圧降下剤"
+  },
+  {
+    "ingredient_name": "カルベジロール",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "血圧降下剤"
+  },
+  {
+    "ingredient_name": "ドキサゾシンメシル酸塩",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "血圧降下剤"
+  },
+  {
+    "ingredient_name": "ニカルジピン塩酸塩",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "血圧降下剤"
+  },
+  {
+    "ingredient_name": "メチルドパ水和物",
+    "category": "C",
+    "drug_class_code": "214",
+    "drug_class_name": "血圧降下剤"
+  },
+  {
+    "ingredient_name": "スマトリプタンコハク酸塩",
+    "category": "C",
+    "drug_class_code": "216",
+    "drug_class_name": "血管収縮剤"
+  },
+  {
+    "ingredient_name": "アムロジピンベシル酸塩",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "カルペリチド(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "ジルチアゼム塩酸塩",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "ニコランジル",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "ニトログリセリン",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "ニフェジピン",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "ベラパミル塩酸塩",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "亜硝酸アミル",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "硫酸イソソルビド",
+    "category": "C",
+    "drug_class_code": "217",
+    "drug_class_name": "血管拡張剤"
+  },
+  {
+    "ingredient_name": "インクリシランナトリウム",
+    "category": "C",
+    "drug_class_code": "218",
+    "drug_class_name": "高脂血症用剤"
+  },
+  {
+    "ingredient_name": "エゼチミブ",
+    "category": "C",
+    "drug_class_code": "218",
+    "drug_class_name": "高脂血症用剤"
+  },
+  {
+    "ingredient_name": "エボロクマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "218",
+    "drug_class_name": "高脂血症用剤"
+  },
+  {
+    "ingredient_name": "コレスチミド",
+    "category": "C",
+    "drug_class_code": "218",
+    "drug_class_name": "高脂血症用剤"
+  },
+  {
+    "ingredient_name": "ピタバスタチンカルシウム",
+    "category": "C",
+    "drug_class_code": "218",
+    "drug_class_name": "高脂血症用剤"
+  },
+  {
+    "ingredient_name": "ペマフィブラート",
+    "category": "C",
+    "drug_class_code": "218",
+    "drug_class_name": "高脂血症用剤"
+  },
+  {
+    "ingredient_name": "ロミタピドメシル酸塩",
+    "category": "C",
+    "drug_class_code": "218",
+    "drug_class_name": "高脂血症用剤"
+  },
+  {
+    "ingredient_name": "D-マンニトール",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "アルプロスタジル アルファデクス",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "アンブリセンタン",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "エポプロステノールナトリウム",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "クエン酸第二鉄水和物",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "サクビトリルバルサルタンナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "ジルコニウムシクロケイ酸ナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "シルデナフィルクエン酸塩",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "スクロオキシ水酸化鉄",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "タダラフィル",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "ファスジル塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "ポリスチレンスルホン酸カルシウム",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "炭酸ランタン水和物",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "沈降炭酸カルシウム",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "濃グリセリン・果糖",
+    "category": "C",
+    "drug_class_code": "219",
+    "drug_class_name": "その他の循環器官用薬"
+  },
+  {
+    "ingredient_name": "ナロキソン塩酸塩",
+    "category": "C",
+    "drug_class_code": "221",
+    "drug_class_name": "呼吸促進剤"
+  },
+  {
+    "ingredient_name": "デキストロメトルファン臭化水素酸塩水和物",
+    "category": "C",
+    "drug_class_code": "222",
+    "drug_class_name": "鎮咳剤"
+  },
+  {
+    "ingredient_name": "L-カルボシステイン",
+    "category": "C",
+    "drug_class_code": "223",
+    "drug_class_name": "去たん剤"
+  },
+  {
+    "ingredient_name": "アンブロキソール塩酸塩",
+    "category": "C",
+    "drug_class_code": "223",
+    "drug_class_name": "去たん剤"
+  },
+  {
+    "ingredient_name": "チペピジンヒベンズ酸塩",
+    "category": "C",
+    "drug_class_code": "224",
+    "drug_class_name": "鎮咳去たん剤"
+  },
+  {
+    "ingredient_name": "テオフィリン",
+    "category": "C",
+    "drug_class_code": "225",
+    "drug_class_name": "気管支拡張剤"
+  },
+  {
+    "ingredient_name": "オマリズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "229",
+    "drug_class_name": "その他の呼吸器官用薬"
+  },
+  {
+    "ingredient_name": "ベンラリズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "229",
+    "drug_class_name": "その他の呼吸器官用薬"
+  },
+  {
+    "ingredient_name": "メポリズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "229",
+    "drug_class_name": "その他の呼吸器官用薬"
+  },
+  {
+    "ingredient_name": "ロペラミド塩酸塩",
+    "category": "C",
+    "drug_class_code": "231",
+    "drug_class_name": "止しゃ剤、整腸剤"
+  },
+  {
+    "ingredient_name": "酪酸菌",
+    "category": "C",
+    "drug_class_code": "231",
+    "drug_class_name": "止しゃ剤、整腸剤"
+  },
+  {
+    "ingredient_name": "オメプラゾールナトリウム",
+    "category": "C",
+    "drug_class_code": "232",
+    "drug_class_name": "消化性潰瘍用剤"
+  },
+  {
+    "ingredient_name": "ボノプラザンフマル酸塩",
+    "category": "C",
+    "drug_class_code": "232",
+    "drug_class_name": "消化性潰瘍用剤"
+  },
+  {
+    "ingredient_name": "パンクレリパーゼ",
+    "category": "C",
+    "drug_class_code": "233",
+    "drug_class_name": "健胃消化剤"
+  },
+  {
+    "ingredient_name": "炭酸水素ナトリウム",
+    "category": "C",
+    "drug_class_code": "234",
+    "drug_class_name": "制酸剤"
+  },
+  {
+    "ingredient_name": "ウルソデオキシコール酸",
+    "category": "C",
+    "drug_class_code": "236",
+    "drug_class_name": "利胆剤"
+  },
+  {
+    "ingredient_name": "デヒドロコール酸",
+    "category": "C",
+    "drug_class_code": "236",
+    "drug_class_name": "利胆剤"
+  },
+  {
+    "ingredient_name": "アプレピタント",
+    "category": "C",
+    "drug_class_code": "239",
+    "drug_class_name": "その他の消化器官用薬"
+  },
+  {
+    "ingredient_name": "インフリキシマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "239",
+    "drug_class_name": "その他の消化器官用薬"
+  },
+  {
+    "ingredient_name": "オンダンセトロン塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "239",
+    "drug_class_name": "その他の消化器官用薬"
+  },
+  {
+    "ingredient_name": "ベドリズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "239",
+    "drug_class_name": "その他の消化器官用薬"
+  },
+  {
+    "ingredient_name": "メサラジン",
+    "category": "C",
+    "drug_class_code": "239",
+    "drug_class_name": "その他の消化器官用薬"
+  },
+  {
+    "ingredient_name": "メサラジン",
+    "category": "C",
+    "drug_class_code": "239",
+    "drug_class_name": "その他の消化器官用薬"
+  },
+  {
+    "ingredient_name": "メトクロプラミド",
+    "category": "C",
+    "drug_class_code": "239",
+    "drug_class_name": "その他の消化器官用薬"
+  },
+  {
+    "ingredient_name": "オキシトシン",
+    "category": "C",
+    "drug_class_code": "241",
+    "drug_class_name": "脳下垂体ホルモン剤"
+  },
+  {
+    "ingredient_name": "デスモプレシン酢酸塩水和物",
+    "category": "C",
+    "drug_class_code": "241",
+    "drug_class_name": "脳下垂体ホルモン剤"
+  },
+  {
+    "ingredient_name": "テトラコサクチド酢酸塩",
+    "category": "C",
+    "drug_class_code": "241",
+    "drug_class_name": "脳下垂体ホルモン剤"
+  },
+  {
+    "ingredient_name": "バソプレシン",
+    "category": "C",
+    "drug_class_code": "241",
+    "drug_class_name": "脳下垂体ホルモン剤"
+  },
+  {
+    "ingredient_name": "ヒト絨毛性性腺刺激ホルモン",
+    "category": "C",
+    "drug_class_code": "241",
+    "drug_class_name": "脳下垂体ホルモン剤"
+  },
+  {
+    "ingredient_name": "ホリトロピンアルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "241",
+    "drug_class_name": "脳下垂体ホルモン剤"
+  },
+  {
+    "ingredient_name": "アバロパラチド酢酸塩",
+    "category": "C",
+    "drug_class_code": "243",
+    "drug_class_name": "甲状腺、副甲状腺ホルモン剤"
+  },
+  {
+    "ingredient_name": "チアマゾール",
+    "category": "C",
+    "drug_class_code": "243",
+    "drug_class_name": "甲状腺、副甲状腺ホルモン剤"
+  },
+  {
+    "ingredient_name": "テリパラチド(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "243",
+    "drug_class_name": "甲状腺、副甲状腺ホルモン剤"
+  },
+  {
+    "ingredient_name": "テリパラチド酢酸塩",
+    "category": "C",
+    "drug_class_code": "243",
+    "drug_class_name": "甲状腺、副甲状腺ホルモン剤"
+  },
+  {
+    "ingredient_name": "プロピルチオウラシル",
+    "category": "C",
+    "drug_class_code": "243",
+    "drug_class_name": "甲状腺、副甲状腺ホルモン剤"
+  },
+  {
+    "ingredient_name": "レボチロキシンナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "243",
+    "drug_class_name": "甲状腺、副甲状腺ホルモン剤"
+  },
+  {
+    "ingredient_name": "デキサメタゾン",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "デキサメタゾンパルミチン酸エステル",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "デキサメタゾンリン酸エステルナトリウム",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "ヒドロコルチゾン",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "ヒドロコルチゾンコハク酸エステルナトリウム",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "プレドニゾロン",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "プレドニゾロンコハク酸エステルナトリウム",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "ベタメタゾン",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "メチルプレドニゾロンコハク酸エステルナトリウム",
+    "category": "C",
+    "drug_class_code": "245",
+    "drug_class_name": "副腎ホルモン剤"
+  },
+  {
+    "ingredient_name": "テストステロンエナント酸エステル",
+    "category": "C",
+    "drug_class_code": "246",
+    "drug_class_name": "男性ホルモン剤"
+  },
+  {
+    "ingredient_name": "エストラジオール",
+    "category": "C",
+    "drug_class_code": "247",
+    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤"
+  },
+  {
+    "ingredient_name": "クロルマジノン酢酸エステル",
+    "category": "C",
+    "drug_class_code": "247",
+    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤"
+  },
+  {
+    "ingredient_name": "ジドロゲステロン",
+    "category": "C",
+    "drug_class_code": "247",
+    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤"
+  },
+  {
+    "ingredient_name": "プロゲステロン",
+    "category": "C",
+    "drug_class_code": "247",
+    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤"
+  },
+  {
+    "ingredient_name": "プロゲステロン",
+    "category": "C",
+    "drug_class_code": "247",
+    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤"
+  },
+  {
+    "ingredient_name": "メドロキシプロゲステロン酢酸エステル",
+    "category": "C",
+    "drug_class_code": "247",
+    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤"
+  },
+  {
+    "ingredient_name": "結合型エストロゲン",
+    "category": "C",
+    "drug_class_code": "247",
+    "drug_class_name": "卵胞ホルモン及び黄体ホルモン剤"
+  },
+  {
+    "ingredient_name": "ドロスピレノン・エチニルエストラジオールベータデクス",
+    "category": "C",
+    "drug_class_code": "248",
+    "drug_class_name": "混合ホルモン剤"
+  },
+  {
+    "ingredient_name": "ノルエチステロン・エチニルエストラジオール",
+    "category": "C",
+    "drug_class_code": "248",
+    "drug_class_name": "混合ホルモン剤"
+  },
+  {
+    "ingredient_name": "ノルゲストレル・エチニルエストラジオール",
+    "category": "C",
+    "drug_class_code": "248",
+    "drug_class_name": "混合ホルモン剤"
+  },
+  {
+    "ingredient_name": "レボノルゲストレル・エチニルエストラジオール",
+    "category": "C",
+    "drug_class_code": "248",
+    "drug_class_name": "混合ホルモン剤"
+  },
+  {
+    "ingredient_name": "インスリン ヒト (遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "インスリンアスパルト (遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "インスリングラルギン(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "インスリンデグルデク(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "インスリンデテミル (遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "インスリンリスプロ (遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "クロミフェンクエン酸塩",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "ゴセレリン酢酸塩",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "ジエノゲスト",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "ジノプロスト",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "セマグルチド(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "セマグルチド(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "チルゼパチド",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "デガレリクス酢酸塩",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "デュラグルチド(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "ミトタン",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "ランレオチド酢酸塩",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "リュープロレリン酢酸塩",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "レルゴリクス",
+    "category": "C",
+    "drug_class_code": "249",
+    "drug_class_name": "その他のホルモン剤(抗ホルモン剤を含む。)"
+  },
+  {
+    "ingredient_name": "メチルエルゴメトリンマレイン酸塩",
+    "category": "C",
+    "drug_class_code": "253",
+    "drug_class_name": "子宮収縮剤"
+  },
+  {
+    "ingredient_name": "硫酸アルミニウムカリウム水和物・タンニン酸",
+    "category": "C",
+    "drug_class_code": "255",
+    "drug_class_name": "痔疾用剤"
+  },
+  {
+    "ingredient_name": "コハク酸ソリフェナシン",
+    "category": "C",
+    "drug_class_code": "259",
+    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬"
+  },
+  {
+    "ingredient_name": "タムスロシン塩酸塩",
+    "category": "C",
+    "drug_class_code": "259",
+    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬"
+  },
+  {
+    "ingredient_name": "ミラベグロン",
+    "category": "C",
+    "drug_class_code": "259",
+    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬"
+  },
+  {
+    "ingredient_name": "リトドリン塩酸塩",
+    "category": "C",
+    "drug_class_code": "259",
+    "drug_class_name": "その他の泌尿生殖器官及び肛門用薬"
+  },
+  {
+    "ingredient_name": "硫酸マグネシウム水和物・ブドウ糖",
+    "category": "C",
+    "drug_class_code": "259",
+    "drug_class_name": "鎮けい剤"
+  },
+  {
+    "ingredient_name": "ジアフェニルスルホン",
+    "category": "C",
+    "drug_class_code": "269",
+    "drug_class_name": "その他の外皮用薬"
+  },
+  {
+    "ingredient_name": "プロプラノロール塩酸塩",
+    "category": "C",
+    "drug_class_code": "290",
+    "drug_class_name": "その他の個々の器官用医薬品"
+  },
+  {
+    "ingredient_name": "アルファカルシドール",
+    "category": "C",
+    "drug_class_code": "311",
+    "drug_class_name": "ビタミンA及びD剤"
+  },
+  {
+    "ingredient_name": "カルシトリオール",
+    "category": "C",
+    "drug_class_code": "311",
+    "drug_class_name": "ビタミンA及びD剤"
+  },
+  {
+    "ingredient_name": "カルシトリオール",
+    "category": "C",
+    "drug_class_code": "311",
+    "drug_class_name": "ビタミンA及びD剤"
+  },
+  {
+    "ingredient_name": "マキサカルシトール",
+    "category": "C",
+    "drug_class_code": "311",
+    "drug_class_name": "ビタミンA及びD剤"
+  },
+  {
+    "ingredient_name": "チアミン塩化物塩酸塩",
+    "category": "C",
+    "drug_class_code": "312",
+    "drug_class_name": "ビタミンB1剤"
+  },
+  {
+    "ingredient_name": "コバマミド",
+    "category": "C",
+    "drug_class_code": "313",
+    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)"
+  },
+  {
+    "ingredient_name": "ヒドロキソコバラミン酢酸塩",
+    "category": "C",
+    "drug_class_code": "313",
+    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)"
+  },
+  {
+    "ingredient_name": "メコバラミン",
+    "category": "C",
+    "drug_class_code": "313",
+    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)"
+  },
+  {
+    "ingredient_name": "リボフラビンリン酸エステルナトリウム",
+    "category": "C",
+    "drug_class_code": "313",
+    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)"
+  },
+  {
+    "ingredient_name": "リボフラビン酪酸エステル",
+    "category": "C",
+    "drug_class_code": "313",
+    "drug_class_name": "ビタミンB剤(ビタミンB1剤を除く)"
+  },
+  {
+    "ingredient_name": "アスコルビン酸",
+    "category": "C",
+    "drug_class_code": "314",
+    "drug_class_name": "ビタミンC剤"
+  },
+  {
+    "ingredient_name": "アスコルビン酸",
+    "category": "C",
+    "drug_class_code": "314",
+    "drug_class_name": "ビタミンC剤"
+  },
+  {
+    "ingredient_name": "トコフェロール酢酸エステル",
+    "category": "C",
+    "drug_class_code": "315",
+    "drug_class_name": "ビタミンE剤"
+  },
+  {
+    "ingredient_name": "メナテトレノン",
+    "category": "C",
+    "drug_class_code": "316",
+    "drug_class_name": "ビタミンK剤"
+  },
+  {
+    "ingredient_name": "メナテトレノン",
+    "category": "C",
+    "drug_class_code": "316",
+    "drug_class_name": "ビタミンK剤"
+  },
+  {
+    "ingredient_name": "レチノール・カルシフェロール配合剤",
+    "category": "C",
+    "drug_class_code": "317",
+    "drug_class_name": "混合ビタミン剤(ビタミンA・D混合製剤を除く。)"
+  },
+  {
+    "ingredient_name": "ビオチン",
+    "category": "C",
+    "drug_class_code": "319",
+    "drug_class_name": "その他のビタミン剤"
+  },
+  {
+    "ingredient_name": "ビオチン",
+    "category": "C",
+    "drug_class_code": "319",
+    "drug_class_name": "その他のビタミン剤"
+  },
+  {
+    "ingredient_name": "グルコン酸カルシウム水和物",
+    "category": "C",
+    "drug_class_code": "321",
+    "drug_class_name": "カルシウム剤"
+  },
+  {
+    "ingredient_name": "乳酸カルシウム水和物",
+    "category": "C",
+    "drug_class_code": "321",
+    "drug_class_name": "カルシウム剤"
+  },
+  {
+    "ingredient_name": "ヨウ化カリウム",
+    "category": "C",
+    "drug_class_code": "322",
+    "drug_class_name": "無機質製剤"
+  },
+  {
+    "ingredient_name": "リン酸二水素ナトリウム一水和物・無水リン酸水素二ナトリウム",
+    "category": "C",
+    "drug_class_code": "322",
+    "drug_class_name": "無機質製剤"
+  },
+  {
+    "ingredient_name": "亜セレン酸ナトリウム",
+    "category": "C",
+    "drug_class_code": "322",
+    "drug_class_name": "無機質製剤"
+  },
+  {
+    "ingredient_name": "塩化カリウム",
+    "category": "C",
+    "drug_class_code": "322",
+    "drug_class_name": "無機質製剤"
+  },
+  {
+    "ingredient_name": "塩化カリウム",
+    "category": "C",
+    "drug_class_code": "322",
+    "drug_class_name": "無機質製剤"
+  },
+  {
+    "ingredient_name": "塩化マンガン・硫酸亜鉛水和物配合剤",
+    "category": "C",
+    "drug_class_code": "322",
+    "drug_class_name": "無機質製剤"
+  },
+  {
+    "ingredient_name": "ブドウ糖",
+    "category": "C",
+    "drug_class_code": "323",
+    "drug_class_name": "糖類剤"
+  },
+  {
+    "ingredient_name": "高カロリー輸液用基本液",
+    "category": "C",
+    "drug_class_code": "323",
+    "drug_class_name": "糖類剤"
+  },
+  {
+    "ingredient_name": "アミノ酸・糖・電解質・ビタミン",
+    "category": "C",
+    "drug_class_code": "325",
+    "drug_class_name": "たん白アミノ酸製剤"
+  },
+  {
+    "ingredient_name": "イソロイシン・ロイシン・バリン",
+    "category": "C",
+    "drug_class_code": "325",
+    "drug_class_name": "たん白アミノ酸製剤"
+  },
+  {
+    "ingredient_name": "肝不全用アミノ酸製剤",
+    "category": "C",
+    "drug_class_code": "325",
+    "drug_class_name": "たん白アミノ酸製剤"
+  },
+  {
+    "ingredient_name": "経腸成分栄養剤",
+    "category": "C",
+    "drug_class_code": "325",
+    "drug_class_name": "たん白アミノ酸製剤"
+  },
+  {
+    "ingredient_name": "高カロリー輸液用総合アミノ酸製剤",
+    "category": "C",
+    "drug_class_code": "325",
+    "drug_class_name": "たん白アミノ酸製剤"
+  },
+  {
+    "ingredient_name": "フェニルアラニン除去ミルク",
+    "category": "C",
+    "drug_class_code": "327",
+    "drug_class_name": "乳幼児用剤"
+  },
+  {
+    "ingredient_name": "ロイシン・イソロイシン・バリン除去ミルク",
+    "category": "C",
+    "drug_class_code": "327",
+    "drug_class_name": "乳幼児用剤"
+  },
+  {
+    "ingredient_name": "ダイズ油",
+    "category": "C",
+    "drug_class_code": "329",
+    "drug_class_name": "その他の滋養強壮薬"
+  },
+  {
+    "ingredient_name": "リン酸水素ナトリウム水和物・リン酸二水素ナトリウム",
+    "category": "C",
+    "drug_class_code": "331",
+    "drug_class_name": "血液代用剤"
+  },
+  {
+    "ingredient_name": "維持液",
+    "category": "C",
+    "drug_class_code": "331",
+    "drug_class_name": "血液代用剤"
+  },
+  {
+    "ingredient_name": "塩化ナトリウム",
+    "category": "C",
+    "drug_class_code": "331",
+    "drug_class_name": "血液代用剤"
+  },
+  {
+    "ingredient_name": "生理食塩液",
+    "category": "C",
+    "drug_class_code": "331",
+    "drug_class_name": "血液代用剤"
+  },
+  {
+    "ingredient_name": "乳酸リンゲル",
+    "category": "C",
+    "drug_class_code": "331",
+    "drug_class_name": "血液代用剤"
+  },
+  {
+    "ingredient_name": "トラネキサム酸",
+    "category": "C",
+    "drug_class_code": "332",
+    "drug_class_name": "止血剤"
+  },
+  {
+    "ingredient_name": "プロタミン硫酸塩",
+    "category": "C",
+    "drug_class_code": "332",
+    "drug_class_name": "止血剤"
+  },
+  {
+    "ingredient_name": "ポリドカノール",
+    "category": "C",
+    "drug_class_code": "332",
+    "drug_class_name": "止血剤"
+  },
+  {
+    "ingredient_name": "アピキサバン",
+    "category": "C",
+    "drug_class_code": "333",
+    "drug_class_name": "血液凝固阻止剤"
+  },
+  {
+    "ingredient_name": "エドキサバントシル酸塩水和物",
+    "category": "C",
+    "drug_class_code": "333",
+    "drug_class_name": "血液凝固阻止剤"
+  },
+  {
+    "ingredient_name": "ダルテパリンナトリウム",
+    "category": "C",
+    "drug_class_code": "333",
+    "drug_class_name": "血液凝固阻止剤"
+  },
+  {
+    "ingredient_name": "トロンボモジュリンアルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "333",
+    "drug_class_name": "血液凝固阻止剤"
+  },
+  {
+    "ingredient_name": "ヘパリンカルシウム",
+    "category": "C",
+    "drug_class_code": "333",
+    "drug_class_name": "血液凝固阻止剤"
+  },
+  {
+    "ingredient_name": "ヘパリンナトリウム",
+    "category": "C",
+    "drug_class_code": "333",
+    "drug_class_name": "血液凝固阻止剤"
+  },
+  {
+    "ingredient_name": "リバーロキサバン",
+    "category": "C",
+    "drug_class_code": "333",
+    "drug_class_name": "血液凝固阻止剤"
+  },
+  {
+    "ingredient_name": "アスピリン",
+    "category": "C",
+    "drug_class_code": "339",
+    "drug_class_name": "その他の血液・体液用薬"
+  },
+  {
+    "ingredient_name": "アンデキサネット アルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "339",
+    "drug_class_name": "その他の血液・体液用薬"
+  },
+  {
+    "ingredient_name": "イダルシズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "339",
+    "drug_class_name": "その他の血液・体液用薬"
+  },
+  {
+    "ingredient_name": "クロピドグレル硫酸塩",
+    "category": "C",
+    "drug_class_code": "339",
+    "drug_class_name": "その他の血液・体液用薬"
+  },
+  {
+    "ingredient_name": "シロスタゾール",
+    "category": "C",
+    "drug_class_code": "339",
+    "drug_class_name": "その他の血液・体液用薬"
+  },
+  {
+    "ingredient_name": "トロメタモール",
+    "category": "C",
+    "drug_class_code": "339",
+    "drug_class_name": "その他の血液・体液用薬"
+  },
+  {
+    "ingredient_name": "フィルグラスチム(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "339",
+    "drug_class_name": "その他の血液・体液用薬"
+  },
+  {
+    "ingredient_name": "ペグフィルグラスチム(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "339",
+    "drug_class_name": "その他の血液・体液用薬"
+  },
+  {
+    "ingredient_name": "人工透析液",
+    "category": "C",
+    "drug_class_code": "341",
+    "drug_class_name": "人工腎臓透析用剤"
+  },
+  {
+    "ingredient_name": "腹膜透析液",
+    "category": "C",
+    "drug_class_code": "342",
+    "drug_class_name": "腹膜透析用剤"
+  },
+  {
+    "ingredient_name": "チオプロニン",
+    "category": "C",
+    "drug_class_code": "391",
+    "drug_class_name": "肝臓疾患用剤"
+  },
+  {
+    "ingredient_name": "デフィプロチドナトリウム",
+    "category": "C",
+    "drug_class_code": "391",
+    "drug_class_name": "肝臓疾患用剤"
+  },
+  {
+    "ingredient_name": "アセチルシステイン",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "グルカルピダーゼ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "システアミン酒石酸塩",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "チオ硫酸ナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "デフェラシロクス",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "トリエンチン塩酸塩",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "プラリドキシムヨウ化物",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "ペニシラミン",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "ホリナートカルシウム",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "メスナ",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "メチルチオニニウム塩化物水和物",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "レボホリナートカルシウム",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "球形吸着炭",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "酢酸亜鉛水和物",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "炭酸水素ナトリウム",
+    "category": "C",
+    "drug_class_code": "392",
+    "drug_class_name": "解毒剤"
+  },
+  {
+    "ingredient_name": "アロプリノール",
+    "category": "C",
+    "drug_class_code": "394",
+    "drug_class_name": "痛風治療剤"
+  },
+  {
+    "ingredient_name": "クエン酸カリウム・クエン酸ナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "394",
+    "drug_class_name": "痛風治療剤"
+  },
+  {
+    "ingredient_name": "フェブキソスタット",
+    "category": "C",
+    "drug_class_code": "394",
+    "drug_class_name": "痛風治療剤"
+  },
+  {
+    "ingredient_name": "アバルグルコシダーゼ アルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "アルテプラーゼ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "イデュルスルファーゼ ベータ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "イデュルスルファーゼ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "エロスルファーゼ アルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "オリプダーゼ アルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "ガルスルファーゼ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "セベリパーゼ アルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "セルリポナーゼ アルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "パビナフスプ アルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "ベストロニダーゼ アルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "モンテプラーゼ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "ラロニダーゼ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "395",
+    "drug_class_name": "酵素製剤"
+  },
+  {
+    "ingredient_name": "グリベンクラミド",
+    "category": "C",
+    "drug_class_code": "396",
+    "drug_class_name": "糖尿病用剤"
+  },
+  {
+    "ingredient_name": "グリメピリド",
+    "category": "C",
+    "drug_class_code": "396",
+    "drug_class_name": "糖尿病用剤"
+  },
+  {
+    "ingredient_name": "シタグリプチンリン酸塩水和物",
+    "category": "C",
+    "drug_class_code": "396",
+    "drug_class_name": "糖尿病用剤"
+  },
+  {
+    "ingredient_name": "ダパグリフロジンプロピレングリコール水和物",
+    "category": "C",
+    "drug_class_code": "396",
+    "drug_class_name": "糖尿病用剤"
+  },
+  {
+    "ingredient_name": "メトホルミン塩酸塩",
+    "category": "C",
+    "drug_class_code": "396",
+    "drug_class_name": "糖尿病用剤"
+  },
+  {
+    "ingredient_name": "L-アルギニン・L-アルギニン塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "L-アルギニン塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "アザチオプリン",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "アダリムマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "アニフロルマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "アバタセプト(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "アレンドロン酸ナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ウパダシチニブ水和物",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "エタネルセプト(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "エテルカルセチド塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "エテルカルセチド塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "エポエチン ベータ ペゴル(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "エポエチンアルファ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "エポエチンベータ (遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "エルトロンボパグ オラミン",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "カナキヌマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ガベキサートメシル酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "カルグルミン酸",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "グスペリムス塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "サプロプテリン塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "サリルマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ジアゾキシド",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "シクロスポリン",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "シナカルセト塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ゾレドロン酸水和物",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "タクロリムス水和物",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ダプロデュスタット",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ダルベポエチンアルファ (遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "デノスマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ナファモスタットメシル酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ニチシノン",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ニンテダニブエタンスルホン酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "パミドロン酸二ナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "バリシチニブ",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ビメキズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "フィンゴリモド塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "フェニル酪酸ナトリウム",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ブロスマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ベタイン",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ミグルスタット",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ミコフェノール酸 モフェチル",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ミゾリビン",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "メトトレキサート",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "メトトレキサート",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ラクツロース",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ラロキシフェン塩酸塩",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "レボカルニチン",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "レボカルニチン",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ロミプロスチム(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "ロモソズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "精製ヒアルロン酸ナトリウム",
+    "category": "C",
+    "drug_class_code": "399",
+    "drug_class_name": "他に分類されない代謝性医薬品"
+  },
+  {
+    "ingredient_name": "イホスファミド",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "シクロホスファミド水和物",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "シクロホスファミド水和物",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "ダカルバジン",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "チオテパ",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "テモゾロミド",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "ベンダムスチン塩酸塩",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "メルファラン",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "ラニムスチン",
+    "category": "C",
+    "drug_class_code": "421",
+    "drug_class_name": "アルキル化剤"
+  },
+  {
+    "ingredient_name": "カペシタビン",
+    "category": "C",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "ゲムシタビン塩酸塩",
+    "category": "C",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "シタラビン",
+    "category": "C",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "テガフール・ウラシル",
+    "category": "C",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "フルオロウラシル",
+    "category": "C",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "ペメトレキセドナトリウムヘミペンタ水和物",
+    "category": "C",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "メトトレキサート",
+    "category": "C",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "メルカプトプリン水和物",
+    "category": "C",
+    "drug_class_code": "422",
+    "drug_class_name": "代謝拮抗剤"
+  },
+  {
+    "ingredient_name": "アクチノマイシンD",
+    "category": "C",
+    "drug_class_code": "423",
+    "drug_class_name": "抗腫瘍性抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アムルビシン塩酸塩",
+    "category": "C",
+    "drug_class_code": "423",
+    "drug_class_name": "抗腫瘍性抗生物質製剤"
+  },
+  {
+    "ingredient_name": "イノツズマブ オゾガマイシン(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "423",
+    "drug_class_name": "抗腫瘍性抗生物質製剤"
+  },
+  {
+    "ingredient_name": "エピルビシン塩酸塩",
+    "category": "C",
+    "drug_class_code": "423",
+    "drug_class_name": "抗腫瘍性抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ゲムツズマブ オゾガマイシン(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "423",
+    "drug_class_name": "抗腫瘍性抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ダウノルビシン塩酸塩",
+    "category": "C",
+    "drug_class_code": "423",
+    "drug_class_name": "抗腫瘍性抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ドキソルビシン塩酸塩",
+    "category": "C",
+    "drug_class_code": "423",
+    "drug_class_name": "抗腫瘍性抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ブレオマイシン塩酸塩",
+    "category": "C",
+    "drug_class_code": "423",
+    "drug_class_name": "抗腫瘍性抗生物質製剤"
+  },
+  {
+    "ingredient_name": "イリノテカン塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "エトポシド",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "エトポシド",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "ドセタキセル",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "ドセタキセル水和物",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "ノギテカン塩酸塩",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "パクリタキセル",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "ビノレルビン酒石酸塩",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "ビンクリスチン硫酸塩",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "ビンブラスチン硫酸塩",
+    "category": "C",
+    "drug_class_code": "424",
+    "drug_class_name": "抗腫瘍性植物成分製剤"
+  },
+  {
+    "ingredient_name": "3-ヨードベンジルグアニジン(131I)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "アキシチニブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "アザシチジン",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "アテゾリズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "アナストロゾール",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "アビラテロン酢酸エステル",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "アベマシクリブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "アミバンタマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "アレクチニブ塩酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "イピリムマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "イマチニブメシル酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "エリブリンメシル酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "エンコラフェニブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "エンザルタミド",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "オキサリプラチン",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "オシメルチニブメシル酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "オラパリブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "カルボプラチン",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ギルテリチニブフマル酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "サリドマイド",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "抗ハンセン病剤"
+  },
+  {
+    "ingredient_name": "シスプラチン",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "セツキシマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "セルペルカチニブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ソトラシブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ゾルベツキシマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ダサチニブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ダブラフェニブメシル酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "タモキシフェンクエン酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "デュルバルマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "トラスツズマブ エムタンシン(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "トラスツズマブ デルクステカン(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "トラスツズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "トラベクテジン",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "トラメチニブ ジメチルスルホキシド付加物",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "トリフルリジン・チピラシル塩酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "トレチノイン",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ニボルマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ニラパリブトシル酸塩水和物",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ネダプラチン",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "パルボシクリブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ビカルタミド",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ブリナツモマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "フルベストラント",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ブレンツキシマブ ベドチン(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ペグアスパルガーゼ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ベネトクラクス",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ベバシズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ペムプロリズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ペルツズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ポマリドミド",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ポラツズマブ ベドチン(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ボルテゾミブ",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ミトキサントロン塩酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ラムシルマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "リツキシマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "ルテチウムオキソドトレオチド(177Lu)",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "レトロゾール",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "レナリドミド",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "レナリドミド水和物",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "レンバチニブメシル酸塩",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "三酸化ヒ素",
+    "category": "C",
+    "drug_class_code": "429",
+    "drug_class_name": "その他の腫瘍用薬"
+  },
+  {
+    "ingredient_name": "3-ヨードベンジルグアニジン(123I)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "N-ピリドキシル-5-メチルトリプトファンテクネチウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "イオフルパン(123I)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "エチレンジシステイネートオキソテクネチウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "ガラクトシル人血清アルブミンジエチレントリアミン五酢酸テクネチウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "ジメルカプトコハク酸テクネチウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "テクネチウム大凝集人血清アルブミン(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "テトロホスミンテクネチウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "ヒドロキシメチレンジホスホン酸テクネチウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "フルシクロビン(18F)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "フルテメタモル(18F)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "フロルベタピル(18F)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "ヘキサキスメトキシイソブチルイソニトリルテクネチウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "ペンテトレオチド・塩化インジウム(111In)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "メチレンジホスホン酸テクネチウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "ヨウ化ナトリウム(131I)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "ヨードアンフェタミン(123I)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "塩化タリウム(201Tl)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "過テクネチウム酸ナトリウム(99mTc)",
+    "category": "C",
+    "drug_class_code": "430",
+    "drug_class_name": "放射性医薬品"
+  },
+  {
+    "ingredient_name": "オロパタジン塩酸塩",
+    "category": "C",
+    "drug_class_code": "449",
+    "drug_class_name": "その他のアレルギー用薬"
+  },
+  {
+    "ingredient_name": "スギ花粉エキス",
+    "category": "C",
+    "drug_class_code": "449",
+    "drug_class_name": "その他のアレルギー用薬"
+  },
+  {
+    "ingredient_name": "ダニアレルゲンエキス",
+    "category": "C",
+    "drug_class_code": "449",
+    "drug_class_name": "その他のアレルギー用薬"
+  },
+  {
+    "ingredient_name": "デュピルマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "449",
+    "drug_class_name": "その他のアレルギー用薬"
+  },
+  {
+    "ingredient_name": "フェキソフェナジン塩酸塩",
+    "category": "C",
+    "drug_class_code": "449",
+    "drug_class_name": "その他のアレルギー用薬"
+  },
+  {
+    "ingredient_name": "モンテルカストナトリウム",
+    "category": "C",
+    "drug_class_code": "449",
+    "drug_class_name": "その他のアレルギー用薬"
+  },
+  {
+    "ingredient_name": "レボセチリジン塩酸塩",
+    "category": "C",
+    "drug_class_code": "449",
+    "drug_class_name": "その他のアレルギー用薬"
+  },
+  {
+    "ingredient_name": "釣藤散エキス",
+    "category": "C",
+    "drug_class_code": "520",
+    "drug_class_name": "漢方製剤"
+  },
+  {
+    "ingredient_name": "クリンダマイシンリン酸エステル",
+    "category": "C",
+    "drug_class_code": "611",
+    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "テイコプラニン",
+    "category": "C",
+    "drug_class_code": "611",
+    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ベンジルペニシリンカリウム",
+    "category": "C",
+    "drug_class_code": "611",
+    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ベンジルペニシリンベンザチン水和物",
+    "category": "C",
+    "drug_class_code": "611",
+    "drug_class_name": "主としてグラム陽性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アズトレオナム",
+    "category": "C",
+    "drug_class_code": "612",
+    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アミカシン硫酸塩",
+    "category": "C",
+    "drug_class_code": "612",
+    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "カナマイシン一硫酸塩",
+    "category": "C",
+    "drug_class_code": "612",
+    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "コリスチンメタンスルホン酸ナトリウム",
+    "category": "C",
+    "drug_class_code": "612",
+    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "スペクチノマイシン塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "612",
+    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "チゲサイクリン",
+    "category": "C",
+    "drug_class_code": "612",
+    "drug_class_name": "主としてグラム陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アモキシシリン水和物",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アモキシシリン水和物・クラブラン酸カリウム",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アンピシリンナトリウム",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ゲンタマイシン硫酸塩",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "セファクロル",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "セファレキシン",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "セフェピム塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "セフォタキシムナトリウム",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "セフジトレンピボキシル",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "テビペネム ピボキシル",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ファロペネムナトリウム水和物",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "フロモキセフナトリウム",
+    "category": "C",
+    "drug_class_code": "613",
+    "drug_class_name": "主としてグラム陽性・陰性菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アジスロマイシン水和物",
+    "category": "C",
+    "drug_class_code": "614",
+    "drug_class_name": "主としてグラム陽性菌、マイコプラズマに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アジスロマイシン水和物",
+    "category": "C",
+    "drug_class_code": "614",
+    "drug_class_name": "主としてグラム陽性菌、マイコプラズマに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "エリスロマイシン",
+    "category": "C",
+    "drug_class_code": "614",
+    "drug_class_name": "主としてグラム陽性菌、マイコプラズマに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "クラリスロマイシン",
+    "category": "C",
+    "drug_class_code": "614",
+    "drug_class_name": "主としてグラム陽性菌、マイコプラズマに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ミノサイクリン塩酸塩",
+    "category": "C",
+    "drug_class_code": "615",
+    "drug_class_name": "主としてグラム陽性・陰性菌、リケッチア、クラミジアに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ミノサイクリン塩酸塩",
+    "category": "C",
+    "drug_class_code": "615",
+    "drug_class_name": "主としてグラム陽性・陰性菌、リケッチア、クラミジアに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "リファンピシン",
+    "category": "C",
+    "drug_class_code": "616",
+    "drug_class_name": "主として抗酸菌に作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アムホテリシンB",
+    "category": "C",
+    "drug_class_code": "617",
+    "drug_class_name": "主としてカビに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "アムホテリシンB",
+    "category": "C",
+    "drug_class_code": "617",
+    "drug_class_name": "主としてカビに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ボリコナゾール",
+    "category": "C",
+    "drug_class_code": "617",
+    "drug_class_name": "主としてカビに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ボリコナゾール",
+    "category": "C",
+    "drug_class_code": "617",
+    "drug_class_name": "主としてカビに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "ミカファンギンナトリウム",
+    "category": "C",
+    "drug_class_code": "617",
+    "drug_class_name": "主としてカビに作用する抗生物質製剤"
+  },
+  {
+    "ingredient_name": "リファキシミン",
+    "category": "C",
+    "drug_class_code": "619",
+    "drug_class_name": "その他の抗生物質製剤(複合抗生物質製剤を含む。)"
+  },
+  {
+    "ingredient_name": "サラゾスルファピリジン",
+    "category": "C",
+    "drug_class_code": "621",
+    "drug_class_name": "サルファ剤"
+  },
+  {
+    "ingredient_name": "イソニアジド",
+    "category": "C",
+    "drug_class_code": "622",
+    "drug_class_name": "抗結核剤"
+  },
+  {
+    "ingredient_name": "エタンブトール塩酸塩",
+    "category": "C",
+    "drug_class_code": "622",
+    "drug_class_name": "抗結核剤"
+  },
+  {
+    "ingredient_name": "ピラジナミド",
+    "category": "C",
+    "drug_class_code": "622",
+    "drug_class_name": "抗結核剤"
+  },
+  {
+    "ingredient_name": "クロファジミン",
+    "category": "C",
+    "drug_class_code": "623",
+    "drug_class_name": "抗ハンセン病剤"
+  },
+  {
+    "ingredient_name": "シタフロキサシン水和物",
+    "category": "C",
+    "drug_class_code": "624",
+    "drug_class_name": "合成抗菌剤"
+  },
+  {
+    "ingredient_name": "シプロフロキサシン",
+    "category": "C",
+    "drug_class_code": "624",
+    "drug_class_name": "合成抗菌剤"
+  },
+  {
+    "ingredient_name": "シプロフロキサシン塩酸塩",
+    "category": "C",
+    "drug_class_code": "624",
+    "drug_class_name": "合成抗菌剤"
+  },
+  {
+    "ingredient_name": "トスフロキサシントシル酸塩水和物",
+    "category": "C",
+    "drug_class_code": "624",
+    "drug_class_name": "合成抗菌剤"
+  },
+  {
+    "ingredient_name": "レボフロキサシン水和物",
+    "category": "C",
+    "drug_class_code": "624",
+    "drug_class_name": "合成抗菌剤"
+  },
+  {
+    "ingredient_name": "レボフロキサシン水和物",
+    "category": "C",
+    "drug_class_code": "624",
+    "drug_class_name": "合成抗菌剤"
+  },
+  {
+    "ingredient_name": "アシクロビル",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "アシクロビル",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "エンテカビル水和物",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "オセルタミビルリン酸塩",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "ガンシクロビル",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "グレカプレビル水和物・ピブレンタスビル",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "ソホスブビル・ベルパタスビル",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "テノホビル アラフェナミドフマル酸塩",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "バラシクロビル塩酸塩",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "パリビズマブ(遺伝子組換え)",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "ペラミビル水和物",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "レテルモビル",
+    "category": "C",
+    "drug_class_code": "625",
+    "drug_class_name": "抗ウイルス剤"
+  },
+  {
+    "ingredient_name": "アトバコン",
+    "category": "C",
+    "drug_class_code": "629",
+    "drug_class_name": "その他の化学療法剤"
+  },
+  {
+    "ingredient_name": "イトラコナゾール",
+    "category": "C",
+    "drug_class_code": "629",
+    "drug_class_name": "その他の化学療法剤"
+  },
+  {
+    "ingredient_name": "スルファメトキサゾール・トリメトプリム",
+    "category": "C",
+    "drug_class_code": "629",
+    "drug_class_name": "その他の化学療法剤"
+  },
+  {
+    "ingredient_name": "フルコナゾール",
+    "category": "C",
+    "drug_class_code": "629",
+    "drug_class_name": "その他の化学療法剤"
+  },
+  {
+    "ingredient_name": "5価経口弱毒生ロタウイルスワクチン",
+    "category": "C",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "経口弱毒生ヒトロタウイルスワクチン",
+    "category": "C",
+    "drug_class_code": "631",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "沈降破傷風トキソイド",
+    "category": "C",
+    "drug_class_code": "632",
+    "drug_class_name": "ワクチン類"
+  },
+  {
+    "ingredient_name": "フィブリノゲン加第XI因子",
+    "category": "C",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "人血清アルブミン",
+    "category": "C",
+    "drug_class_code": "634",
+    "drug_class_name": "血液製剤類"
+  },
+  {
+    "ingredient_name": "メトロニダゾール",
+    "category": "C",
+    "drug_class_code": "641",
+    "drug_class_name": "抗原虫剤"
+  },
+  {
+    "ingredient_name": "白色ワセリン",
+    "category": "C",
+    "drug_class_code": "712",
+    "drug_class_name": "軟膏基剤"
+  },
+  {
+    "ingredient_name": "アミドトリゾ酸ナトリウムメグルミン",
+    "category": "C",
+    "drug_class_code": "721",
+    "drug_class_name": "X線造影剤"
+  },
+  {
+    "ingredient_name": "硫酸バリウム",
+    "category": "C",
+    "drug_class_code": "721",
+    "drug_class_name": "X線造影剤"
+  },
+  {
+    "ingredient_name": "硫酸バリウム",
+    "category": "C",
+    "drug_class_code": "721",
+    "drug_class_name": "X線造影剤"
+  },
+  {
+    "ingredient_name": "インドシアニングリーン",
+    "category": "C",
+    "drug_class_code": "722",
+    "drug_class_name": "機能検査用試薬"
+  },
+  {
+    "ingredient_name": "メチラポン",
+    "category": "C",
+    "drug_class_code": "722",
+    "drug_class_name": "機能検査用試薬"
+  },
+  {
+    "ingredient_name": "ナトリウム・カリウム・アスコルビン酸配合剤",
+    "category": "C",
+    "drug_class_code": "799",
+    "drug_class_name": "他に分類されない治療を主目的としない医薬品"
+  },
+  {
+    "ingredient_name": "オキシコドン塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "811",
+    "drug_class_name": "あへんアルカロイド系麻薬"
+  },
+  {
+    "ingredient_name": "ヒドロモルフォン塩酸塩",
+    "category": "C",
+    "drug_class_code": "811",
+    "drug_class_name": "あへんアルカロイド系麻薬"
+  },
+  {
+    "ingredient_name": "モルヒネ塩酸塩水和物",
+    "category": "C",
+    "drug_class_code": "811",
+    "drug_class_name": "あへんアルカロイド系麻薬"
+  },
+  {
+    "ingredient_name": "フェンタニルクエン酸塩",
+    "category": "C",
+    "drug_class_code": "821",
+    "drug_class_name": "合成麻薬"
+  },
+  {
+    "ingredient_name": "メサドン塩酸塩",
+    "category": "C",
+    "drug_class_code": "821",
+    "drug_class_name": "合成麻薬"
   }
 ]
