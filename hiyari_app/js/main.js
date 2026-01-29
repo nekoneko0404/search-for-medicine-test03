@@ -23,7 +23,8 @@ const elements = {
     mainHeader: null,
     mainFooter: null,
     reloadButton: null,
-    usageGuide: null // usageGuide要素を追加
+    usageGuide: null, // usageGuide要素を追加
+    shareBtn: null // 共有ボタン要素を追加
 };
 
 let currentData = [];
@@ -44,6 +45,7 @@ function initElements() {
     elements.mainFooter = document.getElementById('mainFooter');
     elements.reloadButton = document.getElementById('reload-button');
     elements.usageGuide = document.getElementById('usage-guide'); // usageGuide要素を取得
+    elements.shareBtn = document.getElementById('share-btn'); // 共有ボタン要素を取得
 }
 
 /* -------------------------------------------------
@@ -332,6 +334,36 @@ function shuffleAndDisplay() {
 }
 
 /* -------------------------------------------------
+   共有機能
+------------------------------------------------- */
+/**
+ * 現在の検索条件を共有URLとしてクリップボードにコピー
+ */
+async function shareSearchConditions() {
+    const searchKeyword = elements.searchInput?.value?.trim() || '';
+    const filterWord = elements.filterInput?.value?.trim() || '';
+
+    // パラメータを構築
+    const params = new URLSearchParams();
+
+    if (searchKeyword) params.set('keyword', searchKeyword);
+    if (filterWord) params.set('filter', filterWord);
+
+    // 完全なURLを生成
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?${params.toString()}`;
+
+    // クリップボードにコピー
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showMessage('検索条件のURLをクリップボードにコピーしました', 'success');
+    } catch (err) {
+        console.error('Failed to copy to clipboard:', err);
+        showMessage('URLのコピーに失敗しました', 'error');
+    }
+}
+
+/* -------------------------------------------------
    初期化 & イベント設定
 ------------------------------------------------- */
 function init() {
@@ -371,11 +403,23 @@ function init() {
         });
     }
 
+    // 共有ボタンのイベントリスナー
+    if (elements.shareBtn) {
+        elements.shareBtn.addEventListener('click', () => shareSearchConditions());
+    }
+
     // URL パラメータで自動検索
     const params = new URLSearchParams(window.location.search);
     const kw = params.get('drugName') || params.get('ingredientName') || params.get('keyword');
+    const filter = params.get('filter');
+
     if (kw && elements.searchInput) {
         elements.searchInput.value = kw;
+    }
+    if (filter && elements.filterInput) {
+        elements.filterInput.value = filter;
+    }
+    if ((kw || filter) && elements.searchInput) {
         fetchIncidents();
     }
 }
