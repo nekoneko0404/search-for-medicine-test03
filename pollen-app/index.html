@@ -212,6 +212,21 @@
     <div id="map"></div>
     <div id="crosshair"></div>
 
+    <!-- Update Notice Banner -->
+    <div id="update-notice" class="update-notice">
+        <div class="notice-content">
+            <i class="fas fa-bullhorn notice-icon"></i>
+            <div class="notice-text">
+                <p class="notice-title">🔔 バックグラウンド通知機能</p>
+                <p class="notice-message">実装テストを開始しました！<br>お手数ですが、<span class="highlight">通知設定を一度「保存」し直して</span>ください。
+                </p>
+            </div>
+            <button class="notice-close" onclick="this.closest('.update-notice').remove()" aria-label="閉じる">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- Modal for Weekly Trend -->
     <div id="trend-modal" class="modal">
         <div class="modal-content">

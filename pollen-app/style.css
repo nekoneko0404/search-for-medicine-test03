@@ -1128,6 +1128,7 @@ html {
         opacity: 0;
         transform: translate(-50%, 20px);
     }
+
     to {
         opacity: 1;
         transform: translate(-50%, 0);
@@ -1139,8 +1140,144 @@ html {
         opacity: 1;
         transform: translate(-50%, 0);
     }
+
     to {
         opacity: 0;
         transform: translate(-50%, -20px);
+    }
+}
+
+/* Update Notice Banner */
+.update-notice {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 999;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    border-left: 5px solid #ff9800;
+    max-width: 300px;
+    animation: slideInRight 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.update-notice::after {
+    /* Speech bubble tail */
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: -10px;
+    border-width: 10px 0 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent transparent white;
+    display: none;
+    /* Hidden for now as it floats over map */
+}
+
+.notice-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.notice-icon {
+    font-size: 24px;
+    color: #ff9800;
+    margin-top: 2px;
+    animation: swing 2s infinite ease-in-out;
+}
+
+.notice-text {
+    flex: 1;
+}
+
+.notice-title {
+    margin: 0 0 5px 0;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.notice-message {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.5;
+}
+
+.notice-message .highlight {
+    color: #d35400;
+    font-weight: bold;
+    background: #fff3e0;
+    padding: 0 2px;
+}
+
+.notice-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    transition: color 0.2s;
+    margin-top: -5px;
+    margin-right: -5px;
+}
+
+.notice-close:hover {
+    color: #666;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes swing {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    10% {
+        transform: rotate(15deg);
+    }
+
+    20% {
+        transform: rotate(-10deg);
+    }
+
+    30% {
+        transform: rotate(5deg);
+    }
+
+    40% {
+        transform: rotate(-5deg);
+    }
+
+    50% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@media (max-width: 600px) {
+    .update-notice {
+        top: auto;
+        bottom: 90px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        box-sizing: border-box;
     }
 }
