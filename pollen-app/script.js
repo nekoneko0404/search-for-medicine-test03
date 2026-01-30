@@ -1514,11 +1514,7 @@ const NotificationManager = {
                 return false;
             }
 
-            console.log('VAPID Key received:', publicKey);
-            console.log('VAPID Key length:', publicKey.length);
-
             const convertedVapidKey = this.urlBase64ToUint8Array(publicKey);
-            console.log('VAPID Key converted length:', convertedVapidKey.length);
 
             // Check for existing subscription
             const existingSubscription = await registration.pushManager.getSubscription();
