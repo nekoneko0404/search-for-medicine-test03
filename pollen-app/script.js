@@ -11,7 +11,10 @@ const CONFIG = {
     CACHE_DURATION: 10 * 60 * 1000 // 10 minutes in milliseconds
 };
 
-// State to store fetched data
+// Cloudflare Worker URL
+const WORKER_URL = 'https://pollen-worker.neko-neko-0404.workers.dev';
+
+// Global State
 const state = {
     cache: {}, // { key: { data: [...], timestamp: Date } }
     currentDate: '', // YYYY-MM-DD
@@ -1014,6 +1017,7 @@ const NotificationManager = {
     timerId: null,
 
     init() {
+        this.registerServiceWorker(); // Register SW
         this.setupEventListeners();
         this.startMonitoring();
         this.updateRegisteredLocationUI();
@@ -1196,8 +1200,15 @@ const NotificationManager = {
 
         localStorage.setItem(this.settingsKey, JSON.stringify(settings));
 
+        // Subscribe to Web Push
+        const subscribed = await this.subscribeUser(settings);
+        if (subscribed) {
+            this.showToast(`${cityName}の通知設定を保存しました(バックグラウンド有効)`);
+        } else {
+            this.showToast(`${cityName}の通知設定を保存しました(バックグラウンド設定失敗)`, 'warning');
+        }
+
         document.getElementById('notification-modal').classList.remove('show');
-        this.showToast(`${cityName}の通知設定を保存しました`);
 
         // Update UI
         this.updateRegisteredLocationUI();
@@ -1209,8 +1220,10 @@ const NotificationManager = {
         this.checkPollenLevels();
     },
 
-    clearSettings() {
+    async clearSettings() {
         if (confirm('通知設定を解除しますか？')) {
+            await this.unsubscribeUser(); // Unsubscribe first
+
             localStorage.removeItem(this.settingsKey);
             document.getElementById('notification-modal').classList.remove('show');
             this.showToast('通知設定を解除しました');
@@ -1272,6 +1285,20 @@ const NotificationManager = {
                         window.focus();
                         notification.close();
                     };
+
+                    // Trigger Backend Push Test
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    if (subscription) {
+                        fetch(`${WORKER_URL}/api/test-push`, {
+                            method: 'POST',
+                            body: JSON.stringify({ subscription }),
+                            headers: { 'Content-Type': 'application/json' }
+                        }).then(res => {
+                            if (res.ok) console.log('Backend test push requested');
+                            else console.error('Backend test push failed');
+                        }).catch(e => console.error('Backend test push error', e));
+                    }
 
                 } catch (error) {
                     console.error('Notification error:', error);
@@ -1430,6 +1457,107 @@ const NotificationManager = {
             osc2.stop(now + 0.5);
         } catch (error) {
             console.error('Error playing alert sound:', error);
+        }
+    },
+
+    async registerServiceWorker() {
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            try {
+                const registration = await navigator.serviceWorker.register('./sw.js');
+                console.log('Service Worker registered:', registration);
+                return registration;
+            } catch (error) {
+                console.error('Service Worker registration failed:', error);
+                return null;
+            }
+        } else {
+            console.warn('Push notifications not supported');
+            return null;
+        }
+    },
+
+    urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    },
+
+    async getVapidKey() {
+        try {
+            const res = await fetch(`${WORKER_URL}/api/vapid-key`);
+            if (!res.ok) throw new Error('Failed to get VAPID key');
+            const data = await res.json();
+            return data.publicKey;
+        } catch (e) {
+            console.error('Error fetching VAPID key:', e);
+            return null;
+        }
+    },
+
+    async subscribeUser(settings) {
+        const registration = await navigator.serviceWorker.ready;
+        if (!registration) return false;
+
+        try {
+            const publicKey = await this.getVapidKey();
+            if (!publicKey) {
+                console.error('No VAPID key available');
+                return false;
+            }
+
+            const convertedVapidKey = this.urlBase64ToUint8Array(publicKey);
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedVapidKey
+            });
+
+            console.log('User is subscribed:', subscription);
+
+            // Send subscription to server
+            await fetch(`${WORKER_URL}/api/subscribe`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    subscription: subscription,
+                    settings: settings
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            return true;
+        } catch (err) {
+            console.error('Failed to subscribe the user: ', err);
+            return false;
+        }
+    },
+
+    async unsubscribeUser() {
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            constsubscription = await registration.pushManager.getSubscription();
+            if (subscription) {
+                // Unsubscribe from backend first
+                await fetch(`${WORKER_URL}/api/unsubscribe`, {
+                    method: 'POST',
+                    body: JSON.stringify({ endpoint: subscription.endpoint }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                // Unsubscribe from browser
+                await subscription.unsubscribe();
+                console.log('User is unsubscribed.');
+            }
+        } catch (e) {
+            console.error('Error unsubscribing', e);
         }
     },
 

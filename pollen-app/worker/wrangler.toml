@@ -1,0 +1,21 @@
+name = "pollen-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = [ "nodejs_compat" ]
+
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB" # Available in your Worker on env.DB
+database_name = "pollen-db"
+database_id = "0eea564b-1085-41aa-abc5-59473cb66855" # Run: npx wrangler d1 create pollen-db
+
+# Cron Triggers (Every hour at 15 minutes past)
+[triggers]
+crons = ["15 * * * *"]
+
+# Environment Variables (Secrets should be set via `wrangler secret put`)
+[vars]
+# Public Key for frontend (This is safe to expose in code/env if needed, but better passed to frontend)
+# Private Key should be a secret
+VAPID_SUBJECT = "mailto:admin@example.com"
