@@ -1203,9 +1203,10 @@ const NotificationManager = {
         // Subscribe to Web Push
         const subscribed = await this.subscribeUser(settings);
         if (subscribed) {
-            this.showToast(`${cityName}の通知設定を保存しました(バックグラウンド有効)`);
+            this.showToast(`通知設定を保存しました\n(アプリを閉じても通知が届きます)`);
         } else {
-            this.showToast(`${cityName}の通知設定を保存しました(バックグラウンド設定失敗)`, 'warning');
+            this.showToast(`設定は保存されましたが、\nバックグラウンド通知の登録に失敗しました`, 'warning', 10000);
+            alert('【注意】\n設定は保存されましたが、プッシュ通知の登録に失敗しました。\n・アプリを開いている間のみ通知されます。\n・ブラウザの通知設定やプライベートモードでないか確認してください。');
         }
 
         document.getElementById('notification-modal').classList.remove('show');
@@ -1551,7 +1552,7 @@ const NotificationManager = {
     async unsubscribeUser() {
         try {
             const registration = await navigator.serviceWorker.ready;
-            constsubscription = await registration.pushManager.getSubscription();
+            const subscription = await registration.pushManager.getSubscription();
             if (subscription) {
                 // Unsubscribe from backend first
                 await fetch(`${WORKER_URL}/api/unsubscribe`, {
