@@ -1496,7 +1496,7 @@ const NotificationManager = {
             const res = await fetch(`${WORKER_URL}/api/vapid-key`);
             if (!res.ok) throw new Error('Failed to get VAPID key');
             const data = await res.json();
-            return data.publicKey;
+            return data.publicKey ? data.publicKey.trim() : null;
         } catch (e) {
             console.error('Error fetching VAPID key:', e);
             return null;
@@ -1514,7 +1514,19 @@ const NotificationManager = {
                 return false;
             }
 
+            console.log('VAPID Key received:', publicKey);
+            console.log('VAPID Key length:', publicKey.length);
+
             const convertedVapidKey = this.urlBase64ToUint8Array(publicKey);
+            console.log('VAPID Key converted length:', convertedVapidKey.length);
+
+            // Check for existing subscription
+            const existingSubscription = await registration.pushManager.getSubscription();
+            if (existingSubscription) {
+                console.log('Unsubscribing existing subscription first...');
+                await existingSubscription.unsubscribe();
+            }
+
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: convertedVapidKey
