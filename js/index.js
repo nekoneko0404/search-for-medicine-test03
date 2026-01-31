@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const sanitizedHtml = DOMPurify.sanitize(marked.parse(markdown));
                     notificationBody.innerHTML = sanitizedHtml;
                 } else {
-                     notificationBody.innerText = markdown; // Fallback to plain text
+                    notificationBody.innerText = markdown; // Fallback to plain text
                 }
             })
             .catch(error => {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const day = jstDate.getUTCDate();
             const hours = jstDate.getUTCHours();
             const minutes = jstDate.getUTCMinutes();
-            
+
             return `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
         } catch (e) {
             console.error("Date formatting error:", e);
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    if(infectionTimeElement && shippingTimeElement) {
+    if (infectionTimeElement && shippingTimeElement) {
         fetch(GAS_URL)
             .then(response => {
                 if (!response.ok) {
@@ -80,74 +80,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 shippingTimeElement.textContent = '日時取得エラー';
             });
     }
-
-    // --- Infection Surveillance Preload Logic ---
-    const INFECTION_API_URL = 'https://script.google.com/macros/s/AKfycby8wh0NMuPtEOgLVHXfc0jzNqlOENuOgCwQmYYzMSZCKTvhSDiJpZkAyJxntGISTGOmbQ/exec';
-    const INFECTION_CACHE_CONFIG = {
-        COMBINED_DATA_KEY: 'infection_surveillance_combined_data',
-        HISTORY_EXPIRY: 24 * 60 * 60 * 1000 // 24時間
-    };
-
-    async function preloadInfectionData() {
-        console.log('Preloading infection surveillance data...');
-        const now = Date.now();
-        try {
-            const cached = await localforage.getItem(INFECTION_CACHE_CONFIG.COMBINED_DATA_KEY);
-            if (cached && (now - cached.timestamp < INFECTION_CACHE_CONFIG.HISTORY_EXPIRY)) {
-                console.log('Infection data already in cache and valid, no preload needed.');
-                return;
-            }
-        } catch (e) {
-            console.warn('Preload cache check failed:', e);
-        }
-
-        try {
-            const response = await fetch(`${INFECTION_API_URL}?type=combined`, {
-                redirect: 'follow'
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
-            }
-
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                const text = await response.text();
-                console.error("Received non-JSON response during preload:", text);
-                throw new Error(`Invalid content-type: ${contentType}. Expected application/json. Response sample: ${text.substring(0, 100)}`);
-            }
-
-            const data = await response.json();
-
-            await localforage.setItem(INFECTION_CACHE_CONFIG.COMBINED_DATA_KEY, {
-                timestamp: now,
-                data: data
-            });
-            console.log('Infection surveillance data preloaded and cached successfully.');
-        } catch (e) {
-            console.error('Error preloading infection data:', e);
-        }
-    }
-
-    // --- Shipping Data Preload Logic ---
-    async function preloadShippingData() {
-        console.log('Preloading shipping data...');
-        try {
-            // updateProgress は引数として渡す
-            const result = await loadAndCacheData(updateProgress);
-            if (result && result.data) {
-                console.log(`Shipping data preloaded and cached successfully: ${result.data.length} items. (Date: ${result.date})`);
-            } else {
-                console.warn('Shipping data preload failed or returned no data.');
-            }
-        } catch (e) {
-            console.error('Error preloading shipping data:', e);
-        }
-        // Shipping data preloading is done, now proceed with infection data
-        preloadInfectionData();
-    }
-
-    // Call preload function
-    preloadShippingData();
 
 });

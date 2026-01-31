@@ -16,30 +16,29 @@ self.addEventListener('push', function (event) {
         try {
             data = event.data.json();
         } catch (e) {
+            console.warn('[Service Worker] Push data parsing failed, using as text.');
             data = { body: event.data.text() };
         }
     }
 
     const title = data.title || '花粉飛散通知';
     const options = {
-        body: data.body || '新しい情報があります',
+        body: data.body || '新しい飛散情報があります',
         icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png',
         badge: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png',
         data: data.data || { url: './index.html' },
+        vibrate: [200, 100, 200],
+        tag: 'pollen-alert', // Overwrite old notification with same tag
+        renotify: true,      // Vibrate/notify even if tag is same
         actions: [
             { action: 'open', title: '詳細を見る' }
         ]
     };
 
+    // simplified: Always show notification on push event to ensure reliability in background
     event.waitUntil(
-        clients.matchAll({ type: 'window' }).then(windowClients => {
-            const isAppFocused = windowClients.some(client => client.focused);
-            if (isAppFocused) {
-                console.log('[Service Worker] App is focused, suppressing notification.');
-                return;
-            }
-            return self.registration.showNotification(title, options);
-        })
+        self.registration.showNotification(title, options)
+            .catch(err => console.error('[Service Worker] showNotification failed:', err))
     );
 });
 

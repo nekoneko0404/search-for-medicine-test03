@@ -1131,12 +1131,19 @@ const NotificationManager = {
 
         // iOS/Safari compatibility check
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
         const notificationSupported = typeof Notification !== 'undefined';
 
         let warningMsg = '';
-        if (isIOS && !isPWA) {
-            warningMsg = '※iPhoneでは「ホーム画面に追加」して起動しないと、ブラウザを閉じた状態での通知は届きません。';
+        if (isIOS) {
+            if (!isStandalone) {
+                warningMsg = '【重要】iPhoneでは、ブラウザを閉じている状態で通知を受け取るには「ホーム画面に追加」してアプリとして起動する必要があります。';
+            } else {
+                warningMsg = '※iPhone（ホーム画面起動中）: 通知が届かない場合は、本体の「設定 > 通知 > 花粉Radar」を確認してください。';
+            }
+        } else if (isChrome && !isStandalone) {
+            warningMsg = '※PC (Chrome): ブラウザを完全に終了した際も通知を受け取るには、設定の「システム > Google Chrome を閉じた際にバックグラウンド アプリの実行を続行する」をオンにしてください。';
         } else if (!notificationSupported) {
             warningMsg = '※お使いのブラウザはシステム通知に対応していません。アプリを開いている間のみアラートが表示されます。';
         }
@@ -1145,6 +1152,15 @@ const NotificationManager = {
         if (warningElem) {
             warningElem.textContent = warningMsg;
             warningElem.classList.toggle('hidden', !warningMsg);
+            if (isIOS && !isStandalone) {
+                warningElem.style.color = '#e11d48'; // Red for critical warning
+                warningElem.style.backgroundColor = '#fff1f2';
+                warningElem.style.borderColor = '#fda4af';
+            } else {
+                warningElem.style.color = '';
+                warningElem.style.backgroundColor = '';
+                warningElem.style.borderColor = '';
+            }
         }
 
         modal.classList.add('show');
@@ -1291,14 +1307,22 @@ const NotificationManager = {
                     const registration = await navigator.serviceWorker.ready;
                     const subscription = await registration.pushManager.getSubscription();
                     if (subscription) {
-                        fetch(`${WORKER_URL}/api/test-push`, {
+                        console.log('Pushing test to backend worker:', WORKER_URL);
+                        const response = await fetch(`${WORKER_URL}/api/test-push`, {
                             method: 'POST',
                             body: JSON.stringify({ subscription }),
                             headers: { 'Content-Type': 'application/json' }
-                        }).then(res => {
-                            if (res.ok) console.log('Backend test push requested');
-                            else console.error('Backend test push failed');
-                        }).catch(e => console.error('Backend test push error', e));
+                        });
+                        const resData = await response.json();
+                        if (response.ok && resData.success) {
+                            console.log('Backend test push success');
+                        } else {
+                            console.error('Backend test push failed:', resData.error || response.statusText);
+                            alert('クラウド通知の送信に失敗しました。時間をおいて再度お試しください。');
+                        }
+                    } else {
+                        console.warn('No active push subscription found for backend test');
+                        alert('通知の登録が見つかりません。「保存」ボタンを押して登録を完了させてください。');
                     }
 
                 } catch (error) {

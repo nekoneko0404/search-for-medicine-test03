@@ -3,8 +3,8 @@ const FOLDER_NAME = "IDWR-Insight-Data";
 const PARENT_FOLDER_ID = "1iUWcwIEcvyZSzEjO8YHatV38WIVSuGg2"; // IDWR-Insight-Data フォルダのID
 const SPREADSHEET_NAME = "Infection_Data_Master";
 const ADMIN_EMAIL = "admin@example.com";
-const INDEX_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/jp/rapid/";
-const CSV_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/jp/rapid/";
+const INDEX_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/provisional/";
+const CSV_BASE_URL = "https://id-info.jihs.go.jp/surveillance/idwr/provisional/";
 const CACHE_FILE_NAME = 'combined_data_cache_v18.json'; // キャッシュファイル名 (v18に更新して再生成を強制)
 
 function doGet(e) {
@@ -17,9 +17,10 @@ function doGet(e) {
       'ari': 'ARI',
       'trend': 'Trend',
       'tougai': 'Tougai',
-      'history': 'History', // 新しくhistoryタイプを追加
+      'history': 'History', // 過去の全アーカイブデータ
       'all': 'All', // 一括取得用
-      'combined': 'CombinedData', // 新しくcombinedタイプを追加
+      'combined': 'CombinedData', // 最新＋アーカイブ（互換性維持用）
+      'current': 'CurrentData', // 当年の最新データのみ
       'latest': 'LatestData' // 最新データ取得用
     };
     
@@ -28,19 +29,21 @@ function doGet(e) {
       throw new Error(`不正なシート名です: ${sheetNameInput}`);
     }
     
-    // historyタイプの場合は、getHistoryData関数を呼び出す
+    // currentタイプの場合は、当年の最新データ（サマリー＋当年履歴）を返す
+    if (normalizedKey === 'current') {
+      const currentData = getLatestDataAsObject_();
+      return ContentService.createTextOutput(JSON.stringify(currentData))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // historyタイプの場合は、全アーカイブデータを返す
     if (normalizedKey === 'history') {
-      return ContentService.createTextOutput(getHistoryData())
+      const historyData = getHistoryDataAsObject_().data;
+      return ContentService.createTextOutput(JSON.stringify(historyData))
         .setMimeType(ContentService.MimeType.JSON);
     }
 
-    // allタイプの場合は、主要データをまとめてJSONで返す
-    if (normalizedKey === 'all') {
-      return ContentService.createTextOutput(JSON.stringify(getAllData_()))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    // combinedタイプの場合は、ファイルキャッシュを利用して高速化
+    // combinedタイプの場合は、ファイルキャッシュを利用して高速化（最新＋アーカイブ全件）
     if (normalizedKey === 'combined') {
       // 1. ファイルキャッシュからの読み込みを試みる
       const cachedContent = getFileCache_();
@@ -88,10 +91,9 @@ function doGet(e) {
       message: err.toString(),
       stack: err.stack
     };
-    // JSONとしてエラーを返すとクライアント側で扱いやすいが、
-    // 現状のクライアント実装に合わせてテキストで返す（ただし詳細を含める）
-    return ContentService.createTextOutput(`Error: ${err.toString()}\nStack: ${err.stack}`)
-      .setMimeType(ContentService.MimeType.TEXT);
+    // クライアント側でJSONとしてパースできるようにJSON形式で返す
+    return ContentService.createTextOutput(JSON.stringify(errorResponse))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -493,11 +495,11 @@ function backfillMissingWeeks_(historyFolder, currentYear, latestWeek) {
 
 function getLatestWeeklyPageUrl_(indexPageUrl) {
   const response = UrlFetchApp.fetch(indexPageUrl, { muteHttpExceptions: true });
-  if (response.getResponseCode() !== 200) throw new Error("Index fetch failed");
+  if (response.getResponseCode() !== 200) throw new Error("Index fetch failed: " + indexPageUrl);
   const htmlContent = response.getContentText();
   
   // リンクのhref属性と週番号を抽出する正規表現
-  // <a>タグの内部で完結するようにし、他のリンク（#mainなど）を誤検知しないようにする
+  // provisionalのインデックスページでは "IDWR速報データ 2026年第X週" というテキストでリンクされている
   const linkRegex = /<a[^>]*\bhref="([^"]+)"[^>]*>(?:(?!<\/a>)[\s\S])*?IDWR速報データ \d{4}年第(\d{1,2})週/g;
   
   let match, latestWeek = -1, latestLinkUrl = null; 
@@ -513,18 +515,29 @@ function getLatestWeeklyPageUrl_(indexPageUrl) {
   }
   
   if (latestLinkUrl) {
-    // 相対パスの場合は絶対パスに変換
-    if (!latestLinkUrl.startsWith('http')) {
-      const baseUrl = indexPageUrl.substring(0, indexPageUrl.lastIndexOf('/') + 1);
-      let fullUrl = baseUrl + latestLinkUrl;
-      // /./ を / に置換してパスを正規化
-      fullUrl = fullUrl.replace(/\/\.\//g, '/');
-      return fullUrl;
+    // リンクが絶対パスの場合はそのまま返す
+    if (latestLinkUrl.startsWith('http')) {
+      return latestLinkUrl;
     }
-    return latestLinkUrl;
+
+    // 相対パスの解決ロジック
+    // indexPageUrl: https://id-info.jihs.go.jp/surveillance/idwr/provisional/2026/index.html
+    // latestLinkUrl: 03/index.html (例)
+    
+    // ベースURLの特定（末尾のファイル名を除去）
+    const baseUrl = indexPageUrl.substring(0, indexPageUrl.lastIndexOf('/') + 1);
+    
+    // 単純結合 (./などが含まれていてもブラウザやUrlFetchAppによっては解決されるが、明示的に正規化するとベター)
+    let fullUrl = baseUrl + latestLinkUrl;
+    
+    // 簡易的なパス正規化
+    // ./ を削除
+    fullUrl = fullUrl.replace(/\/\.\//g, '/');
+    
+    return fullUrl;
   }
   
-  throw new Error("Latest link not found");
+  throw new Error("Latest link not found in index page");
 }
 
 /**

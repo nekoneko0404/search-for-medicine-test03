@@ -84,27 +84,70 @@ function sanitizeHTML(text) {
 // Parsing functions removed (moved to server-side)
 
 const CACHE_CONFIG = {
-    COMBINED_DATA_KEY: 'infection_surveillance_combined_data_v18',
+    CURRENT_DATA_KEY: 'infection_surveillance_current_data_v1',
+    ARCHIVE_DATA_KEY: 'infection_surveillance_archive_data_v1',
     MAIN_EXPIRY: 1 * 60 * 60 * 1000,
-    HISTORY_EXPIRY: 30 * 60 * 1000
+    HISTORY_EXPIRY: 24 * 60 * 60 * 1000
 };
 
-// LocalForage settings (default)
+// localforage instance is assumed to be global from index.html
 
-async function fetchCombinedData() {
+async function fetchCurrentData() {
     const now = Date.now();
+    try {
+        const cached = await localforage.getItem(CACHE_CONFIG.CURRENT_DATA_KEY);
+        if (cached && (now - cached.timestamp < CACHE_CONFIG.MAIN_EXPIRY)) {
+            return cached.data;
+        }
+    } catch (e) {
+        console.warn('Current data cache check failed:', e);
+    }
 
     try {
-        const cached = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
+        const response = await fetch(`${API_URL}?type=current`, {
+            redirect: 'follow'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // APIからのエラーレスポンスをチェック
+        if (data && data.status === 'error') {
+            throw new Error(`API Error: ${data.message}`);
+        }
+
+        try {
+            await localforage.setItem(CACHE_CONFIG.CURRENT_DATA_KEY, {
+                timestamp: now,
+                data: data
+            });
+        } catch (e) {
+            console.warn('Current data cache save failed:', e);
+        }
+
+        return data;
+    } catch (e) {
+        console.error('Fetch error for current data:', e);
+        throw e;
+    }
+}
+
+async function fetchArchiveData() {
+    const now = Date.now();
+    try {
+        const cached = await localforage.getItem(CACHE_CONFIG.ARCHIVE_DATA_KEY);
         if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
             return cached.data;
         }
     } catch (e) {
-        console.warn('Combined data cache check failed:', e);
+        console.warn('Archive data cache check failed:', e);
     }
 
     try {
-        const response = await fetch(`${API_URL}?type=combined`, {
+        const response = await fetch(`${API_URL}?type=history`, {
             redirect: 'follow'
         });
 
@@ -115,17 +158,17 @@ async function fetchCombinedData() {
         const data = await response.json();
 
         try {
-            await localforage.setItem(CACHE_CONFIG.COMBINED_DATA_KEY, {
+            await localforage.setItem(CACHE_CONFIG.ARCHIVE_DATA_KEY, {
                 timestamp: now,
                 data: data
             });
         } catch (e) {
-            console.warn('Combined data cache save failed:', e);
+            console.warn('Archive data cache save failed:', e);
         }
 
         return data;
     } catch (e) {
-        console.error('Fetch error for combined data:', e);
+        console.error('Fetch error for archive data:', e);
         throw e;
     }
 }
@@ -292,23 +335,7 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
 
     const isMobile = window.innerWidth <= 768;
 
-    const labels = [];
-    yearDataSets.forEach(ds => {
-        ds.data.forEach(item => {
-            if (!labels.includes(`${item.week}週`)) {
-                labels.push(`${item.week}週`);
-            }
-        });
-    });
-    labels.sort((a, b) => parseInt(a) - parseInt(b));
-
-    if (labels.length === 0) {
-        if (loadingTargetElement) {
-            hideChartLoading(loadingTargetElement);
-            loadingTargetElement.innerHTML = '<p class="no-data-message">データがありません。</p>';
-        }
-        return;
-    }
+    const labels = Array.from({ length: 53 }, (_, i) => `${i + 1}週`);
 
     const createDataset = (ds) => {
         const year = ds.year;
@@ -398,7 +425,18 @@ function renderComparisonChart(canvasId, diseaseKey, prefecture, yearDataSets, y
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, title: { display: true, text: '定点当たり報告数' }, suggestedMax: yAxisMax } },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: '定点当たり報告数' }, suggestedMax: yAxisMax },
+                x: {
+                    title: { display: true, text: '週' },
+                    ticks: {
+                        maxRotation: 0,
+                        autoSkip: true,
+                        autoSkipPadding: 10
+                    }
+                    // min/max are implicit from labels length (1-53) and Cartesian scale type
+                }
+            },
             interaction: { intersect: false, mode: 'index', axis: 'x' },
             elements: { point: { hitRadius: 20, hoverRadius: 4 }, line: { borderCapStyle: 'round', borderJoinStyle: 'round' } },
             plugins: {
@@ -575,55 +613,34 @@ function renderTrendChart(disease, data) {
 function getYearDataSets(diseaseKey, prefecture) {
     const yearDataSets = [];
     const currentYear = new Date().getFullYear();
-    console.log(`DEBUG: getYearDataSets called. currentYear=${currentYear}, disease=${diseaseKey}, pref=${prefecture}`);
+    // console.log(`DEBUG: getYearDataSets called. currentYear=${currentYear}, disease=${diseaseKey}, pref=${prefecture}`);
     const addedYears = new Set(); // 重複防止用
 
     if (cachedData.current && cachedData.current.history) {
         const currentHistory = cachedData.current.history.find(h => h.disease === diseaseKey && h.prefecture === prefecture);
         if (currentHistory) {
-            console.log(`DEBUG: Found current year data for ${currentYear}. Length: ${currentHistory.history.length}`);
-            if (currentHistory.history.length > 0) {
-                console.log(`DEBUG: Current year data sample:`, JSON.stringify(currentHistory.history.slice(0, 3)));
-            }
             yearDataSets.push({ year: currentYear, data: currentHistory.history });
             addedYears.add(currentYear);
-        } else {
-            console.log(`DEBUG: No current year data found in cachedData.current for ${diseaseKey}/${prefecture}`);
         }
     }
 
-    if (cachedData.archives) {
-        console.log(`DEBUG: Checking ${cachedData.archives.length} archives`);
+    if (cachedData.archives && cachedData.archives.length > 0) {
         cachedData.archives.forEach(archive => {
             const archiveYear = parseInt(archive.year);
-            // if (archiveYear === currentYear) {
-            //     console.log(`DEBUG: Skipping archive year ${archiveYear} (matches current year)`);
-            //     return;
-            // }
             if (addedYears.has(archiveYear)) {
-                console.log(`DEBUG: Skipping duplicate year ${archiveYear}`);
                 return;
             }
 
             const archiveHistory = archive.data ? archive.data.find(d => d.disease === diseaseKey && d.prefecture === prefecture) : null;
             if (archiveHistory) {
-                console.log(`DEBUG: Adding archive year ${archiveYear}. Length: ${archiveHistory.history.length}`);
                 yearDataSets.push({ year: archive.year, data: archiveHistory.history });
                 addedYears.add(archiveYear);
             }
         });
-    }
-
-
-    if (yearDataSets.length === 0) {
-        console.warn('No data sets available for chart.');
     } else {
-        const has2026 = yearDataSets.some(d => d.year === 2026);
-        if (!has2026 && diseaseKey === 'Influenza' && prefecture === '神奈川県') {
-            console.warn('DEBUG: 2026 data MISSING. Added years:', Array.from(addedYears));
-        }
+        console.log('No archives available yet for yearDataSets.');
     }
-    console.log('DEBUG: Final yearDataSets:', yearDataSets.map(d => ({ year: d.year, count: d.data.length })));
+
     return yearDataSets;
 }
 
@@ -790,28 +807,59 @@ function showPrefectureChart(prefecture, disease) {
         }
 
         // 過去のアーカイブデータ
-        cachedData.archives.forEach(archive => {
-            // 当年のデータは、すでに currentYearHistory で追加されているので重複しないようにする
-            if (parseInt(archive.year) === currentYear) return;
+        if (cachedData.archives) {
+            cachedData.archives.forEach(archive => {
+                if (parseInt(archive.year) === currentYear) return;
+                const history = archive.data.find(d => d.disease === disease && d.prefecture === prefecture);
+                if (history) {
+                    yearDataSets.push({ year: archive.year, data: history.history });
+                }
+            });
+        }
 
-            const history = archive.data.find(d => d.disease === disease && d.prefecture === prefecture);
-            if (history) {
-                // Tougai CSVから抽出されたデータはすでにhistoryプロパティを持っている
-                yearDataSets.push({ year: archive.year, data: history.history });
-            }
-        });
+        // アーカイブデータ取得中の場合は、少なくとも当年のデータがあれば表示するが、
+        // 完了していないことをユーザーに伝える（ローディング表示を維持しつつ、グラフも描画するなど工夫可）
+        // ここではシンプルに「読み込み中」であればグラフエリアにオーバーレイまたはメッセージを出す
 
-        if (yearDataSets.length === 0) {
+        const isLoadingArchives = cachedData.isLoadingArchives;
+
+        if (yearDataSets.length === 0 && !isLoadingArchives) {
             console.warn(`No history data for ${prefecture} (${disease}) across all years.`);
             hideChartLoading(chartWrapper);
             const p = document.createElement('p');
             p.classList.add('no-data-message-inline');
             p.textContent = 'データがありません。';
-            chartWrapper.innerHTML = ''; // Clear previous content
+            chartWrapper.innerHTML = '';
             chartWrapper.appendChild(p);
         } else {
             const globalMax = getGlobalMaxForDisease(disease);
             renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax, chartWrapper);
+
+            // アーカイブ取得中の場合は、グラフの上に「過去データ読み込み中...」を表示するか、
+            // showChartLoadingを消さずに残す戦略をとる
+            if (isLoadingArchives) {
+                // グラフは描画しつつ、ローディングも表示（またはメッセージ追加）
+                // 既存のshowChartLoadingは全画面覆うので、透過にするかメッセージを追加
+                const loadingMsg = document.createElement('div');
+                loadingMsg.className = 'archive-loading-indicator';
+                loadingMsg.textContent = '過去のデータを読み込み中...';
+                loadingMsg.style.position = 'absolute';
+                loadingMsg.style.top = '10px';
+                loadingMsg.style.right = '10px';
+                loadingMsg.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                loadingMsg.style.padding = '4px 8px';
+                loadingMsg.style.borderRadius = '4px';
+                loadingMsg.style.fontSize = '12px';
+                loadingMsg.style.color = '#666';
+                loadingMsg.style.zIndex = '10';
+                // chartWrapperはposition: relativeが必要
+                chartWrapper.style.position = 'relative';
+                chartWrapper.appendChild(loadingMsg);
+
+                hideChartLoading(chartWrapper); // 全面ローディングは消す
+            } else {
+                hideChartLoading(chartWrapper);
+            }
         }
     }
 }
@@ -1054,8 +1102,9 @@ async function reloadData() {
         }
 
         // キャッシュをクリア
-        await localforage.removeItem(CACHE_CONFIG.COMBINED_DATA_KEY);
-        console.log('Cache cleared for combined data reload.');
+        await localforage.removeItem(CACHE_CONFIG.CURRENT_DATA_KEY);
+        await localforage.removeItem(CACHE_CONFIG.ARCHIVE_DATA_KEY);
+        console.log('Cache cleared for infection data reload.');
 
         // データ取得とレンダリングのコア処理を再実行
         await loadAndRenderData();
@@ -1198,24 +1247,24 @@ function initEventListeners() {
 async function loadAndRenderData() {
     try {
         const now = Date.now();
-        let combinedData = null;
+        let currentData = null;
 
-        // 1. キャッシュ確認
+        // 1. キャッシュ確認 (当年データ)
         try {
-            const cached = await localforage.getItem(CACHE_CONFIG.COMBINED_DATA_KEY);
-            if (cached && (now - cached.timestamp < CACHE_CONFIG.HISTORY_EXPIRY)) {
-                combinedData = cached.data;
+            const cached = await localforage.getItem(CACHE_CONFIG.CURRENT_DATA_KEY);
+            if (cached && (now - cached.timestamp < CACHE_CONFIG.MAIN_EXPIRY)) {
+                currentData = cached.data;
             }
         } catch (e) {
-            console.warn('Cache check failed:', e);
+            console.warn('Current data cache check failed:', e);
         }
 
         // 2. キャッシュがない場合はAPIから取得
-        if (!combinedData) {
-            combinedData = await fetchCombinedData();
+        if (!currentData) {
+            currentData = await fetchCurrentData();
         }
 
-        cachedData = combinedData;
+        cachedData.current = currentData;
 
         // 日付表示更新
         if (cachedData.current && cachedData.current.meta && cachedData.current.meta.dateInfo) {
@@ -1224,14 +1273,44 @@ async function loadAndRenderData() {
             updateDateDisplay('');
         }
 
-        // 描画
+        // 基本描画（サマリーとダッシュボード＝地図＋メイングラフ）
         renderSummary(cachedData);
         renderDashboard(currentDisease, cachedData);
         updateLoadingState(false);
 
+        // 3. アーカイブデータのバックグラウンド取得
+        cachedData.isLoadingArchives = true; // フラグ設定
+        fetchArchiveData().then(archives => {
+            console.log('Archives loaded in background:', archives.length, 'years');
+            cachedData.archives = archives;
+            cachedData.isLoadingArchives = false; // フラグ解除
+
+            // すでに都道府県チャートやその他感染症ビューが表示されている場合は再描画が必要
+            refreshDynamicViewsIfNeeded();
+        }).catch(err => {
+            console.warn('Background archive fetch failed:', err);
+            cachedData.isLoadingArchives = false; // エラー時も解除
+            refreshDynamicViewsIfNeeded(); // エラー表示更新などのため一応呼ぶ
+        });
+
     } catch (e) {
         console.error('Error in loadAndRenderData:', e);
         throw e;
+    }
+}
+
+// アーカイブデータ読み込み完了時に必要に応じてビューを更新
+function refreshDynamicViewsIfNeeded() {
+    // 都道府県別グラフが表示されていた場合は再描画
+    if (currentPrefecture) {
+        showPrefectureChart(currentPrefecture, currentDisease);
+    }
+
+    // 「その他の感染症」リストビューが表示中の場合は再描画
+    const otherDiseasesListView = document.getElementById('other-diseases-list-view');
+    if (otherDiseasesListView && !otherDiseasesListView.classList.contains('hidden')) {
+        const prefSelect = document.getElementById('prefecture-select');
+        renderOtherDiseasesList(prefSelect ? prefSelect.value : '全国');
     }
 }
 

@@ -190,12 +190,13 @@ export default {
                 }
 
                 if (shouldNotify) {
+                    console.log(`Sending notification to subscriber in ${sub.city_name}`);
                     const pushPayload = {
                         title: '【花粉アラート】',
                         body: messageBody.trim(),
-                        icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // Or app icon
+                        icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png',
                         data: {
-                            url: './index.html' // Relative or absolute
+                            url: './index.html'
                         }
                     };
 
@@ -206,11 +207,19 @@ export default {
 
                     notifications.push(
                         webpush.sendNotification(subscription, JSON.stringify(pushPayload))
+                            .then(() => {
+                                console.log(`Notification sent successfully to ${sub.endpoint.slice(0, 30)}...`);
+                            })
                             .catch(err => {
                                 if (err.statusCode === 410 || err.statusCode === 404) {
+                                    console.warn(`Endpoint expired or not found (${err.statusCode}), marking for deletion: ${sub.endpoint.slice(0, 30)}...`);
                                     deleteEndpoints.push(sub.endpoint);
                                 } else {
-                                    console.error('Push error:', err);
+                                    console.error('Push delivery error:', {
+                                        endpoint: sub.endpoint.slice(0, 30) + '...',
+                                        statusCode: err.statusCode,
+                                        message: err.message
+                                    });
                                 }
                             })
                     );
