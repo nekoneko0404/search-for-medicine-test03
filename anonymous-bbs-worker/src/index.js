@@ -82,7 +82,7 @@ async function handleCreatePost(request, env, corsHeaders) {
         const threeHours = 3 * 60 * 60 * 1000;
 
         if (diff < threeHours) {
-            return new Response(JSON.stringify({ error: "連投制限されています。3時間後に再度お試しください。" }), {
+            return new Response(JSON.stringify({ error: "連投できません。まったりいきましょう。（3時間規制）" }), {
                 status: 429,
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
             });

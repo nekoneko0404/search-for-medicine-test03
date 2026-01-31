@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!res.ok) {
                 if (res.status === 429) {
-                    throw new Error(data.error || '連投制限されています。3時間後に再度お試しください。');
+                    throw new Error(data.error || '連投できません。まったりいきましょう。（3時間規制）');
                 }
                 throw new Error(data.error || '送信に失敗しました。');
             }

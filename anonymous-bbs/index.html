@@ -7,7 +7,7 @@
     <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://anonymous-bbs-worker.neko-neko-0404.workers.dev;">
-    <title>匿名掲示板 (Beta)</title>
+    <title>助け合い掲示板 (Beta)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,26 +19,28 @@
 <body>
     <div class="container">
         <header>
-            <h1>ご意見・ご要望・不具合報告</h1>
+            <h1>助け合い掲示板</h1>
             <div class="header-desc">
-                <p>匿名で書き込めます。個人情報は入力しないでください。</p>
+                <p>ユーザー同士で質問・相談・情報交換ができる場所です。<br>
+                    日々の業務の悩みから、機能のご要望まで、自由に書き込んでください。</p>
+                <p class="privacy-note">※匿名で書き込めます。個人情報は入力しないでください。</p>
             </div>
         </header>
 
         <div class="main-content">
             <section class="post-form">
                 <div class="post-guide">
-                    <p>以下のような内容をお待ちしています：</p>
+                    <p>例えばこんな投稿をお待ちしています：</p>
                     <ul>
-                        <li>不具合報告</li>
-                        <li>機能要望</li>
-                        <li>提案</li>
-                        <li>感想</li>
-                        <li>便利な使い方</li>
+                        <li>質問・相談</li>
+                        <li>便利な使い方の共有</li>
+                        <li>業務の悩み・雑談</li>
+                        <li>機能要望・不具合報告</li>
+                        <li>応援・励まし</li>
                     </ul>
                 </div>
                 <textarea id="postContent" placeholder="ここに内容を記入してください..." rows="12"></textarea>
-                <p class="warning-text-footer">※一度投稿すると、3時間は連投できません。</p>
+                <p class="warning-text-footer">連投できません。まったりいきましょう。（3時間規制）</p>
                 <div class="form-actions">
                     <span class="char-count">0 / 400</span>
                     <button id="submitBtn">送信する</button>
