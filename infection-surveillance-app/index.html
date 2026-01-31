@@ -26,9 +26,23 @@
 <body>
     <header class="main-header">
         <div class="container header-container">
-            <div class="header-left">
-                <div class="logo-dot"></div>
-                <h1>Infection Surveillance</h1>
+            <div class="header-left" style="display: flex; align-items: center; gap: 12px;">
+                <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                    <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon"
+                        style="height: 36px; width: 36px; object-fit: contain;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 16px; font-weight: 700; color: #312e81; line-height: 1.1;">Kusuri
+                            Compass</span>
+                        <span
+                            style="font-size: 9px; font-weight: 600; color: #4f46e5; line-height: 1.1;">薬剤師業務支援ツール</span>
+                    </div>
+                </a>
+                <div style="width: 1px; height: 24px; background-color: #e2e8f0; margin: 0 4px;"></div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="logo-dot"></div>
+                    <h1>Infection Surveillance</h1>
+                </div>
             </div>
             <div class="header-center">
                 <span id="update-date" class="last-updated">読み込み中...</span>

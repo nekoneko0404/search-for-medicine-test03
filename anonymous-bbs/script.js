@@ -1,12 +1,16 @@
 const API_BASE = "https://anonymous-bbs-worker.neko-neko-0404.workers.dev/api/posts";
 const MAX_CHARS = 400;
+let allPosts = []; // データを保持
+let currentPage = 1;
 
 document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('.main-content');
     const postContent = document.getElementById('postContent');
     const submitBtn = document.getElementById('submitBtn');
     const charCount = document.querySelector('.char-count');
     const postsContainer = document.getElementById('postsContainer');
     const statusMessage = document.getElementById('statusMessage');
+    const paginationContainer = document.getElementById('pagination');
 
     // Load posts on start
     loadPosts();
@@ -81,22 +85,40 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(API_BASE);
             if (!res.ok) throw new Error('読み込みに失敗しました');
-            const posts = await res.json();
-            renderPosts(posts);
+            allPosts = await res.json();
+            renderPosts();
         } catch (err) {
             postsContainer.innerHTML = `<p class="error">読み込みエラー: ${err.message}</p>`;
         }
     }
 
     // Render posts
-    function renderPosts(posts) {
+    function renderPosts() {
         postsContainer.innerHTML = '';
-        if (posts.length === 0) {
+        if (allPosts.length === 0) {
             postsContainer.innerHTML = '<p class="loading">投稿はまだありません。</p>';
+            paginationContainer.innerHTML = '';
             return;
         }
 
-        posts.forEach(post => {
+        // ページごとの表示制御
+        // 1P: 10件
+        // 2P+: 20件
+        let start, end;
+        if (currentPage === 1) {
+            start = 0;
+            end = 10;
+            mainContent.classList.remove('is-p2-plus');
+        } else {
+            // 2P目以降: 1P(10件) + (page-2)*20件 から開始
+            start = 10 + (currentPage - 2) * 20;
+            end = start + 20;
+            mainContent.classList.add('is-p2-plus');
+        }
+
+        const displayPosts = allPosts.slice(start, end);
+
+        displayPosts.forEach(post => {
             const el = document.createElement('div');
             el.className = 'post';
 
@@ -130,6 +152,37 @@ document.addEventListener('DOMContentLoaded', () => {
             el.appendChild(contentDiv);
             postsContainer.appendChild(el);
         });
+
+        renderPagination();
+    }
+
+    // Pagination rendering
+    function renderPagination() {
+        paginationContainer.innerHTML = '';
+
+        // 最大100件までの制限（サーバー側もLIMIT 100）
+        const totalPosts = Math.min(allPosts.length, 100);
+
+        // ページ数の計算
+        // 1ページ目(10件) + 残り(90件) / 20件
+        let totalPages = 1;
+        if (totalPosts > 10) {
+            totalPages = 1 + Math.ceil((totalPosts - 10) / 20);
+        }
+
+        if (totalPages <= 1) return;
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.textContent = i;
+            btn.addEventListener('click', () => {
+                currentPage = i;
+                renderPosts();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            paginationContainer.appendChild(btn);
+        }
     }
 
     // Delete handling

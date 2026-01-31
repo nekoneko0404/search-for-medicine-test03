@@ -264,3 +264,63 @@ button:disabled {
     border: 1px solid var(--border-color);
     color: var(--text-color);
 }
+
+/* 2-Column Layout for Page 2+ */
+.main-content.is-p2-plus .post-form {
+    display: none;
+}
+
+.main-content.is-p2-plus .post-list {
+    flex: 1;
+    width: 100%;
+}
+
+.main-content.is-p2-plus #postsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 767px) {
+    .main-content.is-p2-plus #postsContainer {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.page-btn {
+    background-color: white;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    background-color: #f9fafb;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.page-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.page-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
