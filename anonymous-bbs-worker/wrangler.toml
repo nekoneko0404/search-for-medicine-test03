@@ -1,0 +1,12 @@
+name = "anonymous-bbs-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bbs-db"
+database_id = "d177016f-44b7-4db4-8ac2-e27c0404b06e"
+
+[vars]
+ADMIN_EMAIL = "neko.neko.0404@gmail.com"
+ADMIN_KEY = "5f8c9e2a-1b3d-4e5f-8a2c-9b1d3e5f7a0b"
