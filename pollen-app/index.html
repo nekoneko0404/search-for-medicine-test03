@@ -46,7 +46,7 @@
                         style="height: 40px; width: 40px; object-fit: contain;">
                 </a>
             </div>
-            <div class="title-group" style="margin-left: 20px;">
+            <div class="title-group" style="margin-left: 5px;">
                 <i class="fas fa-wind icon-main"></i>
                 <div>
                     <h1>花粉飛散リアルタイム監視</h1>
@@ -104,7 +104,6 @@
                     <div class="quick-dates">
                         <button class="btn-quick-date" data-days="0">今日</button>
                         <button class="btn-quick-date" data-days="1">昨日</button>
-                        <button class="btn-quick-date" data-days="7">1週間前</button>
                         <button class="btn-quick-date" data-years="1">1年前</button>
                         <button class="btn-quick-date" data-years="2">2年前</button>
                         <button class="btn-quick-date" data-years="3">3年前</button>
@@ -112,24 +111,39 @@
                 </div>
             </div>
 
-
-
-            <!-- Map Type Selection -->
+            <!-- Display Mode Selection -->
             <div class="panel-section">
-                <h2 class="section-title"><i class="fas fa-layer-group"></i> 地図の種類</h2>
-                <div class="map-type-controls">
-                    <button class="btn-map-type active" data-type="std">通常地図</button>
-                    <button class="btn-map-type" data-type="relief">立体地形図</button>
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> 表示モード</h2>
+                <div class="mode-controls">
+                    <div class="toggle-group">
+                        <input type="radio" id="mode-hourly" name="display-mode" value="hourly" checked>
+                        <label for="mode-hourly">最新1時間</label>
+                        <input type="radio" id="mode-daily" name="display-mode" value="daily">
+                        <label for="mode-daily">1日積算</label>
+                    </div>
                 </div>
             </div>
 
 
-            <!-- Weather Display -->
-            <div class="panel-section">
-                <h2 class="section-title"><i class="fas fa-cloud-sun"></i> 天気情報</h2>
-                <button id="toggle-weather" class="btn-toggle-weather">
-                    <i class="fas fa-map-marker-alt"></i> 天気表示
-                </button>
+
+            <!-- Map Type & Weather (Side by Side) -->
+            <div class="panel-row">
+                <!-- Map Type Selection -->
+                <div class="panel-section half-width">
+                    <h2 class="section-title"><i class="fas fa-layer-group"></i> 地図の種類</h2>
+                    <div class="map-type-controls">
+                        <button class="btn-map-type active" data-type="std">通常地図</button>
+                        <button class="btn-map-type" data-type="relief">立体地形図</button>
+                    </div>
+                </div>
+
+                <!-- Weather Display -->
+                <div class="panel-section half-width">
+                    <h2 class="section-title"><i class="fas fa-cloud-sun"></i> 天気情報</h2>
+                    <button id="toggle-weather" class="btn-toggle-weather">
+                        <i class="fas fa-map-marker-alt"></i> 天気表示
+                    </button>
+                </div>
             </div>
 
             <!-- Legend -->

@@ -329,14 +329,14 @@ async function fetchCityDailyData(cityCode) {
         const isToday = state.currentDate === todayJST;
 
         let displayValue = 0;
-        if (isToday) {
-            // For today, use the latest non-null hourly value that is not in the future and not missing (-1)
+        if (isToday && state.currentMode === 'hourly') {
+            // For today (Hourly Mode), use the latest non-null hourly value
             const now = new Date();
             const validData = data.filter(v => v.date <= now && v.pollen !== null && v.pollen >= 0);
             const latest = validData.length > 0 ? validData[validData.length - 1] : null;
             displayValue = latest ? latest.pollen : 0;
         } else {
-            // For past data, use the daily total (sum) for the selected date only
+            // For past data OR today (Daily Mode), use the daily total (sum)
             displayValue = data
                 .filter(item => item.dateKey === state.currentDate)
                 .reduce((sum, item) => sum + (item.pollen > 0 ? item.pollen : 0), 0);
@@ -344,9 +344,14 @@ async function fetchCityDailyData(cityCode) {
 
         const marker = markers[cityCode];
         if (marker) {
-            marker.isPast = !isToday;
+            // Treat as "Past" (Daily Cumulative) if it is NOT today OR if mode is explicitly 'daily'
+            // Effectively: isPastVisually = !isToday || state.currentMode === 'daily'
+            // Simplified: We only show "Hourly" style if (isToday && mode === 'hourly')
+            const useHourlyStyle = isToday && state.currentMode === 'hourly';
+
+            marker.isPast = !useHourlyStyle;
             marker.maxPollen = displayValue;
-            marker.setStyle({ fillColor: getPollenColor(displayValue, !isToday) });
+            marker.setStyle({ fillColor: getPollenColor(displayValue, !useHourlyStyle) });
             fetchedCities.add(cityCode);
 
             if (map.getZoom() >= CONFIG.ZOOM_THRESHOLD) {
@@ -791,10 +796,33 @@ document.addEventListener('DOMContentLoaded', () => {
     datePicker.value = todayStr;
     datePicker.max = todayStr; // Restrict future dates
 
+    function updateModeUI() {
+        const todayStr = getJSTDateString();
+        const isToday = state.currentDate === todayStr;
+        const toggleGroup = document.querySelector('.toggle-group');
+
+        if (toggleGroup) {
+            if (isToday) {
+                toggleGroup.classList.remove('disabled');
+                // Restore user selection
+                const savedMode = state.currentMode;
+                const radio = document.querySelector(`input[name="display-mode"][value="${savedMode}"]`);
+                if (radio) radio.checked = true;
+            } else {
+                toggleGroup.classList.add('disabled');
+                // Visually switch to daily for past dates
+                const dailyRadio = document.getElementById('mode-daily');
+                if (dailyRadio) dailyRadio.checked = true;
+            }
+        }
+    }
+
     function updateDate(newDateStr) {
         if (newDateStr > todayStr) return; // Prevent future dates
         state.currentDate = newDateStr;
         datePicker.value = newDateStr;
+
+        updateModeUI();
 
         // Update active state of quick buttons
         document.querySelectorAll('.btn-quick-date').forEach(btn => {
@@ -865,6 +893,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 d.setFullYear(d.getFullYear() - parseInt(years));
             }
             updateDate(getJSTDateString(d));
+        });
+    });
+
+    // Display Mode Toggle Logic
+    const modeRadios = document.getElementsByName('display-mode');
+    modeRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            state.currentMode = e.target.value;
+
+            // Force refresh markers
+            fetchedCities.clear();
+            Object.values(markers).forEach(marker => {
+                marker.setStyle({ fillColor: '#ccc' });
+                marker.maxPollen = 0;
+                if (marker.getTooltip()) {
+                    marker.unbindTooltip();
+                }
+            });
+            updateVisibleMarkers().catch(err => console.error(err));
         });
     });
 
