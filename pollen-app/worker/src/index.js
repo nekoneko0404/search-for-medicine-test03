@@ -24,16 +24,17 @@ export default {
                 }
 
                 const stmt = env.DB.prepare(`
-          INSERT INTO subscribers (endpoint, keys, city_code, city_name, threshold_hourly, threshold_daily, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO subscribers(endpoint, keys, city_code, city_name, threshold_hourly, threshold_daily, created_at, last_daily_notified_date)
+                VALUES(?, ?, ?, ?, ?, ?, ?, NULL)
           ON CONFLICT(endpoint) DO UPDATE SET
-            keys = excluded.keys,
-            city_code = excluded.city_code,
-            city_name = excluded.city_name,
-            threshold_hourly = excluded.threshold_hourly,
-            threshold_daily = excluded.threshold_daily,
-            created_at = excluded.created_at
-        `);
+                keys = excluded.keys,
+                    city_code = excluded.city_code,
+                    city_name = excluded.city_name,
+                    threshold_hourly = excluded.threshold_hourly,
+                    threshold_daily = excluded.threshold_daily,
+                    created_at = excluded.created_at,
+                    last_daily_notified_date = NULL
+                        `);
 
                 await stmt.bind(
                     subscription.endpoint,
@@ -114,7 +115,7 @@ export default {
             const y = today.getFullYear();
             const m = String(today.getMonth() + 1).padStart(2, '0');
             const d = String(today.getDate()).padStart(2, '0');
-            const dateStr = `${y}${m}${d}`;
+            const dateStr = `${y}${m}${d} `;
 
             const apiUrl = `https://wxtech.weathernews.com/opendata/v1/pollen?citycode=ALL&start=${dateStr}&end=${dateStr}`;
 
@@ -163,13 +164,23 @@ export default {
                 let shouldNotify = false;
                 let messageBody = '';
 
+                const todayStr = dateStr; // YYYYMMDD
+                let notifiedDaily = false;
+
+                // 1. Hourly Threshold Check (Always notify if exceeded)
                 if (cityData.latest >= sub.threshold_hourly) {
                     shouldNotify = true;
                     messageBody += `${sub.city_name}の1時間飛散量: ${cityData.latest}個\n`;
                 }
+
+                // 2. Daily Summary Check (Notify only once per day)
                 if (cityData.dailySum >= sub.threshold_daily) {
-                    shouldNotify = true;
-                    messageBody += `${sub.city_name}の本日積算: ${cityData.dailySum}個\n`;
+                    // Check if already notified today
+                    if (sub.last_daily_notified_date !== todayStr) {
+                        shouldNotify = true;
+                        notifiedDaily = true;
+                        messageBody += `${sub.city_name}の本日積算: ${cityData.dailySum}個\n`;
+                    }
                 }
 
                 if (shouldNotify) {
@@ -192,6 +203,13 @@ export default {
                         sendWebPush(env, subscription, pushPayload)
                             .then(() => {
                                 console.log(`Notification sent successfully to ${sub.endpoint.slice(0, 30)}...`);
+                                // If daily notification was included, update the DB
+                                if (notifiedDaily) {
+                                    return env.DB.prepare('UPDATE subscribers SET last_daily_notified_date = ? WHERE endpoint = ?')
+                                        .bind(todayStr, sub.endpoint)
+                                        .run()
+                                        .catch(e => console.error('Failed to update last_daily_notified_date', e));
+                                }
                             })
                             .catch(err => {
                                 if (err.status === 410 || err.status === 404) {
