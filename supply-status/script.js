@@ -1,6 +1,6 @@
-import { loadAndCacheData } from '../js/data.js';
+import { loadAndCacheData, clearCacheAndReload } from '../js/data.js';
 import { normalizeString, formatDate } from '../js/utils.js';
-import { renderStatusButton } from '../js/ui.js';
+import { renderStatusButton, showMessage, updateProgress } from '../js/ui.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const drugNameInput = document.getElementById('drugName');
@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryFilterContainer = document.getElementById('categoryFilterContainer');
     const statusFilterContainer = document.getElementById('statusFilterContainer');
 
+    const reloadDataBtn = document.getElementById('reload-data');
+
     let allData = [];
     let categoryData = [];
     let filteredData = [];
@@ -36,16 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function init() {
         try {
+            updateProgress('初期化中...', 10);
             const catResponse = await fetch('data/category_data.json');
             categoryData = await catResponse.json();
+            updateProgress('カテゴリデータ読み込み完了', 30);
 
-            const result = await loadAndCacheData();
+            const result = await loadAndCacheData(updateProgress);
             if (result && result.data) {
                 allData = result.data.map(item => {
-                    const catItem = categoryData.find(c => normalizeString(c.ingredient_name) === normalizeString(item.ingredientName));
+                    const normalizedIngredientName = normalizeString(item.ingredientName);
+                    const catItem = categoryData.find(c => normalizeString(c.ingredient_name) === normalizedIngredientName);
                     return {
                         ...item,
-                        category: catItem ? catItem.category : '-'
+                        category: catItem ? catItem.category : '-',
+                        normalizedProductName: normalizeString(item.productName),
+                        normalizedIngredientName: normalizedIngredientName
                     };
                 });
 
@@ -54,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 if (summaryTable) summaryTable.classList.remove('hidden');
 
+                showMessage(`データ(${result.date}) ${allData.length} 件を読み込みました。`, "success");
                 renderResults();
             }
         } catch (error) {
@@ -61,7 +69,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const loadingIndicator = document.getElementById('loadingIndicator');
             if (loadingIndicator) loadingIndicator.classList.add('hidden');
             summaryTableBody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">データの読み込みに失敗しました</td></tr>';
+            showMessage('データの読み込みに失敗しました。', 'error');
         }
+    }
+
+    if (reloadDataBtn) {
+        reloadDataBtn.addEventListener('click', async () => {
+            if (reloadDataBtn.disabled) return;
+
+            reloadDataBtn.disabled = true;
+            reloadDataBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            showMessage('最新データを取得しています...', 'info');
+            try {
+                const result = await clearCacheAndReload(updateProgress);
+                if (result && result.data) {
+                    allData = result.data.map(item => {
+                        const normalizedIngredientName = normalizeString(item.ingredientName);
+                        const catItem = categoryData.find(c => normalizeString(c.ingredient_name) === normalizedIngredientName);
+                        return {
+                            ...item,
+                            category: catItem ? catItem.category : '-',
+                            normalizedProductName: normalizeString(item.productName),
+                            normalizedIngredientName: normalizedIngredientName
+                        };
+                    });
+                    showMessage(`データを更新しました: ${allData.length}件`, 'success');
+                    renderResults();
+                }
+            } catch (err) {
+                console.error('Reload failed:', err);
+                showMessage(`データの更新に失敗しました: ${err.message || '不明なエラー'}`, 'error');
+            } finally {
+                reloadDataBtn.disabled = false;
+                reloadDataBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
     }
 
     const inputs = [drugNameInput, ingredientNameInput, catACheckbox, catBCheckbox, catCCheckbox, statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox];
@@ -85,8 +128,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function renderResults() {
-        const drugName = drugNameInput.value.toLowerCase().trim();
-        const ingredientName = ingredientNameInput.value.toLowerCase().trim();
+        const drugQuery = drugNameInput.value.trim();
+        const ingredientQuery = ingredientNameInput.value.trim();
+
+        const processQuery = (query) => {
+            if (!query) return { include: [], exclude: [] };
+            const terms = query.split(/[\s　]+/).filter(t => t.length > 0);
+            const include = [];
+            const exclude = [];
+            terms.forEach(term => {
+                if (term.startsWith('ー') && term.length > 1) {
+                    exclude.push(normalizeString(term.substring(1)));
+                } else {
+                    include.push(normalizeString(term));
+                }
+            });
+            return { include, exclude };
+        };
+
+        const drugFilter = processQuery(drugQuery);
+        const ingredientFilter = processQuery(ingredientQuery);
 
         const selectedCategories = [];
         if (catACheckbox.checked) selectedCategories.push('A');
@@ -99,8 +160,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statusStoppedCheckbox.checked) selectedStatuses.push('供給停止');
 
         filteredData = allData.filter(item => {
-            const matchDrug = (item.productName || '').toLowerCase().includes(drugName);
-            const matchIngredient = (item.ingredientName || '').toLowerCase().includes(ingredientName);
+            const matchQuery = (text, filter) => {
+                const normalizedText = text || '';
+                const matchInclude = filter.include.length === 0 || filter.include.every(term => normalizedText.includes(term));
+                const matchExclude = filter.exclude.length === 0 || !filter.exclude.some(term => normalizedText.includes(term));
+                return matchInclude && matchExclude;
+            };
+
+            const matchDrug = matchQuery(item.normalizedProductName, drugFilter);
+            const matchIngredient = matchQuery(item.normalizedIngredientName, ingredientFilter);
             const matchCategory = selectedCategories.includes(item.category);
 
             const currentStatus = (item.shipmentStatus || '').trim();
@@ -115,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentView === 'summary') {
             renderSummaryTable(filteredData);
         } else {
-            renderDetailView(filteredData.filter(item => normalizeString(item.ingredientName) === normalizeString(currentIngredient)));
+            renderDetailView(filteredData.filter(item => item.normalizedIngredientName === normalizeString(currentIngredient)));
         }
     }
 
@@ -205,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (categoryFilterContainer) categoryFilterContainer.classList.add('hidden');
         if (statusFilterContainer) statusFilterContainer.classList.remove('hidden');
 
-        const ingredientData = filteredData.filter(item => normalizeString(item.ingredientName) === normalizeString(ingredient));
+        const ingredientData = filteredData.filter(item => item.normalizedIngredientName === normalizeString(ingredient));
         renderDetailView(ingredientData);
     }
 

@@ -3,6 +3,8 @@
  * Handles fetching from Google Sheets and caching with LocalForage
  */
 
+import { normalizeString } from './utils.js';
+
 // We assume localforage is loaded globally via CDN in index.html for now, 
 // or we could import it if we were using a bundler. 
 // Since we are using native ES modules without a bundler, and localforage UMD build 
@@ -178,8 +180,11 @@ function processCsvData(csvText, onProgress) {
 
         dataRows.push({
             'productName': row[5],  // ⑥品名
+            'normalizedProductName': normalizeString(row[5]),
             'ingredientName': row[2],  // ③成分名
+            'normalizedIngredientName': normalizeString(row[2]),
             'manufacturer': row[6],  // ⑦製造販売業者名
+            'normalizedManufacturer': normalizeString(row[6]),
             'shipmentStatus': row[11], // ⑫出荷対応
             'reasonForLimitation': row[13], // ⑭制限理由
             'resolutionProspect': row[14], // ⑮解消見込み
@@ -312,6 +317,16 @@ export async function loadAndCacheData(onProgress) {
                     }
                     if (item.expectedDateObj && typeof item.expectedDateObj === 'string') {
                         item.expectedDateObj = new Date(item.expectedDateObj);
+                    }
+                    // Fallback for older cache without pre-normalized fields
+                    if (!item.normalizedProductName && item.productName) {
+                        item.normalizedProductName = normalizeString(item.productName);
+                    }
+                    if (!item.normalizedIngredientName && item.ingredientName) {
+                        item.normalizedIngredientName = normalizeString(item.ingredientName);
+                    }
+                    if (!item.normalizedManufacturer && item.manufacturer) {
+                        item.normalizedManufacturer = normalizeString(item.manufacturer);
                     }
                 });
             }

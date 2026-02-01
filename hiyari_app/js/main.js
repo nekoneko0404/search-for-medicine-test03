@@ -67,33 +67,27 @@ function hideError() {
 
 /* -------------------------------------------------
    API URL 生成
-------------------------------------------------- */
+ ------------------------------------------------- */
 function buildApiUrl(searchKeyword, filterWord) {
     const params = new URLSearchParams();
-    params.append('count', '50'); // Limit results for performance
+    params.append('count', '100'); // Increase count for better client-side filtering
     params.append('order', '2'); // Sort by newest first
 
-    // Sanitize inputs
-    const sanitize = (input) => {
-        return input.replace(/[^ぁ-んァ-ヶー一-龯A-Za-z0-9\s\-,、.()（）]/g, '').trim();
-    };
-
-    const cleanSearch = sanitize(normalizeString(searchKeyword));
-    const cleanFilter = sanitize(normalizeString(filterWord));
+    // Use normalized strings for API query
+    const cleanSearch = normalizeString(searchKeyword).replace(/ー/g, ' ').trim();
+    const cleanFilter = normalizeString(filterWord).replace(/ー/g, ' ').trim();
 
     if (cleanSearch && !cleanFilter) {
-        // Drug/Ingredient name only - search in both DATMEDNAME and DATGENERIC fields
         params.append('item', 'DATMEDNAME');
         params.append('item', 'DATGENERIC');
         params.append('word', cleanSearch);
-        params.append('condition', 'any'); // OR search across fields
+        params.append('condition', 'any');
     } else {
-        // Combined search - full-text search
         const combinedWord = [cleanSearch, cleanFilter].filter(Boolean).join(' ');
         if (combinedWord) {
             params.append('word', combinedWord);
             if (cleanSearch && cleanFilter) {
-                params.append('condition', 'all'); // AND search
+                params.append('condition', 'all');
             }
         }
     }
@@ -103,27 +97,49 @@ function buildApiUrl(searchKeyword, filterWord) {
 
 /* -------------------------------------------------
    データ取得
-------------------------------------------------- */
+ ------------------------------------------------- */
 async function fetchIncidents() {
-    const searchKeyword = elements.searchInput.value.trim();
-    const filterWord = elements.filterInput.value.trim();
+    const rawSearchKeyword = elements.searchInput.value.trim();
+    const rawFilterWord = elements.filterInput.value.trim();
 
-    if (!searchKeyword && !filterWord) {
+    if (!rawSearchKeyword && !rawFilterWord) {
         elements.resultsContainer.innerHTML = '';
         hideError();
         document.body.classList.remove('search-mode');
-        if (elements.usageGuide) elements.usageGuide.classList.remove('hidden'); // 検索キーワードがない場合、使い方説明を表示
+        if (elements.usageGuide) elements.usageGuide.classList.remove('hidden');
         return;
     }
+
+    const processQuery = (query) => {
+        if (!query) return { include: [], exclude: [] };
+        const terms = query.split(/[\s　]+/).filter(t => t.length > 0);
+        const include = [];
+        const exclude = [];
+        terms.forEach(term => {
+            if (term.startsWith('ー') && term.length > 1) {
+                exclude.push(normalizeString(term.substring(1)));
+            } else {
+                include.push(normalizeString(term));
+            }
+        });
+        return { include, exclude };
+    };
+
+    const searchFilter = processQuery(rawSearchKeyword);
+    const filterFilter = processQuery(rawFilterWord);
 
     showLoading(true);
     hideError();
     elements.resultsContainer.innerHTML = '';
     currentlyDisplayedCount = 0;
-    if (elements.usageGuide) elements.usageGuide.classList.add('hidden'); // 検索開始時に使い方説明を非表示
+    if (elements.usageGuide) elements.usageGuide.classList.add('hidden');
 
     try {
-        const response = await fetch(buildApiUrl(searchKeyword, filterWord));
+        // API query uses inclusion keywords only
+        const apiSearch = searchFilter.include.join(' ');
+        const apiFilter = filterFilter.include.join(' ');
+
+        const response = await fetch(buildApiUrl(apiSearch, apiFilter));
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
         const xmlText = await response.text();
@@ -143,7 +159,30 @@ async function fetchIncidents() {
             return;
         }
 
-        currentData = Array.from(reports).map(parseReport);
+        let allData = Array.from(reports).map(parseReport);
+
+        // Client-side filtering for AND and Exclusion
+        currentData = allData.filter(item => {
+            const matchQuery = (data, filter) => {
+                const text = JSON.stringify(data); // Search across all fields in the report
+                const normalizedText = normalizeString(text);
+                const matchInclude = filter.include.every(term => normalizedText.includes(term));
+                const matchExclude = filter.exclude.length === 0 || !filter.exclude.some(term => normalizedText.includes(term));
+                return matchInclude && matchExclude;
+            };
+
+            return matchQuery(item, searchFilter) && matchQuery(item, filterFilter);
+        });
+
+        if (currentData.length === 0) {
+            const p = document.createElement('p');
+            p.className = 'col-span-full text-center text-gray-500 py-8';
+            p.textContent = '条件にヒットする事例はありませんでした。';
+            elements.resultsContainer.appendChild(p);
+            document.body.classList.remove('search-mode');
+            return;
+        }
+
         document.body.classList.add('search-mode');
         displayNextBatch();
     } catch (err) {

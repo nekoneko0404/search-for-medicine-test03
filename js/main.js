@@ -78,83 +78,70 @@ function getSearchKeywords(input) {
  */
 function searchData() {
     console.log('--- searchData called ---');
-    console.log('drugName.value:', elements.drugName.value);
-    console.log('ingredientName.value:', elements.ingredientName.value);
-    console.log('makerName.value:', elements.makerName.value);
-
-    // Footer visibility is handled by CSS animation via body class
     if (excelData.length === 0) {
         console.log('excelData is empty, returning.');
         return;
     }
 
-    const drugKeywords = getSearchKeywords(elements.drugName.value);
-    const ingredientKeywords = getSearchKeywords(elements.ingredientName.value);
+    const processQuery = (query) => {
+        if (!query) return { include: [], exclude: [] };
+        const terms = query.split(/[\s　]+/).filter(t => t.length > 0);
+        const include = [];
+        const exclude = [];
+        terms.forEach(term => {
+            if ((term.startsWith('ー') || term.startsWith('-')) && term.length > 1) {
+                exclude.push(normalizeString(term.substring(1)));
+            } else {
+                include.push(normalizeString(term));
+            }
+        });
+        return { include, exclude };
+    };
 
-    const makerInput = elements.makerName.value;
-    const allMakerKeywords = makerInput.split(/\s+|　+/).filter(keyword => keyword !== '');
-    const inclusionMakerKeywords = allMakerKeywords
-        .filter(keyword => !keyword.startsWith('ー') && !keyword.startsWith('-'))
-        .map(keyword => normalizeString(keyword));
-    const exclusionMakerKeywords = allMakerKeywords
-        .filter(keyword => keyword.startsWith('ー') || keyword.startsWith('-'))
-        .map(keyword => normalizeString(keyword.substring(1)).trim())
-        .filter(Boolean);
+    const drugFilter = processQuery(elements.drugName.value);
+    const ingredientFilter = processQuery(elements.ingredientName.value);
+    const makerFilter = processQuery(elements.makerName.value);
 
-    console.log('drugKeywords:', drugKeywords);
-    console.log('ingredientKeywords:', ingredientKeywords);
-    console.log('inclusionMakerKeywords:', inclusionMakerKeywords);
-    console.log('exclusionMakerKeywords:', exclusionMakerKeywords);
-
+    const allSearchFieldsEmpty = drugFilter.include.length === 0 && drugFilter.exclude.length === 0 &&
+        ingredientFilter.include.length === 0 && ingredientFilter.exclude.length === 0 &&
+        makerFilter.include.length === 0 && makerFilter.exclude.length === 0;
 
     const allCheckboxesChecked = elements.statusNormal.checked && elements.statusLimited.checked && elements.statusStopped.checked;
-    const allSearchFieldsEmpty = drugKeywords.length === 0 && ingredientKeywords.length === 0 && allMakerKeywords.length === 0;
 
     const statusFilters = [];
     if (elements.statusNormal.checked) statusFilters.push("通常出荷");
     if (elements.statusLimited.checked) statusFilters.push("限定出荷");
     if (elements.statusStopped.checked) statusFilters.push("供給停止");
-    console.log('statusFilters:', statusFilters);
-
 
     if (allSearchFieldsEmpty && allCheckboxesChecked) {
         renderResults([]);
         elements.tableContainer.classList.add('hidden');
         if (elements.infoContainer) elements.infoContainer.classList.remove('hidden');
         document.body.classList.remove('search-mode');
-        console.log('All search fields empty and all checkboxes checked. Hiding table.');
         return;
     } else {
         if (elements.infoContainer) elements.infoContainer.classList.add('hidden');
         elements.tableContainer.classList.remove('hidden');
         document.body.classList.add('search-mode');
-        console.log('Search criteria present. Showing table.');
     }
 
     filteredResults = excelData.filter(item => {
         if (!item) return false;
 
-        const drugName = normalizeString(item.productName || "");
-        const ingredientName = normalizeString(item.ingredientName || "");
-        const makerName = normalizeString((item.standard || "") + (item.manufacturer || ""));
+        const matchQuery = (text, filter) => {
+            const normalizedText = text || '';
+            const matchInclude = filter.include.length === 0 || filter.include.every(term => normalizedText.includes(term));
+            const matchExclude = filter.exclude.length === 0 || !filter.exclude.some(term => normalizedText.includes(term));
+            return matchInclude && matchExclude;
+        };
 
-        const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
-        const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
+        const matchDrug = matchQuery(item.normalizedProductName, drugFilter);
+        const matchIngredient = matchQuery(item.normalizedIngredientName, ingredientFilter);
 
-        // Maker search: Check if any inclusion keyword matches productName, makerName, or ingredientName
-        const matchMaker = inclusionMakerKeywords.every(keyword =>
-            (item.productName && normalizeString(item.productName).includes(keyword)) ||
-            makerName.includes(keyword) ||
-            ingredientName.includes(keyword)
-        );
-
-        // Maker exclusion: Check if any exclusion keyword matches productName, makerName, or ingredientName
-        const mismatchMaker = exclusionMakerKeywords.some(keyword =>
-            (item.productName && normalizeString(item.productName).includes(keyword)) ||
-            makerName.includes(keyword) ||
-            ingredientName.includes(keyword)
-        );
-
+        // Maker search in main.js actually checks productName, makerName, and ingredientName
+        // We'll keep this behavior but use pre-normalized fields where available
+        const makerSearchText = (item.normalizedProductName || "") + (item.normalizedManufacturer || "") + (item.normalizedIngredientName || "");
+        const matchMaker = matchQuery(makerSearchText, makerFilter);
 
         if (statusFilters.length === 0) return false;
 
@@ -171,7 +158,7 @@ function searchData() {
             matchStatus = true;
         }
 
-        return matchDrug && matchIngredient && matchMaker && !mismatchMaker && matchStatus;
+        return matchDrug && matchIngredient && matchMaker && matchStatus;
     });
 
     console.log('filteredResults.length:', filteredResults.length);

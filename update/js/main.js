@@ -188,7 +188,21 @@ async function initApp() {
 
     let isComposing = false;
     elements.searchInput.addEventListener('compositionstart', () => isComposing = true);
-    elements.searchInput.addEventListener('compositionend', () => isComposing = false);
+    elements.searchInput.addEventListener('compositionend', () => {
+        isComposing = false;
+        debouncedSearch();
+    });
+
+    const debouncedSearch = debounce(() => {
+        if (elements.searchInput.value.trim() !== '') {
+            elements.updatePeriod.value = 'all';
+        }
+        searchData();
+    }, 300);
+
+    elements.searchInput.addEventListener('input', () => {
+        if (!isComposing) debouncedSearch();
+    });
 
     elements.searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !isComposing) {
@@ -347,7 +361,22 @@ function searchData(reset = false) {
 
     if (excelData.length === 0) return;
 
-    const searchKeywords = elements.searchInput.value.split(/\s+/).filter(k => k).map(normalizeString);
+    const processQuery = (query) => {
+        if (!query) return { include: [], exclude: [] };
+        const terms = query.split(/[\s　]+/).filter(t => t.length > 0);
+        const include = [];
+        const exclude = [];
+        terms.forEach(term => {
+            if ((term.startsWith('ー') || term.startsWith('-')) && term.length > 1) {
+                exclude.push(normalizeString(term.substring(1)));
+            } else {
+                include.push(normalizeString(term));
+            }
+        });
+        return { include, exclude };
+    };
+
+    const searchFilter = processQuery(elements.searchInput.value);
     const period = elements.updatePeriod.value;
 
     const statusChecks = {
@@ -365,20 +394,24 @@ function searchData(reset = false) {
     today.setHours(0, 0, 0, 0);
 
     filteredResults = excelData.filter(item => {
-        // Keyword Filter (AND logic for keywords, OR logic for fields)
-        const drugName = normalizeString(item.productName || "");
-        const makerName = normalizeString((item.standard || "") + (item.manufacturer || ""));
-        const ingredientName = normalizeString(item.ingredientName || "");
+        const matchQuery = (item, filter) => {
+            if (filter.include.length === 0 && filter.exclude.length === 0) return true;
 
-        const matchKeywords = searchKeywords.length === 0 || searchKeywords.every(k => {
-            if (k.startsWith('-')) {
-                const negK = k.substring(1);
-                return !drugName.includes(negK) && !makerName.includes(negK) && !ingredientName.includes(negK);
-            }
-            return drugName.includes(k) || makerName.includes(k) || ingredientName.includes(k);
-        });
+            // Search across productName, manufacturer, and ingredientName using pre-normalized fields
+            const drugName = item.normalizedProductName || "";
+            const makerName = (item.normalizedManufacturer || "");
+            const ingredientName = item.normalizedIngredientName || "";
 
-        if (!matchKeywords) return false;
+            const matchInclude = filter.include.every(term =>
+                drugName.includes(term) || makerName.includes(term) || ingredientName.includes(term)
+            );
+            const matchExclude = filter.exclude.length === 0 || !filter.exclude.some(term =>
+                drugName.includes(term) || makerName.includes(term) || ingredientName.includes(term)
+            );
+            return matchInclude && matchExclude;
+        };
+
+        if (!matchQuery(item, searchFilter)) return false;
 
         // Status Filter
         const currentStatus = (item.shipmentStatus || '').trim();

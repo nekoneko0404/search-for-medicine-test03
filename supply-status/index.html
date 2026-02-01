@@ -250,6 +250,30 @@
                 </path>
             </svg>
         </a>
+
+        <!-- Reload Button -->
+        <button id="reload-data"
+            class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
+            aria-label="データを更新">
+            <svg class="w-10 h-10 transform transition-transform duration-700 ease-in-out group-hover:rotate-180"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
+            </svg>
+        </button>
+
+        <!-- Toast Message -->
+        <div id="messageBox"
+            class="hidden fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-all duration-300 opacity-0 transform translate-y-[-20px]">
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progressBarContainer" class="fixed top-0 left-0 w-full h-1 z-50 hidden">
+            <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300 w-0"></div>
+            <div id="progressMessage"
+                class="absolute top-2 right-2 text-xs text-gray-600 bg-white px-2 py-1 rounded shadow hidden"></div>
+        </div>
     </main>
 
     <footer id="mainFooter" class="sticky bottom-0 left-0 w-full z-20 bg-white border-t border-gray-200">
