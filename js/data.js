@@ -125,41 +125,42 @@ function processCsvData(csvText, onProgress) {
     const rows = csvText.trim().split('\n');
     if (rows.length < 2) return [];
 
-    // Skip header rows. 
-    // User reported data starts from row 3 (index 2) in the sheet.
-    // GViz CSV might contain headers. We filter out rows that look like headers.
-    // Header usually has "品名" in col 5 or "更新" in col 19.
-
     const dataRows = [];
     for (let i = 0; i < rows.length; i++) {
         const rowString = rows[i].trim();
         if (!rowString) continue;
 
         const row = parseCSVLine(rowString);
-
-        // Basic validation to skip header/empty rows
-        // Check if 'productName' (index 5) is '品名' or empty
-        // Check if 'updateDate' (index 19) contains '更新' (header text)
         if (row.length < 5) continue;
 
-        const col5 = row[5] || '';
-        const col19 = row[19] || '';
+        // Determine indices based on column count (handle both optimized 14-col and legacy 60+ col formats)
+        const isOptimized = row.length === 14;
+        const idx = isOptimized ? {
+            ingredient: 0, yj: 1, product: 2, maker: 3, cat: 4, basic: 5, status: 6, reason: 7,
+            prospect: 8, expDate: 9, vol: 10, update: 11, trend: 12, meta: 13
+        } : {
+            ingredient: 2, yj: 4, product: 5, maker: 6, cat: 7, basic: 8, status: 11, reason: 13,
+            prospect: 14, expDate: 15, vol: 16, update: 19, trend: 22, meta: 23
+        };
+
+        const colProduct = row[idx.product] || '';
+        const colUpdate = row[idx.update] || '';
 
         // Skip if it looks like a header
-        if (col5.includes('品名') || col19.includes('更新有無') || col19.includes('当該品目')) {
+        if (colProduct.includes('品名') || colUpdate.includes('更新有無') || colUpdate.includes('当該品目')) {
             continue;
         }
 
-        // Skip if essential data is missing (optional, but good for safety)
-        if (!col5 && !row[2]) continue;
+        // Skip if essential data is missing
+        if (!colProduct && !row[idx.ingredient]) continue;
 
         let updatedCells = [];
         let shippingStatusTrend = '';
         let changedPart = '';
 
         try {
-            let colW = row[22] || '';
-            let colX = row[23] || '';
+            let colW = row[idx.trend] || '';
+            let colX = row[idx.meta] || '';
 
             if (colX.length > 1 && colX.startsWith('{')) {
                 const unescaped = colX.replace(/""/g, '"');
@@ -179,25 +180,25 @@ function processCsvData(csvText, onProgress) {
         }
 
         dataRows.push({
-            'productName': row[5],  // ⑥品名
-            'normalizedProductName': normalizeString(row[5]),
-            'ingredientName': row[2],  // ③成分名
-            'normalizedIngredientName': normalizeString(row[2]),
-            'manufacturer': row[6],  // ⑦製造販売業者名
-            'normalizedManufacturer': normalizeString(row[6]),
-            'shipmentStatus': row[11], // ⑫出荷対応
-            'reasonForLimitation': row[13], // ⑭制限理由
-            'resolutionProspect': row[14], // ⑮解消見込み
-            'expectedDate': row[15], // ⑯見込み時期
-            'expectedDateObj': parseGvizDate(row[15]), // ⑯見込み時期(日付オブジェクト)
-            'shipmentVolumeStatus': row[16], // ⑰出荷量状況
-            'yjCode': row[4],  // ⑤YJコード
-            'productCategory': row[7],  // ⑧製品区分
-            'isBasicDrug': row[8],  // ⑨基礎的医薬品
-            'updateDateObj': parseGvizDate(row[19]), // ⑳更新日
+            'productName': row[idx.product],
+            'normalizedProductName': normalizeString(row[idx.product]),
+            'ingredientName': row[idx.ingredient],
+            'normalizedIngredientName': normalizeString(row[idx.ingredient]),
+            'manufacturer': row[idx.maker],
+            'normalizedManufacturer': normalizeString(row[idx.maker]),
+            'shipmentStatus': row[idx.status],
+            'reasonForLimitation': row[idx.reason],
+            'resolutionProspect': row[idx.prospect],
+            'expectedDate': row[idx.expDate],
+            'expectedDateObj': parseGvizDate(row[idx.expDate]),
+            'shipmentVolumeStatus': row[idx.vol],
+            'yjCode': row[idx.yj],
+            'productCategory': row[idx.cat],
+            'isBasicDrug': row[idx.basic],
+            'updateDateObj': parseGvizDate(row[idx.update]),
             'updatedCells': updatedCells,
-            'shippingStatusTrend': shippingStatusTrend, // W列
-            'changedPart': changedPart // X列
+            'shippingStatusTrend': shippingStatusTrend,
+            'changedPart': changedPart
         });
     }
 
@@ -263,7 +264,9 @@ async function fetchExcelData(onProgress) {
     console.log('Fetching CSV data from Google Drive...');
     if (onProgress) onProgress('Google Driveからデータを読み込み中...', 0);
 
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${FILE_ID_MAIN}/gviz/tq?tqx=out:csv&t=${new Date().getTime()}`;
+    // Select required columns only: C, E, F, G, H, I, L, N, O, P, Q, T, W, X
+    const columns = 'C,E,F,G,H,I,L,N,O,P,Q,T,W,X';
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${FILE_ID_MAIN}/gviz/tq?tqx=out:csv&t=${new Date().getTime()}&tq=${encodeURIComponent('SELECT ' + columns)}`;
 
     try {
         if (onProgress) onProgress('データをダウンロード中...', 50);
