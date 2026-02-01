@@ -1281,44 +1281,27 @@ const NotificationManager = {
 
             if (typeof Notification !== 'undefined' && permission === 'granted') {
                 try {
-                    // Create notification with minimal options for better compatibility
-                    const notification = new Notification('花粉通知テスト', {
-                        body: `${testCityName}の花粉の量が1時間あたり35個を観測しました。`,
-                        silent: true
-                    });
-
-                    console.log('Notification created:', notification);
-
-                    notification.onshow = () => {
-                        console.log('Notification shown!');
-                    };
-
-                    notification.onerror = (error) => {
-                        console.error('Notification error event:', error);
-                    };
-
-                    notification.onclick = () => {
-                        console.log('Notification clicked');
-                        window.focus();
-                        notification.close();
-                    };
-
                     // Trigger Backend Push Test
                     const registration = await navigator.serviceWorker.ready;
                     const subscription = await registration.pushManager.getSubscription();
                     if (subscription) {
                         console.log('Pushing test to backend worker:', WORKER_URL);
+
+                        // Show immediate feedback to the user
+                        this.showToast('10秒後にバックグラウンド通知を送信します。その間にブラウザを閉じたりしてテストしてください。', 'info', 10000);
+
                         const response = await fetch(`${WORKER_URL}/api/test-push`, {
                             method: 'POST',
                             body: JSON.stringify({ subscription }),
                             headers: { 'Content-Type': 'application/json' }
                         });
                         const resData = await response.json();
+
                         if (response.ok && resData.success) {
-                            console.log('Backend test push success');
+                            console.log('Backend test push request accepted');
                         } else {
                             console.error('Backend test push failed:', resData.error || response.statusText);
-                            alert('クラウド通知の送信に失敗しました。時間をおいて再度お試しください。');
+                            alert('クラウド通知の送信予約に失敗しました。');
                         }
                     } else {
                         console.warn('No active push subscription found for backend test');
@@ -1327,8 +1310,7 @@ const NotificationManager = {
 
                 } catch (error) {
                     console.error('Notification error:', error);
-                    // Don't show error alert - sound and toast already played
-                    console.log('Note: System notification failed, but sound and toast notification were shown');
+                    console.log('Note: Backend test push failed');
                 }
             }
         } else {

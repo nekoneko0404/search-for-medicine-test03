@@ -10,13 +10,15 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('push', function (event) {
     console.log('[Service Worker] Push Received.');
+    console.log('[Service Worker] Raw data:', event.data ? event.data.text() : 'No data');
 
     let data = {};
     if (event.data) {
         try {
             data = event.data.json();
+            console.log('[Service Worker] Parsed JSON data:', data);
         } catch (e) {
-            console.warn('[Service Worker] Push data parsing failed, using as text.');
+            console.warn('[Service Worker] Push data parsing failed (likely unencrypted payload), using as text.');
             data = { body: event.data.text() };
         }
     }
