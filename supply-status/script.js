@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const reloadDataBtn = document.getElementById('reload-data');
 
     let allData = [];
-    let categoryData = [];
+    let categoryMap = new Map();
+    let categoryData = []; // Added back as it's used in some places
     let filteredData = [];
     let currentView = 'summary';
     let currentIngredient = null;
@@ -41,18 +42,25 @@ document.addEventListener('DOMContentLoaded', () => {
             updateProgress('初期化中...', 10);
             const catResponse = await fetch('data/category_data.json');
             categoryData = await catResponse.json();
+
+            // Create a Map for O(1) lookups
+            categoryMap = new Map();
+            categoryData.forEach(c => {
+                categoryMap.set(normalizeString(c.ingredient_name), c);
+            });
+
             updateProgress('カテゴリデータ読み込み完了', 30);
 
             const result = await loadAndCacheData(updateProgress);
             if (result && result.data) {
+                // Optimize data processing: reuse pre-normalized fields and use Map lookup
                 allData = result.data.map(item => {
-                    const normalizedIngredientName = normalizeString(item.ingredientName);
-                    const catItem = categoryData.find(c => normalizeString(c.ingredient_name) === normalizedIngredientName);
+                    const catItem = categoryMap.get(item.normalizedIngredientName);
                     return {
                         ...item,
                         category: catItem ? catItem.category : '-',
-                        normalizedProductName: normalizeString(item.productName),
-                        normalizedIngredientName: normalizedIngredientName
+                        drugClassCode: catItem ? catItem.drug_class_code : '-',
+                        drugClassName: catItem ? catItem.drug_class_name : '-'
                     };
                 });
 
@@ -85,13 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await clearCacheAndReload(updateProgress);
                 if (result && result.data) {
                     allData = result.data.map(item => {
-                        const normalizedIngredientName = normalizeString(item.ingredientName);
-                        const catItem = categoryData.find(c => normalizeString(c.ingredient_name) === normalizedIngredientName);
+                        const catItem = categoryMap.get(item.normalizedIngredientName);
                         return {
                             ...item,
                             category: catItem ? catItem.category : '-',
-                            normalizedProductName: normalizeString(item.productName),
-                            normalizedIngredientName: normalizedIngredientName
+                            drugClassCode: catItem ? catItem.drug_class_code : '-',
+                            drugClassName: catItem ? catItem.drug_class_name : '-'
                         };
                     });
                     showMessage(`データを更新しました: ${allData.length}件`, 'success');
@@ -198,11 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
         data.forEach(item => {
             const ingredient = item.ingredientName || '不明';
             if (!grouped[ingredient]) {
-                const catItem = categoryData.find(c => normalizeString(c.ingredient_name) === normalizeString(ingredient));
                 grouped[ingredient] = {
                     category: item.category,
-                    drugClassCode: catItem ? catItem.drug_class_code : '-',
-                    drugClassName: catItem ? catItem.drug_class_name : '-',
+                    drugClassCode: item.drugClassCode,
+                    drugClassName: item.drugClassName,
                     normal: 0,
                     limited: 0,
                     stopped: 0

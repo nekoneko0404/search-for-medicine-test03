@@ -247,7 +247,10 @@ export function createDropdown(item, index) {
     };
 
     // Adjust paths based on current location
-    const isSubPage = window.location.pathname.includes('/drug-classification/') || window.location.pathname.includes('/update/') || window.location.pathname.includes('/hiyari_app/');
+    const isSubPage = window.location.pathname.includes('/drug-classification/') ||
+        window.location.pathname.includes('/update/') ||
+        window.location.pathname.includes('/hiyari_app/') ||
+        window.location.pathname.includes('/supply-status/');
     const basePath = isSubPage ? '../' : './';
 
     dropdownContent.appendChild(createLink(pmdaLinkUrl, '医薬品情報 (PMDA)'));
