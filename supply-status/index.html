@@ -35,6 +35,25 @@
             gap: 1.5rem;
             padding: 1rem;
         }
+
+        /* Prevent dropdowns from being clipped by table containers */
+        #summaryTable,
+        #detailContainer>div {
+            overflow: visible !important;
+        }
+
+        /* Enable horizontal scroll on the table element itself if needed, 
+           but keep the parent container overflow visible for the dropdown */
+        table {
+            min-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .overflow-x-visible-mobile {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 </head>
@@ -167,7 +186,7 @@
             <div id="loadingIndicator" class="flex items-center justify-center py-12">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto hidden" id="summaryTable">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 hidden" id="summaryTable">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -201,7 +220,7 @@
         </div>
 
         <div id="detailContainer" class="hidden">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block overflow-x-auto">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>

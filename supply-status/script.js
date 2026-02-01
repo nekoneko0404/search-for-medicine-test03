@@ -1,6 +1,6 @@
 import { loadAndCacheData, clearCacheAndReload } from '../js/data.js';
 import { normalizeString, formatDate } from '../js/utils.js';
-import { renderStatusButton, showMessage, updateProgress } from '../js/ui.js';
+import { renderStatusButton, showMessage, updateProgress, createDropdown } from '../js/ui.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const drugNameInput = document.getElementById('drugName');
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        data.slice(0, 100).forEach(item => {
+        data.slice(0, 100).forEach((item, index) => {
             const row = document.createElement('tr');
             row.className = 'hover:bg-gray-50 transition-colors';
 
@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             row.innerHTML = `
                 <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${item.category}</td>
-                <td class="px-4 py-3 text-sm text-indigo-600 font-medium">${item.productName || ''}</td>
+                <td class="px-4 py-3 text-sm"></td>
                 <td class="px-4 py-3 text-sm text-gray-500">${item.ingredientName || ''}</td>
                 <td class="px-4 py-3 text-sm"></td>
                 <td class="px-4 py-3 text-sm text-gray-700">${item.reasonForLimitation || '-'}</td>
@@ -315,6 +315,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="px-4 py-3 text-sm text-gray-700">${item.expectedDate || '-'}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">${formattedDate}</td>
             `;
+
+            // Drug Name Dropdown
+            const drugNameCell = row.cells[1];
+            if (item.yjCode) {
+                drugNameCell.appendChild(createDropdown(item, `table-${index}`));
+            } else {
+                drugNameCell.className += " text-indigo-600 font-medium";
+                drugNameCell.textContent = item.productName || '';
+            }
 
             const statusBtn = renderStatusButton(item.shipmentStatus);
             row.cells[3].appendChild(statusBtn);
@@ -330,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        data.slice(0, 50).forEach(item => {
+        data.slice(0, 50).forEach((item, index) => {
             const card = document.createElement('div');
             card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-3';
 
@@ -346,22 +355,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     </span>
                     <span id="status-placeholder"></span>
                 </div>
-                <div>
-                    <h3 class="text-lg font-bold text-indigo-900 mb-1">${item.productName || ''}</h3>
-                    <p class="text-sm text-gray-500">${item.ingredientName || ''}</p>
+                <div class="product-name-container">
+                    <!-- Dropdown will be inserted here -->
                 </div>
+                <p class="text-sm text-gray-500">${item.ingredientName || ''}</p>
                 <div class="grid grid-cols-2 gap-2 text-sm mt-2 border-t border-gray-100 pt-2">
                     <div>
                         <span class="block text-xs text-gray-500">制限理由</span>
-                        <span class="text-gray-700">${item.reasonForLimitation || '-'}</span>
+                        <span class="text-gray-700 font-medium">${item.reasonForLimitation || '-'}</span>
                     </div>
                     <div>
                         <span class="block text-xs text-gray-500">解消見込み</span>
-                        <span class="text-gray-700">${item.resolutionProspect || '-'}</span>
+                        <span class="text-gray-700 font-medium">${item.resolutionProspect || '-'}</span>
                     </div>
                     <div>
                         <span class="block text-xs text-gray-500">見込み時期</span>
-                        <span class="text-gray-700">${item.expectedDate || '-'}</span>
+                        <span class="text-gray-700 font-medium">${item.expectedDate || '-'}</span>
                     </div>
                     <div>
                         <span class="block text-xs text-gray-500">更新日</span>
@@ -369,6 +378,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
+
+            const nameContainer = card.querySelector('.product-name-container');
+            if (item.yjCode) {
+                nameContainer.appendChild(createDropdown(item, `card-${index}`));
+            } else {
+                const h3 = document.createElement('h3');
+                h3.className = 'text-lg font-bold text-indigo-900 mb-1';
+                h3.textContent = item.productName || '';
+                nameContainer.appendChild(h3);
+            }
 
             const placeholder = card.querySelector('#status-placeholder');
             placeholder.replaceWith(statusBtn);
