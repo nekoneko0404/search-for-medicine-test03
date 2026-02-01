@@ -1044,11 +1044,22 @@ const NotificationManager = {
         const testBtn = document.getElementById('btn-test-notification');
         const clearBtn = document.getElementById('btn-clear-notification');
 
+        const guideModal = document.getElementById('guide-modal');
+        const guideCloseBtn = document.getElementById('guide-close-btn');
+        const guideOpenBtn = document.getElementById('btn-open-guide');
+
         closeBtn.onclick = () => modal.classList.remove('show');
+        if (guideCloseBtn) {
+            guideCloseBtn.onclick = () => guideModal.classList.remove('show');
+        }
+        if (guideOpenBtn) {
+            guideOpenBtn.onclick = () => guideModal.classList.add('show');
+        }
 
         // Close on outside click
         window.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.remove('show');
+            if (e.target === guideModal) guideModal.classList.remove('show');
         });
 
         if (saveBtn) {
@@ -1142,8 +1153,6 @@ const NotificationManager = {
             } else {
                 warningMsg = '※iPhone（ホーム画面起動中）: 通知が届かない場合は、本体の「設定 > 通知 > 花粉Radar」を確認してください。';
             }
-        } else if (isChrome && !isStandalone) {
-            warningMsg = '※PC (Chrome): ブラウザを完全に終了した際も通知を受け取るには、設定の「システム > Google Chrome を閉じた際にバックグラウンド アプリの実行を続行する」をオンにしてください。';
         } else if (!notificationSupported) {
             warningMsg = '※お使いのブラウザはシステム通知に対応していません。アプリを開いている間のみアラートが表示されます。';
         }

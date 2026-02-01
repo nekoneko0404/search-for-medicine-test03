@@ -310,12 +310,18 @@
                     <!-- Background Notification Info -->
                     <div class="setting-group"
                         style="background: #f0f9ff; padding: 12px; border-radius: 8px; border: 1px solid #bae6fd;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                            <i class="fas fa-satellite-dish" style="color: #0369a1;"></i>
-                            <label style="color: #0369a1; font-weight: bold; margin: 0;">バックグラウンド通知 (Beta)</label>
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-satellite-dish" style="color: #0369a1;"></i>
+                                <label style="color: #0369a1; font-weight: bold; margin: 0;">バックグラウンド通知 (Beta)</label>
+                            </div>
+                            <button id="btn-open-guide" class="btn-text"
+                                style="color: #0369a1; font-size: 12px; text-decoration: underline; border: none; background: none; cursor: pointer;">
+                                <i class="fas fa-question-circle"></i> 使い方ガイド
+                            </button>
                         </div>
                         <p class="setting-hint" style="margin: 0; color: #0c4a6e;">
-                            <strong>アプリを開いている時:</strong> このページで即座に通知<br>
                             <strong>アプリを閉じている時:</strong> クラウド連携により自動で通知が届きます<br>
                             <small>※本機能には通知の許可が必要です。</small>
                         </p>
@@ -332,6 +338,83 @@
                     <button id="btn-clear-notification" class="btn-danger hidden">
                         <i class="fas fa-trash-alt"></i> 設定を解除
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Notification Guide -->
+    <div id="guide-modal" class="modal">
+        <div class="modal-content guide-modal-content" style="max-width: 500px;">
+            <span class="close-btn" id="guide-close-btn">&times;</span>
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-question-circle"></i> 通知機能ガイド</h2>
+            <div class="modal-body" style="font-size: 14px; line-height: 1.6;">
+                <div class="guide-tabs">
+                    <p style="margin-bottom: 15px; color: #64748b;">バックグラウンド通知を受け取るための基本ステップです。</p>
+
+                    <!-- Common Step -->
+                    <div class="guide-item"
+                        style="margin-bottom: 25px; background: #fffbeb; padding: 12px; border-radius: 8px; border: 1px solid #fef3c7;">
+                        <h3
+                            style="font-size: 15px; margin-bottom: 8px; color: #d97706; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-check-double"></i> 1. 全環境共通の必須操作
+                        </h3>
+                        <p style="margin: 0; font-weight: bold; font-size: 13px;">「通知設定」を開き、地点を確認して「設定を保存」ボタンを必ず押してください。
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-size: 11px; color: #92400e;">
+                            ※この操作でクラウドへの登録が行われます。通知の許可を求められたら「許可」を選択してください。</p>
+                    </div>
+
+                    <p style="margin-bottom: 15px; color: #64748b;">さらに確実に通知を受け取るための端末別追加設定：</p>
+
+                    <div class="guide-item" style="margin-bottom: 20px;">
+                        <h3
+                            style="font-size: 15px; margin-bottom: 8px; color: #f43f5e; display: flex; align-items: center; gap: 8px;">
+                            <i class="fab fa-apple"></i> iPhone (iOS) <span
+                                style="background: #f43f5e; color: white; padding: 1px 6px; border-radius: 4px; font-size: 11px;">必須</span>
+                        </h3>
+                        <p style="font-size: 12px; color: #94a3b8; margin: -4px 0 8px 0;">
+                            ※Appleの制限により、ホーム画面に追加したPWAのみ通知が可能です。</p>
+                        <ol style="padding-left: 20px; margin: 0;">
+                            <li>Safariで開き、共有ボタン（□と↑）から<strong>「ホーム画面に追加」</strong>を選択。</li>
+                            <li>ホーム画面のアイコンから起動して使用してください。</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-item" style="margin-bottom: 20px;">
+                        <h3
+                            style="font-size: 15px; margin-bottom: 8px; color: #22c55e; display: flex; align-items: center; gap: 8px;">
+                            <i class="fab fa-android"></i> Android <span
+                                style="background: #22c55e; color: white; padding: 1px 6px; border-radius: 4px; font-size: 11px;">推奨</span>
+                        </h3>
+                        <p style="font-size: 12px; color: #94a3b8; margin: -4px 0 8px 0;">
+                            ※ブラウザでも届きますが、ホーム画面に追加すると通知がより安定します。</p>
+                        <ol style="padding-left: 20px; margin: 0;">
+                            <li>Chrome等のメニューから<strong>「ホーム画面に追加」</strong>または<strong>「アプリをインストール」</strong>を選択。</li>
+                            <li>ホーム画面から使用すると、通知プロセスがOSに保護され受信率が上がります。</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-item" style="margin-bottom: 20px;">
+                        <h3
+                            style="font-size: 15px; margin-bottom: 8px; color: #3b82f6; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-desktop"></i> PC (Windows/Mac)
+                        </h3>
+                        <ul style="padding-left: 20px; margin: 0; list-style-type: none;">
+                            <li><i class="fas fa-check-circle" style="color: #3b82f6; margin-right: 5px;"></i>
+                                基本的にブラウザを起動している間のみ通知が届きます。</li>
+                            <li
+                                style="margin-top: 8px; font-size: 12px; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 8px;">
+                                <strong>💡 Chromeを閉じても通知を受け取るには：</strong><br>
+                                設定の「システム」内にある<strong>「Google Chrome を閉じた際にバックグラウンド アプリの実行を続行する」</strong>をオンにしてください。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 25px; text-align: center;">
+                    <button class="btn-primary"
+                        onclick="document.getElementById('guide-modal').classList.remove('show')"
+                        style="padding: 10px 30px; border-radius: 25px; cursor: pointer;">閉じる</button>
                 </div>
             </div>
         </div>
