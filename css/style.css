@@ -47,6 +47,7 @@ body {
     .menu-container {
         max-width: 1400px;
     }
+
     .menu-grid {
         grid-template-columns: repeat(4, 1fr);
     }
@@ -120,12 +121,12 @@ body {
     /* Explicit height for h-16 */
     overflow: hidden;
     /* Ensure content doesn't overflow during transition */
-    transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Footer behavior */
 #mainFooter {
-    transition: height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     height: auto;
     /* Default height */
     overflow: hidden;
@@ -148,7 +149,7 @@ body.search-mode #mainFooter {
 
 /* Main content offset */
 main {
-    transition: margin-top 0.3s ease-in-out;
+    transition: margin-top 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body:not(.search-mode) main {
