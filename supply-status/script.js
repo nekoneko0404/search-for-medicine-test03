@@ -277,16 +277,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    inputs.forEach(input => {
-        input.addEventListener('input', renderResults);
-        input.addEventListener('change', renderResults);
+    // Debounce helper
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    const debouncedRender = debounce(renderResults, 300);
+    let isComposing = false;
+
+    const textInputs = [drugNameInput, ingredientNameInput];
+    textInputs.forEach(input => {
+        input.addEventListener('compositionstart', () => {
+            isComposing = true;
+        });
+        input.addEventListener('compositionend', () => {
+            isComposing = false;
+            debouncedRender();
+        });
+        input.addEventListener('input', () => {
+            if (!isComposing) {
+                debouncedRender();
+            }
+        });
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                renderResults();
+                renderResults(); // Immediate execution on Enter
                 input.blur();
             }
         });
+    });
+
+    const checkboxes = [catACheckbox, catBCheckbox, catCCheckbox, statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox];
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', renderResults);
     });
 
     backBtn.addEventListener('click', () => {
@@ -403,48 +431,65 @@ document.addEventListener('DOMContentLoaded', () => {
         const sortedIngredients = Object.keys(grouped).sort((a, b) => {
             const statsA = grouped[a];
             const statsB = grouped[b];
-            let valA, valB;
 
+            // Helper for comparison
+            const compare = (valA, valB, dir = 'asc') => {
+                const direction = dir === 'asc' ? 1 : -1;
+                if (typeof valA === 'string' && typeof valB === 'string') {
+                    return valA.localeCompare(valB, 'ja') * direction;
+                }
+                if (valA < valB) return -1 * direction;
+                if (valA > valB) return 1 * direction;
+                return 0;
+            };
+
+            // Define hierarchy of keys for tie-breaking
+            // Default hierarchy: category -> drugClassCode -> drugClassName -> ingredientName
+            const hierarchy = [
+                { key: 'category', getVal: (s, name) => s.category },
+                { key: 'drugClassCode', getVal: (s, name) => s.drugClassCode },
+                { key: 'drugClassName', getVal: (s, name) => s.drugClassName },
+                { key: 'ingredientName', getVal: (s, name) => name }
+            ];
+
+            // Remove the primary key from hierarchy if it exists there, to handle it first
+            const primaryKeyIndex = hierarchy.findIndex(h => h.key === currentSort.key);
+            let primaryConfig = null;
+
+            // Determine primary value getter
+            let getPrimaryVal;
             switch (currentSort.key) {
-                case 'category':
-                    valA = statsA.category;
-                    valB = statsB.category;
-                    break;
-                case 'drugClassCode':
-                    valA = statsA.drugClassCode;
-                    valB = statsB.drugClassCode;
-                    break;
-                case 'drugClassName':
-                    valA = statsA.drugClassName;
-                    valB = statsB.drugClassName;
-                    break;
-                case 'ingredientName':
-                    valA = a;
-                    valB = b;
-                    break;
-                case 'normal':
-                    valA = statsA.normal;
-                    valB = statsB.normal;
-                    break;
-                case 'limited':
-                    valA = statsA.limited;
-                    valB = statsB.limited;
-                    break;
-                case 'stopped':
-                    valA = statsA.stopped;
-                    valB = statsB.stopped;
-                    break;
-                default:
-                    valA = a;
-                    valB = b;
+                case 'category': getPrimaryVal = (s, name) => s.category; break;
+                case 'drugClassCode': getPrimaryVal = (s, name) => s.drugClassCode; break;
+                case 'drugClassName': getPrimaryVal = (s, name) => s.drugClassName; break;
+                case 'ingredientName': getPrimaryVal = (s, name) => name; break;
+                case 'normal': getPrimaryVal = (s, name) => s.normal; break;
+                case 'limited': getPrimaryVal = (s, name) => s.limited; break;
+                case 'stopped': getPrimaryVal = (s, name) => s.stopped; break;
+                default: getPrimaryVal = (s, name) => name;
             }
 
-            const direction = currentSort.direction === 'asc' ? 1 : -1;
+            // 1. Compare by Primary Key
+            const primaryDiff = compare(getPrimaryVal(statsA, a), getPrimaryVal(statsB, b), currentSort.direction);
+            if (primaryDiff !== 0) return primaryDiff;
 
-            if (typeof valA === 'string') {
-                return valA.localeCompare(valB, 'ja') * direction;
+            // 2. Compare by Hierarchy (Tie-breakers) - Always ASC for stability unless otherwise desired
+            for (const item of hierarchy) {
+                // If this item is the primary key, we already compared it (but if it was e.g. 'normal' count, we still check hierarchy)
+                // If primary key *was* one of the hierarchy keys, we should skip it to avoid redundant comparison, 
+                // BUT since we just returned on primaryDiff !== 0, if we are here, they are equal.
+                // So strictly speaking re-comparing is safe (returns 0), but we can skip if we want optimization.
+                // However, the primary key might have been DESC, and here we enforce ASC for tie-breakers? 
+                // Usually tie-breakers are ASC.
+                if (item.key === currentSort.key) continue;
+
+                const valA = item.getVal(statsA, a);
+                const valB = item.getVal(statsB, b);
+                const diff = compare(valA, valB, 'asc');
+                if (diff !== 0) return diff;
             }
-            return (valA - valB) * direction;
+
+            return 0;
         });
 
         sortedIngredients.forEach(ingredient => {
