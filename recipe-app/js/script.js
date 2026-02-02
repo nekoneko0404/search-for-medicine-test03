@@ -244,7 +244,7 @@ function renderRecipes(data) {
     // Recipes
     data.recipes.forEach((recipe, index) => {
         const div = document.createElement('div');
-        div.className = 'recipe-card fade-in-up';
+        div.className = 'recipe-card fade-in-up w-full';
         div.style.animationDelay = `${index * 0.2}s`;
 
         div.innerHTML = `
