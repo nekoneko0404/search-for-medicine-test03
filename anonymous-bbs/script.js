@@ -15,6 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load posts on start
     loadPosts();
 
+    // Hide warning for admins
+    const adminKey = new URLSearchParams(window.location.search).get('key');
+    if (adminKey) {
+        const warning = document.querySelector('.warning-text-footer');
+        if (warning) warning.classList.add('hidden');
+    }
+
     // Character count update
     postContent.addEventListener('input', () => {
         const count = postContent.value.length;
