@@ -4,13 +4,15 @@ export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
 
+        const ALLOW_HEADERS = "Content-Type, X-Delete-Key, X-Admin-Key, x-admin-key, x-delete-key";
+
         // CORS Preflight
         if (request.method === "OPTIONS") {
             return new Response(null, {
                 headers: {
                     "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
                     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type, X-Delete-Key, X-Admin-Key, x-admin-key, x-delete-key",
+                    "Access-Control-Allow-Headers": ALLOW_HEADERS,
                     "Access-Control-Max-Age": "86400",
                 },
             });
@@ -18,7 +20,7 @@ export default {
 
         const CORS_HEADERS = {
             "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-            "Access-Control-Allow-Headers": "Content-Type, X-Delete-Key, X-Admin-Key, x-admin-key, x-delete-key",
+            "Access-Control-Allow-Headers": ALLOW_HEADERS,
         };
 
         try {
@@ -43,32 +45,36 @@ export default {
 };
 
 async function handleGetPosts(request, env, ctx, corsHeaders) {
-    const cache = caches.default;
+    const cache = (typeof caches !== "undefined") ? caches.default : null;
     const cacheUrl = new URL(request.url);
-    cacheUrl.search = ""; // Normalize by removing query params for general list caching
-    let response = await cache.match(cacheUrl);
+    cacheUrl.search = ""; // Normalize
 
-    if (response) {
-        const newResponse = new Response(response.body, response);
-        newResponse.headers.set("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-        newResponse.headers.set("X-Cache-Status", "HIT");
-        return newResponse;
+    if (cache) {
+        let response = await cache.match(cacheUrl);
+        if (response) {
+            const newResponse = new Response(response.body, response);
+            newResponse.headers.set("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+            newResponse.headers.set("X-Cache-Status", "HIT");
+            return newResponse;
+        }
     }
 
     const { results } = await env.DB.prepare(
         "SELECT id, post_number, content, created_at, is_admin FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 100"
     ).all();
 
-    response = new Response(JSON.stringify(results), {
+    const response = new Response(JSON.stringify(results), {
         headers: {
             ...corsHeaders,
             "Content-Type": "application/json",
-            "Cache-Control": "public, max-age=60",
+            "Cache-Control": "public, max-age=10",
             "X-Cache-Status": "MISS",
         },
     });
 
-    ctx.waitUntil(cache.put(cacheUrl, response.clone()));
+    if (cache) {
+        ctx.waitUntil(cache.put(cacheUrl, response.clone()));
+    }
 
     return response;
 }
@@ -99,7 +105,6 @@ async function handleCreatePost(request, env, ctx, corsHeaders) {
     // Rate Limiting (3 hours)
     const isAdmin = env.ADMIN_KEY && adminKeyInput && (adminKeyInput.trim() === env.ADMIN_KEY.trim());
 
-    // 管理者以外はレートリミットを適用
     if (!isAdmin) {
         const lastPost = await env.DB.prepare(
             "SELECT created_at FROM posts WHERE ip_address = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1"
@@ -123,7 +128,6 @@ async function handleCreatePost(request, env, ctx, corsHeaders) {
     const deleteKey = crypto.randomUUID();
     const createdAt = Date.now();
 
-    // 投稿番号の取得
     const lastNum = await env.DB.prepare(
         "SELECT MAX(post_number) as maxNum FROM posts"
     ).first();
@@ -155,13 +159,11 @@ async function handleDeletePost(request, env, ctx, corsHeaders) {
     }
 
     let result;
-    // Admin Override
     if (env.ADMIN_KEY && deleteKey === env.ADMIN_KEY) {
         result = await env.DB.prepare(
             "UPDATE posts SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL"
         ).bind(Date.now(), id).run();
     } else {
-        // Standard User Delete
         result = await env.DB.prepare(
             "UPDATE posts SET deleted_at = ? WHERE id = ? AND delete_key = ? AND deleted_at IS NULL"
         ).bind(Date.now(), id, deleteKey).run();
@@ -181,45 +183,22 @@ async function handleDeletePost(request, env, ctx, corsHeaders) {
 
 async function hashIp(ip) {
     const myText = new TextEncoder().encode(ip);
-    const myDigest = await crypto.subtle.digest(
-        {
-            name: 'SHA-256',
-        },
-        myText
-    );
+    const myDigest = await crypto.subtle.digest({ name: 'SHA-256' }, myText);
     const hashArray = Array.from(new Uint8Array(myDigest));
     return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 async function sendEmail(to, subject, content) {
-    // MailChannels Send
     const send_request = new Request("https://api.mailchannels.net/tx/v1/send", {
         method: "POST",
-        headers: {
-            "content-type": "application/json",
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
-            personalizations: [
-                {
-                    to: [{ email: to, name: "Admin" }],
-                },
-            ],
-            from: {
-                email: "no-reply@anonymous-bbs.workers.dev",
-                name: "Anonymous BBS",
-            },
+            personalizations: [{ to: [{ email: to, name: "Admin" }] }],
+            from: { email: "no-reply@anonymous-bbs.workers.dev", name: "Anonymous BBS" },
             subject: subject,
-            content: [
-                {
-                    type: "text/plain",
-                    value: content,
-                },
-            ],
+            content: [{ type: "text/plain", value: content }],
         }),
     });
-
     const response = await fetch(send_request);
-    if (!response.ok) {
-        console.error("Failed to send email", await response.text());
-    }
+    if (!response.ok) console.error("Failed to send email", await response.text());
 }
