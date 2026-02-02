@@ -4,6 +4,9 @@ let allPosts = []; // データを保持
 let currentPage = 1;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Start loading posts ASAP
+    const postsPromise = loadPosts();
+
     const mainContent = document.querySelector('.main-content');
     const postContent = document.getElementById('postContent');
     const submitBtn = document.getElementById('submitBtn');
@@ -45,12 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = '送信中...';
         statusMessage.className = 'hidden';
 
-        const adminKey = new URLSearchParams(window.location.search).get('key');
+        const adminKey = new URLSearchParams(window.location.search).get('key')?.trim();
 
         try {
             const res = await fetch(API_BASE, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Key': adminKey || ''
+                },
                 body: JSON.stringify({ content, adminKey })
             });
 

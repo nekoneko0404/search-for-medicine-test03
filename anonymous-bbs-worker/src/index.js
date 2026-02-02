@@ -10,7 +10,7 @@ export default {
                 headers: {
                     "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
                     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type, X-Delete-Key",
+                    "Access-Control-Allow-Headers": "Content-Type, X-Delete-Key, X-Admin-Key",
                 },
             });
         }
@@ -22,11 +22,11 @@ export default {
         try {
             if (url.pathname === "/api/posts") {
                 if (request.method === "GET") {
-                    return await handleGetPosts(env, CORS_HEADERS);
+                    return await handleGetPosts(request, env, ctx, CORS_HEADERS);
                 } else if (request.method === "POST") {
-                    return await handleCreatePost(request, env, CORS_HEADERS);
+                    return await handleCreatePost(request, env, ctx, CORS_HEADERS);
                 } else if (request.method === "DELETE") {
-                    return await handleDeletePost(request, env, CORS_HEADERS);
+                    return await handleDeletePost(request, env, ctx, CORS_HEADERS);
                 }
             }
 
@@ -40,22 +40,44 @@ export default {
     },
 };
 
-async function handleGetPosts(env, corsHeaders) {
+async function handleGetPosts(request, env, ctx, corsHeaders) {
+    const cache = caches.default;
+    const cacheUrl = new URL(request.url);
+    cacheUrl.search = ""; // Normalize by removing query params for general list caching
+    let response = await cache.match(cacheUrl);
+
+    if (response) {
+        const newResponse = new Response(response.body, response);
+        newResponse.headers.set("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+        newResponse.headers.set("X-Cache-Status", "HIT");
+        return newResponse;
+    }
+
     const { results } = await env.DB.prepare(
         "SELECT id, post_number, content, created_at, is_admin FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 100"
     ).all();
-    return new Response(JSON.stringify(results), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+
+    response = new Response(JSON.stringify(results), {
+        headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Cache-Control": "public, max-age=60",
+            "X-Cache-Status": "MISS",
+        },
     });
+
+    ctx.waitUntil(cache.put(cacheUrl, response.clone()));
+
+    return response;
 }
 
-async function handleCreatePost(request, env, corsHeaders) {
+async function handleCreatePost(request, env, ctx, corsHeaders) {
     const ip = request.headers.get("CF-Connecting-IP") || "0.0.0.0";
-    const ipHash = await hashIp(ip); // Hashing the IP
+    const ipHash = await hashIp(ip);
 
     const data = await request.json();
     const content = data.content;
-    const adminKeyInput = data.adminKey; // UIから渡される可能性のあるキー
+    const adminKeyInput = request.headers.get("X-Admin-Key") || data.adminKey;
 
     // Validation
     if (!content || content.trim().length === 0) {
@@ -73,7 +95,7 @@ async function handleCreatePost(request, env, corsHeaders) {
     }
 
     // Rate Limiting (3 hours)
-    const isAdmin = env.ADMIN_KEY && adminKeyInput === env.ADMIN_KEY;
+    const isAdmin = env.ADMIN_KEY && adminKeyInput && (adminKeyInput.trim() === env.ADMIN_KEY.trim());
 
     // 管理者以外はレートリミットを適用
     if (!isAdmin) {
@@ -96,7 +118,7 @@ async function handleCreatePost(request, env, corsHeaders) {
     }
 
     const id = crypto.randomUUID();
-    const deleteKey = crypto.randomUUID(); // Simple key for deletion
+    const deleteKey = crypto.randomUUID();
     const createdAt = Date.now();
 
     // 投稿番号の取得
@@ -109,15 +131,6 @@ async function handleCreatePost(request, env, corsHeaders) {
         "INSERT INTO posts (id, post_number, content, created_at, delete_key, ip_address, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?)"
     ).bind(id, postNumber, content, createdAt, deleteKey, ipHash, isAdmin ? 1 : 0).run();
 
-    // Send Email Notification (Fire and forget)
-    // Note: This requires MailChannels or similar. Assuming MailChannels for now.
-    // Replace 'your-email@example.com' with the user's specific email if known, or environment variable.
-    // Since I don't have the user's email, I will use a placeholder or check if I can get it.
-    // The prompt says "write to my email". I will look at the previous conversations or metadata.
-    // The user's name is "kiyoshi".
-    // I will try to use an environment variable specified in wrangler.toml or just hardcode if I find it.
-    // I'll stick to a placeholder "ADMIN_EMAIL" in env.
-
     if (env.ADMIN_EMAIL) {
         sendEmail(env.ADMIN_EMAIL, "New Anonymous Post", `No: ${postNumber}\nContent: ${content}`).catch(console.error);
     }
@@ -127,7 +140,7 @@ async function handleCreatePost(request, env, corsHeaders) {
     });
 }
 
-async function handleDeletePost(request, env, corsHeaders) {
+async function handleDeletePost(request, env, ctx, corsHeaders) {
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
     const deleteKey = request.headers.get("X-Delete-Key");
