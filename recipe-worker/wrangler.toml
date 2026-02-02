@@ -1,0 +1,7 @@
+name = "recipe-worker"
+compatibility_date = "2023-01-01"
+main = "src/index.js"
+
+[vars]
+# OPENAI_API_KEY will be set in the dashboard or via `wrangler secret put`
+# GEMINI_API_KEY will be set in the dashboard or via `wrangler secret put`
