@@ -1,27 +1,20 @@
-const ALLOWED_ORIGIN = "*"; // Modify this to specific domain in production mainly
+const ALLOWED_ORIGIN = "*";
 
 export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
-
         const ALLOW_HEADERS = "Content-Type, X-Delete-Key, X-Admin-Key, x-admin-key, x-delete-key";
 
-        // CORS Preflight
-        if (request.method === "OPTIONS") {
-            return new Response(null, {
-                headers: {
-                    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-                    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": ALLOW_HEADERS,
-                    "Access-Control-Max-Age": "86400",
-                },
-            });
-        }
-
         const CORS_HEADERS = {
-            "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
             "Access-Control-Allow-Headers": ALLOW_HEADERS,
+            "Access-Control-Max-Age": "86400",
         };
+
+        if (request.method === "OPTIONS") {
+            return new Response(null, { headers: CORS_HEADERS });
+        }
 
         try {
             if (url.pathname === "/api/posts") {
@@ -33,7 +26,6 @@ export default {
                     return await handleDeletePost(request, env, ctx, CORS_HEADERS);
                 }
             }
-
             return new Response("Not Found", { status: 404, headers: CORS_HEADERS });
         } catch (e) {
             return new Response(JSON.stringify({ error: e.message }), {
@@ -45,64 +37,35 @@ export default {
 };
 
 async function handleGetPosts(request, env, ctx, corsHeaders) {
-    const cache = (typeof caches !== "undefined") ? caches.default : null;
-    const cacheUrl = new URL(request.url);
-    cacheUrl.search = ""; // Normalize
-
-    if (cache) {
-        let response = await cache.match(cacheUrl);
-        if (response) {
-            const newResponse = new Response(response.body, response);
-            newResponse.headers.set("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-            newResponse.headers.set("X-Cache-Status", "HIT");
-            return newResponse;
-        }
-    }
-
+    // キャッシュを一切使用せず、常にDBから最新情報を取得
     const { results } = await env.DB.prepare(
         "SELECT id, post_number, content, created_at, is_admin FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 100"
     ).all();
 
-    const response = new Response(JSON.stringify(results), {
+    return new Response(JSON.stringify(results), {
         headers: {
             ...corsHeaders,
             "Content-Type": "application/json",
-            "Cache-Control": "public, max-age=10",
-            "X-Cache-Status": "MISS",
+            "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate", // キャッシュ無効化
+            "Pragma": "no-cache",
+            "Expires": "0",
         },
     });
-
-    if (cache) {
-        ctx.waitUntil(cache.put(cacheUrl, response.clone()));
-    }
-
-    return response;
 }
 
 async function handleCreatePost(request, env, ctx, corsHeaders) {
     const ip = request.headers.get("CF-Connecting-IP") || "0.0.0.0";
     const ipHash = await hashIp(ip);
-
     const data = await request.json();
     const content = data.content;
     const adminKeyInput = request.headers.get("X-Admin-Key") || request.headers.get("x-admin-key") || data.adminKey;
 
-    // Validation
     if (!content || content.trim().length === 0) {
         return new Response(JSON.stringify({ error: "Content is required" }), {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
     }
 
-    if (content.length > 400) {
-        return new Response(JSON.stringify({ error: "Content must be 400 characters or less" }), {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-    }
-
-    // Rate Limiting (3 hours)
     const isAdmin = env.ADMIN_KEY && adminKeyInput && (adminKeyInput.trim() === env.ADMIN_KEY.trim());
 
     if (!isAdmin) {
@@ -112,13 +75,9 @@ async function handleCreatePost(request, env, ctx, corsHeaders) {
 
         if (lastPost) {
             const now = Date.now();
-            const diff = now - lastPost.created_at;
-            const threeHours = 3 * 60 * 60 * 1000;
-
-            if (diff < threeHours) {
-                return new Response(JSON.stringify({ error: "連投できません。まったりいきましょう。（3時間規制）" }), {
-                    status: 429,
-                    headers: { ...corsHeaders, "Content-Type": "application/json" },
+            if (now - lastPost.created_at < 3 * 60 * 60 * 1000) {
+                return new Response(JSON.stringify({ error: "連投規制中（3時間）" }), {
+                    status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" }
                 });
             }
         }
@@ -126,79 +85,61 @@ async function handleCreatePost(request, env, ctx, corsHeaders) {
 
     const id = crypto.randomUUID();
     const deleteKey = crypto.randomUUID();
-    const createdAt = Date.now();
-
-    const lastNum = await env.DB.prepare(
-        "SELECT MAX(post_number) as maxNum FROM posts"
-    ).first();
-    const postNumber = (lastNum && lastNum.maxNum ? lastNum.maxNum : 0) + 1;
+    const lastNum = await env.DB.prepare("SELECT MAX(post_number) as maxNum FROM posts").first();
+    const postNumber = (lastNum?.maxNum || 0) + 1;
 
     await env.DB.prepare(
         "INSERT INTO posts (id, post_number, content, created_at, delete_key, ip_address, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?)"
-    ).bind(id, postNumber, content, createdAt, deleteKey, ipHash, isAdmin ? 1 : 0).run();
+    ).bind(id, postNumber, content, Date.now(), deleteKey, ipHash, isAdmin ? 1 : 0).run();
 
     if (env.ADMIN_EMAIL) {
-        sendEmail(env.ADMIN_EMAIL, "New Anonymous Post", `No: ${postNumber}\nContent: ${content}`).catch(console.error);
+        sendEmail(env.ADMIN_EMAIL, "New Post", `No: ${postNumber}\n${content}`).catch(console.error);
     }
 
     return new Response(JSON.stringify({ id, deleteKey, postNumber, isAdmin }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 }
 
 async function handleDeletePost(request, env, ctx, corsHeaders) {
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
-    const deleteKey = request.headers.get("X-Delete-Key");
+    const deleteKey = request.headers.get("X-Delete-Key") || request.headers.get("x-delete-key");
 
     if (!id || !deleteKey) {
-        return new Response(JSON.stringify({ error: "ID and Delete Key required" }), {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        return new Response(JSON.stringify({ error: "ID and Key required" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
     }
 
     let result;
     if (env.ADMIN_KEY && deleteKey === env.ADMIN_KEY) {
-        result = await env.DB.prepare(
-            "UPDATE posts SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL"
-        ).bind(Date.now(), id).run();
+        result = await env.DB.prepare("UPDATE posts SET deleted_at = ? WHERE id = ?").bind(Date.now(), id).run();
     } else {
-        result = await env.DB.prepare(
-            "UPDATE posts SET deleted_at = ? WHERE id = ? AND delete_key = ? AND deleted_at IS NULL"
-        ).bind(Date.now(), id, deleteKey).run();
+        result = await env.DB.prepare("UPDATE posts SET deleted_at = ? WHERE id = ? AND delete_key = ?").bind(Date.now(), id, deleteKey).run();
     }
 
     if (result.meta.changes > 0) {
-        return new Response(JSON.stringify({ success: true }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-    } else {
-        return new Response(JSON.stringify({ error: "Invalid ID or Key, or already deleted" }), {
-            status: 403,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    return new Response(JSON.stringify({ error: "Delete failed" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
 
 async function hashIp(ip) {
-    const myText = new TextEncoder().encode(ip);
-    const myDigest = await crypto.subtle.digest({ name: 'SHA-256' }, myText);
-    const hashArray = Array.from(new Uint8Array(myDigest));
-    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    const myDigest = await crypto.subtle.digest({ name: 'SHA-256' }, new TextEncoder().encode(ip));
+    return Array.from(new Uint8Array(myDigest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 async function sendEmail(to, subject, content) {
-    const send_request = new Request("https://api.mailchannels.net/tx/v1/send", {
+    const response = await fetch("https://api.mailchannels.net/tx/v1/send", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-            personalizations: [{ to: [{ email: to, name: "Admin" }] }],
-            from: { email: "no-reply@anonymous-bbs.workers.dev", name: "Anonymous BBS" },
-            subject: subject,
+            personalizations: [{ to: [{ email: to }] }],
+            from: { email: "no-reply@anonymous-bbs.workers.dev", name: "BBS" },
+            subject,
             content: [{ type: "text/plain", value: content }],
         }),
     });
-    const response = await fetch(send_request);
-    if (!response.ok) console.error("Failed to send email", await response.text());
+    if (!response.ok) console.error("Email error", await response.text());
 }
