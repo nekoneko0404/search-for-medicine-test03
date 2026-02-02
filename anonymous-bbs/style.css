@@ -342,6 +342,45 @@ button:disabled {
     margin-right: 8px;
 }
 
+/* Admin Mode UI Updates */
+.admin-mode-banner {
+    background-color: #fff7ed;
+    border: 1px solid #fdba74;
+    color: #9a3412;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.admin-mode-banner::before {
+    content: "🛡️";
+}
+
+.post-form.admin-active {
+    border: 2px solid #fb923c !important;
+    background-color: #fffaf5 !important;
+}
+
+.post-form.admin-active h2 {
+    color: #ea580c;
+}
+
+#submitBtn.admin-active {
+    background-color: #ea580c !important;
+    border-color: #ea580c !important;
+    color: white !important;
+}
+
+#submitBtn.admin-active:hover {
+    background-color: #c2410c !important;
+}
+
 .reply-btn {
     background: none;
     border: 1px solid var(--border-color);

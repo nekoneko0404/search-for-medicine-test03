@@ -18,11 +18,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load posts on start
     loadPosts();
 
-    // Hide warning for admins
+    // Admin Mode Visuals
     const adminKey = new URLSearchParams(window.location.search).get('key');
     if (adminKey) {
+        // Hide standard rate limit warning
         const warning = document.querySelector('.warning-text-footer');
         if (warning) warning.classList.add('hidden');
+
+        // Add visual banner
+        const postForm = document.querySelector('.post-form');
+        if (postForm) {
+            const adminBanner = document.createElement('div');
+            adminBanner.className = 'admin-mode-banner';
+            adminBanner.innerHTML = '<span>管理者モード：投稿は「管理者」として公開され、連投制限は適用されません。</span>';
+            postForm.prepend(adminBanner);
+            postForm.classList.add('admin-active');
+        }
+
+        // Highlight Submit Button
+        if (submitBtn) {
+            submitBtn.classList.add('admin-active');
+            submitBtn.textContent = '管理者として送信する';
+        }
     }
 
     // Character count update
