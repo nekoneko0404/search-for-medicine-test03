@@ -10,13 +10,15 @@ export default {
                 headers: {
                     "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
                     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type, X-Delete-Key, X-Admin-Key",
+                    "Access-Control-Allow-Headers": "Content-Type, X-Delete-Key, X-Admin-Key, x-admin-key, x-delete-key",
+                    "Access-Control-Max-Age": "86400",
                 },
             });
         }
 
         const CORS_HEADERS = {
             "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+            "Access-Control-Allow-Headers": "Content-Type, X-Delete-Key, X-Admin-Key, x-admin-key, x-delete-key",
         };
 
         try {
@@ -77,7 +79,7 @@ async function handleCreatePost(request, env, ctx, corsHeaders) {
 
     const data = await request.json();
     const content = data.content;
-    const adminKeyInput = request.headers.get("X-Admin-Key") || data.adminKey;
+    const adminKeyInput = request.headers.get("X-Admin-Key") || request.headers.get("x-admin-key") || data.adminKey;
 
     // Validation
     if (!content || content.trim().length === 0) {
