@@ -42,7 +42,7 @@ export default {
 
 async function handleGetPosts(env, corsHeaders) {
     const { results } = await env.DB.prepare(
-        "SELECT id, content, created_at FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 100"
+        "SELECT id, post_number, content, created_at, is_admin FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 100"
     ).all();
     return new Response(JSON.stringify(results), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -55,6 +55,7 @@ async function handleCreatePost(request, env, corsHeaders) {
 
     const data = await request.json();
     const content = data.content;
+    const adminKeyInput = data.adminKey; // UIから渡される可能性のあるキー
 
     // Validation
     if (!content || content.trim().length === 0) {
@@ -72,20 +73,25 @@ async function handleCreatePost(request, env, corsHeaders) {
     }
 
     // Rate Limiting (3 hours)
-    const lastPost = await env.DB.prepare(
-        "SELECT created_at FROM posts WHERE ip_address = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1"
-    ).bind(ipHash).first(); // Use ipHash
+    const isAdmin = env.ADMIN_KEY && adminKeyInput === env.ADMIN_KEY;
 
-    if (lastPost) {
-        const now = Date.now();
-        const diff = now - lastPost.created_at;
-        const threeHours = 3 * 60 * 60 * 1000;
+    // 管理者以外はレートリミットを適用
+    if (!isAdmin) {
+        const lastPost = await env.DB.prepare(
+            "SELECT created_at FROM posts WHERE ip_address = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1"
+        ).bind(ipHash).first();
 
-        if (diff < threeHours) {
-            return new Response(JSON.stringify({ error: "連投できません。まったりいきましょう。（3時間規制）" }), {
-                status: 429,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+        if (lastPost) {
+            const now = Date.now();
+            const diff = now - lastPost.created_at;
+            const threeHours = 3 * 60 * 60 * 1000;
+
+            if (diff < threeHours) {
+                return new Response(JSON.stringify({ error: "連投できません。まったりいきましょう。（3時間規制）" }), {
+                    status: 429,
+                    headers: { ...corsHeaders, "Content-Type": "application/json" },
+                });
+            }
         }
     }
 
@@ -93,26 +99,30 @@ async function handleCreatePost(request, env, corsHeaders) {
     const deleteKey = crypto.randomUUID(); // Simple key for deletion
     const createdAt = Date.now();
 
+    // 投稿番号の取得
+    const lastNum = await env.DB.prepare(
+        "SELECT MAX(post_number) as maxNum FROM posts"
+    ).first();
+    const postNumber = (lastNum && lastNum.maxNum ? lastNum.maxNum : 0) + 1;
+
     await env.DB.prepare(
-        "INSERT INTO posts (id, content, created_at, delete_key, ip_address) VALUES (?, ?, ?, ?, ?)"
-    ).bind(id, content, createdAt, deleteKey, ipHash).run(); // Store ipHash
+        "INSERT INTO posts (id, post_number, content, created_at, delete_key, ip_address, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    ).bind(id, postNumber, content, createdAt, deleteKey, ipHash, isAdmin ? 1 : 0).run();
 
     // Send Email Notification (Fire and forget)
     // Note: This requires MailChannels or similar. Assuming MailChannels for now.
     // Replace 'your-email@example.com' with the user's specific email if known, or environment variable.
     // Since I don't have the user's email, I will use a placeholder or check if I can get it.
-    // The prompt says "write to my email". I'll use a placeholder variable.
-    const adminEmail = "neko.neko.0404@gmail.com"; // Inferred from other contexts or I should ask.
-    // Wait, the prompt says "my email". I will look at the previous conversations or metadata.
+    // The prompt says "write to my email". I will look at the previous conversations or metadata.
     // The user's name is "kiyoshi".
     // I will try to use an environment variable specified in wrangler.toml or just hardcode if I find it.
     // I'll stick to a placeholder "ADMIN_EMAIL" in env.
 
     if (env.ADMIN_EMAIL) {
-        sendEmail(env.ADMIN_EMAIL, "New Anonymous Post", `Content: ${content}`).catch(console.error);
+        sendEmail(env.ADMIN_EMAIL, "New Anonymous Post", `No: ${postNumber}\nContent: ${content}`).catch(console.error);
     }
 
-    return new Response(JSON.stringify({ id, deleteKey }), {
+    return new Response(JSON.stringify({ id, deleteKey, postNumber, isAdmin }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 }

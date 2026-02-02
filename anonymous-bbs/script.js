@@ -38,11 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = '送信中...';
         statusMessage.className = 'hidden';
 
+        const adminKey = new URLSearchParams(window.location.search).get('key');
+
         try {
             const res = await fetch(API_BASE, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content })
+                body: JSON.stringify({ content, adminKey })
             });
 
             const data = await res.json();
@@ -121,6 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
         displayPosts.forEach(post => {
             const el = document.createElement('div');
             el.className = 'post';
+            if (post.is_admin) el.classList.add('is-admin');
+            el.dataset.postNumber = post.post_number;
 
             const date = new Date(post.created_at).toLocaleString('ja-JP');
             const adminKey = new URLSearchParams(window.location.search).get('key');
@@ -131,9 +135,40 @@ document.addEventListener('DOMContentLoaded', () => {
             const metaDiv = document.createElement('div');
             metaDiv.className = 'post-meta';
 
+            const leftMeta = document.createElement('div');
+            leftMeta.className = 'left-meta';
+
+            if (post.post_number) {
+                const numSpan = document.createElement('span');
+                numSpan.className = 'post-number';
+                numSpan.textContent = `${post.post_number}`;
+                leftMeta.appendChild(numSpan);
+            }
+
+            if (post.is_admin) {
+                const badge = document.createElement('span');
+                badge.className = 'admin-badge';
+                badge.textContent = '管理者';
+                leftMeta.appendChild(badge);
+            }
+
             const dateSpan = document.createElement('span');
             dateSpan.textContent = date;
-            metaDiv.appendChild(dateSpan);
+            leftMeta.appendChild(dateSpan);
+
+            const replyBtn = document.createElement('button');
+            replyBtn.className = 'reply-btn';
+            replyBtn.textContent = '返信';
+            replyBtn.addEventListener('click', () => {
+                const prefix = `>>${post.post_number}\n`;
+                postContent.value = prefix + postContent.value;
+                postContent.focus();
+                // Scroll to top to see textarea
+                window.scrollTo({ top: document.querySelector('.post-form').offsetTop - 20, behavior: 'smooth' });
+            });
+            leftMeta.appendChild(replyBtn);
+
+            metaDiv.appendChild(leftMeta);
 
             if (canDelete) {
                 const deleteBtn = document.createElement('button');
@@ -143,10 +178,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 metaDiv.appendChild(deleteBtn);
             }
 
-            // Content part (Safe rendering)
+            // Content part (Safe rendering + Reply link parsing)
             const contentDiv = document.createElement('div');
             contentDiv.className = 'post-content';
-            contentDiv.textContent = post.content;
+
+            // Parse for >>[number] links
+            const contentText = post.content;
+            const parts = contentText.split(/(>>\d+)/g);
+            parts.forEach(part => {
+                if (part.match(/^>>\d+$/)) {
+                    const num = part.substring(2);
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.className = 'reply-link';
+                    link.textContent = part;
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const target = document.querySelector(`.post[data-post-number="${num}"]`);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            target.style.backgroundColor = '#fef08a'; // Flash highlight
+                            setTimeout(() => { target.style.backgroundColor = ''; }, 2000);
+                        }
+                    });
+
+                    // Hover Preview Events
+                    link.addEventListener('mouseenter', (e) => showPreview(e, num));
+                    link.addEventListener('mouseleave', hidePreview);
+
+                    contentDiv.appendChild(link);
+                } else {
+                    contentDiv.appendChild(document.createTextNode(part));
+                }
+            });
 
             el.appendChild(metaDiv);
             el.appendChild(contentDiv);
@@ -154,6 +218,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         renderPagination();
+    }
+
+    // Hover Preview Logic
+    let currentPreview = null;
+
+    function showPreview(e, postNumber) {
+        const targetPost = allPosts.find(p => p.post_number == postNumber);
+        if (!targetPost) return;
+
+        hidePreview();
+
+        const preview = document.createElement('div');
+        preview.className = 'hover-preview';
+
+        const meta = document.createElement('div');
+        meta.className = 'post-meta';
+        meta.textContent = `No.${targetPost.post_number} (${new Date(targetPost.created_at).toLocaleString('ja-JP')})`;
+
+        const content = document.createElement('div');
+        content.className = 'post-content';
+        content.textContent = targetPost.content;
+
+        preview.appendChild(meta);
+        preview.appendChild(content);
+
+        document.body.appendChild(preview);
+        currentPreview = preview;
+
+        const rect = e.target.getBoundingClientRect();
+        preview.style.left = `${rect.left + window.scrollX}px`;
+        preview.style.top = `${rect.top + window.scrollY - preview.offsetHeight - 10}px`;
+    }
+
+    function hidePreview() {
+        if (currentPreview) {
+            currentPreview.remove();
+            currentPreview = null;
+        }
     }
 
     // Pagination rendering
