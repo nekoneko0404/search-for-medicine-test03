@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusLimitedCheckbox = document.getElementById('statusLimited');
     const statusStoppedCheckbox = document.getElementById('statusStopped');
 
+    const routeInternalCheckbox = document.getElementById('routeInternal');
+    const routeInjectableCheckbox = document.getElementById('routeInjectable');
+    const routeExternalCheckbox = document.getElementById('routeExternal');
+
     const summaryTableBody = document.getElementById('summaryTableBody');
     const summaryCardContainer = document.getElementById('summaryCardContainer');
     const summaryResults = document.getElementById('summaryResults');
@@ -39,6 +43,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentIngredient = null;
     let currentSort = { key: 'category', direction: 'asc' };
 
+    function getRouteFromYJCode(yjCode) {
+        if (!yjCode) return null;
+        // YJコードの5桁目が区分を示す（0-3:内, 4-6:注, 7-9:外）
+        const yjStr = String(yjCode);
+        if (yjStr.length < 5) return null;
+        const digit = parseInt(yjStr.charAt(4));
+        if (isNaN(digit)) return null;
+        if (digit >= 0 && digit <= 3) return '内';
+        if (digit >= 4 && digit <= 6) return '注';
+        if (digit >= 7 && digit <= 9) return '外';
+        return null;
+    }
+
     init();
 
     async function init() {
@@ -51,13 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Create a Map for O(1) lookups with priority A > B > C
             categoryMap = new Map();
-            const priority = { 'A': 3, 'B': 2, 'C': 1 };
             categoryData.forEach(c => {
                 const normIng = normalizeString(c.ingredient_name);
-                const existing = categoryMap.get(normIng);
-                if (!existing || (priority[c.category] || 0) > (priority[existing.category] || 0)) {
-                    categoryMap.set(normIng, c);
-                }
+                const key = `${normIng}|${c.route}`;
+                categoryMap.set(key, c);
             });
 
             updateProgress('カテゴリデータ読み込み完了', 30);
@@ -66,24 +80,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result && result.data) {
                 // Optimize data processing: reuse pre-normalized fields and use Map lookup
                 allData = result.data.map(item => {
-                    const catItem = categoryMap.get(item.normalizedIngredientName);
+                    const route = getRouteFromYJCode(item.yjCode);
+                    const catItem = route ? categoryMap.get(item.normalizedIngredientName + '|' + route) : null;
                     return {
                         ...item,
                         category: catItem ? catItem.category : '-',
+                        route: route || (catItem ? catItem.route : '-'),
                         drugClassCode: catItem ? catItem.drug_class_code : '-',
                         drugClassName: catItem ? catItem.drug_class_name : '-'
                     };
                 });
 
                 // Add ingredients from category_data.json that are missing in allData
-                const seenIngredients = new Set(allData.map(d => d.normalizedIngredientName));
-                categoryMap.forEach((c, normIng) => {
-                    if (!seenIngredients.has(normIng)) {
+                const seenKeys = new Set(allData.map(d => `${d.normalizedIngredientName}|${d.route}`));
+                categoryMap.forEach((c, key) => {
+                    if (!seenKeys.has(key)) {
                         allData.push({
                             productName: '-',
                             normalizedProductName: '-',
                             ingredientName: c.ingredient_name,
-                            normalizedIngredientName: normIng,
+                            normalizedIngredientName: normalizeString(c.ingredient_name),
                             manufacturer: '-',
                             normalizedManufacturer: '-',
                             shipmentStatus: 'データなし',
@@ -94,11 +110,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             productCategory: c.category,
                             isBasicDrug: '-',
                             category: c.category,
+                            route: c.route,
                             drugClassCode: c.drug_class_code,
                             drugClassName: c.drug_class_name,
                             updateDateObj: null
                         });
-                        seenIngredients.add(normIng);
+                        seenKeys.add(key);
                     }
                 });
 
@@ -131,24 +148,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await clearCacheAndReload(updateProgress);
                 if (result && result.data) {
                     allData = result.data.map(item => {
-                        const catItem = categoryMap.get(item.normalizedIngredientName);
+                        const route = getRouteFromYJCode(item.yjCode);
+                        const catItem = route ? categoryMap.get(item.normalizedIngredientName + '|' + route) : null;
                         return {
                             ...item,
                             category: catItem ? catItem.category : '-',
+                            route: route || (catItem ? catItem.route : '-'),
                             drugClassCode: catItem ? catItem.drug_class_code : '-',
                             drugClassName: catItem ? catItem.drug_class_name : '-'
                         };
                     });
 
                     // Add ingredients from category_data.json that are missing in allData
-                    const seenIngredients = new Set(allData.map(d => d.normalizedIngredientName));
-                    categoryMap.forEach((c, normIng) => {
-                        if (!seenIngredients.has(normIng)) {
+                    const seenKeys = new Set(allData.map(d => `${d.normalizedIngredientName}|${d.route}`));
+                    categoryMap.forEach((c, key) => {
+                        if (!seenKeys.has(key)) {
                             allData.push({
                                 productName: '-',
                                 normalizedProductName: '-',
                                 ingredientName: c.ingredient_name,
-                                normalizedIngredientName: normIng,
+                                normalizedIngredientName: normalizeString(c.ingredient_name),
                                 manufacturer: '-',
                                 normalizedManufacturer: '-',
                                 shipmentStatus: 'データなし',
@@ -159,11 +178,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 productCategory: c.category,
                                 isBasicDrug: '-',
                                 category: c.category,
+                                route: c.route,
                                 drugClassCode: c.drug_class_code,
                                 drugClassName: c.drug_class_name,
                                 updateDateObj: null
                             });
-                            seenIngredients.add(normIng);
+                            seenKeys.add(key);
                         }
                     });
                     showMessage(`データを更新しました: ${allData.length}件`, 'success');
@@ -179,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const inputs = [drugNameInput, ingredientNameInput, catACheckbox, catBCheckbox, catCCheckbox, statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox];
+    const inputs = [drugNameInput, ingredientNameInput, catACheckbox, catBCheckbox, catCCheckbox, statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox, routeInternalCheckbox, routeInjectableCheckbox, routeExternalCheckbox];
     if (shareBtn) shareBtn.addEventListener('click', handleShare);
 
     function handleShare() {
@@ -209,6 +229,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statusStoppedCheckbox.checked) status.push('stopped');
         if (status.length < 3) params.set('status', status.join(','));
 
+        const routes = [];
+        if (routeInternalCheckbox.checked) routes.push('内');
+        if (routeInjectableCheckbox.checked) routes.push('注');
+        if (routeExternalCheckbox.checked) routes.push('外');
+        if (routes.length < 3) params.set('route', routes.join(','));
+
         if (currentSort.key !== 'category' || currentSort.direction !== 'asc') {
             params.set('sort', currentSort.key);
             params.set('dir', currentSort.direction);
@@ -236,6 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
             statusNormalCheckbox.checked = status.includes('normal');
             statusLimitedCheckbox.checked = status.includes('limited');
             statusStoppedCheckbox.checked = status.includes('stopped');
+        }
+
+        if (params.has('route')) {
+            const routes = params.get('route').split(',');
+            routeInternalCheckbox.checked = routes.includes('内');
+            routeInjectableCheckbox.checked = routes.includes('注');
+            routeExternalCheckbox.checked = routes.includes('外');
         }
 
         if (params.has('sort')) {
@@ -312,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const checkboxes = [catACheckbox, catBCheckbox, catCCheckbox, statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox];
+    const checkboxes = [catACheckbox, catBCheckbox, catCCheckbox, statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox, routeInternalCheckbox, routeInjectableCheckbox, routeExternalCheckbox];
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', renderResults);
     });
@@ -332,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isDefaultState = !drugQuery && !ingredientQuery &&
             catACheckbox.checked && catBCheckbox.checked && catCCheckbox.checked &&
             statusNormalCheckbox.checked && statusLimitedCheckbox.checked && statusStoppedCheckbox.checked &&
+            routeInternalCheckbox.checked && routeInjectableCheckbox.checked && routeExternalCheckbox.checked &&
             currentView === 'summary';
 
         const processQuery = (query) => {
@@ -362,6 +396,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statusLimitedCheckbox.checked) selectedStatuses.push('限定出荷');
         if (statusStoppedCheckbox.checked) selectedStatuses.push('供給停止');
 
+        const selectedRoutes = [];
+        if (routeInternalCheckbox.checked) selectedRoutes.push('内');
+        if (routeInjectableCheckbox.checked) selectedRoutes.push('注');
+        if (routeExternalCheckbox.checked) selectedRoutes.push('外');
+
         filteredData = allData.filter(item => {
             const matchQuery = (text, filter) => {
                 const normalizedText = text || '';
@@ -373,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const matchDrug = matchQuery(item.normalizedProductName, drugFilter);
             const matchIngredient = matchQuery(item.normalizedIngredientName, ingredientFilter);
             const matchCategory = selectedCategories.includes(item.category);
+            const matchRoute = selectedRoutes.includes(item.route);
 
             const currentStatus = (item.shipmentStatus || '').trim();
             let matchStatus = false;
@@ -383,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // "No data" items are shown regardless of status filter if they match name/category
             if (currentStatus === 'データなし') matchStatus = true;
 
-            return matchDrug && matchIngredient && matchCategory && matchStatus;
+            return matchDrug && matchIngredient && matchCategory && matchStatus && matchRoute;
         });
 
         if (currentView === 'summary') {
@@ -403,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
         summaryTableBody.innerHTML = '';
         summaryCardContainer.innerHTML = '';
         if (data.length === 0) {
-            summaryTableBody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-gray-500">該当するデータがありません</td></tr>';
+            summaryTableBody.innerHTML = '<tr><td colspan="8" class="px-4 py-4 text-center text-gray-500">該当するデータがありません</td></tr>';
             summaryCardContainer.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">該当するデータがありません</div>';
             return;
         }
@@ -411,8 +451,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const grouped = {};
         data.forEach(item => {
             const ingredient = item.ingredientName || '不明';
-            if (!grouped[ingredient]) {
-                grouped[ingredient] = {
+            const route = item.route || '-';
+            const groupKey = `${ingredient}|${route}`;
+
+            if (!grouped[groupKey]) {
+                grouped[groupKey] = {
+                    ingredientName: ingredient,
+                    route: route,
                     category: item.category,
                     drugClassCode: item.drugClassCode,
                     drugClassName: item.drugClassName,
@@ -423,18 +468,34 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const status = (item.shipmentStatus || '').trim();
-            if (status.includes('通常') || status.includes('通')) grouped[ingredient].normal++;
-            else if (status.includes('限定') || status.includes('制限') || status.includes('限') || status.includes('制')) grouped[ingredient].limited++;
-            else if (status.includes('停止') || status.includes('停')) grouped[ingredient].stopped++;
+            if (status.includes('通常') || status.includes('通')) grouped[groupKey].normal++;
+            else if (status.includes('限定') || status.includes('制限') || status.includes('限') || status.includes('制')) grouped[groupKey].limited++;
+            else if (status.includes('停止') || status.includes('停')) grouped[groupKey].stopped++;
         });
 
         const sortedIngredients = Object.keys(grouped).sort((a, b) => {
             const statsA = grouped[a];
             const statsB = grouped[b];
 
+            // Priority maps for custom sorting
+            const categoryPriority = { 'A': 1, 'B': 2, 'C': 3 };
+            const routePriority = { '内': 1, '注': 2, '外': 3 };
+
             // Helper for comparison
-            const compare = (valA, valB, dir = 'asc') => {
+            const compare = (valA, valB, key, dir = 'asc') => {
                 const direction = dir === 'asc' ? 1 : -1;
+
+                // Use priority maps if applicable
+                if (key === 'category') {
+                    const pA = categoryPriority[valA] || 99;
+                    const pB = categoryPriority[valB] || 99;
+                    if (pA !== pB) return (pA - pB) * direction;
+                } else if (key === 'route') {
+                    const pA = routePriority[valA] || 99;
+                    const pB = routePriority[valB] || 99;
+                    if (pA !== pB) return (pA - pB) * direction;
+                }
+
                 if (typeof valA === 'string' && typeof valB === 'string') {
                     return valA.localeCompare(valB, 'ja') * direction;
                 }
@@ -444,60 +505,50 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // Define hierarchy of keys for tie-breaking
-            // Default hierarchy: category -> drugClassCode -> drugClassName -> ingredientName
             const hierarchy = [
-                { key: 'category', getVal: (s, name) => s.category },
-                { key: 'drugClassCode', getVal: (s, name) => s.drugClassCode },
-                { key: 'drugClassName', getVal: (s, name) => s.drugClassName },
-                { key: 'ingredientName', getVal: (s, name) => name }
+                { key: 'category', getVal: (s) => s.category },
+                { key: 'route', getVal: (s) => s.route },
+                { key: 'drugClassCode', getVal: (s) => s.drugClassCode },
+                { key: 'drugClassName', getVal: (s) => s.drugClassName },
+                { key: 'ingredientName', getVal: (s) => s.ingredientName }
             ];
 
-            // Remove the primary key from hierarchy if it exists there, to handle it first
-            const primaryKeyIndex = hierarchy.findIndex(h => h.key === currentSort.key);
-            let primaryConfig = null;
-
-            // Determine primary value getter
+            // 1. Compare by Primary Key
             let getPrimaryVal;
             switch (currentSort.key) {
-                case 'category': getPrimaryVal = (s, name) => s.category; break;
-                case 'drugClassCode': getPrimaryVal = (s, name) => s.drugClassCode; break;
-                case 'drugClassName': getPrimaryVal = (s, name) => s.drugClassName; break;
-                case 'ingredientName': getPrimaryVal = (s, name) => name; break;
-                case 'normal': getPrimaryVal = (s, name) => s.normal; break;
-                case 'limited': getPrimaryVal = (s, name) => s.limited; break;
-                case 'stopped': getPrimaryVal = (s, name) => s.stopped; break;
-                default: getPrimaryVal = (s, name) => name;
+                case 'category': getPrimaryVal = (s) => s.category; break;
+                case 'route': getPrimaryVal = (s) => s.route; break;
+                case 'drugClassCode': getPrimaryVal = (s) => s.drugClassCode; break;
+                case 'drugClassName': getPrimaryVal = (s) => s.drugClassName; break;
+                case 'ingredientName': getPrimaryVal = (s) => s.ingredientName; break;
+                case 'normal': getPrimaryVal = (s) => s.normal; break;
+                case 'limited': getPrimaryVal = (s) => s.limited; break;
+                case 'stopped': getPrimaryVal = (s) => s.stopped; break;
+                default: getPrimaryVal = (s) => s.ingredientName;
             }
 
-            // 1. Compare by Primary Key
-            const primaryDiff = compare(getPrimaryVal(statsA, a), getPrimaryVal(statsB, b), currentSort.direction);
+            const primaryDiff = compare(getPrimaryVal(statsA), getPrimaryVal(statsB), currentSort.key, currentSort.direction);
             if (primaryDiff !== 0) return primaryDiff;
 
-            // 2. Compare by Hierarchy (Tie-breakers) - Always ASC for stability unless otherwise desired
+            // 2. Compare by Hierarchy (Tie-breakers) - Always ASC for stability
             for (const item of hierarchy) {
-                // If this item is the primary key, we already compared it (but if it was e.g. 'normal' count, we still check hierarchy)
-                // If primary key *was* one of the hierarchy keys, we should skip it to avoid redundant comparison, 
-                // BUT since we just returned on primaryDiff !== 0, if we are here, they are equal.
-                // So strictly speaking re-comparing is safe (returns 0), but we can skip if we want optimization.
-                // However, the primary key might have been DESC, and here we enforce ASC for tie-breakers? 
-                // Usually tie-breakers are ASC.
                 if (item.key === currentSort.key) continue;
 
-                const valA = item.getVal(statsA, a);
-                const valB = item.getVal(statsB, b);
-                const diff = compare(valA, valB, 'asc');
+                const valA = item.getVal(statsA);
+                const valB = item.getVal(statsB);
+                const diff = compare(valA, valB, item.key, 'asc');
                 if (diff !== 0) return diff;
             }
 
             return 0;
         });
 
-        sortedIngredients.forEach(ingredient => {
+        sortedIngredients.forEach(groupKey => {
+            const stats = grouped[groupKey];
             const row = document.createElement('tr');
             row.className = 'hover:bg-gray-50 transition-colors cursor-pointer';
-            row.addEventListener('click', () => showDetailView(ingredient));
+            row.addEventListener('click', () => showDetailView(stats.ingredientName, stats.route));
 
-            const stats = grouped[ingredient];
 
             const normalBtn = renderStatusButton('通常出荷');
             normalBtn.innerHTML = `通常出荷 <span class="ml-1 font-bold">${stats.normal}</span>`;
@@ -510,34 +561,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
             row.innerHTML = `
                 <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${stats.category}</td>
+                <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${stats.route || '-'}</td>
                 <td class="px-4 py-3 text-sm text-gray-700 text-center">${stats.drugClassCode}</td>
                 <td class="px-4 py-3 text-sm text-gray-700">${stats.drugClassName}</td>
-                <td class="px-4 py-3 text-sm text-indigo-600 font-medium hover:underline">${ingredient}</td>
+                <td class="px-4 py-3 text-sm text-indigo-600 font-medium hover:underline">${stats.ingredientName}</td>
                 <td class="px-4 py-3 text-sm text-center"></td>
                 <td class="px-4 py-3 text-sm text-center"></td>
                 <td class="px-4 py-3 text-sm text-center"></td>
             `;
 
-            row.cells[4].appendChild(normalBtn);
-            row.cells[5].appendChild(limitedBtn);
-            row.cells[6].appendChild(stoppedBtn);
+            row.cells[5].appendChild(normalBtn);
+            row.cells[6].appendChild(limitedBtn);
+            row.cells[7].appendChild(stoppedBtn);
             summaryTableBody.appendChild(row);
 
             // Render Card for Mobile
             const card = document.createElement('div');
             card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4 cursor-pointer hover:bg-gray-50 transition-colors';
-            card.addEventListener('click', () => showDetailView(ingredient));
+            card.addEventListener('click', () => showDetailView(stats.ingredientName, stats.route));
 
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-800">
-                        カテゴリ ${stats.category}
+                        カテゴリ ${stats.category} / ${stats.route}
                     </span>
                     <span class="text-xs text-gray-500 font-medium">
                         ${stats.drugClassCode}: ${stats.drugClassName}
                     </span>
                 </div>
-                <h3 class="text-lg font-bold text-indigo-900 mb-3">${ingredient}</h3>
+                <h3 class="text-lg font-bold text-indigo-900 mb-3">${stats.ingredientName}</h3>
                 <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100">
                     <div class="text-center">
                         <span class="block text-[10px] text-gray-500 mb-1">通常</span>
@@ -563,18 +615,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showDetailView(ingredient) {
+    function showDetailView(ingredient, route) {
         currentView = 'detail';
         currentIngredient = ingredient;
+        const normalizedIng = normalizeString(ingredient);
+
         summaryContainer.classList.add('hidden');
         detailContainer.classList.remove('hidden');
         backButtonContainer.classList.remove('hidden');
 
         if (categoryFilterContainer) categoryFilterContainer.classList.add('hidden');
-        if (statusFilterContainer) statusFilterContainer.classList.remove('hidden');
+        if (statusFilterContainer) statusFilterContainer.classList.add('hidden');
 
-        const ingredientData = filteredData.filter(item => item.normalizedIngredientName === normalizeString(ingredient));
-        renderDetailView(ingredientData);
+        // Filter allData for this ingredient AND route
+        const details = allData.filter(item => {
+            return item.normalizedIngredientName === normalizedIng && item.route === route;
+        });
+
+        renderDetailView(details);
+        window.scrollTo(0, 0);
     }
 
     function showSummaryView() {
@@ -594,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTable(data) {
         tableBody.innerHTML = '';
         if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="px-4 py-4 text-center text-gray-500">該当するデータがありません</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" class="px-4 py-4 text-center text-gray-500">該当するデータがありません</td></tr>';
             return;
         }
 
@@ -607,6 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             row.innerHTML = `
                 <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${item.category}</td>
+                <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${item.route || '-'}</td>
                 <td class="px-4 py-3 text-sm"></td>
                 <td class="px-4 py-3 text-sm text-gray-500">${item.ingredientName || ''}</td>
                 <td class="px-4 py-3 text-sm"></td>
@@ -617,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             // Drug Name Dropdown
-            const drugNameCell = row.cells[1];
+            const drugNameCell = row.cells[2];
             if (item.yjCode) {
                 drugNameCell.appendChild(createDropdown(item, `table-${index}`));
             } else {
