@@ -111,10 +111,12 @@ export default {
             // Construct user prompt details
             const symptomText = body.symptoms && body.symptoms.length > 0 ? body.symptoms.join("、") : "特になし";
             const ingredientText = body.ingredients && body.ingredients.filter(i => i).length > 0 ? body.ingredients.filter(i => i).join("、") : "おまかせ";
+            const excludedText = body.excludedIngredients && body.excludedIngredients.filter(i => i).length > 0 ? body.excludedIngredients.filter(i => i).join("、") : "なし";
 
             const userContent = `
 【体調・気になること】${symptomText}
 【使いたい食材】${ingredientText}
+【除外したい食材】${excludedText}
 【ジャンル】${body.cuisine}
 【希望調理時間】${body.time}
 `;

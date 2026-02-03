@@ -142,6 +142,7 @@ async function handleFormSubmit(e) {
     }
 
     const ingredients = Array.from(formData.getAll('ingredient')).filter(i => i.trim() !== '');
+    const excludedIngredients = Array.from(formData.getAll('excluded_ingredient')).filter(i => i.trim() !== '');
     const cuisine = formData.get('cuisine');
     const time = formData.get('time');
 
@@ -172,6 +173,7 @@ async function handleFormSubmit(e) {
     const requestData = {
         symptoms,
         ingredients,
+        excludedIngredients,
         cuisine,
         time,
         provider

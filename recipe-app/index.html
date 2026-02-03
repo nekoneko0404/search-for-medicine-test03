@@ -100,6 +100,19 @@
                     </div>
                 </div>
 
+                <!-- 2.5 Excluded Ingredients -->
+                <div class="form-group">
+                    <label class="block text-lg font-bold text-gray-700 mb-3">
+                        <span class="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-sm mr-2">Step 2.5</span>
+                        除外したい食材（3つまで・任意）
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="text" name="excluded_ingredient" placeholder="例：卵" class="form-input">
+                        <input type="text" name="excluded_ingredient" placeholder="例：そば" class="form-input">
+                        <input type="text" name="excluded_ingredient" placeholder="例：豚肉" class="form-input">
+                    </div>
+                </div>
+
                 <!-- 3. Cuisine & Time -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -109,52 +122,85 @@
                             ジャンル
                         </label>
                         <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- 1. 和食 -->
                             <label>
                                 <input type="radio" name="cuisine" value="和食" checked class="peer hidden">
                                 <span
-                                    class="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
                                     <span class="block text-2xl mb-1">🍱</span>
-                                    <span class="font-bold">和食</span>
+                                    <span class="font-bold text-sm">和食</span>
                                 </span>
                             </label>
+                            <!-- 2. 中華料理 -->
                             <label>
-                                <input type="radio" name="cuisine" value="洋食" class="peer hidden">
+                                <input type="radio" name="cuisine" value="中華料理" class="peer hidden">
                                 <span
-                                    class="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
-                                    <span class="block text-2xl mb-1">🍝</span>
-                                    <span class="font-bold">洋食</span>
-                                </span>
-                            </label>
-                            <label>
-                                <input type="radio" name="cuisine" value="中華" class="peer hidden">
-                                <span
-                                    class="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
                                     <span class="block text-2xl mb-1">🥟</span>
-                                    <span class="font-bold">中華</span>
+                                    <span class="font-bold text-sm">中華料理</span>
                                 </span>
                             </label>
-                            <label>
-                                <input type="radio" name="cuisine" value="イタリアン" class="peer hidden">
-                                <span
-                                    class="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
-                                    <span class="block text-2xl mb-1">🍕</span>
-                                    <span class="font-bold">イタリアン</span>
-                                </span>
-                            </label>
+                            <!-- 3. 韓国料理 -->
                             <label>
                                 <input type="radio" name="cuisine" value="韓国料理" class="peer hidden">
                                 <span
-                                    class="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
                                     <span class="block text-2xl mb-1">🥢</span>
-                                    <span class="font-bold">韓国料理</span>
+                                    <span class="font-bold text-sm">韓国料理</span>
                                 </span>
                             </label>
+                            <!-- 4. ヨーロッパ料理 -->
                             <label>
-                                <input type="radio" name="cuisine" value="エスニック" class="peer hidden">
+                                <input type="radio" name="cuisine" value="ヨーロッパ料理" class="peer hidden">
                                 <span
-                                    class="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
-                                    <span class="block text-2xl mb-1">🌶️</span>
-                                    <span class="font-bold">エスニック</span>
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🍝</span>
+                                    <span class="font-bold text-sm">ヨーロッパ料理</span>
+                                </span>
+                            </label>
+                            <!-- 5. 地中海料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="地中海料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🫒</span>
+                                    <span class="font-bold text-sm">地中海料理</span>
+                                </span>
+                            </label>
+                            <!-- 6. アラブ料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="アラブ料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🥙</span>
+                                    <span class="font-bold text-sm">アラブ料理</span>
+                                </span>
+                            </label>
+                            <!-- 7. インド料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="インド料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🍛</span>
+                                    <span class="font-bold text-sm">インド料理</span>
+                                </span>
+                            </label>
+                            <!-- 8. アフリカ料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="アフリカ料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🍲</span>
+                                    <span class="font-bold text-sm">アフリカ料理</span>
+                                </span>
+                            </label>
+                            <!-- 9. 南米料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="南米料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🌮</span>
+                                    <span class="font-bold text-sm">南米料理</span>
                                 </span>
                             </label>
                         </div>
