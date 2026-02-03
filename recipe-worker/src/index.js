@@ -24,11 +24,14 @@ const SYSTEM_PROMPT = `あなたは管理栄養士かつ一流のシェフです
 
 {
   "message": "ユーザーへの励ましやアドバイス",
-  "recipes": [
     {
       "name": "料理名",
       "time": "調理時間",
       "calories": "おおよそのカロリー",
+      "carbs": "糖質 (g)",
+      "fat": "脂質 (g)",
+      "protein": "タンパク質 (g)",
+      "salt": "塩分 (g)",
       "ingredients": ["材料1", "材料2"],
       "steps": ["手順1", "手順2"],
       "health_point": "このレシピの健康ポイント"

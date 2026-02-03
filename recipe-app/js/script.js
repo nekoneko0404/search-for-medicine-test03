@@ -272,7 +272,13 @@ function renderRecipes(data) {
                         </div>
                         <div class="flex flex-wrap gap-2 mt-2 text-sm text-gray-600 pl-8">
                             <span class="bg-white px-2 py-1 rounded-md shadow-sm"><i class="fas fa-clock text-orange-400 mr-1"></i>${escapeHtml(recipe.time)}</span>
-                            <span class="bg-white px-2 py-1 rounded-md shadow-sm"><i class="fas fa-fire text-red-400 mr-1"></i>${escapeHtml(recipe.calories)}</span>
+                            <span class="bg-white px-2 py-1 rounded-md shadow-sm"><i class="fas fa-fire text-red-500 mr-1"></i>${escapeHtml(recipe.calories)}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-500 pl-8">
+                            <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">糖質:${escapeHtml(recipe.carbs)}</span>
+                            <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">脂質:${escapeHtml(recipe.fat)}</span>
+                            <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">タンパク:${escapeHtml(recipe.protein)}</span>
+                            <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">塩分:${escapeHtml(recipe.salt)}</span>
                         </div>
                         <div class="mt-2 pl-8 text-sm text-green-700 bg-green-50 p-2 rounded-lg border border-green-200">
                              <i class="fas fa-heart text-green-500 mr-1"></i>${escapeHtml(recipe.health_point)}
