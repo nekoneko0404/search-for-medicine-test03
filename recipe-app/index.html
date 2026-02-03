@@ -43,7 +43,8 @@
             <div
                 class="relative w-full max-w-lg mx-auto mb-6 aspect-video bg-orange-100 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
                 <!-- Image placeholder or generated image -->
-                <img src="../images/recipe_app_hero.png" alt="Cooking Illustration" class="object-cover w-full h-full"
+                <img src="../images/recipe_app_hero_stylish.png" alt="Healthy Ingredients"
+                    class="object-cover w-full h-full"
                     onerror="this.src='https://placehold.co/600x400/orange/white?text=Cooking+Time!';">
             </div>
             <h2 class="text-3xl md:text-4xl font-bold text-orange-800 mb-4">今日のごはんは何にする？</h2>
@@ -273,9 +274,15 @@
 
         <!-- Result Section -->
         <div id="result-section" class="hidden">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
-                <i class="fas fa-sparkles text-yellow-500 mr-2"></i>提案レシピ
-            </h3>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-sparkles text-yellow-500 mr-2"></i>提案レシピ
+                </h3>
+                <button id="print-btn" type="button"
+                    class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-bold">
+                    <i class="fas fa-print"></i> 印刷する
+                </button>
+            </div>
 
             <div id="loading" class="hidden flex flex-col items-center justify-center py-12">
                 <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mb-4"></div>

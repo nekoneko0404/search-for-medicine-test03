@@ -55,3 +55,124 @@ body {
     background-image: radial-gradient(#fed7aa 1px, transparent 1px);
     background-size: 20px 20px;
 }
+
+/* Print Styles */
+@media print {
+
+    /* Hide everything by default */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Hide background image/colors to save ink */
+    body {
+        background: white;
+        background-image: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Show only Result Section */
+    #result-section,
+    #result-section * {
+        visibility: visible;
+    }
+
+    /* Adjust Result Section positioning */
+    #result-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0 10mm;
+        /* A4 side margin approx */
+    }
+
+    /* Hide Print Button and Title in Result Section */
+    #result-section>div:first-child button,
+    #result-section>div:first-child h3 i {
+        display: none !important;
+    }
+
+    /* Simplify Title */
+    #result-section>div:first-child h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 18pt;
+    }
+
+    /* Recipe Cards Layout */
+    #recipe-cards {
+        display: block;
+    }
+
+    /* Individual Card Styling */
+    .recipe-card {
+        page-break-inside: avoid;
+        /* Avoid breaking a card */
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: none;
+        /* Remove shadow for print */
+        animation: none !important;
+        /* Remove animations */
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    /* Force Details Open - Note: JS is also usually needed */
+    details[open]>summary~* {
+        display: block !important;
+    }
+
+    /* Hide the summary chevron and close button */
+    details>summary::-webkit-details-marker,
+    details>summary>div:last-child,
+    .recipe-card button[onclick*="closest"] {
+        display: none !important;
+    }
+
+    /* Adjust summary styling */
+    details>summary {
+        background-color: #f0f0f0 !important;
+        border-bottom: 1px solid #ddd;
+        padding: 10px !important;
+    }
+
+    /* Content Padding */
+    .recipe-card>details>div {
+        padding: 10px 15px !important;
+    }
+
+    /* Hide Advice Message to save space if needed, or keep it */
+    /* .col-span-1.bg-orange-50 { display: none; } */
+
+    /* Ensure 3 cards fit (roughly) */
+    /* Reset text sizes */
+    .text-xl {
+        font-size: 14pt !important;
+    }
+
+    .text-2xl {
+        font-size: 16pt !important;
+    }
+
+    .text-lg {
+        font-size: 12pt !important;
+    }
+
+    .text-sm {
+        font-size: 10pt !important;
+    }
+
+    p,
+    li {
+        font-size: 10pt !important;
+    }
+
+    /* Override Tailwind widths */
+    .w-full {
+        width: 100% !important;
+    }
+}

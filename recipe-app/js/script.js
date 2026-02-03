@@ -98,6 +98,19 @@ function setupEventListeners() {
 
     // Form Submit
     form.addEventListener('submit', handleFormSubmit);
+
+    // Print Button
+    const printBtn = document.getElementById('print-btn');
+    if (printBtn) {
+        printBtn.addEventListener('click', () => {
+            // Force expand all details for printing
+            const details = document.querySelectorAll('#recipe-cards details');
+            details.forEach(d => d.setAttribute('open', 'true'));
+
+            // Print
+            window.print();
+        });
+    }
 }
 // ... (HandleFormSubmit and others remain same, focusing on Init)
 
