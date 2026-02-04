@@ -293,7 +293,8 @@
                                 <input type="radio" name="api_option" value="openai"
                                     class="mt-1 text-orange-500 focus:ring-orange-500">
                                 <div>
-                                    <span class="block font-bold text-gray-800">OpenAI (自分のキーを使用)</span>
+                                    <span class="block font-bold text-gray-800">OpenAI (自分のキーを使用) <span
+                                            class="text-red-500 text-xs ml-1">※未実証</span></span>
                                     <span class="text-xs text-gray-500">GPT-4o miniを使用します。ご自身のAPIキーが必要です。</span>
                                 </div>
                             </label>
@@ -315,12 +316,24 @@
                         <div id="api-key-input-container" class="hidden mt-4 pl-8">
                             <input type="password" id="api-key" placeholder="APIキーを入力 (sk-...)"
                                 class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
-                            <div class="mt-2 p-3 bg-red-50 border border-red-100 rounded-lg">
-                                <p class="text-xs text-red-600 font-bold mb-1">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i>重要：APIキーのリスクについて
+
+                            <p class="text-xs text-gray-500 mt-2 mb-2">
+                                ※ キーはサーバー経由でAI呼び出しのみに使用され、保存されません。
+                            </p>
+
+                            <label class="flex items-center gap-2 cursor-pointer mb-2">
+                                <input type="checkbox" id="save-api-key"
+                                    class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                                <span class="text-sm text-gray-700">このブラウザにAPIキーを保存する</span>
+                            </label>
+
+                            <div id="save-key-warning"
+                                class="hidden p-3 bg-yellow-50 border border-yellow-100 rounded-lg">
+                                <p class="text-xs text-yellow-800 font-bold mb-1">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>重要
                                 </p>
-                                <p class="text-xs text-gray-600 leading-relaxed">
-                                    入力されたキーはサーバー(Worker)を経由してAI呼び出しにのみ使用されます。サーバーには保存されませんが、ネットカフェや公共のPCでは入力しないでください。
+                                <p class="text-xs text-yellow-700 leading-relaxed">
+                                    共用PC（ネットカフェや職場など）では絶対に保存しないでください。他者がキーを利用できてしまうリスクがあります。
                                 </p>
                             </div>
                         </div>

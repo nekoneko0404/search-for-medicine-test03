@@ -1,5 +1,5 @@
 // DOM Elements (Initialized in init)
-let form, symptomsContainer, apiKeyInputContainer, apiKeyInput, advancedSettingsToggle, advancedSettings, resultSection, loadingDiv, recipeCardsDiv;
+let form, symptomsContainer, apiKeyInputContainer, apiKeyInput, advancedSettingsToggle, advancedSettings, resultSection, loadingDiv, recipeCardsDiv, saveApiKeyCheckbox, saveKeyWarning;
 
 // API Configuration URLs
 const API_URL = 'https://recipe-worker.neko-neko-0404.workers.dev';
@@ -40,6 +40,8 @@ function init() {
     resultSection = document.getElementById('result-section');
     loadingDiv = document.getElementById('loading');
     recipeCardsDiv = document.getElementById('recipe-cards');
+    saveApiKeyCheckbox = document.getElementById('save-api-key');
+    saveKeyWarning = document.getElementById('save-key-warning');
 
     if (symptomsContainer) {
         renderSymptoms();
@@ -49,6 +51,7 @@ function init() {
 
     if (form) {
         setupEventListeners();
+        loadSavedSettings();
     }
 }
 
@@ -84,11 +87,41 @@ function setupEventListeners() {
         });
     }
 
+
+
+    // Save API Key Checkbox
+    if (saveApiKeyCheckbox) {
+        saveApiKeyCheckbox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            if (isChecked) {
+                saveKeyWarning.classList.remove('hidden');
+                if (apiKeyInput.value) {
+                    localStorage.setItem('recipe_app_user_key', apiKeyInput.value);
+                }
+            } else {
+                saveKeyWarning.classList.add('hidden');
+                localStorage.removeItem('recipe_app_user_key');
+            }
+        });
+    }
+
+    // API Key Input
+    if (apiKeyInput) {
+        apiKeyInput.addEventListener('input', (e) => {
+            if (saveApiKeyCheckbox.checked) {
+                localStorage.setItem('recipe_app_user_key', e.target.value);
+            }
+        });
+    }
+
     // API Option Radio Change
     const apiOptions = document.getElementsByName('api_option');
     Array.from(apiOptions).forEach(radio => {
         radio.addEventListener('change', (e) => {
-            if (e.target.value === 'system') {
+            const value = e.target.value;
+            localStorage.setItem('recipe_app_provider', value);
+
+            if (value === 'system') {
                 apiKeyInputContainer.classList.add('hidden');
             } else {
                 apiKeyInputContainer.classList.remove('hidden');
@@ -246,6 +279,37 @@ async function handleFormSubmit(e) {
         renderError(error.message, error.status); // Pass status if available
     } finally {
         loadingDiv.classList.add('hidden');
+    }
+}
+
+
+
+/**
+ * Load saved settings from localStorage
+ */
+function loadSavedSettings() {
+    const savedKey = localStorage.getItem('recipe_app_user_key');
+    const savedProvider = localStorage.getItem('recipe_app_provider');
+
+    // Restore Provider
+    if (savedProvider) {
+        const radio = document.querySelector(`input[name="api_option"][value="${savedProvider}"]`);
+        if (radio) {
+            radio.checked = true;
+            // Trigger UI update manually since setting checked doesn't fire change event
+            if (savedProvider !== 'system') {
+                apiKeyInputContainer.classList.remove('hidden');
+            }
+        }
+    }
+
+    // Restore Key
+    if (savedKey) {
+        apiKeyInput.value = savedKey;
+        if (saveApiKeyCheckbox) {
+            saveApiKeyCheckbox.checked = true;
+            saveKeyWarning.classList.remove('hidden');
+        }
     }
 }
 
