@@ -123,6 +123,12 @@ body {
         break-inside: avoid;
     }
 
+    /* Inner flex container for header layout */
+    #print-header>div {
+        display: flex !important;
+        align-items: center;
+    }
+
     /* Recipe Cards Container as Table Body */
     #recipe-cards {
         display: table-row-group !important;
