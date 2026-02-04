@@ -89,9 +89,11 @@ body {
         margin-right: 10mm;
     }
 
-    /* Hide everything by default */
-    body * {
-        visibility: hidden;
+    /* Hide everything by default using display: none to collapse space */
+    body>header,
+    body>footer,
+    main>div:not(#result-section) {
+        display: none !important;
     }
 
     /* Hide background image/colors to save ink */
@@ -102,9 +104,18 @@ body {
         padding: 0;
     }
 
+    /* Reset Main container to not restrict width or add padding */
+    main {
+        display: block !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     /* Show only Result Section */
-    #result-section,
-    #result-section * {
+    #result-section {
+        display: block !important;
         visibility: visible;
     }
 
