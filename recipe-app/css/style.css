@@ -79,6 +79,12 @@ body {
 /* Print Styles */
 @media print {
 
+    /* Page Setup */
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+
     /* Hide everything by default */
     body * {
         visibility: hidden;
@@ -98,18 +104,30 @@ body {
         visibility: visible;
     }
 
-    /* Adjust Result Section positioning */
+    /* Result Section Container - Reset positioning to static to flow with page */
     #result-section {
-        position: absolute;
-        left: 0;
-        top: 0;
+        position: static;
         width: 100%;
-        padding: 20px 10mm;
+        max-width: none;
+        padding: 0;
+        margin: 0;
     }
 
-    /* Show Print Header */
+    /* Print Header - Fixed to appear on every page */
     #print-header {
         display: flex !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 30mm;
+        /* Reserve space for header */
+        align-items: center;
+        background-color: white;
+        z-index: 1000;
+        margin: 0;
+        padding-bottom: 5mm;
+        box-sizing: border-box;
     }
 
     /* Ensure styles inside print header are applied */
@@ -117,34 +135,10 @@ body {
         visibility: visible;
     }
 
-    /* Hide Print Button and default Title in Result Section */
-    #result-section>div:nth-child(2) button,
-    #result-section>div:nth-child(2) h3 i {
-        display: none !important;
-    }
-
-    /* Hide the original "提案レシピ" title to avoid duplicate/clutter if desired, or keep it. 
-       Let's keep it but simplified, as per previous logic.
-       The nth-child index changed because we added #print-header as first child.
-       Original structure:
-       #result-section
-         > div (Title + Print Button) -> Now 2nd child
-         > div#loading
-         > div#recipe-cards
-    */
-
-    /* Hide the "提案レシピ" title completely as we have the new Header */
-    #result-section>div:nth-child(2) {
-        display: none !important;
-    }
-
-    /* Hide Loading (should be hidden anyway but safe to ensure) */
-    #loading {
-        display: none !important;
-    }
-
-    /* HIDE AI ADVICE */
-    /* Targeting the advice div. It has bg-orange-50 class. */
+    /* Hide Print Button, Titles, Loading, Advice */
+    #result-section>div:nth-child(2),
+    /* Old title/button container if exists */
+    #loading,
     #recipe-cards>div.bg-orange-50 {
         display: none !important;
     }
@@ -152,16 +146,20 @@ body {
     /* Recipe Cards Layout */
     #recipe-cards {
         display: block;
-        margin-top: 10px;
+        margin-top: 0;
     }
 
     /* Individual Card Styling */
     .recipe-card {
+        page-break-inside: avoid;
         break-inside: avoid;
+
         break-after: page;
         page-break-after: always;
-        /* Legacy support */
-        margin-bottom: 0;
+
+        /* Push content down to avoid overlap with fixed header */
+        margin-top: 35mm !important;
+
         border: 1px solid #ddd;
         border-radius: 8px;
         box-shadow: none;
@@ -171,7 +169,7 @@ body {
         display: block !important;
     }
 
-    /* Limit to 3 recipes (Hide 4th onwards) */
+    /* Limit to 3 recipes */
     .recipe-card:nth-of-type(n+4) {
         display: none !important;
     }
@@ -181,22 +179,22 @@ body {
         display: block !important;
     }
 
-    /* Hide the summary chevron and close button */
+    /* Hide details marker/close button */
     details>summary::-webkit-details-marker,
     details>summary>div:last-child,
     .recipe-card button[onclick*="closest"] {
         display: none !important;
     }
 
-    /* Adjust summary styling */
+    /* Summary Styling */
     details>summary {
         background-color: #f9f9f9 !important;
         border-bottom: 1px solid #eee;
-        padding: 15px !important;
+        padding: 10px !important;
     }
 
     details>summary h3 {
-        font-size: 18pt !important;
+        font-size: 16pt !important;
     }
 
     /* Content Padding */
