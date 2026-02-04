@@ -82,21 +82,17 @@ body {
     /* Page Setup */
     @page {
         size: A4 portrait;
-        /* Reserve space for the header using page margin */
-        margin-top: 35mm;
-        margin-bottom: 10mm;
-        margin-left: 10mm;
-        margin-right: 10mm;
+        margin: 15mm 10mm 10mm 10mm;
     }
 
-    /* Hide everything by default using display: none to collapse space */
+    /* Hide non-print elements */
     body>header,
     body>footer,
     main>div:not(#result-section) {
         display: none !important;
     }
 
-    /* Hide background image/colors to save ink */
+    /* Reset body */
     body {
         background: white;
         background-image: none;
@@ -104,7 +100,7 @@ body {
         padding: 0;
     }
 
-    /* Reset Main container to not restrict width or add padding */
+    /* Reset Main container */
     main {
         display: block !important;
         width: 100% !important;
@@ -113,51 +109,23 @@ body {
         padding: 0 !important;
     }
 
-    /* Show only Result Section and all its children */
-    #result-section,
-    #result-section * {
-        display: block !important;
-        visibility: visible !important;
-    }
-
-    /* Result Section Container */
+    /* Result Section as Table */
     #result-section {
-        position: static;
+        display: table !important;
         width: 100%;
-        max-width: none;
-        padding: 0;
-        margin: 0;
+        table-layout: fixed;
     }
 
-    /* Ensure inline elements stay inline */
-    #result-section span,
-    #result-section i,
-    #result-section strong,
-    #result-section em {
-        display: inline !important;
-    }
-
-    /* Print Header - Fixed to appear on every page */
+    /* Print Header as Table Header (repeats on each page) */
     #print-header {
-        display: flex !important;
-        position: fixed;
-        top: 0;
-        /* Relative to the page box */
-        left: 0;
-        width: 100%;
-        height: 30mm;
-        align-items: center;
-        background-color: white;
-        z-index: 1000;
-        margin: 0;
-        padding-bottom: 2mm;
-        box-sizing: border-box;
-        /* Ensure it sits above the content flow which starts at margin-top */
+        display: table-header-group !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 
-    /* Ensure styles inside print header are applied */
-    #print-header * {
-        visibility: visible;
+    /* Recipe Cards Container as Table Body */
+    #recipe-cards {
+        display: table-row-group !important;
     }
 
     /* Hide Print Button, Titles, Loading, Advice */
@@ -167,42 +135,27 @@ body {
         display: none !important;
     }
 
-    /* Recipe Cards Layout */
-    #recipe-cards {
-        display: block;
-        margin-top: 0;
-    }
-
-    /* Individual Card Styling */
+    /* Individual Recipe Card */
     .recipe-card {
+        display: table-row !important;
         page-break-inside: avoid;
         break-inside: avoid;
-
-        break-after: page;
         page-break-after: always;
-
-        /* Remove invalid margin-top strategy */
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: none;
-        animation: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-        display: block !important;
-
-        /* Ensure content fits */
-        width: 100%;
+        break-after: page;
     }
 
-
-
-    /* PREVENT PAGE BREAK AFTER THE 3RD RECIPE */
+    /* Prevent page break after last recipe */
     .recipe-card:nth-of-type(3) {
-        break-after: auto !important;
         page-break-after: auto !important;
+        break-after: auto !important;
+    }
+
+    /* Recipe card content wrapper */
+    .recipe-card>details {
+        display: table-cell !important;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5mm;
     }
 
     /* Force Details Open */
@@ -221,40 +174,55 @@ body {
     details>summary {
         background-color: #f9f9f9 !important;
         border-bottom: 1px solid #eee;
-        padding: 5mm !important;
+        padding: 3mm !important;
+        margin-bottom: 3mm;
     }
 
     details>summary h3 {
-        font-size: 16pt !important;
+        font-size: 14pt !important;
         margin: 0;
     }
 
     /* Content Padding */
     .recipe-card>details>div {
-        padding: 5mm !important;
+        padding: 0 !important;
     }
 
     /* Fix Font Sizes for Print */
     .text-xl {
-        font-size: 14pt !important;
+        font-size: 13pt !important;
     }
 
     .text-2xl {
-        font-size: 16pt !important;
+        font-size: 14pt !important;
     }
 
     .text-lg {
-        font-size: 12pt !important;
+        font-size: 11pt !important;
     }
 
     p,
     li {
-        font-size: 10.5pt !important;
-        line-height: 1.5;
+        font-size: 10pt !important;
+        line-height: 1.4;
+        margin: 2mm 0;
     }
 
-    /* Override Tailwind widths */
+    /* Override Tailwind */
     .w-full {
         width: 100% !important;
+    }
+
+    /* Ensure proper spacing */
+    h4,
+    h5 {
+        margin-top: 3mm;
+        margin-bottom: 2mm;
+    }
+
+    ul,
+    ol {
+        margin: 2mm 0;
+        padding-left: 5mm;
     }
 }
