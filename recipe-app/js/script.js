@@ -111,6 +111,85 @@ function setupEventListeners() {
             window.print();
         });
     }
+
+    // Copy Prompt Button
+    const copyPromptBtn = document.getElementById('copy-prompt-btn');
+    if (copyPromptBtn) {
+        copyPromptBtn.addEventListener('click', handleCopyPrompt);
+    }
+}
+
+
+
+/**
+ * Get form data helper
+ */
+function getFormData() {
+    const formData = new FormData(form);
+
+    // Symptoms
+    const symptoms = Array.from(formData.getAll('symptoms'));
+    const otherSymptom = formData.get('other_symptom');
+    if (otherSymptom && otherSymptom.trim() !== '') {
+        symptoms.push(otherSymptom.trim());
+    }
+
+    const ingredients = Array.from(formData.getAll('ingredient')).filter(i => i.trim() !== '');
+    const excludedIngredients = Array.from(formData.getAll('excluded_ingredient')).filter(i => i.trim() !== '');
+    const cuisine = formData.get('cuisine');
+    const time = formData.get('time');
+
+    return { symptoms, ingredients, excludedIngredients, cuisine, time };
+}
+
+/**
+ * Handle Copy Prompt
+ */
+async function handleCopyPrompt() {
+    const data = getFormData();
+
+    const symptomText = data.symptoms.length > 0 ? data.symptoms.join("、") : "特になし";
+    const ingredientText = data.ingredients.length > 0 ? data.ingredients.join("、") : "おまかせ";
+    const excludedText = data.excludedIngredients.length > 0 ? data.excludedIngredients.join("、") : "なし";
+
+    const prompt = `あなたは管理栄養士かつ一流のシェフです。
+ユーザーの体調や症状、手持ちの食材、希望する料理ジャンル、調理時間に合わせて、最適なレシピを3つ提案してください。
+
+# ユーザー情報
+【体調・気になること】${symptomText}
+【使いたい食材】${ingredientText}
+【除外したい食材】${excludedText}
+【ジャンル】${data.cuisine}
+【希望調理時間】${data.time}
+
+# 制約事項
+- 治療や治癒などの医学的表現は避け、健康をサポートするという表現にとどめてください。
+- 具体的な材料と分量、手順を提示してください。
+- 糖質、脂質、タンパク質、塩分（概算値）も併記してください。
+- 明るく励ますようなトーンで回答してください。`;
+
+    try {
+        await navigator.clipboard.writeText(prompt);
+
+        // Show success feedback
+        const btn = document.getElementById('copy-prompt-btn');
+        const originalHTML = btn.innerHTML;
+
+        // Change button style temporarily
+        btn.innerHTML = '<i class="fas fa-check"></i> コピーしました！';
+        btn.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-200');
+        btn.classList.add('bg-green-50', 'text-green-700', 'border-green-200');
+
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-200');
+            btn.classList.remove('bg-green-50', 'text-green-700', 'border-green-200');
+        }, 3000);
+
+    } catch (err) {
+        console.error('Failed to copy keys: ', err);
+        alert('クリップボードへのコピーに失敗しました。');
+    }
 }
 // ... (HandleFormSubmit and others remain same, focusing on Init)
 
@@ -131,44 +210,24 @@ async function handleFormSubmit(e) {
     // Scroll to result
     resultSection.scrollIntoView({ behavior: 'smooth' });
 
-    // Gather Data
+    // Gather API Key
     const formData = new FormData(form);
-
-    // Symptoms
-    const symptoms = Array.from(formData.getAll('symptoms'));
-    const otherSymptom = formData.get('other_symptom');
-    if (otherSymptom && otherSymptom.trim() !== '') {
-        symptoms.push(otherSymptom.trim());
-    }
-
-    const ingredients = Array.from(formData.getAll('ingredient')).filter(i => i.trim() !== '');
-    const excludedIngredients = Array.from(formData.getAll('excluded_ingredient')).filter(i => i.trim() !== '');
-    const cuisine = formData.get('cuisine');
-    const time = formData.get('time');
-
-    // API Settings
-    const apiOption = formData.get('api_option'); // 'system', 'openai', 'gemini'
-    let provider = 'gemini'; // Default for system and gemini
+    const apiOption = formData.get('api_option');
     let userKey = null;
 
-    if (apiOption === 'openai') {
-        provider = 'openai';
+    if (apiOption === 'openai' || apiOption === 'gemini') {
         userKey = apiKeyInput.value.trim();
-    } else if (apiOption === 'gemini') {
-        provider = 'gemini';
-        userKey = apiKeyInput.value.trim();
-    } else {
-        // system
-        provider = 'gemini';
-        userKey = null;
     }
 
-    // Validation: If user selected own key but provided none
+    // Validation
     if ((apiOption === 'openai' || apiOption === 'gemini') && !userKey) {
         renderError('APIキーが入力されていません。設定を確認するか、「おまかせ」を選択してください。');
         loadingDiv.classList.add('hidden');
         return;
     }
+
+    // Get Data from helper
+    const { symptoms, ingredients, excludedIngredients, cuisine, time } = getFormData();
 
     const requestData = {
         symptoms,
@@ -176,7 +235,7 @@ async function handleFormSubmit(e) {
         excludedIngredients,
         cuisine,
         time,
-        provider
+        provider: apiOption === 'openai' ? 'openai' : 'gemini'
     };
 
     try {
