@@ -331,7 +331,15 @@ async function fetchRecipes(requestData, userKey) {
             body: JSON.stringify(requestData)
         });
 
-        const data = await response.json();
+        const text = await response.text();
+        let data;
+
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            // If response is not JSON (e.g. 500 error text), throw that as error
+            throw new Error(text || `Server Error: ${response.status}`);
+        }
 
         if (!response.ok) {
             // Check for specific limitation errors
