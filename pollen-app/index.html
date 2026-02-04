@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://cyberjapandata.gsi.go.jp https://www.googletagmanager.com https://cdn-icons-png.flaticon.com; connect-src 'self' https://wxtech.weathernews.com https://api.open-meteo.com https://archive-api.open-meteo.com https://www.google-analytics.com https://analytics.google.com https://*.googleapis.com https://www.gstatic.com https://unpkg.com https://cdn.jsdelivr.net https://pollen-worker.neko-neko-0404.workers.dev https://cdn-icons-png.flaticon.com;">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://cyberjapandata.gsi.go.jp https://www.googletagmanager.com https://cdn-icons-png.flaticon.com https://api.qrserver.com; connect-src 'self' https://wxtech.weathernews.com https://api.open-meteo.com https://archive-api.open-meteo.com https://www.google-analytics.com https://analytics.google.com https://*.googleapis.com https://www.gstatic.com https://unpkg.com https://cdn.jsdelivr.net https://pollen-worker.neko-neko-0404.workers.dev https://cdn-icons-png.flaticon.com;">
     <title>花粉飛散リアルタイム監視 - Pollen Radar | Kusuri Compass</title>
     <meta name="description" content="全国のポールンロボ（花粉観測機）から届くリアルタイムな花粉飛散状況を地図上で可視化。過去の飛散傾向や気象データとの比較も可能です。">
     <meta name="keywords" content="花粉, 花粉飛散, リアルタイム, ポールンロボ, ウェザーニュース, Kusuri Compass, 薬剤師, 薬局">
@@ -38,25 +38,27 @@
     <!-- Header/Title -->
     <div class="app-header">
         <div
-            style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
+            style="display: flex; justify-content: flex-start; align-items: center; width: 100%; flex-wrap: wrap; gap: 4px;">
             <div class="flex items-center gap-3">
                 <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity"
                     style="text-decoration: none;">
                     <img src="../images/KusuriCompass.png" alt="Kusuri Compass Icon"
-                        style="height: 40px; width: 40px; object-fit: contain;">
+                        style="height: 50px; width: 50px; object-fit: contain;">
                 </a>
             </div>
-            <div class="title-group" style="margin-left: 5px;">
+            <div class="title-group">
                 <i class="fas fa-wind icon-main"></i>
                 <div>
                     <h1>花粉飛散リアルタイム監視</h1>
                     <p class="subtitle">全国の観測データをリアルタイムに可視化</p>
                 </div>
             </div>
-            <a href="../index.html" class="menu-link"
-                style="color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 5px; margin-left: auto;">
-                <i class="fas fa-home"></i> メニュー
-            </a>
+            <div class="header-qr-code" style="margin-left: auto; display: flex; align-items: center; cursor: pointer;"
+                onclick="document.getElementById('qr-modal').classList.add('show')">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://is.gd/BuKzFs&ecc=L&margin=0"
+                    alt="QR Code" style="height: 50px; width: 50px; border-radius: 4px; border: 1px solid #ddd;"
+                    title="クリックして拡大">
+            </div>
         </div>
     </div>
 
@@ -235,15 +237,19 @@
     <div id="crosshair"></div>
 
     <!-- Update Notice Banner -->
-    <div id="update-notice" class="update-notice">
+    <div id="update-notice" class="update-notice" data-notice-id="background-notification-beta-v1">
         <div class="notice-content">
             <i class="fas fa-bullhorn notice-icon"></i>
             <div class="notice-text">
                 <p class="notice-title">🔔 バックグラウンド通知機能</p>
                 <p class="notice-message">実装テストを開始しました！<br>お手数ですが、<span class="highlight">通知設定を一度「保存」し直して</span>ください。
                 </p>
+                <label class="notice-hide-check">
+                    <input type="checkbox" id="notice-hide-checkbox">
+                    <span>今後表示しない</span>
+                </label>
             </div>
-            <button class="notice-close" onclick="this.closest('.update-notice').remove()" aria-label="閉じる">
+            <button id="notice-close-btn" class="notice-close" aria-label="閉じる">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -431,6 +437,21 @@
                         style="padding: 10px 30px; border-radius: 25px; cursor: pointer;">閉じる</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal for QR Code -->
+    <div id="qr-modal" class="modal">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <span class="close-btn"
+                onclick="document.getElementById('qr-modal').classList.remove('show')">&times;</span>
+            <h2><i class="fas fa-qrcode"></i> モバイルで開く</h2>
+            <div class="modal-body"
+                style="height: auto; min-height: auto; display: flex; justify-content: center; padding: 20px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://is.gd/BuKzFs&ecc=L&margin=1"
+                    alt="Large QR Code" style="width: 250px; height: 250px;">
+            </div>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #666;">スマートフォンのカメラで読み取ってください</p>
         </div>
     </div>
 

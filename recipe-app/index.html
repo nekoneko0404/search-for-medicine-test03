@@ -365,6 +365,24 @@
 
         <!-- Result Section -->
         <div id="result-section" class="hidden">
+            <!-- Print Header (Visible only in print) -->
+            <div id="print-header"
+                class="hidden flex items-center justify-between mb-8 border-b-2 border-orange-500 pb-4">
+                <div class="flex items-center gap-4">
+                    <img src="../images/KusuriCompass.png" alt="Kusuri Compass" class="h-16 w-16 object-contain">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">健康レシピ提案</h1>
+                        <p class="text-sm text-gray-500">Kusuri Compass 薬剤師業務支援ツール</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-gray-600">スマホで<br>アクセス</p>
+                    </div>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://search-for-medicine.pages.dev/recipe-app/&size=120x120"
+                        alt="QR Code" class="h-20 w-20 border border-gray-200 p-1 bg-white">
+                </div>
+            </div>
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-2xl font-bold text-gray-800">
                     <i class="fas fa-sparkles text-yellow-500 mr-2"></i>提案レシピ

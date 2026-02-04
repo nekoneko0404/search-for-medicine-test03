@@ -104,44 +104,79 @@ body {
         left: 0;
         top: 0;
         width: 100%;
-        padding: 0 10mm;
-        /* A4 side margin approx */
+        padding: 20px 10mm;
     }
 
-    /* Hide Print Button and Title in Result Section */
-    #result-section>div:first-child button,
-    #result-section>div:first-child h3 i {
+    /* Show Print Header */
+    #print-header {
+        display: flex !important;
+    }
+
+    /* Ensure styles inside print header are applied */
+    #print-header * {
+        visibility: visible;
+    }
+
+    /* Hide Print Button and default Title in Result Section */
+    #result-section>div:nth-child(2) button,
+    #result-section>div:nth-child(2) h3 i {
         display: none !important;
     }
 
-    /* Simplify Title */
-    #result-section>div:first-child h3 {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 18pt;
+    /* Hide the original "提案レシピ" title to avoid duplicate/clutter if desired, or keep it. 
+       Let's keep it but simplified, as per previous logic.
+       The nth-child index changed because we added #print-header as first child.
+       Original structure:
+       #result-section
+         > div (Title + Print Button) -> Now 2nd child
+         > div#loading
+         > div#recipe-cards
+    */
+
+    /* Hide the "提案レシピ" title completely as we have the new Header */
+    #result-section>div:nth-child(2) {
+        display: none !important;
+    }
+
+    /* Hide Loading (should be hidden anyway but safe to ensure) */
+    #loading {
+        display: none !important;
+    }
+
+    /* HIDE AI ADVICE */
+    /* Targeting the advice div. It has bg-orange-50 class. */
+    #recipe-cards>div.bg-orange-50 {
+        display: none !important;
     }
 
     /* Recipe Cards Layout */
     #recipe-cards {
         display: block;
+        margin-top: 10px;
     }
 
     /* Individual Card Styling */
     .recipe-card {
-        page-break-inside: avoid;
-        /* Avoid breaking a card */
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
+        break-inside: avoid;
+        break-after: page;
+        page-break-after: always;
+        /* Legacy support */
+        margin-bottom: 0;
+        border: 1px solid #ddd;
         border-radius: 8px;
         box-shadow: none;
-        /* Remove shadow for print */
         animation: none !important;
-        /* Remove animations */
         opacity: 1 !important;
         transform: none !important;
+        display: block !important;
     }
 
-    /* Force Details Open - Note: JS is also usually needed */
+    /* Limit to 3 recipes (Hide 4th onwards) */
+    .recipe-card:nth-of-type(n+4) {
+        display: none !important;
+    }
+
+    /* Force Details Open */
     details[open]>summary~* {
         display: block !important;
     }
@@ -155,21 +190,21 @@ body {
 
     /* Adjust summary styling */
     details>summary {
-        background-color: #f0f0f0 !important;
-        border-bottom: 1px solid #ddd;
-        padding: 10px !important;
+        background-color: #f9f9f9 !important;
+        border-bottom: 1px solid #eee;
+        padding: 15px !important;
+    }
+
+    details>summary h3 {
+        font-size: 18pt !important;
     }
 
     /* Content Padding */
     .recipe-card>details>div {
-        padding: 10px 15px !important;
+        padding: 20px !important;
     }
 
-    /* Hide Advice Message to save space if needed, or keep it */
-    /* .col-span-1.bg-orange-50 { display: none; } */
-
-    /* Ensure 3 cards fit (roughly) */
-    /* Reset text sizes */
+    /* Fix Font Sizes for Print */
     .text-xl {
         font-size: 14pt !important;
     }
@@ -182,13 +217,10 @@ body {
         font-size: 12pt !important;
     }
 
-    .text-sm {
-        font-size: 10pt !important;
-    }
-
     p,
     li {
-        font-size: 10pt !important;
+        font-size: 11pt !important;
+        line-height: 1.6;
     }
 
     /* Override Tailwind widths */

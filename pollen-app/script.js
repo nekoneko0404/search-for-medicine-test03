@@ -1,3 +1,36 @@
+document.addEventListener('DOMContentLoaded', function () {
+    // Notification Banner Logic
+    const noticeBanner = document.getElementById('update-notice');
+    if (noticeBanner) {
+        const noticeId = noticeBanner.getAttribute('data-notice-id');
+        const hiddenNotices = JSON.parse(localStorage.getItem('pollen_hidden_notices') || '[]');
+
+        // Check if this notice is hidden
+        if (hiddenNotices.includes(noticeId)) {
+            noticeBanner.remove();
+        } else {
+            // Setup close button functionality
+            const closeBtn = document.getElementById('notice-close-btn');
+            const hideCheckbox = document.getElementById('notice-hide-checkbox');
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function () {
+                    if (hideCheckbox && hideCheckbox.checked) {
+                        hiddenNotices.push(noticeId);
+                        localStorage.setItem('pollen_hidden_notices', JSON.stringify(hiddenNotices));
+                    }
+                    // Animation handle
+                    noticeBanner.style.transition = 'opacity 0.3s, transform 0.3s';
+                    noticeBanner.style.opacity = '0';
+                    noticeBanner.style.transform = 'translateX(100%)';
+
+                    setTimeout(() => noticeBanner.remove(), 300);
+                });
+            }
+        }
+    }
+});
+
 // Helper: Get Japan Standard Time date string (YYYY-MM-DD)
 function getJSTDateString(date = new Date()) {
     // Convert to JST (UTC+9)
@@ -762,9 +795,8 @@ document.querySelector('.close-btn').addEventListener('click', () => {
 });
 
 window.onclick = function (event) {
-    const modal = document.getElementById('trend-modal');
-    if (event.target == modal) {
-        modal.classList.remove('show');
+    if (event.target.classList.contains('modal')) {
+        event.target.classList.remove('show');
     }
 };
 
