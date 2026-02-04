@@ -151,9 +151,10 @@ body {
     }
 
     /* Prevent page break after last recipe */
-    .recipe-card:nth-of-type(3) {
-        page-break-after: auto !important;
-        break-after: auto !important;
+    .recipe-card:nth-of-type(3),
+    .recipe-card:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
 
     /* Recipe card content wrapper */
@@ -162,6 +163,8 @@ body {
         border: 1px solid #ddd;
         border-radius: 4px;
         padding: 5mm;
+        padding-top: 8mm;
+        /* Extra spacing from header */
     }
 
     /* Force Details Open */
