@@ -140,8 +140,29 @@ function setupEventListeners() {
             const details = document.querySelectorAll('#recipe-cards details');
             details.forEach(d => d.setAttribute('open', 'true'));
 
+            // Clone header for each recipe card (except first)
+            const printHeader = document.getElementById('print-header');
+            const recipeCards = document.querySelectorAll('.recipe-card');
+            const clonedHeaders = [];
+
+            if (printHeader && recipeCards.length > 0) {
+                // Skip first card (it already has the original header above it)
+                for (let i = 1; i < recipeCards.length; i++) {
+                    const headerClone = printHeader.cloneNode(true);
+                    headerClone.classList.add('cloned-header');
+                    headerClone.id = ''; // Remove ID to avoid duplicates
+                    recipeCards[i].parentNode.insertBefore(headerClone, recipeCards[i]);
+                    clonedHeaders.push(headerClone);
+                }
+            }
+
             // Print
             window.print();
+
+            // Clean up cloned headers after print dialog closes
+            setTimeout(() => {
+                clonedHeaders.forEach(clone => clone.remove());
+            }, 100);
         });
     }
 

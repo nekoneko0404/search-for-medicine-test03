@@ -82,7 +82,7 @@ body {
     /* Page Setup */
     @page {
         size: A4 portrait;
-        margin: 15mm 10mm 10mm 10mm;
+        margin: 20mm 10mm 10mm 10mm;
     }
 
     /* Hide non-print elements */
@@ -109,29 +109,37 @@ body {
         padding: 0 !important;
     }
 
-    /* Result Section as Table */
+    /* Result Section - normal block flow */
     #result-section {
-        display: table !important;
+        display: block !important;
         width: 100%;
-        table-layout: fixed;
     }
 
-    /* Print Header as Table Header (repeats on each page) */
-    #print-header {
-        display: table-header-group !important;
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
-
-    /* Inner flex container for header layout */
-    #print-header>div {
+    /* Print Header - show as normal block at top */
+    #print-header,
+    .cloned-header {
         display: flex !important;
         align-items: center;
+        margin-bottom: 5mm;
+        padding-bottom: 3mm;
+        border-bottom: 2px solid #f97316;
+        page-break-after: avoid;
+        break-after: avoid;
     }
 
-    /* Recipe Cards Container as Table Body */
-    #recipe-cards {
-        display: table-row-group !important;
+    /* Cloned headers should force page break before them */
+    .cloned-header {
+        page-break-before: always;
+        break-before: page;
+        margin-top: 0;
+    }
+
+    /* Ensure header content displays correctly */
+    #print-header>div,
+    .cloned-header>div {
+        display: flex !important;
+        align-items: center;
+        width: 100%;
     }
 
     /* Hide Print Button, Titles, Loading, Advice */
@@ -141,30 +149,41 @@ body {
         display: none !important;
     }
 
-    /* Individual Recipe Card */
+    /* Recipe Cards Container */
+    #recipe-cards {
+        display: block !important;
+    }
+
+    /* Individual Recipe Card - BLOCK layout for proper page breaks */
     .recipe-card {
-        display: table-row !important;
+        display: block !important;
         page-break-inside: avoid;
         break-inside: avoid;
-        page-break-after: always;
-        break-after: page;
-    }
-
-    /* Prevent page break after last recipe */
-    .recipe-card:nth-of-type(3),
-    .recipe-card:last-child {
-        page-break-after: avoid !important;
-        break-after: avoid !important;
-    }
-
-    /* Recipe card content wrapper */
-    .recipe-card>details {
-        display: table-cell !important;
+        page-break-after: auto;
+        break-after: auto;
+        margin-bottom: 0;
         border: 1px solid #ddd;
         border-radius: 4px;
         padding: 5mm;
-        padding-top: 8mm;
-        /* Extra spacing from header */
+    }
+
+    /* First recipe should NOT have page break before (stays with header) */
+    .recipe-card:first-child {
+        page-break-before: avoid !important;
+        break-before: avoid !important;
+    }
+
+    /* Recipe cards after first will get page breaks from cloned headers */
+    .recipe-card:not(:first-child) {
+        page-break-before: avoid !important;
+        break-before: avoid !important;
+    }
+
+    /* Last recipe should NOT force page break after */
+    .recipe-card:last-child,
+    .recipe-card:nth-of-type(3) {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
 
     /* Force Details Open */
@@ -185,6 +204,8 @@ body {
         border-bottom: 1px solid #eee;
         padding: 3mm !important;
         margin-bottom: 3mm;
+        page-break-after: avoid;
+        break-after: avoid;
     }
 
     details>summary h3 {
@@ -227,11 +248,19 @@ body {
     h5 {
         margin-top: 3mm;
         margin-bottom: 2mm;
+        page-break-after: avoid;
+        break-after: avoid;
     }
 
     ul,
     ol {
         margin: 2mm 0;
         padding-left: 5mm;
+    }
+
+    /* Prevent orphaned list items */
+    li {
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 }
