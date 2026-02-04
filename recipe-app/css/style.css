@@ -113,10 +113,11 @@ body {
         padding: 0 !important;
     }
 
-    /* Show only Result Section */
-    #result-section {
+    /* Show only Result Section and all its children */
+    #result-section,
+    #result-section * {
         display: block !important;
-        visibility: visible;
+        visibility: visible !important;
     }
 
     /* Result Section Container */
@@ -126,6 +127,14 @@ body {
         max-width: none;
         padding: 0;
         margin: 0;
+    }
+
+    /* Ensure inline elements stay inline */
+    #result-section span,
+    #result-section i,
+    #result-section strong,
+    #result-section em {
+        display: inline !important;
     }
 
     /* Print Header - Fixed to appear on every page */
