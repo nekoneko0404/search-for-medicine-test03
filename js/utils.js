@@ -54,9 +54,12 @@ export function formatDate(date) {
  */
 export function extractSearchTerm(text) {
     if (!text) return '';
-    let match = text.match(/^([一-龯ァ-ヶー]+(?:[一-龯ァ-ヶー]+)*)/);
+    // Skip leading tags in brackets like 【限定】, [重要], etc.
+    let cleanText = text.replace(/^[【\[［][^】\]］]+[】\]］]/g, '').trim();
+
+    let match = cleanText.match(/^([一-龯ァ-ヶー]+(?:[一-龯ァ-ヶー]+)*)/);
     if (match && match[1]) { return match[1]; }
-    match = text.match(/[^一-龯ァ-ヶーA-Za-z0-9]*([一-龯ァ-ヶー]+(?:[一-龯ァ-ヶー]+)*)/);
+    match = cleanText.match(/[^一-龯ァ-ヶーA-Za-z0-9]*([一-龯ァ-ヶー]+(?:[一-龯ァ-ヶー]+)*)/);
     if (match && match[1]) { return match[1]; }
-    return text;
+    return cleanText;
 }

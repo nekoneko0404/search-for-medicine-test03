@@ -192,8 +192,9 @@ function getFormData() {
     const excludedIngredients = Array.from(formData.getAll('excluded_ingredient')).filter(i => i.trim() !== '');
     const cuisine = formData.get('cuisine');
     const time = formData.get('time');
+    const limitSupermarket = formData.get('limit_supermarket') === 'true';
 
-    return { symptoms, ingredients, excludedIngredients, cuisine, time };
+    return { symptoms, ingredients, excludedIngredients, cuisine, time, limitSupermarket };
 }
 
 /**
@@ -205,6 +206,7 @@ async function handleCopyPrompt() {
     const symptomText = data.symptoms.length > 0 ? data.symptoms.join("、") : "特になし";
     const ingredientText = data.ingredients.length > 0 ? data.ingredients.join("、") : "おまかせ";
     const excludedText = data.excludedIngredients.length > 0 ? data.excludedIngredients.join("、") : "なし";
+    const limitSupermarketText = data.limitSupermarket ? "- 食材は日本の一般的なスーパー（イオンなど）で買えるものに限定してください。" : "";
 
     const prompt = `あなたは管理栄養士かつ一流のシェフです。
 ユーザーの体調や症状、手持ちの食材、希望する料理ジャンル、調理時間に合わせて、最適なレシピを3つ提案してください。
@@ -220,7 +222,9 @@ async function handleCopyPrompt() {
 - 治療や治癒などの医学的表現は避け、健康をサポートするという表現にとどめてください。
 - 具体的な材料と分量、手順を提示してください。
 - 糖質、脂質、タンパク質、塩分（概算値）も併記してください。
-- 明るく励ますようなトーンで回答してください。`;
+- 材料費の概算（調味料除く）を「estimated_cost」として記載してください。
+- 明るく励ますようなトーンで回答してください。
+${limitSupermarketText}`;
 
     try {
         await navigator.clipboard.writeText(prompt);
@@ -281,7 +285,7 @@ async function handleFormSubmit(e) {
     }
 
     // Get Data from helper
-    const { symptoms, ingredients, excludedIngredients, cuisine, time } = getFormData();
+    const { symptoms, ingredients, excludedIngredients, cuisine, time, limitSupermarket } = getFormData();
 
     const requestData = {
         symptoms,
@@ -289,6 +293,7 @@ async function handleFormSubmit(e) {
         excludedIngredients,
         cuisine,
         time,
+        limitSupermarket,
         provider: apiOption === 'openai' ? 'openai' : 'gemini'
     };
 
@@ -425,6 +430,7 @@ function renderRecipes(data) {
                         <div class="flex flex-wrap gap-2 mt-2 text-sm text-gray-600 pl-8">
                             <span class="bg-white px-2 py-1 rounded-md shadow-sm"><i class="fas fa-clock text-orange-400 mr-1"></i>${escapeHtml(recipe.time)}</span>
                             <span class="bg-white px-2 py-1 rounded-md shadow-sm"><i class="fas fa-fire text-red-500 mr-1"></i>${escapeHtml(recipe.calories)}</span>
+                            ${recipe.estimated_cost ? `<span class="bg-white px-2 py-1 rounded-md shadow-sm" title="調味料を除くメイン食材の概算費用"><i class="fas fa-coins text-yellow-500 mr-1"></i>${escapeHtml(recipe.estimated_cost)}</span>` : ''}
                         </div>
                         <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-500 pl-8">
                             <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">糖質:${escapeHtml(recipe.carbs)}</span>
@@ -443,7 +449,9 @@ function renderRecipes(data) {
                 
                 <div class="p-5 bg-white">
                     <div class="mb-4">
-                        <h4 class="font-bold text-gray-700 mb-2 border-l-4 border-orange-500 pl-2">材料</h4>
+                        <h4 class="font-bold text-gray-700 mb-2 border-l-4 border-orange-500 pl-2">材料
+                            ${recipe.estimated_cost ? `<span class="text-xs font-normal text-gray-400 ml-2">※費用目安: ${escapeHtml(recipe.estimated_cost)} (調味料除く)</span>` : ''}
+                        </h4>
                         <ul class="list-disc list-inside text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
                             ${recipe.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
                         </ul>

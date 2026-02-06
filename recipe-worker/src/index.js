@@ -34,6 +34,7 @@ const SYSTEM_PROMPT = `あなたは管理栄養士かつ一流のシェフです
       "salt": "塩分 (g)",
       "ingredients": ["材料1", "材料2"],
       "steps": ["手順1", "手順2"],
+      "estimated_cost": "材料費の概算（円）※調味料除く",
       "health_point": "このレシピの健康ポイント"
     }
   ]
@@ -115,6 +116,7 @@ export default {
             const symptomText = body.symptoms && body.symptoms.length > 0 ? body.symptoms.join("、") : "特になし";
             const ingredientText = body.ingredients && body.ingredients.filter(i => i).length > 0 ? body.ingredients.filter(i => i).join("、") : "おまかせ";
             const excludedText = body.excludedIngredients && body.excludedIngredients.filter(i => i).length > 0 ? body.excludedIngredients.filter(i => i).join("、") : "なし";
+            const limitSupermarket = body.limitSupermarket ? "【食材の制約】日本の一般的なスーパー（イオンなど）で日常的に購入可能な食材のみを使用してください。" : "";
 
             const userContent = `
 【体調・気になること】${symptomText}
@@ -122,6 +124,10 @@ export default {
 【除外したい食材】${excludedText}
 【ジャンル】${body.cuisine}
 【希望調理時間】${body.time}
+${limitSupermarket}
+
+# 追加指示
+- 「estimated_cost」には、調味料（塩、砂糖、醤油、油、スパイス類など家に常備されているもの）を除いた、このレシピ1回分（人数分）のメイン食材の概算費用（日本円）を算出・記載してください（例: "約800円"）。
 `;
 
             let resultJson;
