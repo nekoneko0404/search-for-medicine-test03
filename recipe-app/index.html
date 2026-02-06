@@ -132,14 +132,6 @@
                         <input type="text" name="excluded_ingredient" placeholder="例：そば" class="form-input">
                         <input type="text" name="excluded_ingredient" placeholder="例：豚肉" class="form-input">
                     </div>
-                    
-                    <!-- Supermarket Limit Checkbox -->
-                    <div class="mt-3">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="limit_supermarket" value="true" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500 w-5 h-5">
-                            <span class="text-sm font-bold text-gray-700">一般的なスーパーで買える食材に限定する</span>
-                        </label>
-                    </div>
                 </div>
 
                 <!-- 3. Cuisine & Time -->
@@ -281,6 +273,42 @@
                         class="hidden mt-4 p-5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
 
                         <div class="space-y-4">
+                            <!-- Toggle Persistence -->
+                            <div
+                                class="flex items-center justify-between bg-white p-3 border border-gray-200 rounded-lg">
+                                <div>
+                                    <label for="save-form-state"
+                                        class="block font-bold text-gray-700 cursor-pointer select-none">次回のために選択内容を保存する</label>
+                                    <p class="text-xs text-gray-500">オンにすると、フォームの入力内容がブラウザに保存され、次回自動的に復元されます。</p>
+                                </div>
+                                <div
+                                    class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                    <input type="checkbox" name="save_form_state" id="save-form-state"
+                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0 checked:border-orange-500" />
+                                    <label for="save-form-state"
+                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-orange-500"></label>
+                                </div>
+                                <style>
+                                    /* Simple Toggle Switch CSS */
+                                    .toggle-checkbox:checked {
+                                        right: 0;
+                                        border-color: #f97316;
+                                    }
+
+                                    .toggle-checkbox:checked+.toggle-label {
+                                        background-color: #f97316;
+                                    }
+
+                                    .toggle-checkbox {
+                                        right: calc(100% - 1.5rem);
+                                        /* Start position */
+                                        transition: all 0.3s;
+                                    }
+                                </style>
+                            </div>
+
+                            <hr class="border-gray-200 my-2">
+
                             <label class="block font-bold text-gray-700">使用するAIモデルとキー設定</label>
 
                             <!-- Option 1: System (Gemini Free) -->
@@ -302,8 +330,9 @@
                                     class="mt-1 text-orange-500 focus:ring-orange-500">
                                 <div>
                                     <span class="block font-bold text-gray-800">OpenAI (自分のキーを使用) <span
-                                            class="text-red-500 text-xs ml-1">※未実証</span></span>
-                                    <span class="text-xs text-gray-500">GPT-4o miniを使用します。ご自身のAPIキーが必要です。</span>
+                                            class="text-xs text-gray-500 font-normal">※未検証</span></span>
+                                    <span
+                                        class="text-xs text-gray-500">gpt-5-nano-2025-08-07を使用します。ご自身のAPIキーが必要です。</span>
                                 </div>
                             </label>
 
@@ -313,7 +342,8 @@
                                 <input type="radio" name="api_option" value="gemini"
                                     class="mt-1 text-orange-500 focus:ring-orange-500">
                                 <div>
-                                    <span class="block font-bold text-gray-800">Google Gemini (自分のキーを使用)</span>
+                                    <span class="block font-bold text-gray-800">Google Gemini (自分のキーを使用) <span
+                                            class="text-xs text-green-600 font-normal">※検証済</span></span>
                                     <span class="text-xs text-gray-500">Gemini 3 Flash
                                         Previewを使用します。ご自身のAPIキーが必要です。</span>
                                 </div>

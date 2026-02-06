@@ -190,6 +190,8 @@ function handleIngredientClick(ingredient) {
     const searchIngredient = ingredient;
     elements.ingredientName.value = searchIngredient;
     searchData();
+    // Scroll to top to ensure results are visible from the start
+    window.scrollTo({ top: 0, behavior: 'instant' });
     showMessage(`「${searchIngredient}」で再検索を実行しました。`, 'info');
 }
 
@@ -241,45 +243,51 @@ function renderResults(data) {
 
             // Product Name
             const cellName = row.insertCell(0);
-            cellName.className = "px-4 py-3 text-sm text-gray-900 font-medium align-top";
+            cellName.className = "px-4 py-2 text-sm text-gray-900 font-medium align-top";
 
             const labelsContainer = document.createElement('div');
-            labelsContainer.className = 'flex gap-1 mb-1'; // Add margin-bottom for spacing
+            labelsContainer.className = 'vertical-labels-container';
 
             const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
             const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
 
             if (isGeneric) {
                 const span = document.createElement('span');
-                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
-                span.textContent = '後発';
+                span.className = "medicine-badge badge-generic";
+                span.textContent = '後';
                 labelsContainer.appendChild(span);
             }
             if (isBasic) {
                 const span = document.createElement('span');
-                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
-                span.textContent = '基礎';
+                span.className = "medicine-badge badge-basic";
+                span.textContent = '基';
                 labelsContainer.appendChild(span);
             }
+
+            const flexContainer = document.createElement('div');
+            flexContainer.className = 'flex items-start';
+
             if (labelsContainer.hasChildNodes()) {
-                cellName.appendChild(labelsContainer);
+                flexContainer.appendChild(labelsContainer);
             }
 
             if (item.yjCode) {
-                cellName.appendChild(createDropdown(item, data.indexOf(item)));
+                flexContainer.appendChild(createDropdown(item, data.indexOf(item)));
             } else {
-                const productNameSpan = document.createElement('span'); // Use a span for the text
-                productNameSpan.className = "text-sm"; // Add text-sm class
+                const productNameSpan = document.createElement('span');
+                productNameSpan.className = "text-sm";
                 productNameSpan.textContent = item.productName || '';
-                cellName.appendChild(productNameSpan);
+                flexContainer.appendChild(productNameSpan);
             }
+            cellName.appendChild(flexContainer);
+
             if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
                 cellName.classList.add('text-red-600', 'font-bold');
             }
 
             // Ingredient Name
             const cellIngredient = row.insertCell(1);
-            cellIngredient.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellIngredient.className = "px-4 py-2 text-sm text-gray-900 align-top truncate-lines";
             const ingredientNameValue = item.ingredientName || '';
             if (ingredientNameValue) {
                 const link = document.createElement('a');
@@ -300,7 +308,7 @@ function renderResults(data) {
 
             // Status
             const cellStatus = row.insertCell(2);
-            cellStatus.className = "px-4 py-3 align-top";
+            cellStatus.className = "px-4 py-2 align-top text-left";
             const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
             const statusContainer = document.createElement('div');
             statusContainer.className = 'flex items-center gap-1';
@@ -315,12 +323,12 @@ function renderResults(data) {
 
             // Reason for Limitation
             const cellReason = row.insertCell(3);
-            cellReason.className = "px-4 py-3 text-sm text-gray-600 align-top break-words";
+            cellReason.className = "px-4 py-2 text-xs text-gray-900 align-top truncate-lines";
             cellReason.textContent = item.reasonForLimitation || '-';
 
             // Shipment Volume Status
             const cellVolume = row.insertCell(4);
-            cellVolume.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellVolume.className = "px-4 py-2 text-xs text-gray-900 align-top";
             cellVolume.textContent = item.shipmentVolumeStatus || '-';
 
 
@@ -340,21 +348,21 @@ function renderResults(data) {
             productNameDiv.className = 'flex flex-col items-start mb-2';
 
             const labelsContainer = document.createElement('div');
-            labelsContainer.className = 'flex gap-1 mb-1';
+            labelsContainer.className = 'vertical-labels-container';
 
             const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
             const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
 
             if (isGeneric) {
                 const span = document.createElement('span');
-                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
-                span.textContent = '後発';
+                span.className = "medicine-badge badge-generic";
+                span.textContent = '後';
                 labelsContainer.appendChild(span);
             }
             if (isBasic) {
                 const span = document.createElement('span');
-                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
-                span.textContent = '基礎';
+                span.className = "medicine-badge badge-basic";
+                span.textContent = '基';
                 labelsContainer.appendChild(span);
             }
 

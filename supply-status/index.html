@@ -4,14 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>供給確保医薬品一覧（候補） - Kusuri Compass</title>
-    <meta name="description"
-        content="供給確保医薬品の候補成分一覧（R7年度カテゴリ分類案）に基づく医薬品の供給状況を検索できます。カテゴリ別、薬効分類別に通常出荷・限定出荷・供給停止の状況を確認できます。">
-    <meta name="keywords" content="供給確保医薬品, 医薬品供給状況, 出荷状況, カテゴリ分類, 薬効分類, 限定出荷, 供給停止, Kusuri Compass">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://search-for-medicine.pages.dev/supply-status/">
+    <title>供給確保医薬品一覧 - Kusuri Compass</title>
 
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -22,6 +17,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
     <style>
         body {
@@ -29,38 +25,24 @@
             background-color: #f8fafc;
         }
 
-        .search-results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            padding: 1rem;
-        }
-
-        /* Prevent dropdowns from being clipped by table containers */
-        #summaryTable,
-        #detailContainer>div {
-            overflow: visible !important;
-        }
-
-        /* Enable horizontal scroll on the table element itself if needed, 
-           but keep the parent container overflow visible for the dropdown */
-        table {
-            min-width: 100%;
-        }
-
-        @media (max-width: 768px) {
-            .overflow-x-visible-mobile {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
+        .truncate-lines {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 </head>
 
 <body class="min-h-screen flex flex-col">
     <!-- Header Component -->
-    <main-header base-dir="../" active-page="">
+    <main-header base-dir="../" active-page="search">
+        <a href="../index.html"
+            class="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors">
+            <i class="fas fa-home mr-1"></i>ホーム
+        </a>
         <a href="../update/index.html" target="_blank" rel="noopener noreferrer"
             class="text-xs sm:text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-2 sm:px-3 py-2 rounded-md transition-colors">
             <span class="hidden sm:inline">情報更新表示</span>
@@ -70,255 +52,185 @@
             class="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors">使い方</a>
     </main-header>
 
-    <main
-        class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl md:flex md:flex-col pb-32 transition-all duration-500">
-        <div class="text-center mb-8 flex-shrink-0">
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl transition-all duration-500">
+        <!-- Title Section -->
+        <div class="text-center mb-8">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">供給確保医薬品一覧（候補）</h2>
             <p class="text-gray-500 text-sm">最新の供給状況、制限理由、解消見込みなどを確認できます</p>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 flex-shrink-0">
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label for="drugName" class="block text-sm font-semibold text-gray-700">医薬品名</label>
-                        <div class="relative">
-                            <input type="text" id="drugName"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2"
-                                placeholder="医薬品名を入力">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label for="ingredientName" class="block text-sm font-semibold text-gray-700">成分名</label>
-                        <div class="relative">
-                            <input type="text" id="ingredientName"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2"
-                                placeholder="成分名を入力">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                                    </path>
-                                </svg>
-                            </div>
+        <!-- Search Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Drug Name Search -->
+                <div class="space-y-2">
+                    <label for="drugName" class="block text-sm font-semibold text-gray-700">医薬品名</label>
+                    <div class="relative">
+                        <input type="text" id="drugName" placeholder="医薬品名を入力"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2.5">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-end">
+
+                <!-- Ingredient Name Search -->
+                <div class="space-y-2">
+                    <label for="ingredientName" class="block text-sm font-semibold text-gray-700">成分名</label>
+                    <div class="relative">
+                        <input type="text" id="ingredientName" placeholder="成分名を入力"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2.5">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-flask text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div id="filterGrid"
+                class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 pt-6 border-t border-gray-100 items-end">
+                <!-- Category Filter -->
+                <div id="categoryFilterContainer">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">カテゴリ</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="catA" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">A</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="catB" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">B</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="catC" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">C</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Route Filter (Moved Here) -->
+                <div id="routeFilterContainer">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">区分</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="routeInternal" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">内服</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="routeInjectable" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">注射</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="routeExternal" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">外用</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Status Filter (Wrapper) (Moved Here) -->
+                <div class="flex flex-row items-center gap-2 w-full">
+                    <div id="statusFilterContainer" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 sr-only">出荷状況</label>
+                        <div class="flex flex-nowrap gap-4 overflow-x-auto pb-2">
+                            <label class="inline-flex items-center cursor-pointer whitespace-nowrap">
+                                <input type="checkbox" id="statusNormal" checked
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">通常出荷</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer whitespace-nowrap">
+                                <input type="checkbox" id="statusLimited" checked
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">限定出荷</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer whitespace-nowrap">
+                                <input type="checkbox" id="statusStopped" checked
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">供給停止</span>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Share Button -->
                     <button id="share-btn"
-                        class="h-11 border-2 border-indigo-600 text-indigo-600 px-6 rounded-lg font-medium hover:bg-indigo-50 transition-colors shadow-sm flex items-center justify-center gap-2 whitespace-nowrap">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-                            </path>
-                        </svg>
+                        class="flex items-center gap-2 px-6 py-2 bg-white border border-indigo-200 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50 transition-all shadow-sm w-fit ml-auto">
+                        <i class="fas fa-share-alt"></i>
                         共有
                     </button>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4 pt-4 border-t border-gray-100">
-                <div id="categoryFilterContainer" class="flex flex-wrap items-center gap-4 w-full">
-                    <span class="text-sm font-semibold text-gray-700 mr-2">カテゴリ:</span>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="catA" value="A" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">A</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="catB" value="B" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">B</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="catC" value="C" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">C</span>
-                    </label>
 
-                    <span class="text-sm font-semibold text-gray-700 ml-4 mr-2">区分:</span>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="routeInternal" value="内" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">内</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="routeInjectable" value="注" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">注</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="routeExternal" value="外" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">外</span>
-                    </label>
-
-                    <div class="ml-auto text-[10px] text-gray-400 text-right w-full sm:w-auto">
-                        カテゴリ分類:
-                        <a href="https://www.mhlw.go.jp/content/10808000/001586778.pdf" target="_blank"
-                            rel="noopener noreferrer" class="text-indigo-600 hover:underline inline-block">
-                            供給確保医薬品の候補成分一覧（学会推薦内容）R7年度 カテゴリ分類案
-                        </a>
-                    </div>
-                </div>
-
-                <div id="statusFilterContainer" class="flex flex-wrap items-center gap-4 hidden">
-                    <span class="text-sm font-semibold text-gray-700 mr-2">出荷状況:</span>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="statusNormal" value="通常出荷" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">通常出荷</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="statusLimited" value="限定出荷" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">限定出荷</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="statusStopped" value="供給停止" checked
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">供給停止</span>
-                    </label>
-                </div>
-            </div>
-
+            <!-- Removed reload-data button container -->
         </div>
 
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="text-center py-12 hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent">
+            </div>
+            <p class="mt-4 text-gray-600 font-medium">データを読み込み中...</p>
+        </div>
+
+        <!-- Back Button (Container) -->
         <div id="backButtonContainer" class="mb-4 hidden">
             <button id="backBtn"
-                class="px-4 py-2 bg-white border-2 border-indigo-600 rounded-lg shadow-sm text-sm font-medium text-indigo-600 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center gap-2 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                <span>一覧に戻る</span>
+                class="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200 shadow-sm font-semibold">
+                <i class="fas fa-arrow-left"></i>
+                一覧に戻る
             </button>
         </div>
 
+        <!-- Summary View (Restored) -->
         <div id="summaryContainer">
-            <div id="loadingIndicator" class="flex items-center justify-center py-12">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-            </div>
             <div id="summaryResults" class="hidden">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block" id="summaryTable">
-                    <table class="min-w-full divide-y divide-gray-200">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hidden md:block">
+                    <table class="min-w-full divide-y divide-gray-200" id="summaryTable">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" data-sort="category"
-                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 transition-colors group">
-                                    <div class="flex items-center gap-1">
-                                        カテゴリ
-                                        <span class="sort-icon text-gray-400 group-hover:text-gray-600">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                </th>
-                                <th scope="col" data-sort="route"
-                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 transition-colors group">
-                                    <div class="flex items-center gap-1">
-                                        内注外
-                                        <span class="sort-icon text-gray-400 group-hover:text-gray-600">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                </th>
-                                <th scope="col" data-sort="drugClassCode"
-                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 transition-colors group">
-                                    <div class="flex items-center gap-1">
-                                        薬効分類
-                                        <span class="sort-icon text-gray-400 group-hover:text-gray-600">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                </th>
-                                <th scope="col" data-sort="drugClassName"
-                                    class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px] cursor-pointer hover:bg-gray-100 transition-colors group">
-                                    <div class="flex items-center gap-1">
-                                        薬効分類名
-                                        <span class="sort-icon text-gray-400 group-hover:text-gray-600">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                </th>
-                                <th scope="col" data-sort="ingredientName"
-                                    class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[200px] cursor-pointer hover:bg-gray-100 transition-colors group">
-                                    <div class="flex items-center gap-1">
-                                        成分名
-                                        <span class="sort-icon text-gray-400 group-hover:text-gray-600">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                </th>
-                                <th scope="col" data-sort="normal"
-                                    class="px-4 py-3 text-center text-xs font-bold text-green-600 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 transition-colors group">
-                                    <div class="flex items-center justify-center gap-1">
-                                        通常出荷
-                                        <span class="sort-icon text-gray-400 group-hover:text-gray-600">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                </th>
-                                <th scope="col" data-sort="limited"
-                                    class="px-4 py-3 text-center text-xs font-bold text-orange-600 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 transition-colors group">
-                                    <div class="flex items-center justify-center gap-1">
-                                        限定出荷
-                                        <span class="sort-icon text-gray-400 group-hover:text-gray-600">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                </th>
-                                <th scope="col" data-sort="stopped"
-                                    class="px-4 py-3 text-center text-xs font-bold text-red-600 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 transition-colors group">
-                                    <div class="flex items-center justify-center gap-1">
-                                        供給停止
-                                        <span class="sort-icon text-gray-400 group-hover:text-gray-600">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                </th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                    カテゴリ</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                    区分</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                    薬効分類</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px]">
+                                    薬効分類名</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[200px]">
+                                    成分名</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-center text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[130px]">
+                                    通常出荷</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-center text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[130px]">
+                                    限定出荷</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-center text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[130px]">
+                                    供給停止</th>
                             </tr>
                         </thead>
+
                         <tbody class="bg-white divide-y divide-gray-200" id="summaryTableBody">
                         </tbody>
                     </table>
                 </div>
-                <div id="summaryCardContainer" class="search-results-grid md:hidden mt-4">
+                <!-- Summary Card View (Mobile) -->
+                <div id="summaryCardContainer" class="md:hidden grid grid-cols-1 gap-4">
+                    <!-- Summary Cards will be injected here -->
                 </div>
             </div>
         </div>
 
+        <!-- Detail View (Table) -->
         <div id="detailContainer" class="hidden">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -328,16 +240,19 @@
                                 class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                                 カテゴリ</th>
                             <th scope="col"
-                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[200px]">
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                区分</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[200px]">
                                 医薬品名</th>
                             <th scope="col"
-                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px]">
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px]">
                                 成分名</th>
                             <th scope="col"
                                 class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                                 出荷状況</th>
                             <th scope="col"
-                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px]">
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px]">
                                 制限理由</th>
                             <th scope="col"
                                 class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
@@ -355,36 +270,10 @@
                 </table>
             </div>
 
-            <div id="cardContainer" class="search-results-grid md:hidden mt-4">
+            <!-- Card View (Mobile) -->
+            <div id="cardContainer" class="md:hidden grid grid-cols-1 gap-4">
+                <!-- Cards will be injected here -->
             </div>
-        </div>
-
-        <a href="../index.html"
-            class="fixed top-20 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
-            aria-label="ホームに戻る">
-            <svg class="w-10 h-10 transition-transform duration-300 group-hover:scale-110" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                </path>
-            </svg>
-        </a>
-
-        <!-- Reload Button -->
-        <button id="reload-data"
-            class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
-            aria-label="データを更新">
-            <svg class="w-10 h-10 transform transition-transform duration-700 ease-in-out group-hover:rotate-180"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                </path>
-            </svg>
-        </button>
-
-        <!-- Toast Message -->
-        <div id="messageBox"
-            class="hidden fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-all duration-300 opacity-0 transform translate-y-[-20px]">
         </div>
 
         <!-- Progress Bar -->
@@ -398,6 +287,8 @@
     <!-- Footer Component -->
     <main-footer base-dir="../"></main-footer>
 
+    <script type="module" src="../js/components/MainHeader.js"></script>
+    <script type="module" src="../js/components/MainFooter.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 

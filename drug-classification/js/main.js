@@ -446,6 +446,7 @@ function searchYjCode() {
     if (elements.sortIcons.yjCode) elements.sortIcons.yjCode.textContent = '↕';
 
     renderResults(filteredResults);
+    scrollTo(0, 0); // Scroll to top after search
 
     if (filteredResults.length === 0) {
         showMessage('条件に一致するデータが見つかりませんでした。', 'info');

@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const catBCheckbox = document.getElementById('catB');
     const catCCheckbox = document.getElementById('catC');
 
-    const statusNormalCheckbox = document.getElementById('statusNormal');
-    const statusLimitedCheckbox = document.getElementById('statusLimited');
-    const statusStoppedCheckbox = document.getElementById('statusStopped');
-
     const routeInternalCheckbox = document.getElementById('routeInternal');
     const routeInjectableCheckbox = document.getElementById('routeInjectable');
     const routeExternalCheckbox = document.getElementById('routeExternal');
+
+    const statusNormalCheckbox = document.getElementById('statusNormal');
+    const statusLimitedCheckbox = document.getElementById('statusLimited');
+    const statusStoppedCheckbox = document.getElementById('statusStopped');
 
     const summaryTableBody = document.getElementById('summaryTableBody');
     const summaryCardContainer = document.getElementById('summaryCardContainer');
@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const categoryFilterContainer = document.getElementById('categoryFilterContainer');
     const statusFilterContainer = document.getElementById('statusFilterContainer');
+    const routeFilterContainer = document.getElementById('routeFilterContainer');
 
     const reloadDataBtn = document.getElementById('reload-data');
     const shareBtn = document.getElementById('share-btn');
@@ -122,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const loadingIndicator = document.getElementById('loadingIndicator');
-                const summaryTable = document.getElementById('summaryTable');
                 if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 if (summaryResults) summaryResults.classList.remove('hidden');
 
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error loading data:', error);
             const loadingIndicator = document.getElementById('loadingIndicator');
             if (loadingIndicator) loadingIndicator.classList.add('hidden');
-            summaryTableBody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">データの読み込みに失敗しました</td></tr>';
+            summaryTableBody.innerHTML = '<tr><td colspan="8" class="px-4 py-4 text-center text-red-500">データの読み込みに失敗しました</td></tr>';
             showMessage('データの読み込みに失敗しました。', 'error');
         }
     }
@@ -201,7 +201,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const inputs = [drugNameInput, ingredientNameInput, catACheckbox, catBCheckbox, catCCheckbox, statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox, routeInternalCheckbox, routeInjectableCheckbox, routeExternalCheckbox];
+    const inputs = [drugNameInput, ingredientNameInput, catACheckbox, catBCheckbox, catCCheckbox,
+        routeInternalCheckbox, routeInjectableCheckbox, routeExternalCheckbox,
+        statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox];
     if (shareBtn) shareBtn.addEventListener('click', handleShare);
 
     function handleShare() {
@@ -225,17 +227,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (catCCheckbox.checked) cats.push('C');
         if (cats.length < 3) params.set('cat', cats.join(','));
 
+        const routes = [];
+        if (routeInternalCheckbox.checked) routes.push('internal');
+        if (routeInjectableCheckbox.checked) routes.push('injectable');
+        if (routeExternalCheckbox.checked) routes.push('external');
+        if (routes.length < 3) params.set('route', routes.join(','));
+
         const status = [];
         if (statusNormalCheckbox.checked) status.push('normal');
         if (statusLimitedCheckbox.checked) status.push('limited');
         if (statusStoppedCheckbox.checked) status.push('stopped');
         if (status.length < 3) params.set('status', status.join(','));
 
-        const routes = [];
-        if (routeInternalCheckbox.checked) routes.push('内');
-        if (routeInjectableCheckbox.checked) routes.push('注');
-        if (routeExternalCheckbox.checked) routes.push('外');
-        if (routes.length < 3) params.set('route', routes.join(','));
 
         if (currentSort.key !== 'category' || currentSort.direction !== 'asc') {
             params.set('sort', currentSort.key);
@@ -259,6 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
             catCCheckbox.checked = cats.includes('C');
         }
 
+        if (params.has('route')) {
+            const routes = params.get('route').split(',');
+            routeInternalCheckbox.checked = routes.includes('internal');
+            routeInjectableCheckbox.checked = routes.includes('injectable');
+            routeExternalCheckbox.checked = routes.includes('external');
+        }
+
         if (params.has('status')) {
             const status = params.get('status').split(',');
             statusNormalCheckbox.checked = status.includes('normal');
@@ -266,12 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
             statusStoppedCheckbox.checked = status.includes('stopped');
         }
 
-        if (params.has('route')) {
-            const routes = params.get('route').split(',');
-            routeInternalCheckbox.checked = routes.includes('内');
-            routeInjectableCheckbox.checked = routes.includes('注');
-            routeExternalCheckbox.checked = routes.includes('外');
-        }
 
         if (params.has('sort')) {
             currentSort.key = params.get('sort');
@@ -347,9 +351,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const checkboxes = [catACheckbox, catBCheckbox, catCCheckbox, statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox, routeInternalCheckbox, routeInjectableCheckbox, routeExternalCheckbox];
+    const checkboxes = [
+        catACheckbox, catBCheckbox, catCCheckbox,
+        routeInternalCheckbox, routeInjectableCheckbox, routeExternalCheckbox,
+        statusNormalCheckbox, statusLimitedCheckbox, statusStoppedCheckbox
+    ];
     checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', renderResults);
+        if (checkbox) checkbox.addEventListener('change', renderResults);
     });
 
     backBtn.addEventListener('click', () => {
@@ -366,8 +374,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 検索中（非デフォルト状態）判定
         const isDefaultState = !drugQuery && !ingredientQuery &&
             catACheckbox.checked && catBCheckbox.checked && catCCheckbox.checked &&
-            statusNormalCheckbox.checked && statusLimitedCheckbox.checked && statusStoppedCheckbox.checked &&
             routeInternalCheckbox.checked && routeInjectableCheckbox.checked && routeExternalCheckbox.checked &&
+            statusNormalCheckbox.checked && statusLimitedCheckbox.checked && statusStoppedCheckbox.checked &&
             currentView === 'summary';
 
         const processQuery = (query) => {
@@ -388,20 +396,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const drugFilter = processQuery(drugQuery);
         const ingredientFilter = processQuery(ingredientQuery);
 
-        const selectedCategories = [];
-        if (catACheckbox.checked) selectedCategories.push('A');
-        if (catBCheckbox.checked) selectedCategories.push('B');
-        if (catCCheckbox.checked) selectedCategories.push('C');
+        const selectedCats = [];
+        if (catACheckbox.checked) selectedCats.push('A');
+        if (catBCheckbox.checked) selectedCats.push('B');
+        if (catCCheckbox.checked) selectedCats.push('C');
+
+        const selectedRoutes = [];
+        if (routeInternalCheckbox.checked) selectedRoutes.push('内');
+        if (routeInjectableCheckbox.checked) selectedRoutes.push('注');
+        if (routeExternalCheckbox.checked) selectedRoutes.push('外');
 
         const selectedStatuses = [];
         if (statusNormalCheckbox.checked) selectedStatuses.push('通常出荷');
         if (statusLimitedCheckbox.checked) selectedStatuses.push('限定出荷');
         if (statusStoppedCheckbox.checked) selectedStatuses.push('供給停止');
 
-        const selectedRoutes = [];
-        if (routeInternalCheckbox.checked) selectedRoutes.push('内');
-        if (routeInjectableCheckbox.checked) selectedRoutes.push('注');
-        if (routeExternalCheckbox.checked) selectedRoutes.push('外');
 
         filteredData = allData.filter(item => {
             const matchQuery = (text, filter) => {
@@ -413,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const matchDrug = matchQuery(item.normalizedProductName, drugFilter);
             const matchIngredient = matchQuery(item.normalizedIngredientName, ingredientFilter);
-            const matchCategory = selectedCategories.includes(item.category);
+            const matchCat = selectedCats.includes(item.category);
             const matchRoute = selectedRoutes.includes(item.route);
 
             const currentStatus = (item.shipmentStatus || '').trim();
@@ -425,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // "No data" items are shown regardless of status filter if they match name/category
             if (currentStatus === 'データなし') matchStatus = true;
 
-            return matchDrug && matchIngredient && matchCategory && matchStatus && matchRoute;
+            return matchDrug && matchIngredient && matchCat && matchRoute && matchStatus;
         });
 
         if (currentView === 'summary') {
@@ -462,17 +471,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     route: route,
                     category: item.category,
                     drugClassCode: item.drugClassCode,
-                    drugClassName: item.drugClassName,
-                    normal: 0,
-                    limited: 0,
-                    stopped: 0
+                    drugClassName: item.drugClassName, // Fixed undefined bug
+                    counts: { normal: 0, limited: 0, stopped: 0 }
                 };
             }
 
+            // Count statuses
             const status = (item.shipmentStatus || '').trim();
-            if (status.includes('通常') || status.includes('通')) grouped[groupKey].normal++;
-            else if (status.includes('限定') || status.includes('制限') || status.includes('限') || status.includes('制')) grouped[groupKey].limited++;
-            else if (status.includes('停止') || status.includes('停')) grouped[groupKey].stopped++;
+            if (status.includes('通常') || status.includes('通')) {
+                grouped[groupKey].counts.normal++;
+            } else if (status.includes('限定') || status.includes('制限') || status.includes('限') || status.includes('制')) {
+                grouped[groupKey].counts.limited++;
+            } else if (status.includes('停止') || status.includes('停')) {
+                grouped[groupKey].counts.stopped++;
+            }
         });
 
         const sortedIngredients = Object.keys(grouped).sort((a, b) => {
@@ -512,7 +524,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 { key: 'route', getVal: (s) => s.route },
                 { key: 'drugClassCode', getVal: (s) => s.drugClassCode },
                 { key: 'drugClassName', getVal: (s) => s.drugClassName },
-                { key: 'ingredientName', getVal: (s) => s.ingredientName }
+                { key: 'ingredientName', getVal: (s) => s.ingredientName },
+                { key: 'statusNormal', getVal: (s) => s.counts.normal },
+                { key: 'statusLimited', getVal: (s) => s.counts.limited },
+                { key: 'statusStopped', getVal: (s) => s.counts.stopped }
             ];
 
             // 1. Compare by Primary Key
@@ -523,9 +538,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'drugClassCode': getPrimaryVal = (s) => s.drugClassCode; break;
                 case 'drugClassName': getPrimaryVal = (s) => s.drugClassName; break;
                 case 'ingredientName': getPrimaryVal = (s) => s.ingredientName; break;
-                case 'normal': getPrimaryVal = (s) => s.normal; break;
-                case 'limited': getPrimaryVal = (s) => s.limited; break;
-                case 'stopped': getPrimaryVal = (s) => s.stopped; break;
+                case 'statusNormal': getPrimaryVal = (s) => s.counts.normal; break;
+                case 'statusLimited': getPrimaryVal = (s) => s.counts.limited; break;
+                case 'statusStopped': getPrimaryVal = (s) => s.counts.stopped; break;
                 default: getPrimaryVal = (s) => s.ingredientName;
             }
 
@@ -552,29 +567,29 @@ document.addEventListener('DOMContentLoaded', () => {
             row.addEventListener('click', () => showDetailView(stats.ingredientName, stats.route));
 
 
-            const normalBtn = renderStatusButton('通常出荷');
-            normalBtn.innerHTML = `通常出荷 <span class="ml-1 font-bold">${stats.normal}</span>`;
-
-            const limitedBtn = renderStatusButton('限定出荷');
-            limitedBtn.innerHTML = `限定出荷 <span class="ml-1 font-bold">${stats.limited}</span>`;
-
-            const stoppedBtn = renderStatusButton('供給停止');
-            stoppedBtn.innerHTML = `供給停止 <span class="ml-1 font-bold">${stats.stopped}</span>`;
-
             row.innerHTML = `
                 <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center">${stats.category}</td>
                 <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center">${stats.route || '-'}</td>
                 <td class="px-4 py-2 text-sm text-gray-700 text-center">${stats.drugClassCode}</td>
-                <td class="px-4 py-2 text-sm text-gray-700">${stats.drugClassName}</td>
+                <td class="px-4 py-2 text-sm text-gray-700 max-w-[150px] truncate" title="${stats.drugClassName}">${stats.drugClassName}</td>
                 <td class="px-4 py-2 text-sm text-indigo-600 font-medium hover:underline">${stats.ingredientName}</td>
-                <td class="px-4 py-2 text-sm text-center"></td>
-                <td class="px-4 py-2 text-sm text-center"></td>
-                <td class="px-4 py-2 text-sm text-center"></td>
+                 <td class="px-4 py-2 text-sm text-center">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        通常出荷 ${stats.counts.normal}
+                    </span>
+                </td>
+                <td class="px-4 py-2 text-sm text-center">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        限定出荷 ${stats.counts.limited}
+                    </span>
+                </td>
+                <td class="px-4 py-2 text-sm text-center">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        供給停止 ${stats.counts.stopped}
+                    </span>
+                </td>
             `;
 
-            row.cells[5].appendChild(normalBtn);
-            row.cells[6].appendChild(limitedBtn);
-            row.cells[7].appendChild(stoppedBtn);
             summaryTableBody.appendChild(row);
 
             // Render Card for Mobile
@@ -587,29 +602,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-800">
                         カテゴリ ${stats.category} / ${stats.route}
                     </span>
-                    <span class="text-xs text-gray-500 font-medium">
+                    <span class="text-xs text-gray-500 font-medium truncate max-w-[150px]">
                         ${stats.drugClassCode}: ${stats.drugClassName}
                     </span>
                 </div>
                 <h3 class="text-lg font-bold text-indigo-900 mb-3">${stats.ingredientName}</h3>
-                <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100">
-                    <div class="text-center">
-                        <span class="block text-[10px] text-gray-500 mb-1">通常</span>
-                        <div class="inline-flex items-center justify-center w-full py-1 rounded-full text-xs font-bold ${stats.normal > 0 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}">
-                            ${stats.normal}
-                        </div>
+                <div class="grid grid-cols-3 gap-2 mt-2">
+                    <div class="text-center p-2 bg-blue-50 rounded-lg">
+                        <span class="block text-xs text-blue-600 font-bold mb-1">通常</span>
+                        <span class="text-lg font-bold text-blue-800">${stats.counts.normal}</span>
                     </div>
-                    <div class="text-center">
-                        <span class="block text-[10px] text-gray-500 mb-1">限定</span>
-                        <div class="inline-flex items-center justify-center w-full py-1 rounded-full text-xs font-bold ${stats.limited > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-400'}">
-                            ${stats.limited}
-                        </div>
+                    <div class="text-center p-2 bg-yellow-50 rounded-lg">
+                        <span class="block text-xs text-yellow-600 font-bold mb-1">限定</span>
+                        <span class="text-lg font-bold text-yellow-800">${stats.counts.limited}</span>
                     </div>
-                    <div class="text-center">
-                        <span class="block text-[10px] text-gray-500 mb-1">停止</span>
-                        <div class="inline-flex items-center justify-center w-full py-1 rounded-full text-xs font-bold ${stats.stopped > 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-400'}">
-                            ${stats.stopped}
-                        </div>
+                    <div class="text-center p-2 bg-red-50 rounded-lg">
+                        <span class="block text-xs text-red-600 font-bold mb-1">停止</span>
+                        <span class="text-lg font-bold text-red-800">${stats.counts.stopped}</span>
                     </div>
                 </div>
             `;
@@ -627,7 +636,14 @@ document.addEventListener('DOMContentLoaded', () => {
         backButtonContainer.classList.remove('hidden');
 
         if (categoryFilterContainer) categoryFilterContainer.classList.add('hidden');
-        if (statusFilterContainer) statusFilterContainer.classList.add('hidden');
+        if (routeFilterContainer) routeFilterContainer.classList.add('hidden');
+        if (statusFilterContainer) statusFilterContainer.classList.remove('hidden');
+
+        // Toggle grid columns
+        const filterGrid = document.getElementById('filterGrid');
+        if (filterGrid) {
+            filterGrid.classList.remove('md:grid-cols-3');
+        }
 
         // Filter allData for this ingredient AND route
         const details = allData.filter(item => {
@@ -644,8 +660,16 @@ document.addEventListener('DOMContentLoaded', () => {
         backButtonContainer.classList.add('hidden');
 
         if (categoryFilterContainer) categoryFilterContainer.classList.remove('hidden');
+        if (routeFilterContainer) routeFilterContainer.classList.remove('hidden');
         if (statusFilterContainer) statusFilterContainer.classList.add('hidden');
+
+        // Restore grid columns
+        const filterGrid = document.getElementById('filterGrid');
+        if (filterGrid) {
+            filterGrid.classList.add('md:grid-cols-3');
+        }
     }
+
 
     function renderDetailView(data) {
         renderTable(data);
@@ -667,28 +691,58 @@ document.addEventListener('DOMContentLoaded', () => {
             const formattedDate = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : '';
 
             row.innerHTML = `
-                <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center">${item.category}</td>
-                <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center">${item.route || '-'}</td>
-                <td class="px-4 py-2 text-sm"></td>
-                <td class="px-4 py-2 text-sm text-gray-500">${item.ingredientName || ''}</td>
-                <td class="px-4 py-2 text-sm"></td>
-                <td class="px-4 py-2 text-sm text-gray-700">${item.reasonForLimitation || '-'}</td>
-                <td class="px-4 py-2 text-sm text-gray-700">${item.resolutionProspect || '-'}</td>
-                <td class="px-4 py-2 text-sm text-gray-700">${item.expectedDate || '-'}</td>
-                <td class="px-4 py-2 text-xs text-gray-500 whitespace-nowrap">${formattedDate}</td>
+                <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center align-top">${item.category}</td>
+                <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center align-top">${item.route || '-'}</td>
+                <td class="px-4 py-2 text-sm align-top"></td>
+                <td class="px-4 py-2 text-sm text-gray-500 align-top">${item.ingredientName || ''}</td>
+                <td class="px-4 py-2 text-sm align-top"></td>
+                <td class="px-4 py-2 text-sm text-gray-700 align-top">${item.reasonForLimitation || '-'}</td>
+                <td class="px-4 py-2 text-sm text-gray-700 align-top">${item.resolutionProspect || '-'}</td>
+                <td class="px-4 py-2 text-sm text-gray-700 align-top">${item.expectedDate || '-'}</td>
+                <td class="px-4 py-2 text-xs text-gray-500 whitespace-nowrap align-top">${formattedDate}</td>
             `;
 
-            // Drug Name Dropdown
+            // Drug Name 
             const drugNameCell = row.cells[2];
-            if (item.yjCode) {
-                drugNameCell.appendChild(createDropdown(item, `table-${index}`));
-            } else {
-                drugNameCell.className += " text-indigo-600 font-medium";
-                drugNameCell.textContent = item.productName || '';
+
+            const labelsContainer = document.createElement('div');
+            labelsContainer.className = 'vertical-labels-container';
+
+            const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
+            const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
+
+            if (isGeneric) {
+                const span = document.createElement('span');
+                span.className = "medicine-badge badge-generic";
+                span.textContent = '後';
+                labelsContainer.appendChild(span);
+            }
+            if (isBasic) {
+                const span = document.createElement('span');
+                span.className = "medicine-badge badge-basic";
+                span.textContent = '基';
+                labelsContainer.appendChild(span);
             }
 
+            const flexContainer = document.createElement('div');
+            flexContainer.className = 'flex items-start';
+
+            if (labelsContainer.hasChildNodes()) {
+                flexContainer.appendChild(labelsContainer);
+            }
+
+            if (item.yjCode) {
+                flexContainer.appendChild(createDropdown(item, `table-${index}`));
+            } else {
+                const productNameSpan = document.createElement('span');
+                productNameSpan.className = "text-indigo-600 font-medium";
+                productNameSpan.textContent = item.productName || '';
+                flexContainer.appendChild(productNameSpan);
+            }
+            drugNameCell.appendChild(flexContainer);
+
             const statusBtn = renderStatusButton(item.shipmentStatus);
-            row.cells[3].appendChild(statusBtn);
+            row.cells[4].appendChild(statusBtn);
 
             tableBody.appendChild(row);
         });
@@ -742,14 +796,42 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             const nameContainer = card.querySelector('.product-name-container');
+
+            const labelsContainer = document.createElement('div');
+            labelsContainer.className = 'vertical-labels-container';
+
+            const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
+            const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
+
+            if (isGeneric) {
+                const span = document.createElement('span');
+                span.className = "medicine-badge badge-generic";
+                span.textContent = '後';
+                labelsContainer.appendChild(span);
+            }
+            if (isBasic) {
+                const span = document.createElement('span');
+                span.className = "medicine-badge badge-basic";
+                span.textContent = '基';
+                labelsContainer.appendChild(span);
+            }
+
+            const flexContainer = document.createElement('div');
+            flexContainer.className = 'flex items-start';
+
+            if (labelsContainer.hasChildNodes()) {
+                flexContainer.appendChild(labelsContainer);
+            }
+
             if (item.yjCode) {
-                nameContainer.appendChild(createDropdown(item, `card-${index}`));
+                flexContainer.appendChild(createDropdown(item, `card-${index}`));
             } else {
                 const h3 = document.createElement('h3');
                 h3.className = 'text-lg font-bold text-indigo-900 mb-1';
                 h3.textContent = item.productName || '';
-                nameContainer.appendChild(h3);
+                flexContainer.appendChild(h3);
             }
+            nameContainer.appendChild(flexContainer);
 
             const placeholder = card.querySelector('#status-placeholder');
             placeholder.replaceWith(statusBtn);

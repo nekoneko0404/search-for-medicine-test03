@@ -22,17 +22,32 @@ const SYSTEM_PROMPT = `あなたは管理栄養士かつ一流のシェフです
 - 明るく、励ますようなトーンで回答してください。
 - **必ず3つのレシピを提案してください。**
 
+# データ形式の定義
+- **cuisine_region**: 料理のルーツとなる地域や国を記載してください。
+  - 日本に馴染みのある国（日本、イタリア、フランス、中国、韓国、アメリカ、インドなど）の場合は、国名だけでなく地域名まで詳しく記載してください。（例: 「日本・長野」「イタリア・シチリア」「中国・四川」）
+  - 日本に馴染みのない国や特定が難しい場合は、広域地域名で記載してください。（例: 「東南アジア」「地中海」「中東」）
+- **ingredients**: 各食材の情報をオブジェクトの配列で記載してください。
+  - name: 食材名
+  - amount: 分量（2人分など、一般的な分量）
+  - estimated_price: その食材の概算価格（日本円、例: "約100円"）。家庭にある調味料は "0円" または "家にあるもの" と記載可。
+  - substitute: 代替食材（日本で入手困難な本格食材を使用する場合のみ、日本で購入可能な代替案を記載）。例: "レモン汁(大さじ1) + ショウガ薄切り"
+
 {
   "message": "ユーザーへの励ましやアドバイス",
+  "recipes": [
     {
       "name": "料理名",
       "time": "調理時間",
+      "cuisine_region": "料理の地域・国",
       "calories": "おおよそのカロリー",
       "carbs": "糖質 (g)",
       "fat": "脂質 (g)",
       "protein": "タンパク質 (g)",
       "salt": "塩分 (g)",
-      "ingredients": ["材料1", "材料2"],
+      "ingredients": [
+        { "name": "食材1", "amount": "分量", "estimated_price": "概算価格" },
+        { "name": "食材2", "amount": "分量", "estimated_price": "概算価格", "substitute": "代替食材" }
+      ],
       "steps": ["手順1", "手順2"],
       "estimated_cost": "材料費の概算（円）※調味料除く",
       "health_point": "このレシピの健康ポイント"
@@ -116,7 +131,7 @@ export default {
             const symptomText = body.symptoms && body.symptoms.length > 0 ? body.symptoms.join("、") : "特になし";
             const ingredientText = body.ingredients && body.ingredients.filter(i => i).length > 0 ? body.ingredients.filter(i => i).join("、") : "おまかせ";
             const excludedText = body.excludedIngredients && body.excludedIngredients.filter(i => i).length > 0 ? body.excludedIngredients.filter(i => i).join("、") : "なし";
-            const limitSupermarket = body.limitSupermarket ? "【食材の制約】日本の一般的なスーパー（イオンなど）で日常的に購入可能な食材のみを使用してください。" : "";
+            const limitSupermarket = "【食材の制約】現地の本格的な食材を積極的に使用してください。ただし、日本で入手困難な食材には、必ず日本で購入可能な代替食材を提案してください（ingredientsにsubstituteを含める）。";
 
             const userContent = `
 【体調・気になること】${symptomText}
@@ -168,7 +183,7 @@ async function callOpenAI(apiKey, userContent) {
             "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-            model: "gpt-4o-mini",
+            model: "gpt-5-nano-2025-08-07",
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
                 { role: "user", content: userContent }

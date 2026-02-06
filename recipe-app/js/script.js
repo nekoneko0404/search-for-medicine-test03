@@ -1,5 +1,5 @@
 // DOM Elements (Initialized in init)
-let form, symptomsContainer, apiKeyInputContainer, apiKeyInput, advancedSettingsToggle, advancedSettings, resultSection, loadingDiv, recipeCardsDiv, saveApiKeyCheckbox, saveKeyWarning;
+let form, symptomsContainer, apiKeyInputContainer, apiKeyInput, advancedSettingsToggle, advancedSettings, resultSection, loadingDiv, recipeCardsDiv, saveApiKeyCheckbox, saveKeyWarning, saveFormStateCheckbox;
 
 // API Configuration URLs
 const API_URL = 'https://recipe-worker.neko-neko-0404.workers.dev';
@@ -42,6 +42,7 @@ function init() {
     recipeCardsDiv = document.getElementById('recipe-cards');
     saveApiKeyCheckbox = document.getElementById('save-api-key');
     saveKeyWarning = document.getElementById('save-key-warning');
+    saveFormStateCheckbox = document.getElementById('save-form-state');
 
     if (symptomsContainer) {
         renderSymptoms();
@@ -52,8 +53,11 @@ function init() {
     if (form) {
         setupEventListeners();
         loadSavedSettings();
+        restoreFormState(); // Restore form state
+        setupFormPersistence(); // Setup auto-save (includes Toggle setup)
     }
 }
+
 
 /**
  * Render symptom checkboxes
@@ -192,9 +196,9 @@ function getFormData() {
     const excludedIngredients = Array.from(formData.getAll('excluded_ingredient')).filter(i => i.trim() !== '');
     const cuisine = formData.get('cuisine');
     const time = formData.get('time');
-    const limitSupermarket = formData.get('limit_supermarket') === 'true';
 
-    return { symptoms, ingredients, excludedIngredients, cuisine, time, limitSupermarket };
+
+    return { symptoms, ingredients, excludedIngredients, cuisine, time };
 }
 
 /**
@@ -206,7 +210,7 @@ async function handleCopyPrompt() {
     const symptomText = data.symptoms.length > 0 ? data.symptoms.join("、") : "特になし";
     const ingredientText = data.ingredients.length > 0 ? data.ingredients.join("、") : "おまかせ";
     const excludedText = data.excludedIngredients.length > 0 ? data.excludedIngredients.join("、") : "なし";
-    const limitSupermarketText = data.limitSupermarket ? "- 食材は日本の一般的なスーパー（イオンなど）で買えるものに限定してください。" : "";
+    const limitSupermarketText = "- 現地の本格的な食材を積極的に使用してください。ただし、日本で入手困難な食材には、必ず日本で購入可能な代替食材を提案してください（ingredientsにsubstituteを含める）。";
 
     const prompt = `あなたは管理栄養士かつ一流のシェフです。
 ユーザーの体調や症状、手持ちの食材、希望する料理ジャンル、調理時間に合わせて、最適なレシピを3つ提案してください。
@@ -224,7 +228,17 @@ async function handleCopyPrompt() {
 - 糖質、脂質、タンパク質、塩分（概算値）も併記してください。
 - 材料費の概算（調味料除く）を「estimated_cost」として記載してください。
 - 明るく励ますようなトーンで回答してください。
-${limitSupermarketText}`;
+${limitSupermarketText}
+
+# データ形式の定義
+- **cuisine_region**: 料理のルーツとなる地域や国を記載してください。
+  - 日本に馴染みのある国（日本、イタリア、アメリカなど）は、国名だけでなく地域名まで詳しく（例: 「日本・長野」「イタリア・シチリア」）。
+  - 馴染みのない国は広域地域名で（例: 「東南アジア」「中東」）。
+- **ingredients**: 各食材の情報をオブジェクトの配列で記載してください。
+  - name: 食材名
+  - amount: 分量
+  - estimated_price: その食材の概算価格（日本円）。
+  - substitute: 代替食材（日本で入手困難な本格食材を使用する場合のみ記載）。例: "レモン汁(大さじ1) + ショウガ薄切り"`;
 
     try {
         await navigator.clipboard.writeText(prompt);
@@ -285,7 +299,7 @@ async function handleFormSubmit(e) {
     }
 
     // Get Data from helper
-    const { symptoms, ingredients, excludedIngredients, cuisine, time, limitSupermarket } = getFormData();
+    const { symptoms, ingredients, excludedIngredients, cuisine, time } = getFormData();
 
     const requestData = {
         symptoms,
@@ -293,7 +307,6 @@ async function handleFormSubmit(e) {
         excludedIngredients,
         cuisine,
         time,
-        limitSupermarket,
         provider: apiOption === 'openai' ? 'openai' : 'gemini'
     };
 
@@ -302,7 +315,7 @@ async function handleFormSubmit(e) {
         renderRecipes(data);
     } catch (error) {
         console.error('Error:', error);
-        renderError(error.message, error.status); // Pass status if available
+        renderError(error.message, error.status, apiOption); // Pass apiOption
     } finally {
         loadingDiv.classList.add('hidden');
     }
@@ -337,6 +350,138 @@ function loadSavedSettings() {
             saveKeyWarning.classList.remove('hidden');
         }
     }
+}
+
+/**
+ * Save Form State to localStorage
+ */
+function saveFormState() {
+    // Check if persistence is enabled
+    if (saveFormStateCheckbox && !saveFormStateCheckbox.checked) {
+        return;
+    }
+
+    const data = getFormData();
+    /*
+      getFormData returns:
+      { symptoms, ingredients, excludedIngredients, cuisine, time, limitSupermarket }
+      Note: 'symptoms' in getFormData mixes checkboxes and text. We should separate them for restoration if possible, 
+      OR just rely on the form elements directly for saving raw state which is easier for restoration.
+    */
+
+    // Let's gather raw state for easier restoration
+    const formData = new FormData(form);
+    const state = {
+        symptoms: formData.getAll('symptoms'),
+        other_symptom: formData.get('other_symptom'),
+        ingredients: formData.getAll('ingredient'),
+        excluded_ingredients: formData.getAll('excluded_ingredient'),
+        excluded_ingredients: formData.getAll('excluded_ingredient'),
+        cuisine: formData.get('cuisine'),
+        time: formData.get('time')
+    };
+
+    localStorage.setItem('recipe_app_form_state', JSON.stringify(state));
+}
+
+/**
+ * Restore Form State from localStorage
+ */
+function restoreFormState() {
+    // Check saved preference for history (default true is handled by checkbox checking logic below if we load it first)
+    // But actually, we need to load the checkbox state first, OR just trust localStorage 'recipe_app_enable_history'
+
+    const enableHistory = localStorage.getItem('recipe_app_enable_history') !== 'false'; // Default true
+    if (!enableHistory) return;
+
+    const saved = localStorage.getItem('recipe_app_form_state');
+    if (!saved) return;
+
+    try {
+        const state = JSON.parse(saved);
+
+        // Restore Symptoms (Checkboxes)
+        if (state.symptoms) {
+            const checkboxes = document.querySelectorAll('input[name="symptoms"]');
+            checkboxes.forEach(cb => {
+                cb.checked = state.symptoms.includes(cb.value);
+            });
+        }
+
+        // Restore Other Symptom
+        if (state.other_symptom) {
+            const input = document.querySelector('input[name="other_symptom"]');
+            if (input) input.value = state.other_symptom;
+        }
+
+        // Restore Ingredients
+        if (state.ingredients) {
+            const inputs = document.querySelectorAll('input[name="ingredient"]');
+            state.ingredients.forEach((val, i) => {
+                if (inputs[i]) inputs[i].value = val;
+            });
+        }
+
+        // Restore Excluded Ingredients
+        if (state.excluded_ingredients) {
+            const inputs = document.querySelectorAll('input[name="excluded_ingredient"]');
+            state.excluded_ingredients.forEach((val, i) => {
+                if (inputs[i]) inputs[i].value = val;
+            });
+        }
+
+        // Restore Cuisine
+        if (state.cuisine) {
+            const radio = document.querySelector(`input[name="cuisine"][value="${state.cuisine}"]`);
+            if (radio) radio.checked = true;
+        }
+
+        // Restore Time
+        if (state.time) {
+            const radio = document.querySelector(`input[name="time"][value="${state.time}"]`);
+            if (radio) radio.checked = true;
+        }
+
+
+
+    } catch (e) {
+        console.error("Failed to restore form state:", e);
+    }
+}
+
+/**
+ * Setup Form Persistence Event Listeners
+ */
+function setupFormPersistence() {
+    // 1. Initialize Checkbox State
+    if (saveFormStateCheckbox) {
+        const enableHistory = localStorage.getItem('recipe_app_enable_history') !== 'false'; // Default TRUE
+        saveFormStateCheckbox.checked = enableHistory;
+
+        // 2. Add Toggle Listener
+        saveFormStateCheckbox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            localStorage.setItem('recipe_app_enable_history', isChecked);
+
+            if (isChecked) {
+                // Enabled: Trigger a save immediately
+                saveFormState();
+            } else {
+                // Disabled: Clear saved state
+                localStorage.removeItem('recipe_app_form_state');
+            }
+        });
+    }
+
+    // Debounce helper
+    let timeout;
+    const debouncedSave = () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(saveFormState, 500);
+    };
+
+    form.addEventListener('change', debouncedSave);
+    form.addEventListener('input', debouncedSave);
 }
 
 /**
@@ -423,22 +568,25 @@ function renderRecipes(data) {
             <details class="group">
                 <summary class="bg-orange-100 p-4 border-b border-orange-200 flex justify-between items-center cursor-pointer list-none hover:bg-orange-200 transition-colors">
                     <div class="flex-1">
-                        <div class="flex items-center gap-2">
-                            <span class="text-2xl group-open:rotate-90 transition-transform duration-200">🥘</span>
-                            <h3 class="text-xl font-bold text-gray-800">${escapeHtml(recipe.name)}</h3>
+                        <div class="flex flex-col md:flex-row md:items-center gap-2 mb-2">
+                             <div class="flex items-center gap-2">
+                                <span class="text-2xl group-open:rotate-90 transition-transform duration-200">🥘</span>
+                                <h3 class="text-xl font-bold text-gray-800">${escapeHtml(recipe.name)}</h3>
+                             </div>
+                             ${recipe.cuisine_region ? `<span class="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200 self-start md:self-auto"><i class="fas fa-globe-asia mr-1 text-gray-400"></i>${escapeHtml(recipe.cuisine_region)}</span>` : ''}
                         </div>
-                        <div class="flex flex-wrap gap-2 mt-2 text-sm text-gray-600 pl-8">
-                            <span class="bg-white px-2 py-1 rounded-md shadow-sm"><i class="fas fa-clock text-orange-400 mr-1"></i>${escapeHtml(recipe.time)}</span>
-                            <span class="bg-white px-2 py-1 rounded-md shadow-sm"><i class="fas fa-fire text-red-500 mr-1"></i>${escapeHtml(recipe.calories)}</span>
-                            ${recipe.estimated_cost ? `<span class="bg-white px-2 py-1 rounded-md shadow-sm" title="調味料を除くメイン食材の概算費用"><i class="fas fa-coins text-yellow-500 mr-1"></i>${escapeHtml(recipe.estimated_cost)}</span>` : ''}
+                        <div class="flex flex-wrap gap-2 text-sm text-gray-600 pl-0 md:pl-8">
+                            <span class="bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100"><i class="fas fa-clock text-orange-400 mr-1"></i>${escapeHtml(recipe.time)}</span>
+                            <span class="bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100"><i class="fas fa-fire text-red-500 mr-1"></i>${escapeHtml(recipe.calories)}</span>
+                            ${recipe.estimated_cost ? `<span class="bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100" title="調味料を除くメイン食材の概算費用"><i class="fas fa-coins text-yellow-500 mr-1"></i>${escapeHtml(recipe.estimated_cost)}</span>` : ''}
                         </div>
-                        <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-500 pl-8">
+                        <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-500 pl-0 md:pl-8">
                             <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">糖質:${escapeHtml(recipe.carbs)}</span>
                             <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">脂質:${escapeHtml(recipe.fat)}</span>
                             <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">タンパク:${escapeHtml(recipe.protein)}</span>
                             <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">塩分:${escapeHtml(recipe.salt)}</span>
                         </div>
-                        <div class="mt-2 pl-8 text-sm text-green-700 bg-green-50 p-2 rounded-lg border border-green-200">
+                        <div class="mt-2 pl-0 md:pl-8 text-sm text-green-700 bg-green-50 p-2 rounded-lg border border-green-200 mx-0 md:mx-0">
                              <i class="fas fa-heart text-green-500 mr-1"></i>${escapeHtml(recipe.health_point)}
                         </div>
                     </div>
@@ -452,8 +600,22 @@ function renderRecipes(data) {
                         <h4 class="font-bold text-gray-700 mb-2 border-l-4 border-orange-500 pl-2">材料
                             ${recipe.estimated_cost ? `<span class="text-xs font-normal text-gray-400 ml-2">※費用目安: ${escapeHtml(recipe.estimated_cost)} (調味料除く)</span>` : ''}
                         </h4>
-                        <ul class="list-disc list-inside text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                            ${recipe.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+                        <ul class="list-none text-sm text-gray-600 bg-gray-50 p-3 rounded-lg space-y-2">
+                            ${recipe.ingredients.map(i => {
+            // Checking if it is an object (new format) or string (old format/fallback)
+            if (typeof i === 'object' && i !== null) {
+                return `<li class="flex justify-between items-center border-b border-gray-200 pb-1 last:border-0 last:pb-0">
+                                        <div>
+                                            <span class="font-bold text-gray-700">${escapeHtml(i.name)}</span>
+                                            <span class="text-gray-500 ml-2 text-xs">${escapeHtml(i.amount)}</span>
+                                            ${i.substitute ? `<div class="text-xs text-orange-600 mt-0.5"><i class="fas fa-exchange-alt mr-1"></i>代用: ${escapeHtml(i.substitute)}</div>` : ''}
+                                        </div>
+                                        <span class="text-xs font-mono text-gray-500 bg-white px-1 rounded border border-gray-200">${escapeHtml(i.estimated_price)}</span>
+                                    </li>`;
+            } else {
+                return `<li>${escapeHtml(i)}</li>`;
+            }
+        }).join('')}
                         </ul>
                     </div>
 
@@ -477,24 +639,41 @@ function renderRecipes(data) {
 /**
  * Render Error
  */
-function renderError(message, status) {
+function renderError(message, status, provider) {
     let title = "エラーが発生しました";
     let helpText = "時間をおいて再度お試しいただくか、APIキーの設定を確認してください。";
 
     // Detect Rate Limit (429) or Service Unavailable (503) or generic "Too Many Requests"
-    // Gemini often returns 429 for rate limits.
-    if (status === 429 || message.includes('429') || message.includes('Quota exceeded') || message.includes('Too Many Requests') || message.includes('Resource has been exhausted')) {
-        title = "本日の利用上限に達しました";
-        message = "システム無料枠（おまかせモデル）は、1日の利用回数に制限があります。";
-        helpText = `
-            <div class="mt-4 bg-orange-100 p-4 rounded-lg text-left">
-                <p class="font-bold text-orange-800 mb-2">解決策:</p>
-                <ul class="list-disc list-inside text-orange-700 text-sm space-y-1">
-                    <li>ご自身のGemini APIキーまたはOpenAI APIキーをお持ちの場合は、詳細設定から入力してご利用ください。</li>
-                    <li>または、明日以降に再度お試しください。</li>
-                </ul>
-            </div>
-        `;
+    // OpenAI/Gemini often returns 429 for rate limits.
+    if (status === 429 || message.includes('429') || message.includes('Quota exceeded') || message.includes('exceeded your current quota') || message.includes('Too Many Requests') || message.includes('Resource has been exhausted')) {
+
+        if (provider === 'system') {
+            title = "本日の利用上限に達しました";
+            message = "システム無料枠（おまかせモデル）は、1日の利用回数に制限があります。";
+            helpText = `
+                <div class="mt-4 bg-orange-100 p-4 rounded-lg text-left">
+                    <p class="font-bold text-orange-800 mb-2">解決策:</p>
+                    <ul class="list-disc list-inside text-orange-700 text-sm space-y-1">
+                        <li>ご自身のGemini APIキーまたはOpenAI APIキーをお持ちの場合は、詳細設定から入力してご利用ください。</li>
+                        <li>または、明日以降に再度お試しください。</li>
+                    </ul>
+                </div>
+            `;
+        } else {
+            // User Key Case
+            title = "APIキーの利用枠を超過しました";
+            message = "設定されたAPIキーで利用枠（Quota）を超過したか、課金制限に達しました。";
+            helpText = `
+                <div class="mt-4 bg-red-100 p-4 rounded-lg text-left">
+                    <p class="font-bold text-red-800 mb-2">解決策:</p>
+                    <ul class="list-disc list-inside text-red-700 text-sm space-y-1">
+                        <li>OpenAI (またはGoogle) の管理画面で、Billing設定やCredit残高をご確認ください。</li>
+                        <li>GPT-5 Nanoなどの新しいモデルは、一部のアカウントでまだ利用できない場合や、高いクレジット残高が必要な場合があります。</li>
+                        <li>解決しない場合は、モデルを「おまかせ (無料)」に切り替えてお試しください。</li>
+                    </ul>
+                </div>
+            `;
+        }
     }
 
     recipeCardsDiv.innerHTML = `

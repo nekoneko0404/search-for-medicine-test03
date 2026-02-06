@@ -201,7 +201,7 @@ function renderTable(data) {
         // 1. Drug Name Cell
         const drugNameCell = newRow.insertCell(0);
         drugNameCell.setAttribute('data-label', '品名');
-        drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "relative");
+        drugNameCell.classList.add("px-4", "py-2", "text-sm", "text-gray-900", "relative", "align-top");
         if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
             drugNameCell.classList.add('text-red-600', 'font-bold');
         }
@@ -249,7 +249,7 @@ function renderTable(data) {
         // 2. Ingredient Name Cell
         const ingredientNameCell = newRow.insertCell(1);
         ingredientNameCell.setAttribute('data-label', '成分名');
-        ingredientNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
+        ingredientNameCell.classList.add("px-4", "py-2", "text-sm", "text-gray-900", "truncate-lines", "align-top");
         if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
             ingredientNameCell.classList.add('text-red-600', 'font-bold');
         }
@@ -272,7 +272,7 @@ function renderTable(data) {
         // 3. Status Cell
         const statusCell = newRow.insertCell(2);
         statusCell.setAttribute('data-label', '出荷状況');
-        statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left");
+        statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left", "align-top");
 
         const statusContainer = document.createElement('div');
         statusContainer.className = 'flex items-center';
@@ -297,7 +297,7 @@ function renderTable(data) {
         const reasonCell = newRow.insertCell(3);
         reasonCell.textContent = item.reasonForLimitation || "";
         reasonCell.setAttribute('data-label', '制限理由');
-        reasonCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900", "truncate-lines");
+        reasonCell.classList.add("px-4", "py-2", "text-xs", "text-gray-900", "truncate-lines", "align-top");
         if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) {
             reasonCell.classList.add('text-red-600', 'font-bold');
         }
@@ -306,7 +306,7 @@ function renderTable(data) {
         const volumeCell = newRow.insertCell(4);
         volumeCell.textContent = item.shipmentVolumeStatus || "";
         volumeCell.setAttribute('data-label', '出荷量状況');
-        volumeCell.classList.add("px-2", "py-2", "text-xs", "text-gray-900");
+        volumeCell.classList.add("px-4", "py-2", "text-xs", "text-gray-900", "align-top");
         if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) {
             volumeCell.classList.add('text-red-600', 'font-bold');
         }
@@ -577,6 +577,8 @@ function handleIngredientClick(ingredientName) {
     if (ingredientInput) {
         ingredientInput.value = ingredientName;
         searchData();
+        // Scroll to top to ensure results are visible from the start
+        window.scrollTo({ top: 0, behavior: 'instant' });
         showMessage(`成分「${ingredientName}」で検索しました。`, 'info');
     }
 }

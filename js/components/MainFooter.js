@@ -7,7 +7,7 @@ export class MainFooter extends HTMLElement {
     }
 
     connectedCallback() {
-        const year = new Date().getFullYear();
+        const year = 2025;
         const baseDir = this.getAttribute('base-dir') || './';
 
         this.innerHTML = `

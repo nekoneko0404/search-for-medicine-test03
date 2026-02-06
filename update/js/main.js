@@ -526,7 +526,7 @@ function renderResults(data) { // Renamed from renderTable
 
             // 0. Product Name
             const cellName = row.insertCell(0);
-            cellName.className = "px-2 py-2 text-sm text-gray-900 font-medium align-top";
+            cellName.className = "px-4 py-2 text-sm text-gray-900 font-medium align-top";
 
             const labelsContainer = document.createElement('div');
             labelsContainer.className = 'vertical-labels-container';
@@ -567,7 +567,7 @@ function renderResults(data) { // Renamed from renderTable
 
             // 1. Ingredient Name
             const cellIngredient = row.insertCell(1);
-            cellIngredient.className = "px-2 py-2 text-sm align-top";
+            cellIngredient.className = "px-4 py-2 text-sm align-top";
             if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) cellIngredient.classList.add('text-red-600', 'font-bold');
 
             if (item.ingredientName) {
@@ -586,6 +586,7 @@ function renderResults(data) { // Renamed from renderTable
                     if (elements.trendCheckboxes.down) elements.trendCheckboxes.down.checked = false;
 
                     searchData();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
                 cellIngredient.appendChild(span);
             } else {
@@ -595,7 +596,7 @@ function renderResults(data) { // Renamed from renderTable
 
             // 2. Shipment Status
             const cellStatus = row.insertCell(2);
-            cellStatus.className = "px-2 py-2 align-top";
+            cellStatus.className = "px-4 py-2 align-top text-left";
 
             const statusContainer = document.createElement('div');
             statusContainer.className = 'flex items-center gap-1';
@@ -611,19 +612,19 @@ function renderResults(data) { // Renamed from renderTable
 
             // 3. Reason
             const cellReason = row.insertCell(3);
-            cellReason.className = "px-2 py-3 text-xs text-gray-600 align-top break-words";
+            cellReason.className = "px-4 py-2 text-xs text-gray-900 align-top truncate-lines";
             if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) cellReason.classList.add('text-red-600', 'font-bold');
             cellReason.textContent = item.reasonForLimitation || '-';
 
             // 4. Resolution Prospect
             const cellResolution = row.insertCell(4);
-            cellResolution.className = "px-2 py-3 text-xs text-gray-600 align-top";
+            cellResolution.className = "px-4 py-2 text-xs text-gray-900 align-top truncate-lines";
             if (item.updatedCells && item.updatedCells.includes(columnMap.resolutionProspect)) cellResolution.classList.add('text-red-600', 'font-bold');
             cellResolution.textContent = item.resolutionProspect || '-';
 
             // 5. Expected Date
             const cellExpected = row.insertCell(5);
-            cellExpected.className = "px-2 py-3 text-xs text-gray-600 align-top";
+            cellExpected.className = "px-4 py-2 text-xs text-gray-900 align-top";
             if (item.updatedCells && item.updatedCells.includes(columnMap.expectedDate)) cellExpected.classList.add('text-red-600', 'font-bold');
 
             if (item.expectedDateObj) {
@@ -635,13 +636,13 @@ function renderResults(data) { // Renamed from renderTable
 
             // 6. Shipment Volume
             const cellVolume = row.insertCell(6);
-            cellVolume.className = "px-2 py-3 text-xs text-gray-600 align-top";
+            cellVolume.className = "px-4 py-2 text-xs text-gray-900 align-top";
             if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) cellVolume.classList.add('text-red-600', 'font-bold');
             cellVolume.textContent = item.shipmentVolumeStatus || '-';
 
             // 7. Update Date
             const cellDate = row.insertCell(7);
-            cellDate.className = "px-2 py-3 text-xs text-gray-600 whitespace-nowrap align-top";
+            cellDate.className = "px-4 py-2 text-xs text-gray-900 whitespace-nowrap align-top";
             if (item.updatedCells && item.updatedCells.includes(columnMap.updateDate)) {
                 cellDate.classList.add('text-red-600', 'font-bold');
             }
