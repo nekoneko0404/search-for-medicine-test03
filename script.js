@@ -214,13 +214,13 @@ function renderTable(data) {
 
         if (isGeneric) {
             const span = document.createElement('span');
-            span.className = "bg-green-200 text-green-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap";
+            span.className = "medicine-badge badge-generic";
             span.textContent = '後';
             labelsContainer.appendChild(span);
         }
         if (isBasic) {
             const span = document.createElement('span');
-            span.className = "bg-purple-200 text-purple-800 px-1 rounded-sm text-xs font-bold whitespace-nowrap";
+            span.className = "medicine-badge badge-basic";
             span.textContent = '基';
             labelsContainer.appendChild(span);
         }
@@ -228,21 +228,23 @@ function renderTable(data) {
         const drugName = item.productName || "";
         const flexContainer = document.createElement('div');
         flexContainer.className = 'flex items-start';
+
+        // 1. Append badges first
         if (labelsContainer.hasChildNodes()) {
             flexContainer.appendChild(labelsContainer);
         }
 
+        // 2. Append name or dropdown
         if (!item.yjCode) {
             const span = document.createElement('span');
             span.className = "font-semibold truncate-lines";
             span.textContent = drugName;
             flexContainer.appendChild(span);
-            drugNameCell.appendChild(flexContainer);
         } else {
             const dropdownContainer = createDropdown(item, index);
             flexContainer.appendChild(dropdownContainer);
-            drugNameCell.appendChild(flexContainer);
         }
+        drugNameCell.appendChild(flexContainer);
 
         // 2. Ingredient Name Cell
         const ingredientNameCell = newRow.insertCell(1);

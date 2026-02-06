@@ -562,14 +562,14 @@ document.addEventListener('DOMContentLoaded', () => {
             stoppedBtn.innerHTML = `供給停止 <span class="ml-1 font-bold">${stats.stopped}</span>`;
 
             row.innerHTML = `
-                <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${stats.category}</td>
-                <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${stats.route || '-'}</td>
-                <td class="px-4 py-3 text-sm text-gray-700 text-center">${stats.drugClassCode}</td>
-                <td class="px-4 py-3 text-sm text-gray-700">${stats.drugClassName}</td>
-                <td class="px-4 py-3 text-sm text-indigo-600 font-medium hover:underline">${stats.ingredientName}</td>
-                <td class="px-4 py-3 text-sm text-center"></td>
-                <td class="px-4 py-3 text-sm text-center"></td>
-                <td class="px-4 py-3 text-sm text-center"></td>
+                <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center">${stats.category}</td>
+                <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center">${stats.route || '-'}</td>
+                <td class="px-4 py-2 text-sm text-gray-700 text-center">${stats.drugClassCode}</td>
+                <td class="px-4 py-2 text-sm text-gray-700">${stats.drugClassName}</td>
+                <td class="px-4 py-2 text-sm text-indigo-600 font-medium hover:underline">${stats.ingredientName}</td>
+                <td class="px-4 py-2 text-sm text-center"></td>
+                <td class="px-4 py-2 text-sm text-center"></td>
+                <td class="px-4 py-2 text-sm text-center"></td>
             `;
 
             row.cells[5].appendChild(normalBtn);
@@ -667,15 +667,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const formattedDate = dateStr ? `${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}` : '';
 
             row.innerHTML = `
-                <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${item.category}</td>
-                <td class="px-4 py-3 text-sm text-gray-900 font-bold text-center">${item.route || '-'}</td>
-                <td class="px-4 py-3 text-sm"></td>
-                <td class="px-4 py-3 text-sm text-gray-500">${item.ingredientName || ''}</td>
-                <td class="px-4 py-3 text-sm"></td>
-                <td class="px-4 py-3 text-sm text-gray-700">${item.reasonForLimitation || '-'}</td>
-                <td class="px-4 py-3 text-sm text-gray-700">${item.resolutionProspect || '-'}</td>
-                <td class="px-4 py-3 text-sm text-gray-700">${item.expectedDate || '-'}</td>
-                <td class="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">${formattedDate}</td>
+                <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center">${item.category}</td>
+                <td class="px-4 py-2 text-sm text-gray-900 font-bold text-center">${item.route || '-'}</td>
+                <td class="px-4 py-2 text-sm"></td>
+                <td class="px-4 py-2 text-sm text-gray-500">${item.ingredientName || ''}</td>
+                <td class="px-4 py-2 text-sm"></td>
+                <td class="px-4 py-2 text-sm text-gray-700">${item.reasonForLimitation || '-'}</td>
+                <td class="px-4 py-2 text-sm text-gray-700">${item.resolutionProspect || '-'}</td>
+                <td class="px-4 py-2 text-sm text-gray-700">${item.expectedDate || '-'}</td>
+                <td class="px-4 py-2 text-xs text-gray-500 whitespace-nowrap">${formattedDate}</td>
             `;
 
             // Drug Name Dropdown

@@ -526,44 +526,48 @@ function renderResults(data) { // Renamed from renderTable
 
             // 0. Product Name
             const cellName = row.insertCell(0);
-            cellName.className = "px-2 py-3 text-sm text-gray-900 font-medium align-top";
+            cellName.className = "px-2 py-2 text-sm text-gray-900 font-medium align-top";
 
             const labelsContainer = document.createElement('div');
-            labelsContainer.className = 'flex gap-1 mb-1';
+            labelsContainer.className = 'vertical-labels-container';
 
             const isGeneric = item.productCategory && (item.productCategory.includes('後発品') || normalizeString(item.productCategory).includes('後発品'));
             const isBasic = item.isBasicDrug && (item.isBasicDrug.includes('基礎的医薬品') || normalizeString(item.isBasicDrug).includes('基礎的医薬品'));
 
             if (isGeneric) {
                 const span = document.createElement('span');
-                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
-                span.textContent = '後発';
+                span.className = "medicine-badge badge-generic";
+                span.textContent = '後';
                 labelsContainer.appendChild(span);
             }
             if (isBasic) {
                 const span = document.createElement('span');
-                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
-                span.textContent = '基礎';
+                span.className = "medicine-badge badge-basic";
+                span.textContent = '基';
                 labelsContainer.appendChild(span);
             }
+            const flexContainer = document.createElement('div');
+            flexContainer.className = 'flex items-start';
+
             if (labelsContainer.hasChildNodes()) {
-                cellName.appendChild(labelsContainer);
+                flexContainer.appendChild(labelsContainer);
             }
 
             if (item.yjCode) {
-                cellName.appendChild(createDropdown(item, index));
+                flexContainer.appendChild(createDropdown(item, index));
             } else {
-                const productNameSpan = document.createElement('span'); // Use a span for the text
+                const productNameSpan = document.createElement('span');
                 productNameSpan.textContent = item.productName || '';
-                cellName.appendChild(productNameSpan);
+                flexContainer.appendChild(productNameSpan);
             }
+            cellName.appendChild(flexContainer);
             if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
                 cellName.classList.add('text-red-600', 'font-bold');
             }
 
             // 1. Ingredient Name
             const cellIngredient = row.insertCell(1);
-            cellIngredient.className = "px-2 py-3 text-sm align-top";
+            cellIngredient.className = "px-2 py-2 text-sm align-top";
             if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) cellIngredient.classList.add('text-red-600', 'font-bold');
 
             if (item.ingredientName) {
@@ -591,7 +595,7 @@ function renderResults(data) { // Renamed from renderTable
 
             // 2. Shipment Status
             const cellStatus = row.insertCell(2);
-            cellStatus.className = "px-2 py-3 align-top";
+            cellStatus.className = "px-2 py-2 align-top";
 
             const statusContainer = document.createElement('div');
             statusContainer.className = 'flex items-center gap-1';

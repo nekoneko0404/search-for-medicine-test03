@@ -492,7 +492,7 @@ function renderResults(data) {
 
             // YJ Code
             const cellYj = row.insertCell(0);
-            cellYj.className = "px-4 py-3 text-sm font-mono align-top";
+            cellYj.className = "px-4 py-2 text-sm font-mono align-top";
             cellYj.setAttribute('data-label', 'YJコード');
 
             if (item.yjCode) {
@@ -507,45 +507,49 @@ function renderResults(data) {
 
             // Name
             const cellName = row.insertCell(1);
-            cellName.className = "px-4 py-3 text-sm text-gray-900 font-medium align-top";
+            cellName.className = "px-4 py-2 text-sm text-gray-900 font-medium align-top";
             cellName.setAttribute('data-label', '品名');
 
             const labelsContainer = document.createElement('div');
-            labelsContainer.className = 'flex gap-1 mb-1'; // Add margin-bottom for spacing
+            labelsContainer.className = 'vertical-labels-container'; // Standardized class
 
             const isGeneric = item.productCategory && normalizeString(item.productCategory).includes('後発品');
             const isBasic = item.isBasicDrug && normalizeString(item.isBasicDrug).includes('基礎的医薬品');
 
             if (isGeneric) {
                 const span = document.createElement('span');
-                span.className = "bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-green-200";
-                span.textContent = '後発';
+                span.className = "medicine-badge badge-generic";
+                span.textContent = '後';
                 labelsContainer.appendChild(span);
             }
             if (isBasic) {
                 const span = document.createElement('span');
-                span.className = "bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap border border-purple-200";
-                span.textContent = '基礎';
+                span.className = "medicine-badge badge-basic";
+                span.textContent = '基';
                 labelsContainer.appendChild(span);
             }
+            const flexContainer = document.createElement('div');
+            flexContainer.className = 'flex items-start';
+
             if (labelsContainer.hasChildNodes()) {
-                cellName.appendChild(labelsContainer);
+                flexContainer.appendChild(labelsContainer);
             }
 
             if (item.yjCode) {
-                cellName.appendChild(createDropdown(item, data.indexOf(item)));
+                flexContainer.appendChild(createDropdown(item, data.indexOf(item)));
             } else {
-                const productNameSpan = document.createElement('span'); // Use a span for the text
+                const productNameSpan = document.createElement('span');
                 productNameSpan.textContent = item.productName || '';
-                cellName.appendChild(productNameSpan);
+                flexContainer.appendChild(productNameSpan);
             }
+            cellName.appendChild(flexContainer);
             if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
                 cellName.classList.add('text-red-600', 'font-bold');
             }
 
             // Ingredient Name
             const cellIngredient = row.insertCell(2);
-            cellIngredient.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellIngredient.className = "px-4 py-2 text-sm text-gray-600 align-top";
             cellIngredient.setAttribute('data-label', '成分名');
             cellIngredient.textContent = item.ingredientName || '';
             if (item.updatedCells && item.updatedCells.includes(columnMap.ingredientName)) {
@@ -554,7 +558,7 @@ function renderResults(data) {
 
             // Manufacturer
             const cellMaker = row.insertCell(3);
-            cellMaker.className = "px-4 py-3 text-sm text-gray-600 align-top";
+            cellMaker.className = "px-4 py-2 text-sm text-gray-600 align-top";
             cellMaker.setAttribute('data-label', 'メーカー');
 
             const makerName = item.manufacturer || '';
@@ -575,7 +579,7 @@ function renderResults(data) {
 
             // Status
             const cellStatus = row.insertCell(4);
-            cellStatus.className = "px-4 py-3 align-top";
+            cellStatus.className = "px-4 py-2 align-top";
             cellStatus.setAttribute('data-label', '出荷状況');
             const isStatusUpdated = item.updatedCells && item.updatedCells.includes(columnMap.shipmentStatus);
 
