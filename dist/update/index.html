@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報更新表示 - Kusuri Compass</title>
+
+    <!-- CSP: Strict Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com; base-uri 'self'; form-action 'self';">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-H44R8N7W32');
+    </script>
+
+    <!-- Built Tailwind CSS -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Inline styles removed. Using css/style.css and Tailwind. -->
+
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+  <script type="module" crossorigin src="/assets/update-CiST9mhF.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/MainHeader-D0waqA3x.js">
+  <link rel="modulepreload" crossorigin href="/assets/utils-cz7vvGbo.js">
+  <link rel="modulepreload" crossorigin href="/assets/data-DocyalmU.js">
+  <link rel="modulepreload" crossorigin href="/assets/typing-animation-B3fvp7eE.js">
+  <link rel="stylesheet" crossorigin href="/assets/MainHeader-tn0RQdqM.css">
+  <link rel="stylesheet" crossorigin href="/assets/input-B9-_48Yr.css">
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <!-- Header Component -->
+    <main-header base-dir="../" active-page="update">
+        <a href="../help/index.html" target="_blank" rel="noopener noreferrer"
+            class="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors">使い方</a>
+    </main-header>
+
+    <main
+        class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl md:flex md:flex-col pb-32 transition-all duration-500">
+        <div class="text-center mb-8 flex-shrink-0">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">情報更新表示</h2>
+            <p class="text-gray-500 text-sm">最近更新された医薬品情報を確認できます</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 flex-shrink-0">
+            <!-- Search Row -->
+            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <div class="flex-grow">
+                    <label for="searchInput" class="sr-only">キーワード検索</label>
+                    <input type="text" id="searchInput"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2.5 px-4">
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <button id="search-btn"
+                        class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap">
+                        検索
+                    </button>
+                    <button id="clear-btn"
+                        class="bg-gray-500 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-gray-600 transition-colors shadow-sm whitespace-nowrap">
+                        クリア
+                    </button>
+                    <button id="recovery-btn"
+                        class="bg-blue-500 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-sm whitespace-nowrap">
+                        供給回復
+                    </button>
+                    <button id="share-btn"
+                        class="border-2 border-indigo-600 text-indigo-600 px-4 py-2.5 rounded-lg font-medium hover:bg-indigo-50 transition-colors shadow-sm flex items-center justify-center gap-2 whitespace-nowrap">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
+                            </path>
+                        </svg>
+                        共有
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters Row (Compact) -->
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-3 pt-4 border-t border-gray-100 text-sm">
+                <!-- Status -->
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-700">出荷状況:</span>
+                    <div class="flex gap-2">
+                        <label class="inline-flex items-center cursor-pointer hover:bg-gray-50 rounded">
+                            <input type="checkbox" id="statusNormal" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-1.5 text-gray-700">通常出荷</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer hover:bg-gray-50 rounded">
+                            <input type="checkbox" id="statusLimited" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-1.5 text-gray-700">限定出荷</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer hover:bg-gray-50 rounded">
+                            <input type="checkbox" id="statusStop" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-1.5 text-gray-700">供給停止</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Trend -->
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-700">傾向:</span>
+                    <div class="flex gap-2">
+                        <label class="inline-flex items-center cursor-pointer hover:bg-gray-50 rounded">
+                            <input type="checkbox" id="trendUp"
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-1.5 text-gray-700">改善 (⤴️)</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer hover:bg-gray-50 rounded">
+                            <input type="checkbox" id="trendDown"
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-1.5 text-gray-700">悪化 (⤵️)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Update Period -->
+                <div class="flex items-center gap-2 ml-auto">
+                    <label for="updatePeriod" class="font-semibold text-gray-700">更新期間:</label>
+                    <select id="updatePeriod"
+                        class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 text-sm">
+                        <option value="all">全期間</option>
+                        <option value="3days">3日以内</option>
+                        <option value="7days" selected>7日以内</option>
+                        <option value="14days">14日以内</option>
+                        <option value="30days">30日以内</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="tableContainer" class="table-container bg-white hidden md:block min-h-[280px] md:flex-grow md:min-h-0">
+            <table class="min-w-full divide-y divide-gray-200 table-fixed">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col"
+                            class="px-2 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[20%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-productName-button">品名 <span
+                                    id="sort-productName-icon" class="text-indigo-500">↕</span></div>
+                        </th>
+                        <th scope="col"
+                            class="px-2 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-ingredientName-button">成分名 <span
+                                    id="sort-ingredientName-icon" class="text-indigo-500">↕</span></div>
+                        </th>
+                        <th scope="col"
+                            class="px-2 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[10%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-1" id="sort-status-button">出荷状況 <span
+                                    id="sort-status-icon" class="text-indigo-500">↕</span></div>
+                        </th>
+                        <th scope="col"
+                            class="px-2 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%]">
+                            制限理由</th>
+                        <th scope="col"
+                            class="px-2 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[10%]">
+                            解消見込み</th>
+                        <th scope="col"
+                            class="px-2 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[10%]">
+                            見込み時期</th>
+                        <th scope="col"
+                            class="px-2 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[10%]">
+                            出荷量</th>
+                        <th scope="col"
+                            class="px-2 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[10%]">
+                            更新日</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="resultTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="cardContainer" class="search-results-grid hidden md:hidden"></div>
+
+        <!-- Home Button -->
+        <a href="../index.html"
+            class="fixed top-20 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
+            aria-label="ホームに戻る">
+            <svg class="w-10 h-10 transition-transform duration-300 group-hover:scale-110" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                </path>
+            </svg>
+        </a>
+        <!-- Reload Button -->
+        <button id="reload-data"
+            class="fixed bottom-6 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
+            aria-label="データを更新">
+            <svg class="w-10 h-10 transform transition-transform duration-700 ease-in-out group-hover:rotate-180"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
+            </svg>
+        </button>
+
+        <!-- Toast Message -->
+        <div id="messageBox"
+            class="hidden fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-all duration-300 opacity-0 transform translate-y-[-20px]">
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progressBarContainer" class="fixed top-0 left-0 w-full h-1 z-50 hidden">
+            <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300 w-0"></div>
+            <div id="progressMessage"
+                class="absolute top-2 right-2 text-xs text-gray-600 bg-white px-2 py-1 rounded shadow hidden"></div>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <main-footer base-dir="../"></main-footer>
+
+</body>
+
+</html>

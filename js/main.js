@@ -1,3 +1,6 @@
+// Import Tailwind CSS
+import '/css/input.css';
+
 console.log("search main.js loaded");
 /**
  * Main application logic for Kusuri Compass

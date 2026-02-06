@@ -7,6 +7,10 @@
     <title>健康レシピ提案 - Kusuri Compass</title>
     <meta name="description" content="気になる症状や食材から、あなたにぴったりの健康レシピをAIが提案します。">
 
+    <!-- CSP: Strict Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://docs.google.com https://spreadsheets.google.com https://www.google-analytics.com https://analytics.google.com; base-uri 'self'; form-action 'self';">
+
     <!-- OGP -->
     <meta property="og:title" content="健康レシピ提案 - Kusuri Compass">
     <meta property="og:description" content="気になる症状や食材から、あなたにぴったりの健康レシピをAIが提案します。">
@@ -28,8 +32,9 @@
         gtag('config', 'G-H44R8N7W32');
     </script>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.1/tailwindcss.js"></script>
+    <!-- Built Tailwind CSS -->
+    <link href="../css/input.css" rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
     <!-- Google Fonts -->
@@ -288,23 +293,6 @@
                                     <label for="save-form-state"
                                         class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-orange-500"></label>
                                 </div>
-                                <style>
-                                    /* Simple Toggle Switch CSS */
-                                    .toggle-checkbox:checked {
-                                        right: 0;
-                                        border-color: #f97316;
-                                    }
-
-                                    .toggle-checkbox:checked+.toggle-label {
-                                        background-color: #f97316;
-                                    }
-
-                                    .toggle-checkbox {
-                                        right: calc(100% - 1.5rem);
-                                        /* Start position */
-                                        transition: all 0.3s;
-                                    }
-                                </style>
                             </div>
 
                             <hr class="border-gray-200 my-2">
@@ -388,17 +376,20 @@
                         </div>
                     </div>
                 </div>
+        </div>
+        </form>
+        </div>
 
-                <!-- Submit Button -->
-                <div class="text-center pt-4">
-                    <button type="submit" id="generate-btn"
-                        class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-orange-500 font-pj rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 hover:bg-orange-600 shadow-lg hover:shadow-orange-300/50 hover:-translate-y-1">
-                        <span class="mr-2 text-2xl group-hover:animate-bounce">🍳</span>
-                        レシピを提案してもらう
-                        <i class="fas fa-magic ml-2"></i>
-                    </button>
-                </div>
-            </form>
+        <!-- Submit Button -->
+        <div class="text-center pt-4">
+            <button type="submit" id="generate-btn"
+                class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-orange-500 font-pj rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 hover:bg-orange-600 shadow-lg hover:shadow-orange-300/50 hover:-translate-y-1">
+                <span class="mr-2 text-2xl group-hover:animate-bounce">🍳</span>
+                レシピを提案してもらう
+                <i class="fas fa-magic ml-2"></i>
+            </button>
+        </div>
+        </form>
         </div>
 
         <!-- Result Section -->

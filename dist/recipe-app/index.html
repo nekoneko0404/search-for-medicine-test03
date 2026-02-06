@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康レシピ提案 - Kusuri Compass</title>
+    <meta name="description" content="気になる症状や食材から、あなたにぴったりの健康レシピをAIが提案します。">
+
+    <!-- CSP: Strict Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com; base-uri 'self'; form-action 'self';">
+
+    <!-- OGP -->
+    <meta property="og:title" content="健康レシピ提案 - Kusuri Compass">
+    <meta property="og:description" content="気になる症状や食材から、あなたにぴったりの健康レシピをAIが提案します。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kiyoshi.github.io/search-for-medicine/recipe-app/">
+    <meta property="og:image" content="https://kiyoshi.github.io/search-for-medicine/recipe-app/ogp.jpg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="健康レシピ提案 - Kusuri Compass">
+    <meta name="twitter:image" content="https://kiyoshi.github.io/search-for-medicine/recipe-app/ogp.jpg">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-H44R8N7W32');
+    </script>
+
+    <!-- Built Tailwind CSS -->
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+  <script type="module" crossorigin src="/assets/recipe-3JZ5iNoS.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="/assets/recipe-Dfu2U8Om.css">
+  <link rel="stylesheet" crossorigin href="/assets/input-B9-_48Yr.css">
+</head>
+
+<body class="bg-orange-50 font-['M_PLUS_Rounded_1c'] text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <img src="/assets/KusuriCompass-BvY5pcx-.png" alt="Kusuri Compass" class="h-8 w-8 object-contain">
+                <span class="font-bold text-gray-600">Kusuri Compassに戻る</span>
+            </a>
+            <h1 class="text-xl font-bold text-orange-600 flex items-center gap-2">
+                <i class="fas fa-utensils"></i>
+                健康レシピ提案
+            </h1>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- Hero Section -->
+        <div class="text-center mb-10 fade-in">
+            <div
+                class="relative w-full max-w-lg mx-auto mb-6 aspect-video bg-orange-100 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+                <!-- Image placeholder or generated image -->
+                <img src="/assets/recipe_app_hero_stylish-N-bZVusH.png" alt="Healthy Ingredients"
+                    class="object-cover w-full h-full"
+                    onerror="this.src='https://placehold.co/600x400/orange/white?text=Cooking+Time!';">
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold text-orange-800 mb-4">今日のごはんは何にする？</h2>
+            <p class="text-lg text-orange-700/80">体調や気分に合わせて、AIがあなただけのレシピを考えます！</p>
+        </div>
+
+        <!-- Form Section -->
+        <div class="bg-white rounded-3xl shadow-xl p-6 md:p-10 mb-10 fade-in-up">
+
+            <form id="recipe-form" class="space-y-8">
+
+                <!-- 1. Symptoms -->
+                <div class="form-group">
+                    <label class="block text-lg font-bold text-gray-700 mb-3">
+                        <span class="bg-orange-100 text-orange-600 rounded-full px-3 py-1 text-sm mr-2">Step 1</span>
+                        気になること・体調（複数選択可）
+                    </label>
+
+                    <!-- Medical Disclaimer -->
+                    <div
+                        class="mb-4 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-xl text-sm flex items-start gap-3">
+                        <i class="fas fa-info-circle mt-1 text-blue-500"></i>
+                        <div>
+                            <p class="font-bold mb-1">ご利用にあたって</p>
+                            <p class="text-blue-700/80 leading-relaxed">
+                                このサービスは、毎日の食事選びをサポートするものであり、医療行為や治療を目的としたものではありません。
+                                <br>現在治療中の病気や、深刻な体調不良がある場合は、必ず医師や専門機関にご相談ください。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-3" id="symptoms-container">
+                        <!-- Generated by JS -->
+                    </div>
+                    <!-- 'Others' Input -->
+                    <div class="mt-2">
+                        <label class="block text-sm font-bold text-gray-600 mb-1">その他（自由記述）</label>
+                        <input type="text" name="other_symptom" placeholder="例：食欲がない、二日酔い..."
+                            class="form-input text-sm">
+                    </div>
+                </div>
+
+                <!-- 2. Ingredients -->
+                <div class="form-group">
+                    <label class="block text-lg font-bold text-gray-700 mb-3">
+                        <span class="bg-orange-100 text-orange-600 rounded-full px-3 py-1 text-sm mr-2">Step 2</span>
+                        使いたい食材（3つまで・任意）
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="text" name="ingredient" placeholder="例：キャベツ" class="form-input">
+                        <input type="text" name="ingredient" placeholder="例：豚肉" class="form-input">
+                        <input type="text" name="ingredient" placeholder="例：豆腐" class="form-input">
+                    </div>
+                </div>
+
+                <!-- 2.5 Excluded Ingredients -->
+                <div class="form-group">
+                    <label class="block text-lg font-bold text-gray-700 mb-3">
+                        <span class="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-sm mr-2">Step 2.5</span>
+                        除外したい食材（3つまで・任意）
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="text" name="excluded_ingredient" placeholder="例：卵" class="form-input">
+                        <input type="text" name="excluded_ingredient" placeholder="例：そば" class="form-input">
+                        <input type="text" name="excluded_ingredient" placeholder="例：豚肉" class="form-input">
+                    </div>
+                </div>
+
+                <!-- 3. Cuisine & Time -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-lg font-bold text-gray-700 mb-3">
+                            <span class="bg-orange-100 text-orange-600 rounded-full px-3 py-1 text-sm mr-2">Step
+                                3</span>
+                            ジャンル
+                        </label>
+                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- 1. 和食 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="和食" checked class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🍱</span>
+                                    <span class="font-bold text-sm">和食</span>
+                                </span>
+                            </label>
+                            <!-- 2. 中華料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="中華料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🥟</span>
+                                    <span class="font-bold text-sm">中華料理</span>
+                                </span>
+                            </label>
+                            <!-- 3. 韓国料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="韓国料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🥢</span>
+                                    <span class="font-bold text-sm">韓国料理</span>
+                                </span>
+                            </label>
+                            <!-- 4. ヨーロッパ料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="ヨーロッパ料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🍝</span>
+                                    <span class="font-bold text-sm">ヨーロッパ料理</span>
+                                </span>
+                            </label>
+                            <!-- 5. 地中海料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="地中海料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🫒</span>
+                                    <span class="font-bold text-sm">地中海料理</span>
+                                </span>
+                            </label>
+                            <!-- 6. アラブ料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="アラブ料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🥙</span>
+                                    <span class="font-bold text-sm">アラブ料理</span>
+                                </span>
+                            </label>
+                            <!-- 7. インド料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="インド料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🍛</span>
+                                    <span class="font-bold text-sm">インド料理</span>
+                                </span>
+                            </label>
+                            <!-- 8. アフリカ料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="アフリカ料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🍲</span>
+                                    <span class="font-bold text-sm">アフリカ料理</span>
+                                </span>
+                            </label>
+                            <!-- 9. 南米料理 -->
+                            <label>
+                                <input type="radio" name="cuisine" value="南米料理" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2 flex flex-col items-center justify-center h-full">
+                                    <span class="block text-2xl mb-1">🌮</span>
+                                    <span class="font-bold text-sm">南米料理</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-lg font-bold text-gray-700 mb-3">
+                            <span class="bg-orange-100 text-orange-600 rounded-full px-3 py-1 text-sm mr-2">Step
+                                4</span>
+                            調理時間
+                        </label>
+                        <div class="flex gap-2">
+                            <label class="flex-1">
+                                <input type="radio" name="time" value="10分以内" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
+                                    <span class="block text-sm font-bold">時短</span>
+                                    <span class="text-xs text-gray-500">10分以内</span>
+                                </span>
+                            </label>
+                            <label class="flex-1">
+                                <input type="radio" name="time" value="30分以内" checked class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
+                                    <span class="block text-sm font-bold">普通</span>
+                                    <span class="text-xs text-gray-500">30分以内</span>
+                                </span>
+                            </label>
+                            <label class="flex-1">
+                                <input type="radio" name="time" value="こだわらない" class="peer hidden">
+                                <span
+                                    class="bg-white border-2 border-gray-200 rounded-xl px-2 py-3 block text-center cursor-pointer hover:border-orange-300 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-700 peer-checked:ring-2 peer-checked:ring-orange-200 peer-checked:ring-offset-2">
+                                    <span class="block text-sm font-bold">じっくり</span>
+                                    <span class="text-xs text-gray-500">30分以上</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Advanced Settings (API) -->
+                <div class="border-t border-gray-100 pt-6 mt-6">
+                    <button type="button" id="advanced-settings-toggle"
+                        class="text-sm text-gray-500 hover:text-orange-500 flex items-center gap-1 transition-colors">
+                        <i class="fas fa-cog"></i> 詳細設定 (AIモデル・APIキー)
+                    </button>
+
+                    <div id="advanced-settings"
+                        class="hidden mt-4 p-5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+
+                        <div class="space-y-4">
+                            <!-- Toggle Persistence -->
+                            <div
+                                class="flex items-center justify-between bg-white p-3 border border-gray-200 rounded-lg">
+                                <div>
+                                    <label for="save-form-state"
+                                        class="block font-bold text-gray-700 cursor-pointer select-none">次回のために選択内容を保存する</label>
+                                    <p class="text-xs text-gray-500">オンにすると、フォームの入力内容がブラウザに保存され、次回自動的に復元されます。</p>
+                                </div>
+                                <div
+                                    class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                    <input type="checkbox" name="save_form_state" id="save-form-state"
+                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0 checked:border-orange-500" />
+                                    <label for="save-form-state"
+                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-orange-500"></label>
+                                </div>
+                            </div>
+
+                            <hr class="border-gray-200 my-2">
+
+                            <label class="block font-bold text-gray-700">使用するAIモデルとキー設定</label>
+
+                            <!-- Option 1: System (Gemini Free) -->
+                            <label
+                                class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+                                <input type="radio" name="api_option" value="system" checked
+                                    class="mt-1 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <span class="block font-bold text-gray-800">おまかせ (無料)</span>
+                                    <span class="text-xs text-gray-500">Google Gemini 3 Flash Preview
+                                        を使用します。1日の利用回数に制限があります。</span>
+                                </div>
+                            </label>
+
+                            <!-- Option 2: OpenAI (Own Key) -->
+                            <label
+                                class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+                                <input type="radio" name="api_option" value="openai"
+                                    class="mt-1 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <span class="block font-bold text-gray-800">OpenAI (自分のキーを使用) <span
+                                            class="text-xs text-gray-500 font-normal">※未検証</span></span>
+                                    <span
+                                        class="text-xs text-gray-500">gpt-5-nano-2025-08-07を使用します。ご自身のAPIキーが必要です。</span>
+                                </div>
+                            </label>
+
+                            <!-- Option 3: Gemini (Own Key) -->
+                            <label
+                                class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+                                <input type="radio" name="api_option" value="gemini"
+                                    class="mt-1 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <span class="block font-bold text-gray-800">Google Gemini (自分のキーを使用) <span
+                                            class="text-xs text-green-600 font-normal">※検証済</span></span>
+                                    <span class="text-xs text-gray-500">Gemini 3 Flash
+                                        Previewを使用します。ご自身のAPIキーが必要です。</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- API Key Input (Hidden by default) -->
+                        <div id="api-key-input-container" class="hidden mt-4 pl-8">
+                            <input type="password" id="api-key" placeholder="APIキーを入力 (sk-...)"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+
+                            <p class="text-xs text-gray-500 mt-2 mb-2">
+                                ※ キーはサーバー経由でAI呼び出しのみに使用され、保存されません。
+                            </p>
+
+                            <label class="flex items-center gap-2 cursor-pointer mb-2">
+                                <input type="checkbox" id="save-api-key"
+                                    class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                                <span class="text-sm text-gray-700">このブラウザにAPIキーを保存する</span>
+                            </label>
+
+                            <div id="save-key-warning"
+                                class="hidden p-3 bg-yellow-50 border border-yellow-100 rounded-lg">
+                                <p class="text-xs text-yellow-800 font-bold mb-1">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>重要
+                                </p>
+                                <p class="text-xs text-yellow-700 leading-relaxed">
+                                    共用PC（ネットカフェや職場など）では絶対に保存しないでください。他者がキーを利用できてしまうリスクがあります。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Copy Prompt Button -->
+                        <div class="mt-6 pt-4 border-t border-gray-200">
+                            <button type="button" id="copy-prompt-btn"
+                                class="w-full bg-blue-50 text-blue-700 font-bold py-3 px-4 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors flex items-center justify-center gap-2">
+                                <i class="fas fa-copy"></i> プロンプトをコピーして外部AIで使う
+                            </button>
+                            <p class="text-xs text-center text-gray-500 mt-2">
+                                APIキーをお持ちでない場合は、ここでプロンプト文を作成・コピーし、ChatGPTやGemini(Web版)に貼り付けてご利用ください。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <!-- Toggle Persistence -->
+                    <div class="flex items-center justify-between bg-white p-3 border border-gray-200 rounded-lg">
+                        <div>
+                            <label for="save-form-state"
+                                class="block font-bold text-gray-700 cursor-pointer select-none">次回のために選択内容を保存する</label>
+                            <p class="text-xs text-gray-500">オンにすると、フォームの入力内容がブラウザに保存され、次回自動的に復元されます。</p>
+                        </div>
+                        <div
+                            class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="save_form_state" id="save-form-state"
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0 checked:border-orange-500" />
+                            <label for="save-form-state"
+                                class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-orange-500"></label>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200 my-2">
+
+                    <label class="block font-bold text-gray-700">使用するAIモデルとキー設定</label>
+
+                    <!-- Option 1: System (Gemini Free) -->
+                    <label
+                        class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+                        <input type="radio" name="api_option" value="system" checked
+                            class="mt-1 text-orange-500 focus:ring-orange-500">
+                        <div>
+                            <span class="block font-bold text-gray-800">おまかせ (無料)</span>
+                            <span class="text-xs text-gray-500">Google Gemini 3 Flash Preview
+                                を使用します。1日の利用回数に制限があります。</span>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: OpenAI (Own Key) -->
+                    <label
+                        class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+                        <input type="radio" name="api_option" value="openai"
+                            class="mt-1 text-orange-500 focus:ring-orange-500">
+                        <div>
+                            <span class="block font-bold text-gray-800">OpenAI (自分のキーを使用) <span
+                                    class="text-xs text-gray-500 font-normal">※未検証</span></span>
+                            <span class="text-xs text-gray-500">gpt-5-nano-2025-08-07を使用します。ご自身のAPIキーが必要です。</span>
+                        </div>
+                    </label>
+
+                    <!-- Option 3: Gemini (Own Key) -->
+                    <label
+                        class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+                        <input type="radio" name="api_option" value="gemini"
+                            class="mt-1 text-orange-500 focus:ring-orange-500">
+                        <div>
+                            <span class="block font-bold text-gray-800">Google Gemini (自分のキーを使用) <span
+                                    class="text-xs text-green-600 font-normal">※検証済</span></span>
+                            <span class="text-xs text-gray-500">Gemini 3 Flash
+                                Previewを使用します。ご自身のAPIキーが必要です。</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- API Key Input (Hidden by default) -->
+                <div id="api-key-input-container" class="hidden mt-4 pl-8">
+                    <input type="password" id="api-key" placeholder="APIキーを入力 (sk-...)"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+
+                    <p class="text-xs text-gray-500 mt-2 mb-2">
+                        ※ キーはサーバー経由でAI呼び出しのみに使用され、保存されません。
+                    </p>
+
+                    <label class="flex items-center gap-2 cursor-pointer mb-2">
+                        <input type="checkbox" id="save-api-key"
+                            class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                        <span class="text-sm text-gray-700">このブラウザにAPIキーを保存する</span>
+                    </label>
+
+                    <div id="save-key-warning" class="hidden p-3 bg-yellow-50 border border-yellow-100 rounded-lg">
+                        <p class="text-xs text-yellow-800 font-bold mb-1">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>重要
+                        </p>
+                        <p class="text-xs text-yellow-700 leading-relaxed">
+                            共用PC（ネットカフェや職場など）では絶対に保存しないでください。他者がキーを利用できてしまうリスクがあります。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Copy Prompt Button -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <button type="button" id="copy-prompt-btn"
+                        class="w-full bg-blue-50 text-blue-700 font-bold py-3 px-4 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-copy"></i> プロンプトをコピーして外部AIで使う
+                    </button>
+                    <p class="text-xs text-center text-gray-500 mt-2">
+                        APIキーをお持ちでない場合は、ここでプロンプト文を作成・コピーし、ChatGPTやGemini(Web版)に貼り付けてご利用ください。
+                    </p>
+                </div>
+        </div>
+        </div>
+
+        <label class="block font-bold text-gray-700">使用するAIモデルとキー設定</label>
+
+        <!-- Option 1: System (Gemini Free) -->
+        <label
+            class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+            <input type="radio" name="api_option" value="system" checked
+                class="mt-1 text-orange-500 focus:ring-orange-500">
+            <div>
+                <span class="block font-bold text-gray-800">おまかせ (無料)</span>
+                <span class="text-xs text-gray-500">Google Gemini 3 Flash Preview
+                    を使用します。1日の利用回数に制限があります。</span>
+            </div>
+        </label>
+
+        <!-- Option 2: OpenAI (Own Key) -->
+        <label
+            class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+            <input type="radio" name="api_option" value="openai" class="mt-1 text-orange-500 focus:ring-orange-500">
+            <div>
+                <span class="block font-bold text-gray-800">OpenAI (自分のキーを使用) <span
+                        class="text-xs text-gray-500 font-normal">※未検証</span></span>
+                <span class="text-xs text-gray-500">gpt-5-nano-2025-08-07を使用します。ご自身のAPIキーが必要です。</span>
+            </div>
+        </label>
+
+        <!-- Option 3: Gemini (Own Key) -->
+        <label
+            class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
+            <input type="radio" name="api_option" value="gemini" class="mt-1 text-orange-500 focus:ring-orange-500">
+            <div>
+                <span class="block font-bold text-gray-800">Google Gemini (自分のキーを使用) <span
+                        class="text-xs text-green-600 font-normal">※検証済</span></span>
+                <span class="text-xs text-gray-500">Gemini 3 Flash
+                    Previewを使用します。ご自身のAPIキーが必要です。</span>
+            </div>
+        </label>
+        </div>
+
+        <!-- API Key Input (Hidden by default) -->
+        <div id="api-key-input-container" class="hidden mt-4 pl-8">
+            <input type="password" id="api-key" placeholder="APIキーを入力 (sk-...)"
+                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+
+            <p class="text-xs text-gray-500 mt-2 mb-2">
+                ※ キーはサーバー経由でAI呼び出しのみに使用され、保存されません。
+            </p>
+
+            <label class="flex items-center gap-2 cursor-pointer mb-2">
+                <input type="checkbox" id="save-api-key"
+                    class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                <span class="text-sm text-gray-700">このブラウザにAPIキーを保存する</span>
+            </label>
+
+            <div id="save-key-warning" class="hidden p-3 bg-yellow-50 border border-yellow-100 rounded-lg">
+                <p class="text-xs text-yellow-800 font-bold mb-1">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>重要
+                </p>
+                <p class="text-xs text-yellow-700 leading-relaxed">
+                    共用PC（ネットカフェや職場など）では絶対に保存しないでください。他者がキーを利用できてしまうリスクがあります。
+                </p>
+            </div>
+        </div>
+
+        <!-- Copy Prompt Button -->
+        <div class="mt-6 pt-4 border-t border-gray-200">
+            <button type="button" id="copy-prompt-btn"
+                class="w-full bg-blue-50 text-blue-700 font-bold py-3 px-4 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors flex items-center justify-center gap-2">
+                <i class="fas fa-copy"></i> プロンプトをコピーして外部AIで使う
+            </button>
+            <p class="text-xs text-center text-gray-500 mt-2">
+                APIキーをお持ちでない場合は、ここでプロンプト文を作成・コピーし、ChatGPTやGemini(Web版)に貼り付けてご利用ください。
+            </p>
+        </div>
+        </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center pt-4">
+            <button type="submit" id="generate-btn"
+                class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-orange-500 font-pj rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 hover:bg-orange-600 shadow-lg hover:shadow-orange-300/50 hover:-translate-y-1">
+                <span class="mr-2 text-2xl group-hover:animate-bounce">🍳</span>
+                レシピを提案してもらう
+                <i class="fas fa-magic ml-2"></i>
+            </button>
+        </div>
+        </form>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-section" class="hidden">
+            <!-- Print Header (Visible only in print) -->
+            <div id="print-header" class="hidden items-center mb-8 border-b-2 border-orange-500 pb-4">
+                <div class="flex items-center gap-4">
+                    <img src="/assets/KusuriCompass-BvY5pcx-.png" alt="Kusuri Compass" class="h-16 w-16 object-contain">
+                    <div class="flex-1">
+                        <h1 class="text-2xl font-bold text-gray-800">健康レシピ提案</h1>
+                        <p class="text-sm text-gray-500">Kusuri Compass 薬剤師業務支援ツール</p>
+                    </div>
+                    <div class="flex items-center gap-3 ml-auto">
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-gray-600">スマホで<br>アクセス</p>
+                        </div>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://search-for-medicine.pages.dev/recipe-app/&size=120x120"
+                            alt="QR Code" class="h-20 w-20 border border-gray-200 p-1 bg-white">
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-sparkles text-yellow-500 mr-2"></i>提案レシピ
+                </h3>
+                <button id="print-btn" type="button"
+                    class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-bold">
+                    <i class="fas fa-print"></i> 印刷する
+                </button>
+            </div>
+
+            <div id="loading" class="hidden flex flex-col items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mb-4"></div>
+                <p class="text-orange-600 font-bold animate-pulse">AIシェフがレシピを考案中...</p>
+                <p class="text-sm text-gray-500 mt-2">※生成には30秒ほどかかる場合があります</p>
+            </div>
+
+            <div id="recipe-cards" class="flex flex-col gap-6 w-full">
+                <!-- Recipes will be injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center py-6 text-gray-500 text-sm">
+        <p>&copy; 2025 Kusuri Compass - Recipe Suggestion App</p>
+        <p class="text-xs mt-1">※提案されたレシピは参考情報です。アレルギーや医師の指示に従ってください。</p>
+    </footer>
+
+</body>
+
+</html>

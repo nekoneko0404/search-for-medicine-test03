@@ -76,6 +76,22 @@ body {
     /* ring-orange-200 */
 }
 
+/* Toggle Switch CSS (Moved from inline) */
+.toggle-checkbox:checked {
+    right: 0;
+    border-color: #f97316;
+}
+
+.toggle-checkbox:checked+.toggle-label {
+    background-color: #f97316;
+}
+
+.toggle-checkbox {
+    right: calc(100% - 1.5rem);
+    /* Start position */
+    transition: all 0.3s;
+}
+
 /* Print Styles */
 @media print {
 

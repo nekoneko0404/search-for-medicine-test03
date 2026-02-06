@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヒヤリ・ハット事例検索 - Kusuri Compass</title>
+
+    <!-- CSP: Strict Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com; base-uri 'self'; form-action 'self';">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-H44R8N7W32');
+    </script>
+
+    <!-- Built Tailwind CSS -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Inline styles removed. Using global css/style.css and Tailwind. -->
+
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+  <script type="module" crossorigin src="/assets/hiyari-CW4qBONO.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/MainHeader-D0waqA3x.js">
+  <link rel="modulepreload" crossorigin href="/assets/utils-cz7vvGbo.js">
+  <link rel="modulepreload" crossorigin href="/assets/typing-animation-B3fvp7eE.js">
+  <link rel="stylesheet" crossorigin href="/assets/MainHeader-tn0RQdqM.css">
+  <link rel="stylesheet" crossorigin href="/assets/input-B9-_48Yr.css">
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <!-- Header Component -->
+    <main-header base-dir="../" active-page="hiyari">
+        <a href="../help/index.html" target="_blank" rel="noopener noreferrer"
+            class="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors">使い方</a>
+    </main-header>
+
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+        <div class="text-center mb-8 flex-shrink-0">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ヒヤリ・ハット事例検索</h2>
+            <p class="text-gray-500 text-sm">薬局でのインシデント事例を検索して安全管理に役立てましょう</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+                <label for="search-input"
+                    class="font-semibold text-gray-700 whitespace-nowrap text-sm">医薬品名・成分名:</label>
+                <input type="text" id="search-input"
+                    class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2 pl-3 pr-3 text-sm">
+                <label for="filter-input" class="font-semibold text-gray-700 whitespace-nowrap text-sm">絞り込み:</label>
+                <input type="text" id="filter-input"
+                    class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors py-2 pl-3 pr-3 text-sm">
+                <button id="search-btn"
+                    class="bg-indigo-600 text-white font-semibold rounded-lg px-4 py-2 hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-sm">
+                    検索
+                </button>
+                <button id="share-btn"
+                    class="border-2 border-indigo-600 text-indigo-600 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-50 transition-colors shadow-sm flex items-center justify-center gap-2 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
+                        </path>
+                    </svg>
+                    共有
+                </button>
+                <button id="reload-button"
+                    class="bg-gray-200 text-gray-700 font-semibold rounded-lg px-4 py-2 hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 text-sm">
+                    クリア
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Container (Usage Guide) -->
+        <div id="infoContainer" class="flex flex-col gap-8 md:flex-grow md:min-h-0">
+            <div id="usage-guide" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex-shrink-0">
+                <h3 class="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    ヒヤリ・ハット事例検索の使い方
+                </h3>
+                <div class="grid md:grid-cols-1 gap-6">
+                    <div class="bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h4 class="font-bold text-indigo-900 mb-3">検索のヒント</h4>
+                        <ul class="space-y-2 text-sm text-indigo-800">
+                            <li class="flex items-start gap-2"><span
+                                    class="text-indigo-500">•</span><span>医薬品名や成分名を入力して事例を検索できます。</span></li>
+                            <li class="flex items-start gap-2"><span
+                                    class="text-indigo-500">•</span><span>絞り込みキーワードを追加すると、検索結果をさらに詳細に絞り込めます。</span></li>
+                            <li class="flex items-start gap-2"><span
+                                    class="text-indigo-500">•</span><span>複数のキーワードはスペース区切りで入力してください。</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end items-center mb-4 mt-6">
+            <button id="random-btn"
+                class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                表示順をシャッフル
+            </button>
+        </div>
+
+        <div id="loading" class="hidden py-12 flex justify-center">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="error-msg"
+            class="hidden bg-red-100 text-red-800 p-4 rounded-lg mb-6 border border-red-200 text-center">
+        </div>
+
+        <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Cards will be inserted here -->
+        </div>
+
+        <a href="../index.html"
+            class="fixed top-20 right-6 text-indigo-600 hover:text-indigo-800 transition-colors duration-300 focus:outline-none group z-40"
+            aria-label="ホームに戻る">
+            <svg class="w-10 h-10 transition-transform duration-300 group-hover:scale-110" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                </path>
+            </svg>
+        </a>
+
+        <!-- Toast Message -->
+        <div id="messageBox"
+            class="hidden fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg transition-opacity duration-300 opacity-0 transform translate-y-[-20px]">
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <main-footer base-dir="../"></main-footer>
+
+</body>
+
+</html>

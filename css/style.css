@@ -107,9 +107,6 @@ body {
     transition: opacity 0.5s ease-in;
 }
 
-.hidden {
-    display: none;
-}
 
 /* Header sticky behavior and hiding */
 /* Header sticky behavior */
@@ -121,7 +118,9 @@ body {
     /* Explicit height for h-16 */
     overflow: hidden;
     /* Ensure content doesn't overflow during transition */
-    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Footer behavior */
@@ -256,23 +255,27 @@ body.search-mode main {
 }
 
 .badge-basic {
-    background-color: #e9d5ff; /* bg-purple-200 */
-    color: #6b21a8; /* text-purple-800 */
+    background-color: #e9d5ff;
+    /* bg-purple-200 */
+    color: #6b21a8;
+    /* text-purple-800 */
 }
 
 .badge-generic {
-    background-color: #bbf7d0; /* bg-green-200 */
-    color: #166534; /* text-green-800 */
+    background-color: #bbf7d0;
+    /* bg-green-200 */
+    color: #166534;
+    /* text-green-800 */
 }
 
-/* Card-style search results */
-.search-results-grid {
-    display: grid;
-    gap: 1rem;
-    /* Gap between cards */
-    padding: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    /* Responsive grid for cards */
+/* Card-style search results - primarily for mobile */
+@media (max-width: 767px) {
+    .search-results-grid {
+        display: grid;
+        gap: 1rem;
+        padding: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
 }
 
 .search-result-card {
@@ -304,7 +307,7 @@ body.search-mode main {
 @media (max-width: 640px) {
     .search-results-grid {
         grid-template-columns: 1fr;
-        /* Single column on mobile */
+        /* Single column on small mobile */
     }
 }
 

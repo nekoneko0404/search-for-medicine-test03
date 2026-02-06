@@ -49,6 +49,27 @@ export function showMessage(text, type = 'info') {
     }, 4000);
 }
 
+/**
+ * Hide message after a delay
+ * @param {number} delay - Delay in milliseconds before hiding
+ */
+export function hideMessage(delay = 2000) {
+    const messageBox = document.getElementById('messageBox');
+    if (!messageBox) return;
+
+    // Clear existing timeouts
+    if (messageTimeout) clearTimeout(messageTimeout);
+    if (messageHideTimeout) clearTimeout(messageHideTimeout);
+
+    // Set new timeout to hide message
+    messageTimeout = setTimeout(() => {
+        messageBox.classList.add('opacity-0', 'translate-y-[-20px]');
+        messageHideTimeout = setTimeout(() => {
+            messageBox.classList.add('hidden');
+        }, 300);
+    }, delay);
+}
+
 
 /**
  * Update progress bar

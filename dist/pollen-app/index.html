@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://cyberjapandata.gsi.go.jp https://www.googletagmanager.com https://cdn-icons-png.flaticon.com https://api.qrserver.com; connect-src 'self' https://wxtech.weathernews.com https://api.open-meteo.com https://archive-api.open-meteo.com https://www.google-analytics.com https://analytics.google.com https://*.googleapis.com https://www.gstatic.com https://unpkg.com https://cdn.jsdelivr.net https://pollen-worker.neko-neko-0404.workers.dev https://cdn-icons-png.flaticon.com;">
+    <title>花粉飛散リアルタイム監視 - Pollen Radar | Kusuri Compass</title>
+    <meta name="description" content="全国のポールンロボ（花粉観測機）から届くリアルタイムな花粉飛散状況を地図上で可視化。過去の飛散傾向や気象データとの比較も可能です。">
+    <meta name="keywords" content="花粉, 花粉飛散, リアルタイム, ポールンロボ, ウェザーニュース, Kusuri Compass, 薬剤師, 薬局">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://search-for-medicine.pages.dev/pollen-app/index.html">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script src="analytics.js"></script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- Custom CSS -->
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/assets/manifest-D3sze8Zl.json">
+
+  <link rel="stylesheet" crossorigin href="/assets/pollen-v1SXdkkp.css">
+</head>
+
+<body>
+    <!-- Header/Title -->
+    <div class="app-header">
+        <div
+            style="display: flex; justify-content: flex-start; align-items: center; width: 100%; flex-wrap: wrap; gap: 4px;">
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    style="text-decoration: none;">
+                    <img src="/assets/KusuriCompass-BvY5pcx-.png" alt="Kusuri Compass Icon"
+                        style="height: 50px; width: 50px; object-fit: contain;">
+                </a>
+            </div>
+            <div class="title-group">
+                <i class="fas fa-wind icon-main"></i>
+                <div>
+                    <h1>花粉飛散リアルタイム監視</h1>
+                    <p class="subtitle">全国の観測データをリアルタイムに可視化</p>
+                </div>
+            </div>
+            <div class="header-qr-code" style="margin-left: auto; display: flex; align-items: center; cursor: pointer;"
+                onclick="document.getElementById('qr-modal').classList.add('show')">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://is.gd/BuKzFs&ecc=L&margin=0"
+                    alt="QR Code" style="height: 50px; width: 50px; border-radius: 4px; border: 1px solid #ddd;"
+                    title="クリックして拡大">
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar/Controls -->
+    <div class="side-panel" id="side-panel">
+        <button id="panel-toggle" class="panel-toggle" title="パネルを閉じる">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="side-panel-content">
+            <!-- Registered Location -->
+            <div id="registered-location-section" class="panel-section hidden">
+                <h2 class="section-title"><i class="fas fa-map-marker-alt"></i> 通知登録地点</h2>
+                <div class="registered-location-card">
+                    <div class="location-info">
+                        <div class="city-group" style="display: flex; align-items: center; flex: 1; min-width: 0;">
+                            <span id="registered-city-name" class="city-name">未設定</span>
+                            <span id="registered-pollen-dot" class="dot hidden"
+                                style="margin-left: 8px; flex-shrink: 0;"></span>
+                            <span id="registered-pollen-count" class="pollen-count hidden"
+                                style="margin-left: 5px; font-size: 14px; font-weight: 600; color: var(--text-main);"></span>
+                        </div>
+                        <div class="location-actions">
+                            <button id="btn-jump-to-registered" class="btn-icon" title="地図で表示"><i
+                                    class="fas fa-crosshairs"></i></button>
+                            <button id="btn-edit-registered" class="btn-icon" title="通知設定"><i
+                                    class="fas fa-cog"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Selection -->
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-calendar-alt"></i> 表示日付</h2>
+                <div class="date-controls">
+                    <div class="date-nav">
+                        <button id="prev-day" class="btn-date-nav" title="前日"><i
+                                class="fas fa-chevron-left"></i></button>
+                        <div class="date-picker-wrapper">
+                            <input type="date" id="date-picker" class="styled-date-input">
+                        </div>
+                        <button id="next-day" class="btn-date-nav" title="翌日"><i
+                                class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="quick-dates">
+                        <button class="btn-quick-date" data-days="0">今日</button>
+                        <button class="btn-quick-date" data-days="1">昨日</button>
+                        <button class="btn-quick-date" data-years="1">1年前</button>
+                        <button class="btn-quick-date" data-years="2">2年前</button>
+                        <button class="btn-quick-date" data-years="3">3年前</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display Mode Selection -->
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> 表示モード</h2>
+                <div class="mode-controls">
+                    <div class="toggle-group">
+                        <input type="radio" id="mode-hourly" name="display-mode" value="hourly" checked>
+                        <label for="mode-hourly">最新1時間</label>
+                        <input type="radio" id="mode-daily" name="display-mode" value="daily">
+                        <label for="mode-daily">1日積算</label>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Map Type & Weather (Side by Side) -->
+            <div class="panel-row">
+                <!-- Map Type Selection -->
+                <div class="panel-section half-width">
+                    <h2 class="section-title"><i class="fas fa-layer-group"></i> 地図の種類</h2>
+                    <div class="map-type-controls">
+                        <button class="btn-map-type active" data-type="std">通常</button>
+                        <button class="btn-map-type" data-type="relief">地形</button>
+                    </div>
+                </div>
+
+                <!-- Weather Display -->
+                <div class="panel-section half-width">
+                    <h2 class="section-title"><i class="fas fa-cloud-sun"></i> 天気情報</h2>
+                    <button id="toggle-weather" class="btn-toggle-weather">
+                        <i class="fas fa-map-marker-alt"></i> 天気表示
+                    </button>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-info-circle"></i> 凡例</h2>
+                <div class="legend-list">
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #9C27B0;"></span>
+                        <div class="label-group">
+                            <span class="label">非常に多い</span>
+                            <span class="label-sub">(当日: 30〜 / 過去: 300〜)</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #f44336;"></span>
+                        <div class="label-group">
+                            <span class="label">多い</span>
+                            <span class="label-sub">(当日: 15〜29 / 過去: 150〜299)</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #FFEB3B;"></span>
+                        <div class="label-group">
+                            <span class="label">やや多い</span>
+                            <span class="label-sub">(当日: 9〜14 / 過去: 90〜149)</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #2196F3;"></span>
+                        <div class="label-group">
+                            <span class="label">少ない</span>
+                            <span class="label-sub">(当日: 3〜8 / 過去: 30〜89)</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #FFFFFF; border: 1px solid #ccc;"></span>
+                        <div class="label-group">
+                            <span class="label">なし</span>
+                            <span class="label-sub">(当日: 0〜2 / 過去: 0〜29)</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="dot" style="background-color: #ccc;"></span>
+                        <span class="label">データ取得中</span>
+                    </div>
+                </div>
+                <p class="legend-note">※当日は最新1時間、過去は1日の積算値を表示します。</p>
+            </div>
+
+            <!-- About Pollen Robo -->
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-robot"></i> ポールンロボについて</h2>
+                <p class="info-text">
+                    ウェザーニューズが全国の家庭や病院に設置している花粉観測機です。
+                    人の呼吸と同じ量の空気を吸い込み、実際に飛散している花粉を24時間リアルタイムでカウントしています。
+                </p>
+            </div>
+
+            <!-- Data Sources & Credits -->
+            <div class="panel-section">
+                <h2 class="section-title"><i class="fas fa-database"></i> データ出典・クレジット</h2>
+                <div class="credit-list">
+                    <div class="credit-item">
+                        <span class="credit-label">花粉データ:</span>
+                        <a href="https://wxtech.weathernews.com/" target="_blank" rel="noopener noreferrer">Weathernews
+                            Inc.</a>
+                    </div>
+                    <div class="credit-item">
+                        <span class="credit-label">気象データ:</span>
+                        <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Weather data by
+                            Open-Meteo.com</a>
+                    </div>
+                    <div class="credit-item">
+                        <span class="credit-label">地図データ:</span>
+                        <a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank"
+                            rel="noopener noreferrer">国土地理院</a>
+                    </div>
+                </div>
+                <div class="link-list" style="margin-top: 10px;">
+                    <a href="https://weathernews.jp/pollen/" target="_blank" rel="noopener noreferrer" class="ref-link">
+                        <i class="fas fa-external-link-alt"></i> ウェザーニュース 花粉Ch.
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+    <div id="crosshair"></div>
+
+    <!-- Update Notice Banner -->
+    <div id="update-notice" class="update-notice" data-notice-id="background-notification-beta-v1">
+        <div class="notice-content">
+            <i class="fas fa-bullhorn notice-icon"></i>
+            <div class="notice-text">
+                <p class="notice-title">🔔 バックグラウンド通知機能</p>
+                <p class="notice-message">実装テストを開始しました！<br>お手数ですが、<span class="highlight">通知設定を一度「保存」し直して</span>ください。
+                </p>
+                <label class="notice-hide-check">
+                    <input type="checkbox" id="notice-hide-checkbox">
+                    <span>今後表示しない</span>
+                </label>
+            </div>
+            <button id="notice-close-btn" class="notice-close" aria-label="閉じる">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal for Weekly Trend -->
+    <div id="trend-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-city-name">都市名</h2>
+            <div class="modal-body">
+                <div id="trend-loading" class="loading-overlay hidden">
+                    <div class="spinner"></div>
+                    <p>データを取得中...</p>
+                </div>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Notification Settings -->
+    <div id="notification-modal" class="modal">
+        <div class="modal-content notification-modal-content">
+            <span class="close-btn" id="notification-close-btn">&times;</span>
+            <h2><i class="fas fa-bell"></i> 花粉通知設定</h2>
+            <div class="modal-body">
+                <p class="notification-desc">
+                    登録した地点の花粉飛散量が設定値を超えた場合に、通知でお知らせします。
+                </p>
+                <p id="notification-compatibility-warning" class="notification-warning hidden"></p>
+
+                <div class="notification-settings">
+                    <div class="setting-group">
+                        <label>対象地点:</label>
+                        <span id="notification-target-city" class="target-city-name">未設定</span>
+                    </div>
+
+                    <!-- Threshold Settings (Horizontal Layout) -->
+                    <div
+                        style="display: grid !important; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label for="threshold-hourly" style="display: block; margin-bottom: 5px;">1時間あたりの飛散量
+                                (個):</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="threshold-hourly" min="0" value="10">
+                                <span class="unit">個以上で通知</span>
+                            </div>
+                            <p class="setting-hint">目安: 10個以上で「やや多い」レベル</p>
+                        </div>
+
+                        <div>
+                            <label for="threshold-daily" style="display: block; margin-bottom: 5px;">1日の積算飛散量
+                                (個):</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="threshold-daily" min="0" value="30">
+                                <span class="unit">個以上で通知</span>
+                            </div>
+                            <p class="setting-hint">目安: 30個以上で「やや多い」レベル</p>
+                        </div>
+                    </div>
+
+                    <!-- Notification Options (Horizontal Layout) -->
+                    <div class="setting-group">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">通知オプション:</label>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <label class="checkbox-label" style="flex: 1; min-width: 200px;">
+                                <input type="checkbox" id="enable-sound" checked>
+                                <span>アラート音を鳴らす</span>
+                            </label>
+                            <label class="checkbox-label" style="flex: 1; min-width: 200px;">
+                                <input type="checkbox" id="enable-voice" checked>
+                                <span>音声通知</span>
+                            </label>
+                        </div>
+                        <p class="setting-hint">アラート音: ピンポーン / 音声通知: 花粉飛散状況を読み上げ</p>
+                    </div>
+
+                    <!-- Background Notification Info -->
+                    <div class="setting-group"
+                        style="background: #f0f9ff; padding: 12px; border-radius: 8px; border: 1px solid #bae6fd;">
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-satellite-dish" style="color: #0369a1;"></i>
+                                <label style="color: #0369a1; font-weight: bold; margin: 0;">バックグラウンド通知 (Beta)</label>
+                            </div>
+                            <button id="btn-open-guide" class="btn-text"
+                                style="color: #0369a1; font-size: 12px; text-decoration: underline; border: none; background: none; cursor: pointer;">
+                                <i class="fas fa-question-circle"></i> 使い方ガイド
+                            </button>
+                        </div>
+                        <p class="setting-hint" style="margin: 0; color: #0c4a6e;">
+                            <strong>アプリを閉じている時:</strong> クラウド連携により自動で通知が届きます<br>
+                            <small>※本機能には通知の許可が必要です。</small>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="notification-actions">
+                    <button id="btn-save-notification" class="btn-primary">
+                        <i class="fas fa-save"></i> 設定を保存
+                    </button>
+                    <button id="btn-test-notification" class="btn-secondary">
+                        <i class="fas fa-paper-plane"></i> テスト通知
+                    </button>
+                    <button id="btn-clear-notification" class="btn-danger hidden">
+                        <i class="fas fa-trash-alt"></i> 設定を解除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Notification Guide -->
+    <div id="guide-modal" class="modal">
+        <div class="modal-content guide-modal-content" style="max-width: 500px;">
+            <span class="close-btn" id="guide-close-btn">&times;</span>
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-question-circle"></i> 通知機能ガイド</h2>
+            <div class="modal-body" style="font-size: 14px; line-height: 1.6;">
+                <div class="guide-tabs">
+                    <p style="margin-bottom: 15px; color: #64748b;">バックグラウンド通知を受け取るための基本ステップです。</p>
+
+                    <!-- Common Step -->
+                    <div class="guide-item"
+                        style="margin-bottom: 25px; background: #fffbeb; padding: 12px; border-radius: 8px; border: 1px solid #fef3c7;">
+                        <h3
+                            style="font-size: 15px; margin-bottom: 8px; color: #d97706; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-check-double"></i> 1. 全環境共通の必須操作
+                        </h3>
+                        <p style="margin: 0; font-weight: bold; font-size: 13px;">「通知設定」を開き、地点を確認して「設定を保存」ボタンを必ず押してください。
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-size: 11px; color: #92400e;">
+                            ※この操作でクラウドへの登録が行われます。通知の許可を求められたら「許可」を選択してください。</p>
+                    </div>
+
+                    <p style="margin-bottom: 15px; color: #64748b;">さらに確実に通知を受け取るための端末別追加設定：</p>
+
+                    <div class="guide-item" style="margin-bottom: 20px;">
+                        <h3
+                            style="font-size: 15px; margin-bottom: 8px; color: #f43f5e; display: flex; align-items: center; gap: 8px;">
+                            <i class="fab fa-apple"></i> iPhone (iOS) <span
+                                style="background: #f43f5e; color: white; padding: 1px 6px; border-radius: 4px; font-size: 11px;">必須</span>
+                        </h3>
+                        <p style="font-size: 12px; color: #94a3b8; margin: -4px 0 8px 0;">
+                            ※Appleの制限により、ホーム画面に追加したPWAのみ通知が可能です。</p>
+                        <ol style="padding-left: 20px; margin: 0;">
+                            <li>Safariで開き、共有ボタン（□と↑）から<strong>「ホーム画面に追加」</strong>を選択。</li>
+                            <li>ホーム画面のアイコンから起動して使用してください。</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-item" style="margin-bottom: 20px;">
+                        <h3
+                            style="font-size: 15px; margin-bottom: 8px; color: #22c55e; display: flex; align-items: center; gap: 8px;">
+                            <i class="fab fa-android"></i> Android <span
+                                style="background: #22c55e; color: white; padding: 1px 6px; border-radius: 4px; font-size: 11px;">推奨</span>
+                        </h3>
+                        <p style="font-size: 12px; color: #94a3b8; margin: -4px 0 8px 0;">
+                            ※ブラウザでも届きますが、ホーム画面に追加すると通知がより安定します。</p>
+                        <ol style="padding-left: 20px; margin: 0;">
+                            <li>Chrome等のメニューから<strong>「ホーム画面に追加」</strong>または<strong>「アプリをインストール」</strong>を選択。</li>
+                            <li>ホーム画面から使用すると、通知プロセスがOSに保護され受信率が上がります。</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-item" style="margin-bottom: 20px;">
+                        <h3
+                            style="font-size: 15px; margin-bottom: 8px; color: #3b82f6; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-desktop"></i> PC (Windows/Mac)
+                        </h3>
+                        <ul style="padding-left: 20px; margin: 0; list-style-type: none;">
+                            <li><i class="fas fa-check-circle" style="color: #3b82f6; margin-right: 5px;"></i>
+                                基本的にブラウザを起動している間のみ通知が届きます。</li>
+                            <li
+                                style="margin-top: 8px; font-size: 12px; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 8px;">
+                                <strong>💡 Chromeを閉じても通知を受け取るには：</strong><br>
+                                設定の「システム」内にある<strong>「Google Chrome を閉じた際にバックグラウンド アプリの実行を続行する」</strong>をオンにしてください。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 25px; text-align: center;">
+                    <button class="btn-primary"
+                        onclick="document.getElementById('guide-modal').classList.remove('show')"
+                        style="padding: 10px 30px; border-radius: 25px; cursor: pointer;">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for QR Code -->
+    <div id="qr-modal" class="modal">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <span class="close-btn"
+                onclick="document.getElementById('qr-modal').classList.remove('show')">&times;</span>
+            <h2><i class="fas fa-qrcode"></i> モバイルで開く</h2>
+            <div class="modal-body"
+                style="height: auto; min-height: auto; display: flex; justify-content: center; padding: 20px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://is.gd/BuKzFs&ecc=L&margin=1"
+                    alt="Large QR Code" style="width: 250px; height: 250px;">
+            </div>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #666;">スマートフォンのカメラで読み取ってください</p>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
+        integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4"
+        crossorigin="anonymous"></script>
+    <!-- App Scripts -->
+    <script src="cities.js"></script>
+    <script src="weather.js"></script>
+    <script src="script.js"></script>
+</body>
+
+
+
+</html>

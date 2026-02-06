@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>医薬品出荷状況検索 - Kusuri Compass</title>
+
+    <!-- CSP: Strict Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://docs.google.com https://spreadsheets.google.com; base-uri 'self'; form-action 'self';">
+
+
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
     <script>
@@ -14,22 +20,27 @@
         gtag('config', 'G-H44R8N7W32');
     </script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/input.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+        [v-cloak],
+        .v-cloak {
+            display: none !important;
         }
 
-        .search-results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            padding: 1rem;
+        body {
+            opacity: 0;
+            transition: opacity 0.2s ease-in;
+        }
+
+        body.loaded {
+            opacity: 1;
         }
     </style>
+    <!-- Inline styles removed. Using css/style.css and Tailwind. -->
+
     <!-- Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 </head>
@@ -158,7 +169,8 @@
         <!-- Search Results Container -->
         <!-- Search Results Container -->
         <div id="resultsWrapper" class="hidden">
-            <div id="tableContainer" class="bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block">
+            <div id="tableContainer"
+                class="table-container bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block">
                 <table class="min-w-full divide-y divide-gray-200 table-fixed">
                     <thead class="bg-gray-50">
                         <tr>
@@ -191,7 +203,7 @@
                 </table>
             </div>
 
-            <div id="cardContainer" class="search-results-grid md:hidden">
+            <div id="cardContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 md:hidden">
                 <!-- Data will be inserted here by JavaScript for mobile cards -->
             </div>
         </div>

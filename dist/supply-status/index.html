@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供給確保医薬品一覧 - Kusuri Compass</title>
+    <!-- CSP: Strict Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com; base-uri 'self'; form-action 'self';">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-H44R8N7W32');
+    </script>
+
+    <!-- Built Tailwind CSS -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Local styles removed. Using base Tailwind classes. -->
+  <script type="module" crossorigin src="/assets/supply-D5Ka-l7u.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/MainHeader-D0waqA3x.js">
+  <link rel="modulepreload" crossorigin href="/assets/utils-cz7vvGbo.js">
+  <link rel="modulepreload" crossorigin href="/assets/data-DocyalmU.js">
+  <link rel="stylesheet" crossorigin href="/assets/MainHeader-tn0RQdqM.css">
+  <link rel="stylesheet" crossorigin href="/assets/input-B9-_48Yr.css">
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <!-- Header Component -->
+    <main-header base-dir="../" active-page="search">
+        <a href="../index.html"
+            class="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors">
+            <i class="fas fa-home mr-1"></i>ホーム
+        </a>
+        <a href="../update/index.html" target="_blank" rel="noopener noreferrer"
+            class="text-xs sm:text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-2 sm:px-3 py-2 rounded-md transition-colors">
+            <span class="hidden sm:inline">情報更新表示</span>
+            <span class="sm:hidden">更新日</span>
+        </a>
+        <a href="../help/index.html" target="_blank" rel="noopener noreferrer"
+            class="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors">使い方</a>
+    </main-header>
+
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl transition-all duration-500">
+        <!-- Title Section -->
+        <div class="text-center mb-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">供給確保医薬品一覧（候補）</h2>
+            <p class="text-gray-500 text-sm">最新の供給状況、制限理由、解消見込みなどを確認できます</p>
+        </div>
+
+        <!-- Search Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Drug Name Search -->
+                <div class="space-y-2">
+                    <label for="drugName" class="block text-sm font-semibold text-gray-700">医薬品名</label>
+                    <div class="relative">
+                        <input type="text" id="drugName" placeholder="医薬品名を入力"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2.5">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingredient Name Search -->
+                <div class="space-y-2">
+                    <label for="ingredientName" class="block text-sm font-semibold text-gray-700">成分名</label>
+                    <div class="relative">
+                        <input type="text" id="ingredientName" placeholder="成分名を入力"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors pl-10 py-2.5">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-flask text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div id="filterGrid"
+                class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 pt-6 border-t border-gray-100 items-end">
+                <!-- Category Filter -->
+                <div id="categoryFilterContainer">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">カテゴリ</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="catA" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">A</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="catB" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">B</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="catC" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">C</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Route Filter (Moved Here) -->
+                <div id="routeFilterContainer">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">区分</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="routeInternal" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">内服</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="routeInjectable" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">注射</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="routeExternal" checked
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">外用</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Status Filter (Wrapper) (Moved Here) -->
+                <div class="flex flex-row items-center gap-2 w-full">
+                    <div id="statusFilterContainer" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 sr-only">出荷状況</label>
+                        <div class="flex flex-nowrap gap-4 overflow-x-auto pb-2">
+                            <label class="inline-flex items-center cursor-pointer whitespace-nowrap">
+                                <input type="checkbox" id="statusNormal" checked
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">通常出荷</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer whitespace-nowrap">
+                                <input type="checkbox" id="statusLimited" checked
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">限定出荷</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer whitespace-nowrap">
+                                <input type="checkbox" id="statusStopped" checked
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">供給停止</span>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Share Button -->
+                    <button id="share-btn"
+                        class="flex items-center gap-2 px-6 py-2 bg-white border border-indigo-200 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50 transition-all shadow-sm w-fit ml-auto">
+                        <i class="fas fa-share-alt"></i>
+                        共有
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- Removed reload-data button container -->
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="text-center py-12 hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent">
+            </div>
+            <p class="mt-4 text-gray-600 font-medium">データを読み込み中...</p>
+        </div>
+
+        <!-- Back Button (Container) -->
+        <div id="backButtonContainer" class="mb-4 hidden">
+            <button id="backBtn"
+                class="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200 shadow-sm font-semibold">
+                <i class="fas fa-arrow-left"></i>
+                一覧に戻る
+            </button>
+        </div>
+
+        <!-- Summary View (Restored) -->
+        <div id="summaryContainer">
+            <div id="summaryResults" class="hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hidden md:block">
+                    <table class="min-w-full divide-y divide-gray-200" id="summaryTable">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                    カテゴリ</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                    区分</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                    薬効分類</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px]">
+                                    薬効分類名</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[200px]">
+                                    成分名</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-center text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[130px]">
+                                    通常出荷</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-center text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[130px]">
+                                    限定出荷</th>
+                                <th scope="col"
+                                    class="px-4 py-2 text-left text-xs font-bold text-center text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[130px]">
+                                    供給停止</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="bg-white divide-y divide-gray-200" id="summaryTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Summary Card View (Mobile) -->
+                <div id="summaryCardContainer" class="md:hidden grid grid-cols-1 gap-4">
+                    <!-- Summary Cards will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail View (Table) -->
+        <div id="detailContainer" class="hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                カテゴリ</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                区分</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[200px]">
+                                医薬品名</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px]">
+                                成分名</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                出荷状況</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider min-w-[150px]">
+                                制限理由</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                解消見込み</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                見込み時期</th>
+                            <th scope="col"
+                                class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                更新日</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="searchResultTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card View (Mobile) -->
+            <div id="cardContainer" class="md:hidden grid grid-cols-1 gap-4">
+                <!-- Cards will be injected here -->
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progressBarContainer" class="fixed top-0 left-0 w-full h-1 z-50 hidden">
+            <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300 w-0"></div>
+            <div id="progressMessage"
+                class="absolute top-2 right-2 text-xs text-gray-600 bg-white px-2 py-1 rounded shadow hidden"></div>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <main-footer base-dir="../"></main-footer>
+
+</body>
+
+</html>

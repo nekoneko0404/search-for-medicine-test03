@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ぱっくんスタンプ - 子供の服薬を応援する無料アプリ | Kusuri Compass</title>
+    <meta name="description" content="飲んだらスタンプ！お子様の服薬を楽しく習慣化する無料アプリ。楽しい演出と表彰状で、お子様の「頑張り」を応援し、保護者の負担を軽減します。">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.google-analytics.com https://analytics.google.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://docs.google.com https://spreadsheets.google.com ws://127.0.0.1:*; frame-src 'self';">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-H44R8N7W32');
+    </script>
+    <meta name="keywords" content="ぱっくんスタンプ, ご褒美スタンプ, 子供, 薬, Kusuri Compass">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://search-for-medicine.pages.dev/Okusuri_pakkun/index.html">
+  <link rel="stylesheet" crossorigin href="/assets/pakkun-BbmqgrOG.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Tab Navigation -->
+        <nav class="tab-bar">
+            <button class="tab-btn active" data-tab="0">病院 1</button>
+            <button class="tab-btn" data-tab="1">病院 2</button>
+            <button class="tab-btn" data-tab="2">病院 3</button>
+        </nav>
+
+        <!-- Settings View -->
+        <div id="settings-view" class="view hidden">
+            <div class="settings-container">
+                <div class="settings-header">
+                    <h1>⚙️ 設定</h1>
+                    <button id="open-manual-btn" class="btn-icon">📖 使い方</button>
+                </div>
+                <p>お子様の服用スケジュールを設定してください</p>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label for="doses-per-day">1日の服用回数</label>
+                        <input type="number" id="doses-per-day" min="1" max="5" value="3" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration-days">服用期間（日）</label>
+                        <input type="number" id="duration-days" min="1" max="30" value="7" required>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label for="test-mode">
+                            <input type="checkbox" id="test-mode" style="width: auto;">
+                            テストモード（時間制限なし）
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary">スタート！</button>
+                </form>
+
+                <!-- Precautions Section -->
+                <div class="precautions-container">
+                    <h2 class="precautions-title">⚠️ お薬を飲むときの大切な約束</h2>
+                    <ul class="precautions-list">
+                        <li><span>👶</span>お子様の手の届かないところに保管してください。</li>
+                        <li><span>⏱️</span>用法・用量を守って正しく服用してください。</li>
+                        <li><span>👩‍⚕️</span>困ったことや不安なことがあれば、薬剤師に相談してください。</li>
+                        <li><span>🍎</span>相性の良い食べもの・飲みものなども、薬剤師に相談してください。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Modal -->
+        <div id="manual-modal" class="modal hidden">
+            <div class="modal-content manual-content">
+                <button id="close-manual-btn" class="close-btn">&times;</button>
+                <div class="manual-inner">
+                    <div class="manual-header">
+                        <img src="/assets/doctor_bear-B5Ng3mw5.png" alt="くま先生" class="manual-char">
+                        <h2>ぱっくんスタンプ<br>使い方ガイド</h2>
+                        <img src="/assets/nurse_rabbit-B52mMwKW.png" alt="うさぎ看護師" class="manual-char">
+                    </div>
+
+                    <section class="manual-section">
+                        <h3>🌸 はじめに</h3>
+                        <p>このアプリは、お子様の服薬をサポートする保護者の方のために作られました。単なる記録ツールではなく、お子様を褒め、励まし、一緒に達成感を味わうためのコミュニケーションツールです。</p>
+                    </section>
+
+                    <section class="manual-section">
+                        <h3>📝 つかいかた</h3>
+                        <div class="step-card">
+                            <h4>ステップ1：設定をする</h4>
+                            <p>服用回数と期間を入力して「スタート！」を押しましょう。病院やきょうだいごとに使い分けたいときは、上のタブで切り替えられます。</p>
+                        </div>
+                        <div class="step-card">
+                            <h4>ステップ2：お薬を飲んだらスタンプ！</h4>
+                            <p>お薬を飲んだら、光っている枠をタップ！楽しい演出と一緒に「褒め言葉」が表示されます。ぜひお子様を思いっきり褒めてあげてください。</p>
+                        </div>
+                        <div class="step-card">
+                            <h4>ステップ3：表彰状をもらおう</h4>
+                            <p>全部たまると「がんばったで賞」が表示されます。お名前を書いて、A4サイズで印刷して残すこともできます。</p>
+                        </div>
+                    </section>
+
+                    <section class="manual-section">
+                        <h3>💡 便利な機能</h3>
+                        <ul>
+                            <li><strong>服用間隔の守り:</strong> 飲みすぎ防止のため、次の時間までスタンプが押せないようになっています。</li>
+                            <li><strong>スキップ機能:</strong> 飲み忘れた時などは、先の枠をタップしてスキップ記録ができます。</li>
+                            <li><strong>テストモード:</strong> 時間制限なしでスタンプを押せます。動きを確認したい時にどうぞ。</li>
+                        </ul>
+                    </section>
+
+                    <section class="manual-section advice-section">
+                        <h3>✨ 保護者の方へ</h3>
+                        <div class="advice-card">
+                            <p><strong>小さな成功を祝う:</strong> 苦いお薬を一口飲めただけでも、それは大きな一歩です。</p>
+                            <p><strong>親の笑顔が最大のご褒美:</strong> お父さん・お母さんの笑顔が、お子様の「次も頑張ろう」という意欲を育てます。</p>
+                        </div>
+                        <div class="manual-footer-char">
+                            <img src="/assets/pharmacist_cat-CBCUdBt3.png" alt="ねこ薬剤師">
+                            <p>いっしょにがんばりましょう！</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main View (Stamp Card) -->
+        <div id="main-view" class="view hidden">
+            <header>
+                <h1>ぱっくんスタンプ！</h1>
+
+                <div class="progress-info">
+                    あと <span id="remaining-count">0</span> 回
+                </div>
+            </header>
+
+            <div id="status-message" class="status-ok">
+                お薬の時間だよ！
+            </div>
+
+            <div class="content-wrapper">
+                <div class="stamp-grid" id="stamp-grid">
+                    <!-- Slots -->
+                </div>
+
+                <div id="character-area">
+                    <!-- Character Image will be here -->
+                </div>
+            </div>
+
+            <button id="reset-btn" class="btn-small">設定をリセット</button>
+        </div>
+
+        <!-- Surprise Overlay -->
+        <div id="surprise-overlay" class="hidden">
+            <div class="surprise-content">
+                <div id="surprise-element"></div>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>

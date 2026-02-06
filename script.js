@@ -1,6 +1,7 @@
+
 import { normalizeString, debounce, formatDate, extractSearchTerm } from './js/utils.js';
 import { loadAndCacheData } from './js/data.js';
-import { updateProgress, showMessage, renderStatusButton, createDropdown } from './js/ui.js';
+import { updateProgress, showMessage, hideMessage, renderStatusButton, createDropdown } from './js/ui.js';
 import './js/components/MainFooter.js';
 import './js/components/MainHeader.js';
 
@@ -32,12 +33,10 @@ function getSearchKeywords(input) {
 }
 
 function searchData() {
-    document.getElementById('usage-guide').classList.add('hidden');
+    document.getElementById('infoContainer').classList.add('hidden');
 
     if (excelData.length === 0) {
-
         return;
-
     }
 
 
@@ -56,10 +55,11 @@ function searchData() {
         renderTable([]);
         resultsWrapper.classList.add('hidden');
         document.body.classList.remove('search-mode');
-        document.getElementById('usage-guide').classList.remove('hidden');
+        document.getElementById('infoContainer').classList.remove('hidden');
         return;
     } else {
         resultsWrapper.classList.remove('hidden');
+        document.getElementById('infoContainer').classList.add('hidden');
     }
 
     const statusFilters = [];
@@ -151,9 +151,15 @@ function searchData() {
 
 
 function renderTable(data) {
+    console.log("renderTable called with data length:", data.length);
     const resultBody = document.getElementById('searchResultTableBody');
     const cardContainer = document.getElementById('cardContainer');
     const tableContainer = document.getElementById('tableContainer');
+
+    if (!resultBody || !cardContainer || !tableContainer) {
+        console.error("Missing DOM elements in renderTable:", { resultBody, cardContainer, tableContainer });
+        return;
+    }
 
     resultBody.innerHTML = "";
     cardContainer.innerHTML = "";
@@ -584,6 +590,7 @@ function handleIngredientClick(ingredientName) {
 }
 
 window.onload = async function () {
+    document.body.classList.add('loaded');
     document.getElementById('sort-status-icon').textContent = '↕';
     document.getElementById('sort-productName-icon').textContent = '↕';
     document.getElementById('sort-ingredientName-icon').textContent = '↕';

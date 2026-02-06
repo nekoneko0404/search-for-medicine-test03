@@ -11,6 +11,8 @@ export default defineConfig({
                 infection: resolve(__dirname, 'infection-surveillance-app/index.html'),
                 pollen: resolve(__dirname, 'pollen-app/index.html'),
                 pakkun: resolve(__dirname, 'Okusuri_pakkun/index.html'),
+                recipe: resolve(__dirname, 'recipe-app/index.html'),
+                supply: resolve(__dirname, 'supply-status/index.html'),
                 update: resolve(__dirname, 'update/index.html'),
             },
         },
