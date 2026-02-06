@@ -1,4 +1,8 @@
 import { normalizeString, debounce, formatDate, extractSearchTerm } from './js/utils.js';
+import { loadAndCacheData } from './js/data.js';
+import { updateProgress, showMessage, renderStatusButton, createDropdown } from './js/ui.js';
+import './js/components/MainFooter.js';
+import './js/components/MainHeader.js';
 
 let excelData = [];
 let filteredResults = [];
@@ -9,61 +13,22 @@ let sortStates = {
 };
 const messageBox = document.getElementById('messageBox');
 const tableContainer = document.getElementById('tableContainer');
+const cardContainer = document.getElementById('cardContainer');
+const resultsWrapper = document.getElementById('resultsWrapper');
 let isComposing = false;
-let messageHideTimer = null;
-
-function showMessage(text, type = 'info') {
-    if (messageHideTimer) {
-        clearTimeout(messageHideTimer);
-        messageHideTimer = null;
-    }
-    messageBox.textContent = text;
-    messageBox.classList.remove('hidden', 'bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800', 'bg-blue-200', 'text-blue-800');
-    messageBox.classList.add('block');
-    if (type === 'error') {
-        messageBox.classList.add('bg-red-200', 'text-red-800');
-    } else if (type === 'success') {
-        messageBox.classList.add('bg-green-200', 'text-green-800');
-    } else {
-        messageBox.classList.add('bg-blue-200', 'text-blue-800');
-    }
-}
-function hideMessage(delay) {
-    if (messageHideTimer) {
-        clearTimeout(messageHideTimer);
-    }
-    messageHideTimer = setTimeout(() => {
-        messageBox.classList.add('hidden');
-    }, delay);
-}
 
 function getSearchKeywords(input) {
-    return input.split(/\s+|　+/).filter(keyword => keyword !== '').map(keyword => normalizeString(keyword));
-}
-
-function renderStatusButton(status, isUpdated = false) {
-    const trimmedStatus = (status || "").trim();
-    const span = document.createElement('span');
-    span.className = "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block transition-colors duration-150";
-
-    if (trimmedStatus.includes("通常出荷") || trimmedStatus.includes("通")) {
-        span.classList.add('bg-indigo-500', 'text-white', 'hover:bg-indigo-600');
-        span.textContent = '通常出荷';
-    } else if (trimmedStatus.includes("限定出荷") || trimmedStatus.includes("出荷制限") || trimmedStatus.includes("限") || trimmedStatus.includes("制")) {
-        span.classList.add('bg-yellow-400', 'text-gray-800', 'hover:bg-yellow-500');
-        span.textContent = '限定出荷';
-    } else if (trimmedStatus.includes("供給停止") || trimmedStatus.includes("停止") || trimmedStatus.includes("停")) {
-        span.classList.add('bg-gray-700', 'text-white', 'hover:bg-gray-800');
-        span.textContent = '供給停止';
-    } else {
-        span.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
-        span.textContent = trimmedStatus || "不明";
-    }
-
-    if (isUpdated) {
-        span.classList.add('border-red-500', 'border-2');
-    }
-    return span;
+    const terms = input.split(/\s+|　+/).filter(keyword => keyword !== '');
+    const include = [];
+    const exclude = [];
+    terms.forEach(term => {
+        if ((term.startsWith('ー') || term.startsWith('-')) && term.length > 1) {
+            exclude.push(normalizeString(term.substring(1)));
+        } else {
+            include.push(normalizeString(term));
+        }
+    });
+    return { include, exclude };
 }
 
 function searchData() {
@@ -78,136 +43,62 @@ function searchData() {
 
 
     const drugKeywords = getSearchKeywords(document.getElementById('drugName').value);
-
     const ingredientKeywords = getSearchKeywords(document.getElementById('ingredientName').value);
-
-
-
-    const makerInput = document.getElementById('makerName').value;
-
-    const allMakerKeywords = makerInput.split(/\s+|　+/).filter(keyword => keyword !== '');
-
-    const inclusionMakerKeywords = allMakerKeywords
-
-        .filter(keyword => !keyword.startsWith('ー') && !keyword.startsWith('-'))
-
-        .map(keyword => normalizeString(keyword));
-
-    const exclusionMakerKeywords = allMakerKeywords
-
-        .filter(keyword => keyword.startsWith('ー') || keyword.startsWith('-'))
-
-        .map(keyword => normalizeString(keyword.substring(1)).trim())
-
-        .filter(Boolean);
-
-
+    const makerKeywords = getSearchKeywords(document.getElementById('makerName').value);
 
     const allCheckboxesChecked = document.getElementById('statusNormal').checked && document.getElementById('statusLimited').checked && document.getElementById('statusStopped').checked;
 
-    const allSearchFieldsEmpty = drugKeywords.length === 0 && ingredientKeywords.length === 0 && allMakerKeywords.length === 0;
-
-
+    const allSearchFieldsEmpty = drugKeywords.include.length === 0 && drugKeywords.exclude.length === 0 &&
+        ingredientKeywords.include.length === 0 && ingredientKeywords.exclude.length === 0 &&
+        makerKeywords.include.length === 0 && makerKeywords.exclude.length === 0;
 
     if (allSearchFieldsEmpty && allCheckboxesChecked) {
-
-
-
         renderTable([]);
-
-
-
-        tableContainer.classList.add('hidden');
-
-
-
+        resultsWrapper.classList.add('hidden');
+        document.body.classList.remove('search-mode');
         document.getElementById('usage-guide').classList.remove('hidden');
-
-
-
-        hideMessage(0);
-
-
-
         return;
-
-
-
     } else {
-
-        tableContainer.classList.remove('hidden');
-
+        resultsWrapper.classList.remove('hidden');
     }
 
-
-
     const statusFilters = [];
-
     if (document.getElementById('statusNormal').checked) statusFilters.push("通常出荷");
-
     if (document.getElementById('statusLimited').checked) statusFilters.push("限定出荷");
-
     if (document.getElementById('statusStopped').checked) statusFilters.push("供給停止");
 
-
-
     filteredResults = excelData.filter(item => {
-
         if (!item) return false;
 
+        const drugName = item.normalizedProductName || "";
+        const ingredientName = item.normalizedIngredientName || "";
+        const makerName = item.normalizedMakerName || "";
 
+        const matchDrug = drugKeywords.include.every(keyword => drugName.includes(keyword)) &&
+            (drugKeywords.exclude.length === 0 || !drugKeywords.exclude.some(keyword => drugName.includes(keyword)));
 
-        const drugName = item.normalizedProductName;
+        const matchIngredient = ingredientKeywords.include.every(keyword => ingredientName.includes(keyword)) &&
+            (ingredientKeywords.exclude.length === 0 || !ingredientKeywords.exclude.some(keyword => ingredientName.includes(keyword)));
 
-        const ingredientName = item.normalizedIngredientName;
-
-        const makerName = item.normalizedMakerName;
-
-
-
-        const matchDrug = drugKeywords.every(keyword => drugName.includes(keyword));
-
-        const matchIngredient = ingredientKeywords.every(keyword => ingredientName.includes(keyword));
-
-
-
-        const matchMaker = inclusionMakerKeywords.every(keyword => drugName.includes(keyword) || makerName.includes(keyword) || ingredientName.includes(keyword));
-
-        const mismatchMaker = exclusionMakerKeywords.length > 0 && exclusionMakerKeywords.some(keyword => drugName.includes(keyword) || makerName.includes(keyword) || ingredientName.includes(keyword));
-
-
+        const matchMaker = makerKeywords.include.every(keyword => drugName.includes(keyword) || makerName.includes(keyword) || ingredientName.includes(keyword)) &&
+            (makerKeywords.exclude.length === 0 || !makerKeywords.exclude.some(keyword => drugName.includes(keyword) || makerName.includes(keyword) || ingredientName.includes(keyword)));
 
         if (statusFilters.length === 0) return false;
 
-
-
         const currentStatus = (item.shipmentStatus || '').trim();
-
         let matchStatus = false;
 
-
-
         if (statusFilters.includes("通常出荷") && (currentStatus.includes("通常出荷") || currentStatus.includes("通"))) {
-
             matchStatus = true;
-
         }
-
         if (statusFilters.includes("限定出荷") && (currentStatus.includes("限定出荷") || currentStatus.includes("出荷制限") || currentStatus.includes("限") || currentStatus.includes("制"))) {
-
             matchStatus = true;
-
         }
-
         if (statusFilters.includes("供給停止") && (currentStatus.includes("供給停止") || currentStatus.includes("停止") || currentStatus.includes("停"))) {
-
             matchStatus = true;
-
         }
 
-
-
-        return matchDrug && matchIngredient && matchMaker && !mismatchMaker && matchStatus;
+        return matchDrug && matchIngredient && matchMaker && matchStatus;
 
     });
 
@@ -215,7 +106,8 @@ function searchData() {
 
     renderTable(filteredResults);
 
-
+    // Control header/footer visibility based on results
+    document.body.classList.toggle('search-mode', filteredResults.length > 0);
 
     if (filteredResults.length === 0) {
 
@@ -257,64 +149,29 @@ function searchData() {
 
 }
 
-function handleIngredientClick(ingredient) {
-    document.getElementById('drugName').value = '';
-    document.getElementById('makerName').value = '';
-    const searchIngredient = ingredient.length > 5 ? ingredient.substring(0, 5) : ingredient;
-    document.getElementById('ingredientName').value = searchIngredient;
-    searchData();
-    showMessage(`「${searchIngredient}」で再検索を実行しました。`, 'info');
-    hideMessage(2000);
-}
-
-
-
-function openHiyariPage(type, name) {
-    const hiyariBaseUrl = './hiyari_app/index.html';
-    let extractedName = extractSearchTerm(name);
-
-    if (Array.isArray(extractedName)) {
-        extractedName = extractedName || '';
-    } else if (typeof extractedName !== 'string') {
-        extractedName = String(extractedName || '');
-    }
-
-    let finalName = extractedName;
-
-    if (type === 'ingredientName' && finalName) {
-        const parts = finalName.split(/[，,、]/).map(p => p.trim()).filter(p => p !== '');
-        let candidate = '';
-        for (const p of parts) {
-            const m = p.match(/([ァ-ヶー]+)/);
-            if (m && m) {
-                candidate = m;
-                break;
-            }
-        }
-        if (!candidate && parts.length > 0) {
-            candidate = parts.replace(/^[ＬL][－-]?/, '').trim();
-        }
-        if (candidate) {
-            finalName = candidate;
-        } else if (parts.length > 0) {
-            finalName = parts;
-        }
-    }
-
-    const url = `${hiyariBaseUrl}?${type}=${encodeURIComponent(finalName)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-}
 
 function renderTable(data) {
-    const resultBody = document.getElementById('resultTableBody');
+    const resultBody = document.getElementById('searchResultTableBody');
+    const cardContainer = document.getElementById('cardContainer');
+    const tableContainer = document.getElementById('tableContainer');
+
     resultBody.innerHTML = "";
+    cardContainer.innerHTML = "";
 
     if (data.length === 0) {
+        // Table no-data message
         const row = resultBody.insertRow();
         const cell = row.insertCell(0);
         cell.colSpan = 5;
         cell.textContent = "該当データがありません";
         cell.className = "px-4 py-3 text-sm text-gray-500 text-center italic";
+
+        // Card no-data message
+        const noDataCard = document.createElement('div');
+        noDataCard.className = "bg-white p-8 text-center text-gray-500 italic rounded-lg shadow";
+        noDataCard.textContent = "該当データがありません";
+        cardContainer.appendChild(noDataCard);
+
         return;
     }
 
@@ -336,10 +193,12 @@ function renderTable(data) {
     };
 
     displayResults.forEach((item, index) => {
+        // --- Table Row Creation ---
         const newRow = resultBody.insertRow();
         const rowBgClass = index % 2 === 1 ? 'bg-indigo-50' : 'bg-white';
         newRow.className = `${rowBgClass} transition-colors duration-150 hover:bg-indigo-200`;
 
+        // 1. Drug Name Cell
         const drugNameCell = newRow.insertCell(0);
         drugNameCell.setAttribute('data-label', '品名');
         drugNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "relative");
@@ -367,8 +226,6 @@ function renderTable(data) {
         }
 
         const drugName = item.productName || "";
-        const drugNameForHiyari = encodeURIComponent(drugName);
-
         const flexContainer = document.createElement('div');
         flexContainer.className = 'flex items-start';
         if (labelsContainer.hasChildNodes()) {
@@ -382,67 +239,12 @@ function renderTable(data) {
             flexContainer.appendChild(span);
             drugNameCell.appendChild(flexContainer);
         } else {
-            const pmdaLinkUrl = `https://www.pmda.go.jp/PmdaSearch/rdSearch/02/${item.yjCode}?user=1`;
-            const yjCodeLinkUrl = `https://drug-navigator.pages.dev/`;
-            const hiyariLinkUrl = `./hiyari_app/index.html?drugName=${drugNameForHiyari}`;
-            const dropdownContentId = `dropdown-content-${index}`;
-
-            const dropdownContainer = document.createElement('div');
-            dropdownContainer.className = 'dropdown w-full';
-
-            const button = document.createElement('button');
-            let buttonClass = "dropdown-button text-indigo-600 font-semibold hover:underline truncate-lines text-left w-full";
-            const isYjCodeUpdated = item.updatedCells && item.updatedCells.includes(columnMap.yjCode);
-            if (isYjCodeUpdated) {
-                buttonClass += ' border-red-500 border-2';
-            }
-            button.className = buttonClass;
-            button.textContent = drugName;
-            button.onclick = toggleDropdown;
-
-            const dropdownContent = document.createElement('div');
-            dropdownContent.id = dropdownContentId;
-            dropdownContent.className = "dropdown-content hidden absolute bg-white border border-gray-300 rounded-md shadow-lg z-10";
-            dropdownContent.style.minWidth = '120px';
-
-            const pmdaLink = document.createElement('a');
-            pmdaLink.href = pmdaLinkUrl;
-            pmdaLink.target = '_blank';
-            pmdaLink.rel = 'noopener noreferrer';
-            pmdaLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
-            pmdaLink.textContent = '医薬品情報';
-
-            const yjCodeLink = document.createElement('a');
-            yjCodeLink.href = yjCodeLinkUrl;
-            yjCodeLink.target = '_blank';
-            yjCodeLink.rel = 'noopener noreferrer';
-            yjCodeLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
-            yjCodeLink.textContent = '代替薬検索';
-
-            const hiyariLink = document.createElement('a');
-            hiyariLink.href = hiyariLinkUrl;
-            hiyariLink.target = '_blank';
-            hiyariLink.rel = 'noopener noreferrer';
-            hiyariLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
-            hiyariLink.textContent = 'ヒヤリハット検索';
-
-            const updateDateLink = document.createElement('a');
-            updateDateLink.href = `./update/index.html?productName=${encodeURIComponent(drugName)}&shippingStatus=all&updateDate=all`;
-            updateDateLink.target = '_blank';
-            updateDateLink.rel = 'noopener noreferrer';
-            updateDateLink.className = "block px-3 py-2 text-sm text-gray-800 hover:bg-indigo-100 whitespace-nowrap";
-            updateDateLink.textContent = '情報更新日';
-
-            dropdownContent.appendChild(pmdaLink);
-            dropdownContent.appendChild(yjCodeLink);
-            dropdownContent.appendChild(updateDateLink);
-            dropdownContent.appendChild(hiyariLink);
-            dropdownContainer.appendChild(button);
-            dropdownContainer.appendChild(dropdownContent);
+            const dropdownContainer = createDropdown(item, index);
             flexContainer.appendChild(dropdownContainer);
             drugNameCell.appendChild(flexContainer);
         }
 
+        // 2. Ingredient Name Cell
         const ingredientNameCell = newRow.insertCell(1);
         ingredientNameCell.setAttribute('data-label', '成分名');
         ingredientNameCell.classList.add("px-2", "py-2", "text-sm", "text-gray-900", "truncate-lines");
@@ -465,6 +267,7 @@ function renderTable(data) {
             ingredientNameCell.textContent = ingredientName;
         }
 
+        // 3. Status Cell
         const statusCell = newRow.insertCell(2);
         statusCell.setAttribute('data-label', '出荷状況');
         statusCell.classList.add("tight-cell", "py-2", "text-gray-900", "text-left");
@@ -482,12 +285,13 @@ function renderTable(data) {
 
         if (item.shippingStatusTrend) {
             const trendIcon = document.createElement('span');
-            trendIcon.className = 'ml-1 text-red-500'; // Added text-red-500
+            trendIcon.className = 'ml-1 text-red-500';
             trendIcon.textContent = item.shippingStatusTrend;
             statusContainer.appendChild(trendIcon);
         }
         statusCell.appendChild(statusContainer);
 
+        // 4. Reason Cell
         const reasonCell = newRow.insertCell(3);
         reasonCell.textContent = item.reasonForLimitation || "";
         reasonCell.setAttribute('data-label', '制限理由');
@@ -496,6 +300,7 @@ function renderTable(data) {
             reasonCell.classList.add('text-red-600', 'font-bold');
         }
 
+        // 5. Volume Cell
         const volumeCell = newRow.insertCell(4);
         volumeCell.textContent = item.shipmentVolumeStatus || "";
         volumeCell.setAttribute('data-label', '出荷量状況');
@@ -503,29 +308,185 @@ function renderTable(data) {
         if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) {
             volumeCell.classList.add('text-red-600', 'font-bold');
         }
+
+        // --- Card Creation (Mobile) ---
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col gap-3";
+
+        // Card Header: Labels + Drug Name
+        const cardHeader = document.createElement('div');
+        cardHeader.className = "flex items-start gap-2";
+
+        // Recycle logic for labels (generic/basic)
+        const cardLabelsContainer = document.createElement('div');
+        cardLabelsContainer.className = "flex flex-col gap-1 mt-1";
+        if (isGeneric) {
+            const span = document.createElement('span');
+            span.className = "bg-green-200 text-green-800 px-1 rounded-sm text-[10px] font-bold whitespace-nowrap text-center";
+            span.textContent = '後';
+            cardLabelsContainer.appendChild(span);
+        }
+        if (isBasic) {
+            const span = document.createElement('span');
+            span.className = "bg-purple-200 text-purple-800 px-1 rounded-sm text-[10px] font-bold whitespace-nowrap text-center";
+            span.textContent = '基';
+            cardLabelsContainer.appendChild(span);
+        }
+        if (cardLabelsContainer.hasChildNodes()) {
+            cardHeader.appendChild(cardLabelsContainer);
+        }
+
+        // Drug Name in Card
+        const cardDrugNameWrapper = document.createElement('div');
+        cardDrugNameWrapper.className = "flex-grow min-w-0"; // minimal width 0 to allow truncate
+        if (!item.yjCode) {
+            const span = document.createElement('span');
+            span.className = "font-bold text-gray-900 break-words";
+            if (item.updatedCells && item.updatedCells.includes(columnMap.productName)) {
+                span.classList.add('text-red-600');
+            }
+            span.textContent = drugName;
+            cardDrugNameWrapper.appendChild(span);
+        } else {
+            // Use createDropdown for mobile card too (it handles mobile click properly)
+            // We need a unique index for card dropdowns to avoid ID conflict? 
+            // format: dropdown-content-{index} - might conflict if we assume 1:1 mapping. 
+            // createDropdown internal ID is generic. Since the table dropdowns are also in DOM, ID conflict is real.
+            // But ui.js uses `dropdown-content-${index}`. 
+            // We should use a different index or modify ui.js? 
+            // ui.js logic closes "other" dropdowns. 
+            // If we use index + 10000 for cards, it should be fine.
+            const cardDropdown = createDropdown(item, index + 10000);
+            cardDrugNameWrapper.appendChild(cardDropdown);
+        }
+        cardHeader.appendChild(cardDrugNameWrapper);
+        card.appendChild(cardHeader);
+
+        // Ingredient Name
+        if (ingredientName) {
+            const ingDiv = document.createElement('div');
+            ingDiv.className = "text-xs text-gray-600";
+            const label = document.createElement('span');
+            label.textContent = "成分: ";
+            ingDiv.appendChild(label);
+
+            const link = document.createElement('a');
+            link.href = '#';
+            link.className = 'text-indigo-600 hover:underline';
+            link.textContent = ingredientName;
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleIngredientClick(ingredientName);
+            });
+            ingDiv.appendChild(link);
+            card.appendChild(ingDiv);
+        }
+
+        // Status Row
+        const statusRow = document.createElement('div');
+        statusRow.className = "flex items-center justify-between";
+
+        const statusBtnContainer = document.createElement('div');
+        statusBtnContainer.className = "flex items-center";
+        statusBtnContainer.appendChild(renderStatusButton(statusValue, isStatusUpdated));
+        if (item.shippingStatusTrend) {
+            const trendIcon = document.createElement('span');
+            trendIcon.className = 'ml-1 text-red-500';
+            trendIcon.textContent = item.shippingStatusTrend;
+            statusBtnContainer.appendChild(trendIcon);
+        }
+        statusRow.appendChild(statusBtnContainer);
+
+        // Volume Status (Right aligned)
+        if (item.shipmentVolumeStatus) {
+            const volDiv = document.createElement('div');
+            volDiv.className = "text-xs text-gray-500";
+            volDiv.textContent = item.shipmentVolumeStatus;
+            if (item.updatedCells && item.updatedCells.includes(columnMap.shipmentVolumeStatus)) {
+                volDiv.classList.add('text-red-600', 'font-bold');
+            }
+            statusRow.appendChild(volDiv);
+        }
+        card.appendChild(statusRow);
+
+        // Reason
+        if (item.reasonForLimitation) {
+            const reasonDiv = document.createElement('div');
+            reasonDiv.className = "text-xs text-gray-700 bg-gray-50 p-2 rounded";
+            if (item.updatedCells && item.updatedCells.includes(columnMap.reasonForLimitation)) {
+                reasonDiv.classList.add('text-red-600', 'font-bold');
+            }
+            reasonDiv.textContent = item.reasonForLimitation;
+            card.appendChild(reasonDiv);
+        }
+
+        cardContainer.appendChild(card);
     });
 }
 
-function toggleDropdown(event) {
-    event.stopPropagation();
-    const content = event.currentTarget.nextElementSibling;
-    const isAlreadyOpen = !content.classList.contains('hidden');
-    closeAllDropdowns();
-    if (!isAlreadyOpen) {
-        content.classList.remove('hidden');
+/**
+ * Restore search conditions from URL parameters
+ */
+function restoreFromUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const drug = urlParams.get('drug');
+    const ingredient = urlParams.get('ingredient');
+    const maker = urlParams.get('maker');
+
+    // Only proceed if at least one parameter is present
+    if (!drug && !ingredient && !maker && !urlParams.has('normal')) return false;
+
+    if (drug) document.getElementById('drugName').value = drug;
+    if (ingredient) document.getElementById('ingredientName').value = ingredient;
+    if (maker) document.getElementById('makerName').value = maker;
+
+    const normal = urlParams.get('normal');
+    const limited = urlParams.get('limited');
+    const stopped = urlParams.get('stopped');
+
+    if (normal !== null) document.getElementById('statusNormal').checked = normal === '1';
+    if (limited !== null) document.getElementById('statusLimited').checked = limited === '1';
+    if (stopped !== null) document.getElementById('statusStopped').checked = stopped === '1';
+
+    return true;
+}
+
+/**
+ * Share current search conditions via URL
+ */
+async function shareSearchConditions() {
+    const drug = document.getElementById('drugName').value.trim();
+    const ingredient = document.getElementById('ingredientName').value.trim();
+    const maker = document.getElementById('makerName').value.trim();
+
+    const normal = document.getElementById('statusNormal').checked;
+    const limited = document.getElementById('statusLimited').checked;
+    const stopped = document.getElementById('statusStopped').checked;
+
+    const params = new URLSearchParams();
+    if (drug) params.set('drug', drug);
+    if (ingredient) params.set('ingredient', ingredient);
+    if (maker) params.set('maker', maker);
+
+    params.set('normal', normal ? '1' : '0');
+    params.set('limited', limited ? '1' : '0');
+    params.set('stopped', stopped ? '1' : '0');
+
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?${params.toString()}`;
+
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        showMessage('検索条件のURLをクリップボードにコピーしました', 'success');
+    } catch (err) {
+        console.error('Failed to copy to clipboard:', err);
+        showMessage('URLのコピーに失敗しました', 'error');
     }
-}
-
-function closeAllDropdowns() {
-    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-        dropdown.classList.add('hidden');
-    });
 }
 
 function sortResults(key) {
     if (filteredResults.length === 0) {
         showMessage("ソートするデータがありません。", "info");
-        hideMessage(2000);
         return;
     }
     const newDirection = sortStates[key] === 'asc' ? 'desc' : 'asc';
@@ -562,7 +523,6 @@ function sortResults(key) {
     renderTable(filteredResults);
     const sortKeyName = key === 'status' ? '出荷状況' : (key === 'productName' ? '品名' : '成分名');
     showMessage(`「${sortKeyName}」を${newDirection === 'asc' ? '昇順' : '降順'}でソートしました。`, "success");
-    hideMessage(2000);
 }
 
 
@@ -601,23 +561,39 @@ function attachSearchListeners() {
     document.getElementById('sort-status-button').addEventListener('click', () => sortResults('status'));
 }
 
+
+
+function handleIngredientClick(ingredientName) {
+    document.getElementById('drugName').value = '';
+    document.getElementById('makerName').value = '';
+
+    // Optional: Trim or clean up ingredient name if needed. 
+    // The previous implementation had logic to truncate to 5 characters, but the user didn't explicitly ask for it back.
+    // However, clicking a long ingredient name usually means exact match search is desired.
+
+    const ingredientInput = document.getElementById('ingredientName');
+    if (ingredientInput) {
+        ingredientInput.value = ingredientName;
+        searchData();
+        showMessage(`成分「${ingredientName}」で検索しました。`, 'info');
+    }
+}
+
 window.onload = async function () {
     document.getElementById('sort-status-icon').textContent = '↕';
     document.getElementById('sort-productName-icon').textContent = '↕';
     document.getElementById('sort-ingredientName-icon').textContent = '↕';
 
     attachSearchListeners();
-    window.addEventListener('click', closeAllDropdowns);
+    document.getElementById('share-btn').addEventListener('click', shareSearchConditions);
 
     document.getElementById('reload-data').addEventListener('click', () => {
         localforage.removeItem('excelCache').then(async () => {
             showMessage('キャッシュをクリアしました。データを再読み込みします。', 'info');
-            hideMessage(2000);
-            const result = await loadAndCacheData();
+            const result = await loadAndCacheData(updateProgress);
             if (result && result.data) {
                 excelData = result.data;
                 showMessage(`データを再読み込みしました: ${excelData.length}件`, 'success');
-                hideMessage(2000);
             }
         }).catch(err => {
             console.error("Failed to clear cache", err);
@@ -625,13 +601,17 @@ window.onload = async function () {
         });
     });
 
-    const result = await loadAndCacheData();
+    const result = await loadAndCacheData(updateProgress);
     if (result && result.data) {
         excelData = result.data;
         renderTable([]);
-        tableContainer.classList.add('hidden');
-        showMessage(`データ(${result.date}) ${excelData.length} 件を読み込みました。検索を開始できます。`, "success");
-        hideMessage(2000);
+        resultsWrapper.classList.add('hidden');
+
+        if (restoreFromUrlParams()) {
+            searchData();
+        } else {
+            showMessage(`データ(${result.date}) ${excelData.length} 件を読み込みました。検索を開始できます。`, "success");
+        }
     } else {
         showMessage('データの読み込みに失敗しました。リロードボタンで再試行してください。', "error");
     }

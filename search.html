@@ -35,30 +35,16 @@
 </head>
 
 <body class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header id="mainHeader" class="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <a href="./index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                    <img src="images/KusuriCompass.png" alt="Kusuri Compass Icon" class="h-10 w-10 object-contain">
-                    <div class="flex flex-col">
-                        <h1 class="text-lg sm:text-xl font-bold text-indigo-900 leading-tight">Kusuri Compass</h1>
-                        <span
-                            class="text-[10px] sm:text-xs font-semibold text-indigo-600 leading-tight">薬剤師業務支援ツール</span>
-                    </div>
-                </a>
-            </div>
-            <nav class="flex items-center gap-2 sm:gap-4">
-                <a href="./update/index.html" target="_blank" rel="noopener noreferrer"
-                    class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-3 py-2 rounded-md transition-colors">
-                    <span class="hidden sm:inline">情報更新表示</span>
-                    <span class="sm:hidden">更新日</span>
-                </a>
-                <a href="./help/index.html" target="_blank" rel="noopener noreferrer"
-                    class="text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">使い方</a>
-            </nav>
-        </div>
-    </header>
+    <!-- Header Component -->
+    <main-header base-dir="./" active-page="search">
+        <a href="./update/index.html" target="_blank" rel="noopener noreferrer"
+            class="text-xs sm:text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-2 sm:px-3 py-2 rounded-md transition-colors">
+            <span class="hidden sm:inline">情報更新表示</span>
+            <span class="sm:hidden">更新日</span>
+        </a>
+        <a href="./help/index.html" target="_blank" rel="noopener noreferrer"
+            class="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors">使い方</a>
+    </main-header>
 
     <!-- Main Content -->
     <main
@@ -170,41 +156,44 @@
             </div>
         </div>
         <!-- Search Results Container -->
-        <div id="tableContainer" class="bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block">
-            <table class="min-w-full divide-y divide-gray-200 table-fixed">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
-                            <div class="flex items-center gap-1" id="sort-productName-button">品名 <span
-                                    id="sort-productName-icon" class="text-indigo-500">↕</span></div>
-                        </th>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
-                            <div class="flex items-center gap-1" id="sort-ingredientName-button">成分名 <span
-                                    id="sort-ingredientName-icon" class="text-indigo-500">↕</span></div>
-                        </th>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%] group cursor-pointer hover:bg-gray-100 transition-colors">
-                            <div class="flex items-center gap-1" id="sort-status-button">出荷状況 <span
-                                    id="sort-status-icon" class="text-indigo-500">↕</span></div>
-                        </th>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[18%]">
-                            制限理由</th>
-                        <th scope="col"
-                            class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[11%]">
-                            出荷量状況</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="searchResultTableBody">
-                    <!-- Data will be inserted here by JavaScript -->
-                </tbody>
-            </table>
-        </div>
+        <!-- Search Results Container -->
+        <div id="resultsWrapper" class="hidden">
+            <div id="tableContainer" class="bg-white rounded-xl shadow-sm border border-gray-200 hidden md:block">
+                <table class="min-w-full divide-y divide-gray-200 table-fixed">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center gap-1" id="sort-productName-button">品名 <span
+                                        id="sort-productName-icon" class="text-indigo-500">↕</span></div>
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[28%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center gap-1" id="sort-ingredientName-button">成分名 <span
+                                        id="sort-ingredientName-icon" class="text-indigo-500">↕</span></div>
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%] group cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center gap-1" id="sort-status-button">出荷状況 <span
+                                        id="sort-status-icon" class="text-indigo-500">↕</span></div>
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[18%]">
+                                制限理由</th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[11%]">
+                                出荷量状況</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="searchResultTableBody">
+                        <!-- Data will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
 
-        <div id="cardContainer" class="search-results-grid md:hidden">
-            <!-- Data will be inserted here by JavaScript for mobile cards -->
+            <div id="cardContainer" class="search-results-grid md:hidden">
+                <!-- Data will be inserted here by JavaScript for mobile cards -->
+            </div>
         </div>
         <!-- Home Button -->
         <a href="./index.html"
@@ -239,20 +228,8 @@
                 class="absolute top-2 right-2 text-xs text-gray-600 bg-white px-2 py-1 rounded shadow hidden"></div>
         </div>
     </main>
-    <!-- Footer -->
-    <footer id="mainFooter" class="sticky bottom-0 left-0 w-full z-20 bg-white border-t border-gray-200">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="text-sm text-gray-500">&copy; 2025 Kusuri Compass. All rights reserved.</div>
-                <div class="flex gap-6">
-                    <a href="./terms.html"
-                        class="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium">利用規約</a>
-                    <a href="./privacy.html"
-                        class="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium">プライバシーポリシー</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- Footer Component -->
+    <main-footer base-dir="./"></main-footer>
     <script type="module" src="script.js"></script>
 </body>
 

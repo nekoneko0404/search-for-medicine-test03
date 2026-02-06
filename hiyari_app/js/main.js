@@ -7,8 +7,14 @@
 
 import { normalizeString, debounce } from '../../js/utils.js';
 import { showMessage } from '../../js/ui.js';
+import '../../js/components/MainFooter.js';
+import '../../js/components/MainHeader.js';
 
-const PROXY_URL = 'https://hiyari-proxy-708146219355.asia-east1.run.app/proxy';
+
+// Use Vite dev server proxy in development, direct URL in production
+const PROXY_URL = import.meta.env.DEV
+    ? '/hiyari-proxy/proxy'
+    : 'https://hiyari-proxy-708146219355.asia-east1.run.app/proxy';
 const batchSize = 30;
 
 // DOM Elements

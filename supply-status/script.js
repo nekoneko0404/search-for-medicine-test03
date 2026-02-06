@@ -1,6 +1,8 @@
 import { loadAndCacheData, clearCacheAndReload } from '../js/data.js';
 import { normalizeString, formatDate } from '../js/utils.js';
 import { renderStatusButton, showMessage, updateProgress, createDropdown } from '../js/ui.js';
+import '../js/components/MainHeader.js';
+import '../js/components/MainFooter.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const drugNameInput = document.getElementById('drugName');

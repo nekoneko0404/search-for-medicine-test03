@@ -17,5 +17,12 @@ export default defineConfig({
     },
     server: {
         open: true,
+        proxy: {
+            '/hiyari-proxy': {
+                target: 'https://hiyari-proxy-708146219355.asia-east1.run.app',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/hiyari-proxy/, ''),
+            },
+        },
     },
 });

@@ -1,5 +1,7 @@
 import { loadAndCacheData } from './data.js';
 import { updateProgress } from './ui.js';
+import './components/MainFooter.js';
+import './components/MainHeader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Notification script from original index.html logic ---

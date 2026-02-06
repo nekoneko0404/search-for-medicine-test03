@@ -5,6 +5,8 @@
 import { loadAndCacheData, clearCacheAndReload } from '../../js/data.js';
 import { normalizeString, debounce, formatDate } from '../../js/utils.js';
 import { showMessage, renderStatusButton, updateProgress, createDropdown } from '../../js/ui.js';
+import '../../js/components/MainHeader.js';
+import '../../js/components/MainFooter.js';
 
 let excelData = [];
 let filteredResults = [];
@@ -463,15 +465,10 @@ function searchData(reset = false) {
     if (elements.sortIcons.productName) elements.sortIcons.productName.textContent = '↕';
     if (elements.sortIcons.ingredientName) elements.sortIcons.ingredientName.textContent = '↕';
 
-    // Add or remove search-mode class before rendering
-    if (filteredResults.length > 0) {
-        document.body.classList.add('search-mode');
-    } else {
-        document.body.classList.remove('search-mode');
-    }
+    // Toggle search-mode based on results
+    document.body.classList.toggle('search-mode', filteredResults.length > 0);
 
     // A small delay to allow the CSS transition to start before the DOM is heavily manipulated.
-    // This prevents a visual glitch where the table content starts moving up before the header has finished animating out.
     setTimeout(() => {
         renderResults(filteredResults);
 
