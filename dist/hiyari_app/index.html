@@ -8,7 +8,7 @@
 
     <!-- CSP: Strict Policy -->
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com; base-uri 'self'; form-action 'self';">
+        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://docs.google.com https://spreadsheets.google.com https://www.google-analytics.com https://analytics.google.com; base-uri 'self'; form-action 'self';">
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
@@ -21,18 +21,18 @@
 
     <!-- Built Tailwind CSS -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Inline styles removed. Using global css/style.css and Tailwind. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- The following line was changed from style.css to input.css to consolidate CSS. -->
+    <!-- Inline styles removed. Using global css/input.css and Tailwind. -->
 
     <!-- Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
-  <script type="module" crossorigin src="/assets/hiyari-CW4qBONO.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="modulepreload" crossorigin href="/assets/MainHeader-D0waqA3x.js">
-  <link rel="modulepreload" crossorigin href="/assets/utils-cz7vvGbo.js">
-  <link rel="modulepreload" crossorigin href="/assets/typing-animation-B3fvp7eE.js">
-  <link rel="stylesheet" crossorigin href="/assets/MainHeader-tn0RQdqM.css">
-  <link rel="stylesheet" crossorigin href="/assets/input-B9-_48Yr.css">
+  <script type="module" crossorigin src="../assets/hiyari-oEEUzhii.js"></script>
+  <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="../assets/utils-cz7vvGbo.js">
+  <link rel="modulepreload" crossorigin href="../assets/MainHeader-CbSiQboc.js">
+  <link rel="modulepreload" crossorigin href="../assets/typing-animation-B3fvp7eE.js">
+  <link rel="stylesheet" crossorigin href="../assets/input-pku-X-Hi.css">
 </head>
 
 <body class="min-h-screen flex flex-col">

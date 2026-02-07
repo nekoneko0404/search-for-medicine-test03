@@ -9,7 +9,7 @@
 
     <!-- CSP: Strict Policy -->
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com; base-uri 'self'; form-action 'self';">
+        content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://docs.google.com https://spreadsheets.google.com https://www.google-analytics.com https://analytics.google.com; base-uri 'self'; form-action 'self';">
 
     <!-- OGP -->
     <meta property="og:title" content="健康レシピ提案 - Kusuri Compass">
@@ -42,10 +42,9 @@
         rel="stylesheet">
 
     <!-- Custom CSS -->
-  <script type="module" crossorigin src="/assets/recipe-3JZ5iNoS.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/recipe-Dfu2U8Om.css">
-  <link rel="stylesheet" crossorigin href="/assets/input-B9-_48Yr.css">
+  <script type="module" crossorigin src="../assets/recipe-DRPZ7RvX.js"></script>
+  <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="../assets/input-pku-X-Hi.css">
 </head>
 
 <body class="bg-orange-50 font-['M_PLUS_Rounded_1c'] text-gray-800">
@@ -54,7 +53,7 @@
     <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <a href="../index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <img src="/assets/KusuriCompass-BvY5pcx-.png" alt="Kusuri Compass" class="h-8 w-8 object-contain">
+                <img src="../assets/KusuriCompass-BvY5pcx-.png" alt="Kusuri Compass" class="h-8 w-8 object-contain">
                 <span class="font-bold text-gray-600">Kusuri Compassに戻る</span>
             </a>
             <h1 class="text-xl font-bold text-orange-600 flex items-center gap-2">
@@ -71,7 +70,7 @@
             <div
                 class="relative w-full max-w-lg mx-auto mb-6 aspect-video bg-orange-100 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
                 <!-- Image placeholder or generated image -->
-                <img src="/assets/recipe_app_hero_stylish-N-bZVusH.png" alt="Healthy Ingredients"
+                <img src="../assets/recipe_app_hero_stylish-N-bZVusH.png" alt="Healthy Ingredients"
                     class="object-cover w-full h-full"
                     onerror="this.src='https://placehold.co/600x400/orange/white?text=Cooking+Time!';">
             </div>
@@ -378,177 +377,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="space-y-4">
-                    <!-- Toggle Persistence -->
-                    <div class="flex items-center justify-between bg-white p-3 border border-gray-200 rounded-lg">
-                        <div>
-                            <label for="save-form-state"
-                                class="block font-bold text-gray-700 cursor-pointer select-none">次回のために選択内容を保存する</label>
-                            <p class="text-xs text-gray-500">オンにすると、フォームの入力内容がブラウザに保存され、次回自動的に復元されます。</p>
-                        </div>
-                        <div
-                            class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="save_form_state" id="save-form-state"
-                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0 checked:border-orange-500" />
-                            <label for="save-form-state"
-                                class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-orange-500"></label>
-                        </div>
-                    </div>
-
-                    <hr class="border-gray-200 my-2">
-
-                    <label class="block font-bold text-gray-700">使用するAIモデルとキー設定</label>
-
-                    <!-- Option 1: System (Gemini Free) -->
-                    <label
-                        class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
-                        <input type="radio" name="api_option" value="system" checked
-                            class="mt-1 text-orange-500 focus:ring-orange-500">
-                        <div>
-                            <span class="block font-bold text-gray-800">おまかせ (無料)</span>
-                            <span class="text-xs text-gray-500">Google Gemini 3 Flash Preview
-                                を使用します。1日の利用回数に制限があります。</span>
-                        </div>
-                    </label>
-
-                    <!-- Option 2: OpenAI (Own Key) -->
-                    <label
-                        class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
-                        <input type="radio" name="api_option" value="openai"
-                            class="mt-1 text-orange-500 focus:ring-orange-500">
-                        <div>
-                            <span class="block font-bold text-gray-800">OpenAI (自分のキーを使用) <span
-                                    class="text-xs text-gray-500 font-normal">※未検証</span></span>
-                            <span class="text-xs text-gray-500">gpt-5-nano-2025-08-07を使用します。ご自身のAPIキーが必要です。</span>
-                        </div>
-                    </label>
-
-                    <!-- Option 3: Gemini (Own Key) -->
-                    <label
-                        class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
-                        <input type="radio" name="api_option" value="gemini"
-                            class="mt-1 text-orange-500 focus:ring-orange-500">
-                        <div>
-                            <span class="block font-bold text-gray-800">Google Gemini (自分のキーを使用) <span
-                                    class="text-xs text-green-600 font-normal">※検証済</span></span>
-                            <span class="text-xs text-gray-500">Gemini 3 Flash
-                                Previewを使用します。ご自身のAPIキーが必要です。</span>
-                        </div>
-                    </label>
-                </div>
-
-                <!-- API Key Input (Hidden by default) -->
-                <div id="api-key-input-container" class="hidden mt-4 pl-8">
-                    <input type="password" id="api-key" placeholder="APIキーを入力 (sk-...)"
-                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
-
-                    <p class="text-xs text-gray-500 mt-2 mb-2">
-                        ※ キーはサーバー経由でAI呼び出しのみに使用され、保存されません。
-                    </p>
-
-                    <label class="flex items-center gap-2 cursor-pointer mb-2">
-                        <input type="checkbox" id="save-api-key"
-                            class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
-                        <span class="text-sm text-gray-700">このブラウザにAPIキーを保存する</span>
-                    </label>
-
-                    <div id="save-key-warning" class="hidden p-3 bg-yellow-50 border border-yellow-100 rounded-lg">
-                        <p class="text-xs text-yellow-800 font-bold mb-1">
-                            <i class="fas fa-exclamation-triangle mr-1"></i>重要
-                        </p>
-                        <p class="text-xs text-yellow-700 leading-relaxed">
-                            共用PC（ネットカフェや職場など）では絶対に保存しないでください。他者がキーを利用できてしまうリスクがあります。
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Copy Prompt Button -->
-                <div class="mt-6 pt-4 border-t border-gray-200">
-                    <button type="button" id="copy-prompt-btn"
-                        class="w-full bg-blue-50 text-blue-700 font-bold py-3 px-4 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors flex items-center justify-center gap-2">
-                        <i class="fas fa-copy"></i> プロンプトをコピーして外部AIで使う
-                    </button>
-                    <p class="text-xs text-center text-gray-500 mt-2">
-                        APIキーをお持ちでない場合は、ここでプロンプト文を作成・コピーし、ChatGPTやGemini(Web版)に貼り付けてご利用ください。
-                    </p>
-                </div>
         </div>
-        </div>
-
-        <label class="block font-bold text-gray-700">使用するAIモデルとキー設定</label>
-
-        <!-- Option 1: System (Gemini Free) -->
-        <label
-            class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
-            <input type="radio" name="api_option" value="system" checked
-                class="mt-1 text-orange-500 focus:ring-orange-500">
-            <div>
-                <span class="block font-bold text-gray-800">おまかせ (無料)</span>
-                <span class="text-xs text-gray-500">Google Gemini 3 Flash Preview
-                    を使用します。1日の利用回数に制限があります。</span>
-            </div>
-        </label>
-
-        <!-- Option 2: OpenAI (Own Key) -->
-        <label
-            class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
-            <input type="radio" name="api_option" value="openai" class="mt-1 text-orange-500 focus:ring-orange-500">
-            <div>
-                <span class="block font-bold text-gray-800">OpenAI (自分のキーを使用) <span
-                        class="text-xs text-gray-500 font-normal">※未検証</span></span>
-                <span class="text-xs text-gray-500">gpt-5-nano-2025-08-07を使用します。ご自身のAPIキーが必要です。</span>
-            </div>
-        </label>
-
-        <!-- Option 3: Gemini (Own Key) -->
-        <label
-            class="flex items-start gap-3 cursor-pointer p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-all">
-            <input type="radio" name="api_option" value="gemini" class="mt-1 text-orange-500 focus:ring-orange-500">
-            <div>
-                <span class="block font-bold text-gray-800">Google Gemini (自分のキーを使用) <span
-                        class="text-xs text-green-600 font-normal">※検証済</span></span>
-                <span class="text-xs text-gray-500">Gemini 3 Flash
-                    Previewを使用します。ご自身のAPIキーが必要です。</span>
-            </div>
-        </label>
-        </div>
-
-        <!-- API Key Input (Hidden by default) -->
-        <div id="api-key-input-container" class="hidden mt-4 pl-8">
-            <input type="password" id="api-key" placeholder="APIキーを入力 (sk-...)"
-                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
-
-            <p class="text-xs text-gray-500 mt-2 mb-2">
-                ※ キーはサーバー経由でAI呼び出しのみに使用され、保存されません。
-            </p>
-
-            <label class="flex items-center gap-2 cursor-pointer mb-2">
-                <input type="checkbox" id="save-api-key"
-                    class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
-                <span class="text-sm text-gray-700">このブラウザにAPIキーを保存する</span>
-            </label>
-
-            <div id="save-key-warning" class="hidden p-3 bg-yellow-50 border border-yellow-100 rounded-lg">
-                <p class="text-xs text-yellow-800 font-bold mb-1">
-                    <i class="fas fa-exclamation-triangle mr-1"></i>重要
-                </p>
-                <p class="text-xs text-yellow-700 leading-relaxed">
-                    共用PC（ネットカフェや職場など）では絶対に保存しないでください。他者がキーを利用できてしまうリスクがあります。
-                </p>
-            </div>
-        </div>
-
-        <!-- Copy Prompt Button -->
-        <div class="mt-6 pt-4 border-t border-gray-200">
-            <button type="button" id="copy-prompt-btn"
-                class="w-full bg-blue-50 text-blue-700 font-bold py-3 px-4 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors flex items-center justify-center gap-2">
-                <i class="fas fa-copy"></i> プロンプトをコピーして外部AIで使う
-            </button>
-            <p class="text-xs text-center text-gray-500 mt-2">
-                APIキーをお持ちでない場合は、ここでプロンプト文を作成・コピーし、ChatGPTやGemini(Web版)に貼り付けてご利用ください。
-            </p>
-        </div>
-        </div>
+        </form>
         </div>
 
         <!-- Submit Button -->
@@ -568,7 +398,7 @@
             <!-- Print Header (Visible only in print) -->
             <div id="print-header" class="hidden items-center mb-8 border-b-2 border-orange-500 pb-4">
                 <div class="flex items-center gap-4">
-                    <img src="/assets/KusuriCompass-BvY5pcx-.png" alt="Kusuri Compass" class="h-16 w-16 object-contain">
+                    <img src="../assets/KusuriCompass-BvY5pcx-.png" alt="Kusuri Compass" class="h-16 w-16 object-contain">
                     <div class="flex-1">
                         <h1 class="text-2xl font-bold text-gray-800">健康レシピ提案</h1>
                         <p class="text-sm text-gray-500">Kusuri Compass 薬剤師業務支援ツール</p>
