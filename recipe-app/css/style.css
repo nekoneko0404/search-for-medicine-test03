@@ -134,6 +134,8 @@ body {
     /* Print Header - show as normal block at top */
     #print-header,
     .cloned-header {
+        position: static !important;
+        /* Reset fixed positioning */
         display: flex !important;
         align-items: center;
         margin-bottom: 5mm;

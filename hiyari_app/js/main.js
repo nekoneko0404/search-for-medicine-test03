@@ -155,10 +155,12 @@ async function fetchIncidents() {
 
         const xmlText = await response.text();
         console.log(`[Hiyari Debug] Response length: ${xmlText.length}`);
-        // console.log(`[Hiyari Debug] Response body snippet: ${xmlText.substring(0, 100)}...`);
+        console.log(`[Hiyari Debug] Response Start: ${xmlText.substring(0, 500)}`);
+        console.log(`[Hiyari Debug] Response End: ${xmlText.substring(xmlText.length - 200)}`);
 
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
+        console.log(`[Hiyari Debug] Root Node: ${xmlDoc.documentElement.nodeName}`);
 
         const errorNode = xmlDoc.querySelector('Error');
         if (errorNode) throw new Error(`API Error: ${errorNode.textContent}`);
