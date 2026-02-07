@@ -183,7 +183,7 @@ async function callOpenAI(apiKey, userContent) {
             "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-            model: "gpt-5-nano-2025-08-07",
+            model: "gpt-4o-mini",
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
                 { role: "user", content: userContent }
