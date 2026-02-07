@@ -79,27 +79,32 @@ function hideError() {
  ------------------------------------------------- */
 function buildApiUrl(searchKeyword, filterWord, start = 0) {
     const params = new URLSearchParams();
-    params.append('count', '30'); // Reduced count for faster initial load
-    params.append('start', start.toString()); // Pagination start index
-    params.append('order', '2'); // Sort by newest first
+    params.append('count', '30');
+    params.append('start', start.toString());
+    params.append('order', '2');
 
-    // Use normalized strings for API query
+    // 検索対象項目を明示的に指定（全項目検索を避けて高速化）
+    const searchItems = [
+        'DATMEDNAME',        // 医薬品名
+        'DATGENERIC',        // 成分名
+        'DATCONTENTTEXT',    // 事例の詳細
+        'DATFACTORTEXT',     // 背景・要因
+        'DATFACTOR',         // 発生要因
+        'DATFACTORDOUBT',    // 発生要因・疑義照会
+        'DATIMPROVEMENTTEXT',// 改善策
+        'DATESTIMATEDTEXT',  // 推定される要因
+        'DATEFFORTTEXT'      // 薬局での取り組み
+    ];
+
+    searchItems.forEach(item => params.append('item', item));
+
     const cleanSearch = normalizeString(searchKeyword).replace(/ー/g, ' ').trim();
     const cleanFilter = normalizeString(filterWord).replace(/ー/g, ' ').trim();
+    const combinedWord = [cleanSearch, cleanFilter].filter(Boolean).join(' ');
 
-    if (cleanSearch && !cleanFilter) {
-        params.append('item', 'DATMEDNAME');
-        params.append('item', 'DATGENERIC');
-        params.append('word', cleanSearch);
-        params.append('condition', 'any');
-    } else {
-        const combinedWord = [cleanSearch, cleanFilter].filter(Boolean).join(' ');
-        if (combinedWord) {
-            params.append('word', combinedWord);
-            if (cleanSearch && cleanFilter) {
-                params.append('condition', 'all');
-            }
-        }
+    if (combinedWord) {
+        params.append('word', combinedWord);
+        params.append('condition', (cleanSearch && cleanFilter) ? 'all' : 'any');
     }
 
     return `${PROXY_URL}?${params.toString()}`;
@@ -150,6 +155,7 @@ async function fetchIncidents(start = 0) {
     }
 
     try {
+        const startTime = performance.now();
         // API query uses inclusion keywords only
         const apiSearch = searchFilter.include.join(' ');
         const apiFilter = filterFilter.include.join(' ');
@@ -158,18 +164,21 @@ async function fetchIncidents(start = 0) {
         console.log(`[Hiyari Debug] Fetching from: ${targetUrl}`);
 
         const response = await fetch(targetUrl);
-        console.log(`[Hiyari Debug] Response status: ${response.status}`);
+        const fetchEndTime = performance.now();
+        console.log(`[Hiyari Debug] Response status: ${response.status} (Fetch time: ${Math.round(fetchEndTime - startTime)}ms)`);
 
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
         const xmlText = await response.text();
+        const parseStartTime = performance.now();
         console.log(`[Hiyari Debug] Response length: ${xmlText.length}`);
-        console.log(`[Hiyari Debug] Response Start: ${xmlText.substring(0, 500)}`);
-        console.log(`[Hiyari Debug] Response End: ${xmlText.substring(xmlText.length - 200)}`);
+        // console.log(`[Hiyari Debug] Response Start: ${xmlText.substring(0, 500)}`); // Removed for brevity in logs
+        // console.log(`[Hiyari Debug] Response End: ${xmlText.substring(xmlText.length - 200)}`); // Removed for brevity in logs
 
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
-        console.log(`[Hiyari Debug] Root Node: ${xmlDoc.documentElement.nodeName}`);
+        const parseEndTime = performance.now();
+        console.log(`[Hiyari Debug] Root Node: ${xmlDoc.documentElement.nodeName} (Parse time: ${Math.round(parseEndTime - parseStartTime)}ms)`);
 
         const errorNode = xmlDoc.querySelector('Error');
         if (errorNode) throw new Error(`API Error: ${errorNode.textContent}`);
