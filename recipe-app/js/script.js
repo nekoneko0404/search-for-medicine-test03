@@ -515,7 +515,14 @@ async function fetchRecipes(requestData, userKey) {
 
         if (!response.ok) {
             // Check for specific limitation errors
-            const errorMessage = data.error || `Server Error: ${response.status}`;
+            const errorMessage = data.error || `Server Error: ${response.status} ${response.statusText}`;
+            console.error("Fetch Error Details:", response.status, errorMessage, data);
+
+            // For now, alert in dev/beta to help debugging
+            if (location.hostname === 'localhost' || location.hostname.includes('pages.dev')) {
+                // Not blocking, just log
+            }
+
             const error = new Error(errorMessage);
             error.status = response.status; // Attach status code
             throw error;

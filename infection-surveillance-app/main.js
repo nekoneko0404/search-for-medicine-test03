@@ -66,9 +66,14 @@ let prefectureChart = null;
 let currentRegionId = null;
 let currentPrefecture = null;
 
+// 地域選択（簡易実装：地方単位）
 window.setCurrentRegion = function (regionId) {
     currentRegionId = regionId;
-    currentPrefecture = null; // グラフモード解除
+    currentPrefecture = null;
+
+    // UI更新（本来はReactなどでやるべきだが、Vanilla JSなので手動）
+    // 地図のハイライトなどはMap.js側でやるか、ここでclassを振る
+    console.log(`Region selected: ${regionId}`);
 };
 
 // sanitization function
