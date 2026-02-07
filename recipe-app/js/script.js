@@ -70,7 +70,7 @@ function renderSymptoms() {
     symptomsContainer.innerHTML = SYMPTOMS.map(s =>
         `<label class="cursor-pointer group">
             <input type="checkbox" name="symptoms" value="${s.value}" class="peer hidden">
-            <span class="inline-block px-4 py-2 bg-white border border-gray-200 rounded-full text-gray-700 hover:bg-orange-50 hover:border-orange-300 transition-all select-none text-sm peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 peer-checked:shadow-md peer-checked:scale-105 transform">
+            <span class="inline-block px-4 py-2 bg-white border border-gray-200 rounded-full text-gray-700 hover:bg-orange-50 hover:border-orange-300 transition-all select-none text-sm peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 peer-checked:shadow-md peer-checked:scale-105 peer-checked:hover:bg-orange-600 transform">
                 ${s.label}
             </span>
         </label>`
@@ -164,10 +164,7 @@ function setupEventListeners() {
                     // Force image loading for print
                     const images = headerClone.querySelectorAll('img');
                     images.forEach(img => {
-                        img.loading = 'eager'; // Ensure eager loading
-                        const src = img.src;
-                        img.src = '';
-                        img.src = src; // Trigger reload
+                        img.setAttribute('loading', 'eager');
                     });
 
                     recipeCards[i].parentNode.insertBefore(headerClone, recipeCards[i]);
