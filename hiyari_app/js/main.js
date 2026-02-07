@@ -299,6 +299,11 @@ function parseReport(report) {
         improvement: getText('DATIMPROVEMENTTEXT'),
         estimatedText: getText('DATESTIMATEDTEXT'),
         effortText: getText('DATEFFORTTEXT'),
+        // Extract drug names for search filtering
+        medNames: Array.from(report.querySelectorAll('DATMEDNAME')).map(e => e.textContent.trim()).join(' '),
+        genericNames: Array.from(report.querySelectorAll('DATGENERIC')).map(e => e.textContent.trim()).join(' '),
+        // Extract patient age for display context (optional but good for search)
+        patientAge: getText('DATPATIENTAGE'),
     };
 }
 
