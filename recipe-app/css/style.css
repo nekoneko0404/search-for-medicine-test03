@@ -52,8 +52,8 @@
 
 /* Base Styles */
 body {
-    background-image: radial-gradient(#fed7aa 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-image: radial-gradient(#fed7aa 2px, transparent 2px);
+    background-size: 30px 30px;
 }
 
 /* Form Input Styles */

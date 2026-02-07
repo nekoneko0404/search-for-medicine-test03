@@ -599,8 +599,7 @@ function renderRecipes(data) {
                         </div>
                         <div class="flex flex-wrap gap-2 text-sm text-gray-600 pl-0 md:pl-8">
                             <span class="bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100"><i class="fas fa-clock text-orange-400 mr-1"></i>${escapeHtml(recipe.time)}</span>
-                            <span class="bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100"><i class="fas fa-fire text-red-500 mr-1"></i>${escapeHtml(recipe.calories)}</span>
-                            ${recipe.estimated_cost ? `<span class="bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100" title="調味料を除くメイン食材の概算費用"><i class="fas fa-coins text-yellow-500 mr-1"></i>${escapeHtml(recipe.estimated_cost)}</span>` : ''}
+                            <span class="bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100"><i class="fas fa-fire text-red-500 mr-1"></i>${escapeHtml(recipe.calories)} <span class="text-xs text-gray-400">(1人分)</span></span>
                         </div>
                         <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-500 pl-0 md:pl-8">
                             <span class="bg-gray-50 px-2 py-1 rounded border border-gray-200">糖質:${escapeHtml(recipe.carbs)}</span>
@@ -619,7 +618,7 @@ function renderRecipes(data) {
                 
                 <div class="p-5 bg-white">
                     <div class="mb-4">
-                        <h4 class="font-bold text-gray-700 mb-2 border-l-4 border-orange-500 pl-2">材料
+                        <h4 class="font-bold text-gray-700 mb-2 border-l-4 border-orange-500 pl-2">材料 (2人分)
                             ${recipe.estimated_cost ? `<span class="text-xs font-normal text-gray-400 ml-2">※費用目安: ${escapeHtml(recipe.estimated_cost)} (調味料除く)</span>` : ''}
                         </h4>
                         <ul class="list-none text-sm text-gray-600 bg-gray-50 p-3 rounded-lg space-y-2">
