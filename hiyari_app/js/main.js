@@ -74,9 +74,13 @@ function hideError() {
 /* -------------------------------------------------
    API URL 生成
  ------------------------------------------------- */
-function buildApiUrl(searchKeyword, filterWord) {
+/* -------------------------------------------------
+   API URL 生成
+ ------------------------------------------------- */
+function buildApiUrl(searchKeyword, filterWord, start = 0) {
     const params = new URLSearchParams();
-    params.append('count', '100'); // Increase count for better client-side filtering
+    params.append('count', '30'); // Reduced count for faster initial load
+    params.append('start', start.toString()); // Pagination start index
     params.append('order', '2'); // Sort by newest first
 
     // Use normalized strings for API query
@@ -104,7 +108,7 @@ function buildApiUrl(searchKeyword, filterWord) {
 /* -------------------------------------------------
    データ取得
  ------------------------------------------------- */
-async function fetchIncidents() {
+async function fetchIncidents(start = 0) {
     const rawSearchKeyword = elements.searchInput.value.trim();
     const rawFilterWord = elements.filterInput.value.trim();
 
@@ -136,16 +140,21 @@ async function fetchIncidents() {
 
     showLoading(true);
     hideError();
-    elements.resultsContainer.innerHTML = '';
-    currentlyDisplayedCount = 0;
-    if (elements.usageGuide) elements.usageGuide.classList.add('hidden');
+
+    // Only clear on initial search
+    if (start === 0) {
+        elements.resultsContainer.innerHTML = '';
+        currentData = []; // Clear current data
+        currentlyDisplayedCount = 0;
+        if (elements.usageGuide) elements.usageGuide.classList.add('hidden');
+    }
 
     try {
         // API query uses inclusion keywords only
         const apiSearch = searchFilter.include.join(' ');
         const apiFilter = filterFilter.include.join(' ');
 
-        const targetUrl = buildApiUrl(apiSearch, apiFilter);
+        const targetUrl = buildApiUrl(apiSearch, apiFilter, start);
         console.log(`[Hiyari Debug] Fetching from: ${targetUrl}`);
 
         const response = await fetch(targetUrl);
@@ -169,40 +178,72 @@ async function fetchIncidents() {
         console.log(`[Hiyari Debug] Reports found: ${reports.length}`);
 
         if (reports.length === 0) {
-            const p = document.createElement('p');
-            p.className = 'col-span-full text-center text-gray-500 py-8';
-            p.textContent = '該当する事例は見つかりませんでした。';
-            elements.resultsContainer.appendChild(p);
-            document.body.classList.remove('search-mode');
+            if (start === 0) {
+                const p = document.createElement('p');
+                p.className = 'col-span-full text-center text-gray-500 py-8';
+                p.textContent = '該当する事例は見つかりませんでした。';
+                elements.resultsContainer.appendChild(p);
+                document.body.classList.remove('search-mode');
+            } else {
+                // No more data to load
+                showMessage('これ以上の事例はありません', 'info');
+            }
             return;
         }
 
-        let allData = Array.from(reports).map(parseReport);
+        let newData = Array.from(reports).map(parseReport);
 
         // Client-side filtering for AND and Exclusion
-        currentData = allData.filter(item => {
+        // Note: API already handles basic inclusion keywords, but we re-check for exclusion and strict AND if needed
+        const filteredNewData = newData.filter(item => {
             const matchQuery = (data, filter) => {
                 const text = JSON.stringify(data); // Search across all fields in the report
                 const normalizedText = normalizeString(text);
-                const matchInclude = filter.include.every(term => normalizedText.includes(term));
+
+                // Exclusion check is critical client-side
                 const matchExclude = filter.exclude.length === 0 || !filter.exclude.some(term => normalizedText.includes(term));
+
+                // Inclusion check: API does it, but we double check especially if API `condition=any` vs `all` logic differs
+                const matchInclude = filter.include.every(term => normalizedText.includes(term));
+
                 return matchInclude && matchExclude;
             };
 
             return matchQuery(item, searchFilter) && matchQuery(item, filterFilter);
         });
 
-        if (currentData.length === 0) {
-            const p = document.createElement('p');
-            p.className = 'col-span-full text-center text-gray-500 py-8';
-            p.textContent = '条件にヒットする事例はありませんでした。';
-            elements.resultsContainer.appendChild(p);
-            document.body.classList.remove('search-mode');
+        if (filteredNewData.length === 0) {
+            if (start === 0) {
+                const p = document.createElement('p');
+                p.className = 'col-span-full text-center text-gray-500 py-8';
+                p.textContent = '条件にヒットする事例はありませんでした。';
+                elements.resultsContainer.appendChild(p);
+                document.body.classList.remove('search-mode');
+            } else {
+                // If filter removed all items, try fetching next batch immediately?
+                // For now, just stop and user can try again or we show "No more matching items in this batch"
+                // Ideally we recursively fetch, but let's keep it simple first.
+                showMessage('このページの事例は全てフィルタリングされました。', 'info');
+            }
             return;
         }
 
-        document.body.classList.add('search-mode');
-        displayNextBatch();
+        if (filteredNewData.length > 0) {
+            currentData = [...currentData, ...filteredNewData];
+            displayIncidents(filteredNewData); // Append only new items
+            currentlyDisplayedCount += filteredNewData.length;
+            document.body.classList.add('search-mode');
+            updateLoadMoreButton();
+        } else {
+            // Filtered out everything in this batch
+            if (start === 0) {
+                // ... handled above
+            } else {
+                showMessage('このページの事例は全てフィルタリングされました。', 'info');
+                // Optional: Auto-fetch next page?
+            }
+        }
+
     } catch (err) {
         console.error('Fetching incidents failed:', err);
         showError(`データ取得に失敗しました: ${err.message}`);
@@ -310,10 +351,45 @@ function parseReport(report) {
 /* -------------------------------------------------
    UI 描画
 ------------------------------------------------- */
+/* -------------------------------------------------
+   UI 描画
+------------------------------------------------- */
 function displayNextBatch() {
-    const batch = currentData.slice(currentlyDisplayedCount, currentlyDisplayedCount + batchSize);
-    displayIncidents(batch);
-    currentlyDisplayedCount += batch.length;
+    // If we have more data locally, show it
+    const remainingLocalData = currentData.length - currentlyDisplayedCount;
+
+    if (remainingLocalData > 0) {
+        const batch = currentData.slice(currentlyDisplayedCount, currentlyDisplayedCount + batchSize);
+        displayIncidents(batch);
+        currentlyDisplayedCount += batch.length;
+    } else {
+        // If no more local data, try fetching next page from API
+        // Start index for API is the current total count
+        fetchIncidents(currentlyDisplayedCount);
+    }
+}
+
+function updateLoadMoreButton() {
+    // This function can be used to show/hide a manual "Load More" button if we move away from scroll/auto
+    // For now, we reuse the existing flow or add a button if one existed.
+    // Checking index.html, there is NO explicit "Load More" button in the provided code snippet.
+    // The previous code implied `displayNextBatch` was called... how?
+    // Ah, the original code had pagination?
+    // Let's add a "Load More" button at the bottom of results if not present.
+
+    let loadMoreBtn = document.getElementById('load-more-btn');
+    if (!loadMoreBtn) {
+        loadMoreBtn = document.createElement('button');
+        loadMoreBtn.id = 'load-more-btn';
+        loadMoreBtn.className = 'col-span-full mx-auto bg-white text-indigo-600 border border-indigo-600 font-semibold rounded-lg px-6 py-2 hover:bg-indigo-50 transition-colors mt-4';
+        loadMoreBtn.textContent = 'さらに表示';
+        loadMoreBtn.addEventListener('click', displayNextBatch);
+        elements.resultsContainer.parentNode.appendChild(loadMoreBtn);
+    }
+
+    // Hide button if we just fetched and got 0 results (handled in fetchIncidents)
+    // Or if we think we reached the end? Hard to know strict end without total count.
+    loadMoreBtn.classList.remove('hidden');
 }
 
 function displayIncidents(incidents) {
@@ -460,6 +536,11 @@ function init() {
             if (elements.searchInput) elements.searchInput.value = '';
             if (elements.filterInput) elements.filterInput.value = '';
             if (elements.resultsContainer) elements.resultsContainer.innerHTML = '';
+
+            // Remove Load More button
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (loadMoreBtn) loadMoreBtn.remove();
+
             hideError();
             document.body.classList.remove('search-mode');
             if (elements.usageGuide) elements.usageGuide.classList.remove('hidden');
