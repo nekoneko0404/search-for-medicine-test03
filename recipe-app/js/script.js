@@ -150,7 +150,9 @@ function setupEventListeners() {
             // Clone header for each recipe card (except first)
             const printHeader = document.getElementById('print-header');
             const recipeCards = document.querySelectorAll('.recipe-card');
-            const clonedHeaders = [];
+
+            // Cleanup previous clones if any (though usually pages refresh)
+            document.querySelectorAll('.cloned-header').forEach(el => el.remove());
 
             if (printHeader && recipeCards.length > 0) {
                 // Skip first card (it already has the original header above it)
@@ -158,8 +160,17 @@ function setupEventListeners() {
                     const headerClone = printHeader.cloneNode(true);
                     headerClone.classList.add('cloned-header');
                     headerClone.id = ''; // Remove ID to avoid duplicates
+
+                    // Force image loading for print
+                    const images = headerClone.querySelectorAll('img');
+                    images.forEach(img => {
+                        img.loading = 'eager'; // Ensure eager loading
+                        const src = img.src;
+                        img.src = '';
+                        img.src = src; // Trigger reload
+                    });
+
                     recipeCards[i].parentNode.insertBefore(headerClone, recipeCards[i]);
-                    clonedHeaders.push(headerClone);
                 }
             }
 

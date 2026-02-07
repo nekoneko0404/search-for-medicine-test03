@@ -145,10 +145,18 @@ async function fetchIncidents() {
         const apiSearch = searchFilter.include.join(' ');
         const apiFilter = filterFilter.include.join(' ');
 
-        const response = await fetch(buildApiUrl(apiSearch, apiFilter));
+        const targetUrl = buildApiUrl(apiSearch, apiFilter);
+        console.log(`[Hiyari Debug] Fetching from: ${targetUrl}`);
+
+        const response = await fetch(targetUrl);
+        console.log(`[Hiyari Debug] Response status: ${response.status}`);
+
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
         const xmlText = await response.text();
+        console.log(`[Hiyari Debug] Response length: ${xmlText.length}`);
+        // console.log(`[Hiyari Debug] Response body snippet: ${xmlText.substring(0, 100)}...`);
+
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
 
@@ -156,6 +164,8 @@ async function fetchIncidents() {
         if (errorNode) throw new Error(`API Error: ${errorNode.textContent}`);
 
         const reports = xmlDoc.querySelectorAll('PHARMACY_REPORT');
+        console.log(`[Hiyari Debug] Reports found: ${reports.length}`);
+
         if (reports.length === 0) {
             const p = document.createElement('p');
             p.className = 'col-span-full text-center text-gray-500 py-8';
@@ -427,7 +437,12 @@ function init() {
     }
 
     // Search button
-    if (elements.searchBtn) elements.searchBtn.addEventListener('click', fetchIncidents);
+    if (elements.searchBtn) {
+        elements.searchBtn.addEventListener('click', () => {
+            console.log("[Hiyari Debug] Search button clicked");
+            fetchIncidents();
+        });
+    }
 
     // Random button
     if (elements.randomBtn) elements.randomBtn.addEventListener('click', shuffleAndDisplay);
