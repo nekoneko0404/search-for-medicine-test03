@@ -52,8 +52,13 @@
 
 /* Base Styles */
 body {
+    background-color: #fff7ed;
+    /* bg-orange-50 */
     background-image: radial-gradient(#fed7aa 2px, transparent 2px);
     background-size: 30px 30px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    color: #1f2937;
+    /* text-gray-800 */
 }
 
 /* Form Input Styles */
