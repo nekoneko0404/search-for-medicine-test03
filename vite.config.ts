@@ -1,18 +1,12 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import tailwindcss from '@tailwindcss/postcss';
-import autoprefixer from 'autoprefixer';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
     base: './',
-    css: {
-        postcss: {
-            plugins: [
-                tailwindcss(),
-                autoprefixer(),
-            ],
-        },
-    },
+    plugins: [
+        tailwindcss(),
+    ],
     build: {
         rollupOptions: {
             input: {
