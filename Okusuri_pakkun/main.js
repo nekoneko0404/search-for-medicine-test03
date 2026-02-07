@@ -1,3 +1,4 @@
+import '../css/input.css';
 const APP_KEY = 'medicine_reward_app_v2';
 
 const state = {

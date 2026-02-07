@@ -1,4 +1,5 @@
 
+import './css/input.css';
 import { normalizeString, debounce, formatDate, extractSearchTerm } from './js/utils.js';
 import { loadAndCacheData } from './js/data.js';
 import { updateProgress, showMessage, hideMessage, renderStatusButton, createDropdown } from './js/ui.js';

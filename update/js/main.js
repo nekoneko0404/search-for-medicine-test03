@@ -7,6 +7,7 @@ import { normalizeString, debounce, formatDate } from '../../js/utils.js';
 import { showMessage, renderStatusButton, updateProgress, createDropdown } from '../../js/ui.js';
 import '../../js/components/MainHeader.js';
 import '../../js/components/MainFooter.js';
+import '../../css/input.css';
 
 let excelData = [];
 let filteredResults = [];

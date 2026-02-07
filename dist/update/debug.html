@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Debug</title>
+    <!-- Relative path to input.css, same as index.html -->
+    <style>
+        .test-box {
+            border: 2px solid black;
+            padding: 20px;
+            margin: 20px;
+        }
+    </style>
+  <link rel="stylesheet" crossorigin href="../assets/input-DrEHFaZf.css">
+</head>
+
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-6">
+        <h1 class="text-2xl font-bold text-indigo-600 mb-4">CSS Debug Page</h1>
+        <p class="text-gray-500 mb-4">If you see this styled (Indigo title, white card, shadow), Tailwind is working.
+        </p>
+
+        <div class="test-box">
+            <h2 class="text-xl font-semibold text-red-500">Tailwind Verification</h2>
+            <ul class="list-disc pl-5 mt-2 space-y-1">
+                <li class="text-blue-600">Text Blue 600</li>
+                <li class="bg-yellow-200 p-1 rounded">Background Yellow 200</li>
+                <li class="font-bold">Font Bold</li>
+            </ul>
+        </div>
+
+        <div class="mt-4 p-4 border rounded bg-gray-50">
+            <h3 class="font-bold">Diagnostics:</h3>
+            <p id="css-status">Checking CSS...</p>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const el = document.querySelector('h1');
+            const color = window.getComputedStyle(el).color;
+            const status = document.getElementById('css-status');
+            // indigo-600 is roughly rgb(79, 70, 229)
+            status.textContent = `Title Computed Color: ${color} (Expected ~rgb(79, 70, 229))`;
+
+            // Check for loaded stylesheets
+            let msg = 'Loaded Stylesheets:\n';
+            for (let i = 0; i < document.styleSheets.length; i++) {
+                msg += `- ${document.styleSheets[i].href}\n`;
+            }
+            console.log(msg);
+        });
+    </script>
+</body>
+
+</html>

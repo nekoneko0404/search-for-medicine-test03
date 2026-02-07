@@ -1,3 +1,4 @@
+import '../../css/input.css';
 /** 
  * Hiyari Hat App Main Logic (test03)
  * - Optimized API queries searching both DATMEDNAME and DATGENERIC

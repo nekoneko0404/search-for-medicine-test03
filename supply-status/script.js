@@ -1,3 +1,4 @@
+import '../css/input.css';
 import { loadAndCacheData, clearCacheAndReload } from '../js/data.js';
 import { normalizeString, formatDate } from '../js/utils.js';
 import { renderStatusButton, showMessage, updateProgress, createDropdown } from '../js/ui.js';

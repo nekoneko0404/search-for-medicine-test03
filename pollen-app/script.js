@@ -1,3 +1,4 @@
+import '../css/input.css';
 document.addEventListener('DOMContentLoaded', function () {
     // Notification Banner Logic
     const noticeBanner = document.getElementById('update-notice');

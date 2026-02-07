@@ -1,3 +1,4 @@
+import '../css/input.css';
 import { loadAndCacheData } from './data.js';
 import { updateProgress } from './ui.js';
 import './components/MainFooter.js';
