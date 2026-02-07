@@ -25,6 +25,7 @@ export default defineConfig({
                 recipe: resolve(__dirname, 'recipe-app/index.html'),
                 supply: resolve(__dirname, 'supply-status/index.html'),
                 update: resolve(__dirname, 'update/index.html'),
+                debug: resolve(__dirname, 'update/debug.html'),
             },
         },
     },
