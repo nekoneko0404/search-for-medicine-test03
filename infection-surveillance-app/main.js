@@ -39,6 +39,31 @@ let cachedData = {
     archives: []   // 過去数年分のデータ
 };
 let currentDisease = 'Influenza'; // 初期表示疾患
+const getDiseaseName = window.getDiseaseName = function (key) {
+    const names = {
+        'Influenza': 'インフルエンザ',
+        'COVID-19': 'COVID-19',
+        'ARI': '急性呼吸器感染症 (ARI)',
+        'RSV': 'ＲＳウイルス感染症',
+        'PharyngoconjunctivalFever': '咽頭結膜熱',
+        'AGS_Pharyngitis': 'Ａ群溶血性レンサ球菌咽頭炎',
+        'InfectiousGastroenteritis': '感染性胃腸炎',
+        'Chickenpox': '水痘',
+        'HandFootMouthDisease': '手足口病',
+        'ErythemaInfectiosum': '伝染性紅斑',
+        'ExanthemSubitum': '突発性発しん',
+        'Herpangina': 'ヘルパンギーナ',
+        'Mumps': '流行性耳下腺炎',
+        'AcuteHemorrhagicConjunctivitis': '急性出血性結膜炎',
+        'EpidemicKeratoconjunctivitis': '流行性角結膜炎',
+        'BacterialMeningitis': '細菌性髄膜炎',
+        'AsepticMeningitis': '無菌性髄膜炎',
+        'MycoplasmaPneumonia': 'マイコプラズマ肺炎',
+        'ChlamydiaPneumonia': 'クラミジア肺炎',
+        'RotavirusGastroenteritis': '感染性胃腸炎（ロタウイルス）'
+    };
+    return names[key] || key;
+};
 const ALL_DISEASES = [ // 全疾患リスト
     { key: 'Influenza', name: 'インフルエンザ' },
     { key: 'COVID-19', name: 'COVID-19' },
@@ -282,12 +307,9 @@ function switchDisease(disease) {
     window.switchDisease(disease);
 }
 
-function getDiseaseName(key) {
-    const disease = ALL_DISEASES.find(d => d.key === key);
-    return disease ? disease.name : key;
-}
 
 let currentChart = null;
+
 
 // 全都道府県・全期間の最大値を取得する関数
 function getGlobalMaxForDisease(disease) {

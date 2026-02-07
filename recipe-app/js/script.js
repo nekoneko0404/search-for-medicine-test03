@@ -57,7 +57,9 @@ function init() {
         restoreFormState(); // Restore form state
         setupFormPersistence(); // Setup auto-save (includes Toggle setup)
     }
+    console.log("Recipe App Init Completed");
 }
+window.debugInit = init; // Expose for manual trigger if needed
 
 
 /**
@@ -274,6 +276,7 @@ document.addEventListener('DOMContentLoaded', init);
  */
 async function handleFormSubmit(e) {
     e.preventDefault();
+    console.log("Form submitted!");
 
     // Reset UI
     resultSection.classList.remove('hidden');
