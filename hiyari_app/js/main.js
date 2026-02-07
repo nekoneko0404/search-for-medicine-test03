@@ -83,28 +83,38 @@ function buildApiUrl(searchKeyword, filterWord, start = 0) {
     params.append('start', start.toString());
     params.append('order', '2');
 
-    // 検索対象項目を明示的に指定（全項目検索を避けて高速化）
-    const searchItems = [
-        'DATMEDNAME',        // 医薬品名
-        'DATGENERIC',        // 成分名
-        'DATCONTENTTEXT',    // 事例の詳細
-        'DATFACTORTEXT',     // 背景・要因
-        'DATFACTOR',         // 発生要因
-        'DATFACTORDOUBT',    // 発生要因・疑義照会
-        'DATIMPROVEMENTTEXT',// 改善策
-        'DATESTIMATEDTEXT',  // 推定される要因
-        'DATEFFORTTEXT'      // 薬局での取り組み
-    ];
-
-    searchItems.forEach(item => params.append('item', item));
-
     const cleanSearch = normalizeString(searchKeyword).replace(/ー/g, ' ').trim();
     const cleanFilter = normalizeString(filterWord).replace(/ー/g, ' ').trim();
-    const combinedWord = [cleanSearch, cleanFilter].filter(Boolean).join(' ');
 
-    if (combinedWord) {
-        params.append('word', combinedWord);
-        params.append('condition', (cleanSearch && cleanFilter) ? 'all' : 'any');
+    // グループ1: 医薬品名・成分名検索
+    if (cleanSearch) {
+        params.append('item', 'DATMEDNAME');
+        params.append('item', 'DATGENERIC');
+        params.append('word', cleanSearch);
+        params.append('condition', 'any');
+    }
+
+    // グループ2: 事例内容・要因等のテキスト検索
+    if (cleanFilter) {
+        const textItems = [
+            'DATCONTENTTEXT',
+            'DATFACTORTEXT',
+            'DATIMPROVEMENTTEXT',
+            'DATESTIMATEDTEXT',
+            'DATEFFORTTEXT'
+        ];
+        textItems.forEach(item => params.append('item', item));
+        params.append('word', cleanFilter);
+        params.append('condition', 'any');
+    }
+
+    // 両方の入力がない場合は、全体から最新を取得（既存動作維持のため全項目指定）
+    if (!cleanSearch && !cleanFilter) {
+        [
+            'DATMEDNAME', 'DATGENERIC', 'DATCONTENTTEXT',
+            'DATFACTORTEXT', 'DATIMPROVEMENTTEXT',
+            'DATESTIMATEDTEXT', 'DATEFFORTTEXT'
+        ].forEach(item => params.append('item', item));
     }
 
     return `${PROXY_URL}?${params.toString()}`;
