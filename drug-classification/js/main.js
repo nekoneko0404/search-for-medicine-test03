@@ -2,6 +2,7 @@
  * Drug Classification Search App Main Logic
  */
 
+import '../../css/input.css';
 import { loadAndCacheData, fetchManufacturerData, clearCacheAndReload } from '../../js/data.js';
 import { normalizeString, debounce } from '../../js/utils.js';
 import { showMessage, renderStatusButton, updateProgress, createDropdown } from '../../js/ui.js';

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://www.googletagmanager.com; connect-src 'self' https://anonymous-bbs-worker.neko-neko-0404.workers.dev https://www.google-analytics.com https://analytics.google.com ws://127.0.0.1:* wss://127.0.0.1:*;">
+    <title>助け合い掲示板 (Beta)</title>
+    <meta name="description" content="ユーザー同士で質問・相談・情報交換ができる助け合い掲示板です。Kusuri Compass ユーザーコミュニティ。">
+    <meta name="keywords" content="薬剤師, 薬局, 掲示板, コミュニティ, Kusuri Compass">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H44R8N7W32"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-H44R8N7W32');
+    </script>
+
+    <!-- CSS imported via JS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+        rel="stylesheet">
+  <script type="module" crossorigin src="../assets/anonymous_bbs-BCvf7N8y.js"></script>
+  <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="../assets/anonymous_bbs-fqxqCN2t.css">
+  <link rel="stylesheet" crossorigin href="../assets/input-DrEHFaZf.css">
+</head>
+
+<body>
+    <header class="main-site-header"
+        style="background: white; border-bottom: 1px solid #e2e8f0; padding: 10px 0; margin-bottom: 20px;">
+        <div class="container"
+            style="max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                <img src="../assets/KusuriCompass-BvY5pcx-.png" alt="Kusuri Compass Icon"
+                    style="height: 32px; width: 32px; object-fit: contain;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 16px; font-weight: 700; color: #312e81; line-height: 1.1;">Kusuri
+                        Compass</span>
+                    <span style="font-size: 9px; font-weight: 600; color: #4f46e5; line-height: 1.1;">薬剤師業務支援ツール</span>
+                </div>
+            </a>
+            <a href="../index.html"
+                style="text-decoration: none; font-size: 14px; font-weight: 600; color: #64748b; display: flex; align-items: center; gap: 5px;">
+                <i class="fas fa-home"></i> ホーム
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <header>
+            <h1>助け合い掲示板</h1>
+            <div class="header-desc">
+                <p>ユーザー同士で質問・相談・情報交換ができる場所です。<br>
+                    日々の業務の悩みから、機能のご要望まで、自由に書き込んでください。</p>
+                <p class="privacy-note">※匿名で書き込めます。個人情報は入力しないでください。</p>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <section class="post-form">
+                <div class="post-guide">
+                    <p>例えばこんな投稿をお待ちしています：</p>
+                    <ul>
+                        <li>質問・相談</li>
+                        <li>便利な使い方の共有</li>
+                        <li>機能要望・不具合報告</li>
+                        <li>応援・励まし</li>
+                    </ul>
+                </div>
+                <textarea id="postContent" placeholder="ここに内容を記入してください..." rows="12"></textarea>
+                <p class="warning-text-footer">連投できません。まったりいきましょう。（3時間規制）</p>
+                <div class="form-actions">
+                    <span class="char-count">0 / 400</span>
+                    <button id="submitBtn">送信する</button>
+                </div>
+                <p id="statusMessage" class="hidden"></p>
+            </section>
+
+            <section class="post-list">
+                <h2>最近の投稿</h2>
+                <div id="postsContainer">
+                    <div class="loading">読み込み中...</div>
+                </div>
+                <div id="pagination" class="pagination"></div>
+            </section>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,3 +1,6 @@
+import './style.css';
+import '../css/input.css';
+
 const API_BASE = "https://anonymous-bbs-worker.neko-neko-0404.workers.dev/api/posts";
 const MAX_CHARS = 400;
 let allPosts = []; // データを保持
