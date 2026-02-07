@@ -86,35 +86,25 @@ function buildApiUrl(searchKeyword, filterWord, start = 0) {
     const cleanSearch = normalizeString(searchKeyword).replace(/ー/g, ' ').trim();
     const cleanFilter = normalizeString(filterWord).replace(/ー/g, ' ').trim();
 
-    // グループ1: 医薬品名・成分名検索
-    if (cleanSearch) {
-        params.append('item', 'DATMEDNAME');
-        params.append('item', 'DATGENERIC');
-        params.append('word', cleanSearch);
-        params.append('condition', 'any');
-    }
+    // 高速化のため、検索対象項目を主要なテキストフィールドに限定
+    const searchItems = [
+        'DATMEDNAME',        // 医薬品名
+        'DATGENERIC',        // 成分名
+        'DATCONTENTTEXT',    // 事例の詳細
+        'DATFACTORTEXT',     // 背景・要因
+        'DATIMPROVEMENTTEXT',// 改善策
+        'DATESTIMATEDTEXT',  // 推定される要因
+        'DATEFFORTTEXT'      // 薬局での取り組み
+    ];
+    searchItems.forEach(item => params.append('item', item));
 
-    // グループ2: 事例内容・要因等のテキスト検索
-    if (cleanFilter) {
-        const textItems = [
-            'DATCONTENTTEXT',
-            'DATFACTORTEXT',
-            'DATIMPROVEMENTTEXT',
-            'DATESTIMATEDTEXT',
-            'DATEFFORTTEXT'
-        ];
-        textItems.forEach(item => params.append('item', item));
-        params.append('word', cleanFilter);
-        params.append('condition', 'any');
-    }
+    // キーワードを統合して一つの word パラメータとして送る（500エラー回避）
+    const combinedWord = [cleanSearch, cleanFilter].filter(Boolean).join(' ');
 
-    // 両方の入力がない場合は、全体から最新を取得（既存動作維持のため全項目指定）
-    if (!cleanSearch && !cleanFilter) {
-        [
-            'DATMEDNAME', 'DATGENERIC', 'DATCONTENTTEXT',
-            'DATFACTORTEXT', 'DATIMPROVEMENTTEXT',
-            'DATESTIMATEDTEXT', 'DATEFFORTTEXT'
-        ].forEach(item => params.append('item', item));
+    if (combinedWord) {
+        params.append('word', combinedWord);
+        // 両方の入力がある場合は厳密なAND検索 (all)、片方なら any
+        params.append('condition', (cleanSearch && cleanFilter) ? 'all' : 'any');
     }
 
     return `${PROXY_URL}?${params.toString()}`;
