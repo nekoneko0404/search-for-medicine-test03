@@ -83,8 +83,9 @@ function buildApiUrl(searchKeyword, filterWord, start = 0) {
     params.append('start', start.toString());
     params.append('order', '2');
 
-    const cleanSearch = normalizeString(searchKeyword).replace(/ー/g, ' ').trim();
-    const cleanFilter = normalizeString(filterWord).replace(/ー/g, ' ').trim();
+    // 長音記号をスペースに変えない（そのまま薬品名として検索する）
+    const cleanSearch = normalizeString(searchKeyword).trim();
+    const cleanFilter = normalizeString(filterWord).trim();
 
     // 高速化のため、検索対象項目を主要なテキストフィールドに限定
     const searchItems = [
@@ -98,13 +99,13 @@ function buildApiUrl(searchKeyword, filterWord, start = 0) {
     ];
     searchItems.forEach(item => params.append('item', item));
 
-    // キーワードを統合して一つの word パラメータとして送る（500エラー回避）
+    // キーワードを統合して一つの word パラメータとして送る
     const combinedWord = [cleanSearch, cleanFilter].filter(Boolean).join(' ');
 
     if (combinedWord) {
         params.append('word', combinedWord);
-        // 両方の入力がある場合は厳密なAND検索 (all)、片方なら any
-        params.append('condition', (cleanSearch && cleanFilter) ? 'all' : 'any');
+        // 常に AND 検索 (all) にすることで、意図しない広範囲な検索（「ザ」一文字での検索など）を防止
+        params.append('condition', 'all');
     }
 
     return `${PROXY_URL}?${params.toString()}`;
