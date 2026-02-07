@@ -13,9 +13,8 @@ import '../../js/components/MainHeader.js';
 
 
 // Use Vite dev server proxy in development, direct URL in production
-const PROXY_URL = import.meta.env.DEV
-    ? '/hiyari-proxy/proxy'
-    : 'https://hiyari-proxy-708146219355.asia-east1.run.app/proxy';
+// Use relative path for both dev and prod (handled by Vite proxy in dev, and Cloudflare _redirects in prod)
+const PROXY_URL = '/hiyari-proxy/proxy';
 const batchSize = 30;
 
 // DOM Elements
