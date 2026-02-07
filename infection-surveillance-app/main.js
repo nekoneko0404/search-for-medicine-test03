@@ -220,7 +220,7 @@ function renderSummary(data) {
     });
 }
 
-function switchDisease(disease) {
+window.switchDisease = function (disease) {
     currentDisease = disease;
 
     document.querySelectorAll('.summary-cards .card').forEach(card => {
@@ -271,6 +271,10 @@ function switchDisease(disease) {
     if (cachedData) {
         renderDashboard(disease, cachedData);
     }
+};
+
+function switchDisease(disease) {
+    window.switchDisease(disease);
 }
 
 function getDiseaseName(key) {
@@ -719,7 +723,7 @@ function closeExpandedChart() {
     }
 }
 
-function showPrefectureChart(prefecture, disease) {
+const showPrefectureChart = window.showPrefectureChart = function (prefecture, disease) {
     currentPrefecture = prefecture;
     currentRegionId = null;
 
@@ -799,72 +803,83 @@ function showPrefectureChart(prefecture, disease) {
         canvas.id = 'prefectureHistoryChart';
         chartWrapper.appendChild(canvas);
 
-        const yearDataSets = [];
-        const currentYear = new Date().getFullYear();
+        // ... (rest of the function logic if needed, but for now I'm just wrapping the entry point)
+        // Wait, I need to make sure I don't cut off the rest of the function by replacing minimal lines.
+        // The ReplaceFileContent tool requires exact match.
+        // I will just add the window assignment at the start of the function definition or before it.
+        // Actually, renaming the function to window.x = function is safer if I define it as constant.
+        // Or I can add `window.showPrefectureChart = showPrefectureChart;` at the end of the file or after the function.
+    }
+    // ... Logic continues ...
+    // To avoid rewriting the huge function, I'll use a simpler replacement.
 
-        // 当年のデータ
-        const currentYearHistory = cachedData.current.history.find(h => h.disease === disease && h.prefecture === prefecture);
-        if (currentYearHistory) {
-            yearDataSets.push({ year: currentYear, data: currentYearHistory.history });
-        }
 
-        // 過去のアーカイブデータ
-        if (cachedData.archives) {
-            cachedData.archives.forEach(archive => {
-                if (parseInt(archive.year) === currentYear) return;
-                const history = archive.data.find(d => d.disease === disease && d.prefecture === prefecture);
-                if (history) {
-                    yearDataSets.push({ year: archive.year, data: history.history });
-                }
-            });
-        }
+    const yearDataSets = [];
+    const currentYear = new Date().getFullYear();
 
-        // アーカイブデータ取得中の場合は、少なくとも当年のデータがあれば表示するが、
-        // 完了していないことをユーザーに伝える（ローディング表示を維持しつつ、グラフも描画するなど工夫可）
-        // ここではシンプルに「読み込み中」であればグラフエリアにオーバーレイまたはメッセージを出す
+    // 当年のデータ
+    const currentYearHistory = cachedData.current.history.find(h => h.disease === disease && h.prefecture === prefecture);
+    if (currentYearHistory) {
+        yearDataSets.push({ year: currentYear, data: currentYearHistory.history });
+    }
 
-        const isLoadingArchives = cachedData.isLoadingArchives;
-
-        if (yearDataSets.length === 0 && !isLoadingArchives) {
-            console.warn(`No history data for ${prefecture} (${disease}) across all years.`);
-            hideChartLoading(chartWrapper);
-            const p = document.createElement('p');
-            p.classList.add('no-data-message-inline');
-            p.textContent = 'データがありません。';
-            chartWrapper.innerHTML = '';
-            chartWrapper.appendChild(p);
-        } else {
-            const globalMax = getGlobalMaxForDisease(disease);
-            renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax, chartWrapper);
-
-            // アーカイブ取得中の場合は、グラフの上に「過去データ読み込み中...」を表示するか、
-            // showChartLoadingを消さずに残す戦略をとる
-            if (isLoadingArchives) {
-                // グラフは描画しつつ、ローディングも表示（またはメッセージ追加）
-                // 既存のshowChartLoadingは全画面覆うので、透過にするかメッセージを追加
-                const loadingMsg = document.createElement('div');
-                loadingMsg.className = 'archive-loading-indicator';
-                loadingMsg.textContent = '過去のデータを読み込み中...';
-                loadingMsg.style.position = 'absolute';
-                loadingMsg.style.top = '10px';
-                loadingMsg.style.right = '10px';
-                loadingMsg.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-                loadingMsg.style.padding = '4px 8px';
-                loadingMsg.style.borderRadius = '4px';
-                loadingMsg.style.fontSize = '12px';
-                loadingMsg.style.color = '#666';
-                loadingMsg.style.zIndex = '10';
-                // chartWrapperはposition: relativeが必要
-                chartWrapper.style.position = 'relative';
-                chartWrapper.appendChild(loadingMsg);
-
-                hideChartLoading(chartWrapper); // 全面ローディングは消す
-            } else {
-                hideChartLoading(chartWrapper);
+    // 過去のアーカイブデータ
+    if (cachedData.archives) {
+        cachedData.archives.forEach(archive => {
+            if (parseInt(archive.year) === currentYear) return;
+            const history = archive.data.find(d => d.disease === disease && d.prefecture === prefecture);
+            if (history) {
+                yearDataSets.push({ year: archive.year, data: history.history });
             }
+        });
+    }
+
+    // アーカイブデータ取得中の場合は、少なくとも当年のデータがあれば表示するが、
+    // 完了していないことをユーザーに伝える（ローディング表示を維持しつつ、グラフも描画するなど工夫可）
+    // ここではシンプルに「読み込み中」であればグラフエリアにオーバーレイまたはメッセージを出す
+
+    const isLoadingArchives = cachedData.isLoadingArchives;
+
+    if (yearDataSets.length === 0 && !isLoadingArchives) {
+        console.warn(`No history data for ${prefecture} (${disease}) across all years.`);
+        hideChartLoading(chartWrapper);
+        const p = document.createElement('p');
+        p.classList.add('no-data-message-inline');
+        p.textContent = 'データがありません。';
+        chartWrapper.innerHTML = '';
+        chartWrapper.appendChild(p);
+    } else {
+        const globalMax = getGlobalMaxForDisease(disease);
+        renderComparisonChart('prefectureHistoryChart', disease, prefecture, yearDataSets, globalMax, chartWrapper);
+
+        // アーカイブ取得中の場合は、グラフの上に「過去データ読み込み中...」を表示するか、
+        // showChartLoadingを消さずに残す戦略をとる
+        if (isLoadingArchives) {
+            // グラフは描画しつつ、ローディングも表示（またはメッセージ追加）
+            // 既存のshowChartLoadingは全画面覆うので、透過にするかメッセージを追加
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'archive-loading-indicator';
+            loadingMsg.textContent = '過去のデータを読み込み中...';
+            loadingMsg.style.position = 'absolute';
+            loadingMsg.style.top = '10px';
+            loadingMsg.style.right = '10px';
+            loadingMsg.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            loadingMsg.style.padding = '4px 8px';
+            loadingMsg.style.borderRadius = '4px';
+            loadingMsg.style.fontSize = '12px';
+            loadingMsg.style.color = '#666';
+            loadingMsg.style.zIndex = '10';
+            // chartWrapperはposition: relativeが必要
+            chartWrapper.style.position = 'relative';
+            chartWrapper.appendChild(loadingMsg);
+
+            hideChartLoading(chartWrapper); // 全面ローディングは消す
+        } else {
+            hideChartLoading(chartWrapper);
         }
     }
 }
+
 window.showPrefectureChart = showPrefectureChart;
 
 // ビューを切り替える汎用関数
